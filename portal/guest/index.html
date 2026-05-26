@@ -187,9 +187,25 @@
       <textarea class="form-textarea" id="pa-notes" placeholder="Celebrating a birthday? Travelling with a pet? Any dietary needs for a chef experience? Let us know…"></textarea>
     </div>
 
-    <div class="form-checkbox-wrap">
-      <input type="checkbox" id="pa-rules" required />
-      <label for="pa-rules">I have read and agree to the <a href="#">house rules</a> and <a href="#">cancellation policy</a></label>
+    <!-- House Rules -->
+    <div id="pa-rules-section" class="hidden">
+      <div class="form-label" style="margin-bottom:10px;">House Rules</div>
+      <div id="pa-rules-text" style="background:var(--g-surface);border:1.5px solid var(--g-border);border-radius:var(--radius-sm);padding:16px;font-size:0.82rem;color:rgba(255,255,255,0.75);line-height:1.8;max-height:180px;overflow-y:auto;white-space:pre-line;margin-bottom:12px;"></div>
+      <div id="pa-cancel-text" class="hidden" style="background:var(--g-surface);border:1.5px solid var(--g-border);border-radius:var(--radius-sm);padding:16px;font-size:0.82rem;color:rgba(255,255,255,0.75);line-height:1.8;max-height:120px;overflow-y:auto;white-space:pre-line;margin-bottom:12px;"></div>
+    </div>
+
+    <!-- Signature pad -->
+    <div class="form-group">
+      <label class="form-label">Sign to agree to house rules *</label>
+      <div style="background:var(--g-surface);border:1.5px solid var(--g-border);border-radius:var(--radius-sm);overflow:hidden;position:relative;">
+        <canvas id="sig-canvas" style="display:block;width:100%;touch-action:none;cursor:crosshair;" height="140"></canvas>
+        <div id="sig-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+          <span style="font-size:0.78rem;color:var(--g-muted);">✍️  Sign here with your finger or mouse</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+        <button type="button" onclick="clearSig()" style="font-size:0.72rem;color:var(--g-muted);background:none;border:none;cursor:pointer;padding:4px 0;">Clear signature</button>
+      </div>
     </div>
 
     <button class="btn-submit" id="pa-submit-btn" type="submit">Complete Pre-Arrival →</button>
@@ -566,8 +582,58 @@ function handleBpCta() {
     populateHome();
     showScreen('home');
   } else {
+    // Populate house rules before showing form
+    if (property.house_rules) {
+      document.getElementById('pa-rules-text').textContent = property.house_rules;
+      document.getElementById('pa-rules-section').classList.remove('hidden');
+    }
+    if (property.cancellation_policy) {
+      document.getElementById('pa-cancel-text').textContent = '📋 Cancellation Policy\n' + property.cancellation_policy;
+      document.getElementById('pa-cancel-text').classList.remove('hidden');
+    }
     showScreen('prearrival');
+    initSigPad();
   }
+}
+
+// ── Signature pad ─────────────────────────────────────────────────────────
+let _sigCanvas, _sigCtx, _sigDrawing = false, _sigHasData = false;
+
+function initSigPad() {
+  _sigCanvas = document.getElementById('sig-canvas');
+  _sigCtx    = _sigCanvas.getContext('2d');
+  // Set canvas pixel width to match display width
+  _sigCanvas.width  = _sigCanvas.offsetWidth;
+  _sigCanvas.height = 140;
+  _sigCtx.strokeStyle = '#C9A86C';
+  _sigCtx.lineWidth   = 2.5;
+  _sigCtx.lineCap     = 'round';
+  _sigCtx.lineJoin    = 'round';
+
+  const pos = (e) => {
+    const r = _sigCanvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * (_sigCanvas.width / r.width),
+             y: (src.clientY - r.top)  * (_sigCanvas.height / r.height) };
+  };
+  const start = (e) => { e.preventDefault(); _sigDrawing = true; const p = pos(e); _sigCtx.beginPath(); _sigCtx.moveTo(p.x, p.y); document.getElementById('sig-placeholder').style.display='none'; };
+  const draw  = (e) => { e.preventDefault(); if (!_sigDrawing) return; const p = pos(e); _sigCtx.lineTo(p.x, p.y); _sigCtx.stroke(); _sigHasData = true; };
+  const end   = (e) => { e.preventDefault(); _sigDrawing = false; };
+
+  _sigCanvas.addEventListener('mousedown',  start);
+  _sigCanvas.addEventListener('mousemove',  draw);
+  _sigCanvas.addEventListener('mouseup',    end);
+  _sigCanvas.addEventListener('mouseleave', end);
+  _sigCanvas.addEventListener('touchstart', start, { passive: false });
+  _sigCanvas.addEventListener('touchmove',  draw,  { passive: false });
+  _sigCanvas.addEventListener('touchend',   end,   { passive: false });
+}
+
+function clearSig() {
+  if (!_sigCtx) return;
+  _sigCtx.clearRect(0, 0, _sigCanvas.width, _sigCanvas.height);
+  _sigHasData = false;
+  document.getElementById('sig-placeholder').style.display = 'flex';
 }
 
 // ── Pre-arrival form submit ───────────────────────────────────────────────
@@ -575,8 +641,18 @@ async function submitPreArrival(e) {
   e.preventDefault();
   const btn = document.getElementById('pa-submit-btn');
   const err = document.getElementById('pa-error');
-  btn.textContent = 'Saving…'; btn.disabled = true;
   err.classList.add('hidden');
+
+  // Validate signature
+  if (!_sigHasData) {
+    err.textContent = 'Please sign your name to agree to the house rules.';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+
+  const sigDataUrl = _sigCanvas.toDataURL('image/png');
 
   const updates = {
     guest_name:           document.getElementById('pa-fname').value.trim() + ' ' + document.getElementById('pa-lname').value.trim(),
@@ -585,6 +661,7 @@ async function submitPreArrival(e) {
     num_guests:           document.getElementById('pa-num-guests').value,
     arrival_time:         document.getElementById('pa-arrival-time').value,
     special_requests:     document.getElementById('pa-notes').value.trim(),
+    signature:            sigDataUrl,
     pre_arrival_complete: true,
   };
 

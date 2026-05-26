@@ -58,6 +58,13 @@
           <div class="detail-row"><span class="detail-row-label">Arrival ETA</span><span class="detail-row-value" id="d-arrival">—</span></div>
           <div class="detail-row"><span class="detail-row-label">Special requests</span><span class="detail-row-value" id="d-notes" style="font-style:italic;">—</span></div>
           <div class="detail-row"><span class="detail-row-label">Airbnb ref</span><span class="detail-row-value" id="d-airbnb">—</span></div>
+          <div id="d-sig-row" class="hidden" style="padding:12px 0;">
+            <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);margin-bottom:8px;">Signature on file</div>
+            <div style="background:var(--a-green);border-radius:10px;padding:12px;display:inline-block;">
+              <img id="d-sig-img" src="" alt="Guest signature" style="max-width:260px;height:70px;display:block;object-fit:contain;" />
+            </div>
+            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:6px;">✓ Guest signed house rules at pre-arrival</div>
+          </div>
         </div>
       </div>
 
@@ -243,6 +250,10 @@ function populatePage() {
   document.getElementById('d-arrival').textContent  = b.arrival_time || '—';
   document.getElementById('d-notes').textContent    = b.special_requests || 'None';
   document.getElementById('d-airbnb').textContent   = b.airbnb_confirmation || '—';
+  if (b.signature) {
+    document.getElementById('d-sig-img').src = b.signature;
+    document.getElementById('d-sig-row').classList.remove('hidden');
+  }
   document.getElementById('d-property').textContent = p.name || '—';
   document.getElementById('d-checkin').textContent  = fmt(ci);
   document.getElementById('d-checkout').textContent = fmt(co);
