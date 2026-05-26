@@ -88,8 +88,10 @@
     /* Team */
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 28px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 36px;
+      max-width: 640px;
+      margin: 0 auto;
     }
     .team-card { text-align: center; }
     .team-photo {
@@ -114,24 +116,91 @@
     .team-bio { font-size: 0.82rem; color: var(--gray-mid); line-height: 1.6; }
 
     /* Regions */
-    .regions-section { background: var(--green-deep); }
-    .regions-list {
+    .regions-section { background: var(--cream); }
+    .region-full-card {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    .region-item {
-      display: flex; align-items: center; gap: 16px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius-md);
-      padding: 22px 24px;
+      grid-template-columns: 420px 1fr;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--gray-pale);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 32px;
       transition: var(--transition);
     }
-    .region-item:hover { background: rgba(255,255,255,0.12); }
-    .region-emoji { font-size: 1.8rem; flex-shrink: 0; }
-    .region-item h4 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 3px; }
-    .region-item p { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+    .region-full-card:last-child { margin-bottom: 0; }
+    .region-full-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+    .region-full-card.reverse { direction: rtl; }
+    .region-full-card.reverse > * { direction: ltr; }
+    .region-fc-image {
+      position: relative;
+      overflow: hidden;
+      min-height: 340px;
+    }
+    .region-fc-image img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .region-full-card:hover .region-fc-image img { transform: scale(1.04); }
+    .region-fc-badge {
+      position: absolute; top: 18px; left: 18px;
+      background: var(--green-deep);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+    .region-fc-content { padding: 36px 40px; display: flex; flex-direction: column; }
+    .region-fc-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--green-sage); margin-bottom: 8px;
+    }
+    .region-fc-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 600;
+      color: var(--charcoal); margin-bottom: 10px; line-height: 1.2;
+    }
+    .region-fc-desc {
+      font-size: 0.9rem; color: var(--gray-mid);
+      line-height: 1.7; margin-bottom: 24px;
+    }
+    .region-fc-cols {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; margin-bottom: 24px; flex: 1;
+    }
+    .region-fc-col h5 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--charcoal); margin-bottom: 10px;
+    }
+    .region-tag-list { display: flex; flex-direction: column; gap: 6px; }
+    .region-tag {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.83rem; color: var(--charcoal);
+    }
+    .region-tag-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green-sage); flex-shrink: 0;
+    }
+    .region-tag-dot.gold { background: var(--gold); }
+    .region-fc-cta { margin-top: auto; }
+
+    @media (max-width: 900px) {
+      .region-full-card { grid-template-columns: 1fr; }
+      .region-full-card.reverse { direction: ltr; }
+      .region-fc-image { min-height: 240px; }
+      .region-fc-content { padding: 28px 24px; }
+      .region-fc-cols { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .region-fc-cols { grid-template-columns: 1fr; }
+    }
 
     /* CTA */
     .about-cta { background: var(--cream); }
@@ -141,7 +210,6 @@
     .about-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
     @media (max-width: 1024px) {
-      .team-grid { grid-template-columns: repeat(2, 1fr); }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .stat-item:nth-child(2) { border-right: none; }
       .stat-item:nth-child(3) { border-top: 1px solid var(--cream-dark); }
@@ -152,11 +220,10 @@
       .about-hero-img { aspect-ratio: 16/9; }
       .mission-inner { grid-template-columns: 1fr; }
       .values-grid { grid-template-columns: 1fr; }
-      .regions-list { grid-template-columns: 1fr 1fr; }
       .team-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 480px) {
-      .regions-list { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
@@ -290,27 +357,15 @@
       <div class="team-grid">
         <div class="team-card">
           <div class="team-photo"><div class="team-photo-placeholder">D</div></div>
-          <div class="team-name">Daniel M.</div>
-          <div class="team-role">Founder & CEO</div>
-          <p class="team-bio">Former hospitality operator with 12 years in luxury property management. Built Bonsai to bring hotel standards to short-term rentals.</p>
+          <div class="team-name">Daniel I.</div>
+          <div class="team-role">Co-Founder & CEO</div>
+          <p class="team-bio">Built Bonsai Stays from a simple belief: that short-term rental guests deserve the same care and consistency as hotel guests. With a background in hospitality and operations, Daniel leads the company's vision and growth across Ontario.</p>
         </div>
         <div class="team-card">
-          <div class="team-photo"><div class="team-photo-placeholder">S</div></div>
-          <div class="team-name">Sarah L.</div>
-          <div class="team-role">Head of Guest Experience</div>
-          <p class="team-bio">Ensures every guest touchpoint exceeds expectations. Former concierge at a Relais & Châteaux property in Muskoka.</p>
-        </div>
-        <div class="team-card">
-          <div class="team-photo"><div class="team-photo-placeholder">M</div></div>
-          <div class="team-name">Marcus T.</div>
-          <div class="team-role">Director of Operations</div>
-          <p class="team-bio">Manages our regional teams across Ontario. Built our quality inspection program from the ground up. Obsessive about linens.</p>
-        </div>
-        <div class="team-card">
-          <div class="team-photo"><div class="team-photo-placeholder">A</div></div>
-          <div class="team-name">Aisha K.</div>
-          <div class="team-role">Partner Success</div>
-          <p class="team-bio">Works directly with property owners and managers to onboard new properties and grow their revenue through the Bonsai platform.</p>
+          <div class="team-photo"><div class="team-photo-placeholder">X</div></div>
+          <div class="team-name">Xiaoyue Chen</div>
+          <div class="team-role">Co-Founder & COO</div>
+          <p class="team-bio">Xiaoyue keeps the Bonsai machine running — from linen logistics to guest experience systems and partner relationships. Her eye for detail and obsession with process quality is what makes the Bonsai standard real in every property.</p>
         </div>
       </div>
     </div>
@@ -320,14 +375,123 @@
   <section class="section regions-section">
     <div class="container">
       <div class="section-header text-center">
-        <span class="eyebrow" style="color:var(--green-light);">Where We Operate</span>
-        <h2 style="color:var(--white);">Three regions. One <em>standard.</em></h2>
-        <p style="color:rgba(255,255,255,0.7);">Local teams on the ground in every market we serve.</p>
+        <span class="eyebrow">Where We Operate</span>
+        <h2>Three regions. One <em>standard.</em></h2>
+        <p>Local teams on the ground in every market we serve — with curated experiences unique to each destination.</p>
       </div>
-      <div class="regions-list">
-        <div class="region-item"><div class="region-emoji">🌲</div><div><h4>Muskoka / Cottage Country</h4><p>Muskoka & surrounding cottage country</p></div></div>
-        <div class="region-item"><div class="region-emoji">⛷️</div><div><h4>Collingwood / Wasaga Beach</h4><p>Collingwood, Wasaga Beach & Georgian Bay</p></div></div>
-        <div class="region-item"><div class="region-emoji">🏙️</div><div><h4>Toronto</h4><p>City-wide coverage</p></div></div>
+
+      <!-- Muskoka -->
+      <div class="region-full-card">
+        <div class="region-fc-image">
+          <img src="https://images.unsplash.com/photo-1516571748831-5d81767b788d?w=840&q=80&auto=format&fit=crop" alt="Muskoka lake with Muskoka chairs" />
+          <span class="region-fc-badge">✓ Live</span>
+        </div>
+        <div class="region-fc-content">
+          <span class="region-fc-eyebrow">Muskoka / Cottage Country</span>
+          <h3>Where the lakes call you back.</h3>
+          <p class="region-fc-desc">Ontario's most iconic cottage destination. Crystal-clear lakes, towering pines, and weekends that slow right down. Bonsai Stays manages lakefront cottages, boathouses, and forest retreats across Muskoka and the surrounding cottage country.</p>
+          <div class="region-fc-cols">
+            <div class="region-fc-col">
+              <h5>Property Types</h5>
+              <ul class="region-tag-list">
+                <li class="region-tag"><span class="region-tag-dot"></span>Lakefront Cottages</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Boathouses</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Forest Cabins</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Luxury Lodges</li>
+              </ul>
+            </div>
+            <div class="region-fc-col">
+              <h5>In-Stay Experiences</h5>
+              <ul class="region-tag-list">
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Private Chef Dinners</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Watercraft Rentals</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Massage &amp; Wellness</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Sunrise Yoga</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Guided Fishing</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Bonfire &amp; S'mores Packages</li>
+              </ul>
+            </div>
+          </div>
+          <div class="region-fc-cta">
+            <a href="properties.html?region=muskoka" class="btn btn-primary" style="font-size:0.85rem;padding:11px 24px;">Browse Muskoka Properties →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collingwood / Wasaga -->
+      <div class="region-full-card reverse">
+        <div class="region-fc-image">
+          <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=840&q=80&auto=format&fit=crop" alt="Blue Mountain ski resort, Collingwood" />
+          <span class="region-fc-badge">✓ Live</span>
+        </div>
+        <div class="region-fc-content">
+          <span class="region-fc-eyebrow">Collingwood / Wasaga Beach</span>
+          <h3>Four seasons of adventure.</h3>
+          <p class="region-fc-desc">Ski runs in winter, hiking trails and beaches in summer. Bonsai Stays curates chalets, ski-in/ski-out properties, and Georgian Bay waterfront homes across the Collingwood and Wasaga Beach corridor.</p>
+          <div class="region-fc-cols">
+            <div class="region-fc-col">
+              <h5>Property Types</h5>
+              <ul class="region-tag-list">
+                <li class="region-tag"><span class="region-tag-dot"></span>Ski Chalets</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Waterfront Homes</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Mountain Retreats</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Townhomes &amp; Condos</li>
+              </ul>
+            </div>
+            <div class="region-fc-col">
+              <h5>In-Stay Experiences</h5>
+              <ul class="region-tag-list">
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Ski &amp; Snowboard Packages</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Spa &amp; Recovery</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Private Chef</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Paddleboard &amp; Kayak</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Wine &amp; Cheese Tastings</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Yoga Retreats</li>
+              </ul>
+            </div>
+          </div>
+          <div class="region-fc-cta">
+            <a href="properties.html?region=collingwood" class="btn btn-primary" style="font-size:0.85rem;padding:11px 24px;">Browse Collingwood Properties →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toronto / GTA -->
+      <div class="region-full-card">
+        <div class="region-fc-image">
+          <img src="https://images.unsplash.com/photo-1503891450247-ee5f8ec46dc3?w=840&q=80&auto=format&fit=crop" alt="Toronto city skyline" />
+          <span class="region-fc-badge">✓ Live</span>
+        </div>
+        <div class="region-fc-content">
+          <span class="region-fc-eyebrow">Toronto / GTA</span>
+          <h3>The city, elevated.</h3>
+          <p class="region-fc-desc">Canada's most dynamic city, from King West lofts to Beaches bungalows. Our Toronto properties are managed to the same standard as our cottage escapes — hotel-quality linens, spotless preparation, and city experiences built right in.</p>
+          <div class="region-fc-cols">
+            <div class="region-fc-col">
+              <h5>Property Types</h5>
+              <ul class="region-tag-list">
+                <li class="region-tag"><span class="region-tag-dot"></span>Downtown Condos</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Lofts &amp; Studios</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Townhomes</li>
+                <li class="region-tag"><span class="region-tag-dot"></span>Luxury Suites</li>
+              </ul>
+            </div>
+            <div class="region-fc-col">
+              <h5>In-Stay Experiences</h5>
+              <ul class="region-tag-list">
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Private Chef Experiences</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>In-Suite Spa Treatments</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Art &amp; Culture Tours</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Personal Shopping</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Restaurant Reservations</li>
+                <li class="region-tag"><span class="region-tag-dot gold"></span>Grocery Pre-Stocking</li>
+              </ul>
+            </div>
+          </div>
+          <div class="region-fc-cta">
+            <a href="properties.html?region=toronto" class="btn btn-primary" style="font-size:0.85rem;padding:11px 24px;">Browse Toronto Properties →</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
