@@ -366,7 +366,7 @@
   <script>
     async function loadExperiences() {
       try {
-        const res = await fetch('../data/experiences.json');
+        const res = await fetch('../data/experiences.json?v=' + Date.now());
         const data = await res.json();
         const available = data.experiences.filter(e => e.available !== false);
 

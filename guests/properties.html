@@ -355,7 +355,7 @@
 
     async function loadProperties() {
       try {
-        const res = await fetch('../data/properties.json');
+        const res = await fetch('../data/properties.json?v=' + Date.now());
         const data = await res.json();
         allProperties = data.properties;
         filterProperties();
