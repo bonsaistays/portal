@@ -521,6 +521,118 @@
       font-style: italic;
     }
 
+    /* ── Modal ──────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(30,50,20,0.55);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+    .modal-head {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid var(--gray-pale);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    }
+    .modal-head h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--charcoal); margin: 0 0 4px;
+    }
+    .modal-head p { font-size: 0.82rem; color: var(--gray-mid); margin: 0; }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.3rem; color: var(--gray-light);
+      line-height: 1; padding: 2px; flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .modal-close:hover { color: var(--charcoal); }
+    .modal-summary {
+      margin: 20px 32px 0;
+      background: var(--green-deep);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex; flex-wrap: wrap; gap: 8px 24px;
+    }
+    .modal-summary-item {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .modal-summary-item span:first-child {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+    }
+    .modal-summary-item span:last-child {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem; font-weight: 700; color: var(--gold);
+    }
+    .modal-body { padding: 20px 32px 28px; }
+    .modal-field { margin-bottom: 16px; }
+    .modal-field label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--charcoal); margin-bottom: 6px;
+    }
+    .modal-field input,
+    .modal-field textarea,
+    .modal-field select {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem; color: var(--charcoal);
+      background: var(--cream); outline: none;
+      transition: var(--transition);
+      box-sizing: border-box;
+    }
+    .modal-field input:focus,
+    .modal-field textarea:focus,
+    .modal-field select:focus {
+      border-color: var(--green-sage);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(123,160,91,0.15);
+    }
+    .modal-field textarea { resize: vertical; min-height: 80px; }
+    .modal-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-submit {
+      width: 100%; padding: 15px;
+      background: var(--green-deep); color: var(--white);
+      border: none; border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem; font-weight: 700;
+      cursor: pointer; transition: var(--transition);
+      letter-spacing: 0.03em; margin-top: 4px;
+    }
+    .modal-submit:hover { background: #1a3510; transform: translateY(-1px); }
+    .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .modal-success {
+      display: none;
+      text-align: center;
+      padding: 48px 32px;
+    }
+    .modal-success .success-icon {
+      font-size: 2.8rem; margin-bottom: 16px;
+    }
+    .modal-success h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: var(--green-deep);
+      margin-bottom: 10px;
+    }
+    .modal-success p { font-size: 0.88rem; color: var(--gray-mid); line-height: 1.6; }
+
     @media (max-width: 1024px) {
       .quote-layout { grid-template-columns: 1fr; }
       .quote-panel { position: static; }
@@ -529,6 +641,10 @@
       .input-grid { grid-template-columns: repeat(2, 1fr); }
       .input-grid-3 { grid-template-columns: repeat(2, 1fr); }
       .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
+      .modal-head { padding: 22px 20px 16px; }
+      .modal-body { padding: 16px 20px 24px; }
+      .modal-summary { margin: 16px 20px 0; }
+      .modal-field-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -801,7 +917,7 @@
           </div>
 
           <div class="quote-cta">
-            <a href="../contact.html#partner">Request This Quote →</a>
+            <a href="#" onclick="openModal('quote'); return false;">Request This Quote →</a>
             <p>We'll follow up within 24 hours to confirm your package</p>
           </div>
 
@@ -864,10 +980,114 @@
 
             <div class="membership-zero-state" id="membershipZeroState">Enter your property details above to see your personalised savings.</div>
 
-            <a href="../contact.html#partner" class="membership-join-btn">Join as a Member →</a>
+            <a href="#" class="membership-join-btn" onclick="openModal('membership'); return false;">Join as a Member →</a>
           </div>
         </div>
 
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Hidden form for Netlify detection at build time -->
+  <form name="quote-request" netlify netlify-honeypot="bot-field" hidden>
+    <input name="bot-field" />
+    <input name="request-type" />
+    <input name="name" />
+    <input name="email" />
+    <input name="phone" />
+    <input name="property-name" />
+    <input name="property-details" />
+    <input name="housekeeping-total" />
+    <input name="linen-total" />
+    <input name="changeover-total" />
+    <input name="membership-tier" />
+    <input name="membership-price" />
+    <input name="estimated-annual-savings" />
+    <textarea name="notes"></textarea>
+  </form>
+
+  <!-- Request Modal -->
+  <div class="modal-overlay" id="requestModal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-box">
+
+      <!-- Form view -->
+      <div id="modalFormView">
+        <div class="modal-head">
+          <div>
+            <h3 id="modalTitle">Request Your Quote</h3>
+            <p id="modalSubtitle">Fill in your details and we'll follow up within 24 hours.</p>
+          </div>
+          <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+        </div>
+
+        <!-- Live quote summary strip -->
+        <div class="modal-summary" id="modalSummary">
+          <div class="modal-summary-item">
+            <span>Housekeeping</span>
+            <span id="mHK">—</span>
+          </div>
+          <div class="modal-summary-item">
+            <span>Linen</span>
+            <span id="mLinen">—</span>
+          </div>
+          <div class="modal-summary-item">
+            <span>Full Changeover</span>
+            <span id="mTotal">—</span>
+          </div>
+          <div class="modal-summary-item" id="mMembershipItem" style="display:none;">
+            <span>Membership</span>
+            <span id="mMembership">—</span>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <form id="quoteForm" onsubmit="submitForm(event)">
+            <input type="hidden" name="form-name" value="quote-request" />
+            <input type="hidden" name="bot-field" />
+            <input type="hidden" name="request-type" id="f_requestType" />
+            <input type="hidden" name="property-details" id="f_propertyDetails" />
+            <input type="hidden" name="housekeeping-total" id="f_hkTotal" />
+            <input type="hidden" name="linen-total" id="f_linenTotal" />
+            <input type="hidden" name="changeover-total" id="f_changeoverTotal" />
+            <input type="hidden" name="membership-tier" id="f_membershipTier" />
+            <input type="hidden" name="membership-price" id="f_membershipPrice" />
+            <input type="hidden" name="estimated-annual-savings" id="f_savings" />
+
+            <div class="modal-field-row">
+              <div class="modal-field">
+                <label for="f_name">Your Name *</label>
+                <input type="text" id="f_name" name="name" required placeholder="Jane Smith" />
+              </div>
+              <div class="modal-field">
+                <label for="f_phone">Phone Number</label>
+                <input type="tel" id="f_phone" name="phone" placeholder="(416) 555-0100" />
+              </div>
+            </div>
+            <div class="modal-field">
+              <label for="f_email">Email Address *</label>
+              <input type="email" id="f_email" name="email" required placeholder="jane@example.com" />
+            </div>
+            <div class="modal-field">
+              <label for="f_propName">Property Name or Address</label>
+              <input type="text" id="f_propName" name="property-name" placeholder="e.g. The Birchwood Retreat, Huntsville" />
+            </div>
+            <div class="modal-field">
+              <label for="f_notes">Anything else we should know?</label>
+              <textarea id="f_notes" name="notes" placeholder="Questions, special requests, preferred start date…"></textarea>
+            </div>
+            <button type="submit" class="modal-submit" id="modalSubmitBtn">Send Request →</button>
+            <p style="text-align:center;font-size:0.75rem;color:var(--gray-light);margin-top:10px;">We'll be in touch within 24 hours. No commitment required.</p>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success view -->
+      <div class="modal-success" id="modalSuccessView">
+        <div class="success-icon">🌿</div>
+        <h4>Request received!</h4>
+        <p>Thanks — we'll review your quote details and be in touch within 24 hours to confirm your package and answer any questions.</p>
+        <button onclick="closeModal()" style="margin-top:24px;padding:12px 28px;background:var(--green-deep);color:var(--white);border:none;border-radius:var(--radius-md);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;">Close</button>
       </div>
 
     </div>
@@ -1029,10 +1249,114 @@
       if (netSavings !== null) {
         document.getElementById('netSavings').style.color = netSavings >= 0 ? 'var(--gold)' : '#e88';
       }
+
+      // Save snapshot for modal
+      _snap = { hkTotal, linenTotal, changeoverTotal, membershipFee, membershipTier: tierLabel, netSavings };
     }
 
     // Init
     calculate();
+
+    // ── MODAL ────────────────────────────────────────────
+    // Snapshot of last calculated values for the modal summary
+    let _snap = { hkTotal: 0, linenTotal: 0, changeoverTotal: 0, membershipFee: null, membershipTier: '', netSavings: null, propertyDetails: '' };
+
+    function buildPropertyDetails() {
+      const king  = parseInt(document.getElementById('king').value)    || 0;
+      const queen = parseInt(document.getElementById('queen').value)   || 0;
+      const dbl   = parseInt(document.getElementById('double').value)  || 0;
+      const twin  = parseInt(document.getElementById('twin').value)    || 0;
+      const bunk  = parseInt(document.getElementById('bunk').value)    || 0;
+      const fullB = parseInt(document.getElementById('fullBath').value)|| 0;
+      const halfB = parseInt(document.getElementById('halfBath').value)|| 0;
+      const kitch = parseInt(document.getElementById('kitchens').value)|| 0;
+      const parts = [];
+      if (king)  parts.push(king  + ' King');
+      if (queen) parts.push(queen + ' Queen');
+      if (dbl)   parts.push(dbl   + ' Double');
+      if (twin)  parts.push(twin  + ' Twin');
+      if (bunk)  parts.push(bunk  + ' Bunk');
+      if (fullB) parts.push(fullB + ' Full Bath');
+      if (halfB) parts.push(halfB + ' Half Bath');
+      if (kitch) parts.push(kitch + ' Kitchen');
+      const outdoor = ['deck','dock','hottub','sauna','firepit']
+        .filter(id => document.getElementById(id).checked)
+        .map(id => ({deck:'Deck',dock:'Dock',hottub:'Hot Tub',sauna:'Sauna',firepit:'Fire Pit'})[id]);
+      if (outdoor.length) parts.push(outdoor.join(', '));
+      return parts.join(' · ') || 'Not filled in';
+    }
+
+    function openModal(type) {
+      // Populate hidden fields from current calc snapshot
+      document.getElementById('f_requestType').value       = type === 'membership' ? 'Membership Sign-up' : 'Quote Request';
+      document.getElementById('f_propertyDetails').value   = buildPropertyDetails();
+      document.getElementById('f_hkTotal').value           = fmt(_snap.hkTotal);
+      document.getElementById('f_linenTotal').value        = fmt(_snap.linenTotal);
+      document.getElementById('f_changeoverTotal').value   = fmt(_snap.changeoverTotal);
+      document.getElementById('f_membershipTier').value    = _snap.membershipTier || '—';
+      document.getElementById('f_membershipPrice').value   = _snap.membershipFee !== null ? fmt(_snap.membershipFee) : '—';
+      document.getElementById('f_savings').value           = _snap.netSavings !== null ? fmt(_snap.netSavings) : '—';
+
+      // Modal title / subtitle
+      if (type === 'membership') {
+        document.getElementById('modalTitle').textContent    = 'Join as a Member';
+        document.getElementById('modalSubtitle').textContent = 'Tell us a bit about yourself and we\'ll get your membership set up.';
+        document.getElementById('mMembershipItem').style.display = 'flex';
+        document.getElementById('mMembership').textContent  = _snap.membershipFee !== null ? fmt(_snap.membershipFee) + '/yr' : '—';
+      } else {
+        document.getElementById('modalTitle').textContent    = 'Request Your Quote';
+        document.getElementById('modalSubtitle').textContent = 'Fill in your details and we\'ll follow up within 24 hours.';
+        document.getElementById('mMembershipItem').style.display = 'none';
+      }
+
+      // Summary strip
+      document.getElementById('mHK').textContent    = fmt(_snap.hkTotal);
+      document.getElementById('mLinen').textContent = fmt(_snap.linenTotal);
+      document.getElementById('mTotal').textContent = fmt(_snap.changeoverTotal);
+
+      // Reset to form view
+      document.getElementById('modalFormView').style.display  = '';
+      document.getElementById('modalSuccessView').style.display = 'none';
+      document.getElementById('modalSubmitBtn').disabled = false;
+      document.getElementById('modalSubmitBtn').textContent = type === 'membership' ? 'Send Membership Request →' : 'Send Request →';
+
+      document.getElementById('requestModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('requestModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target === document.getElementById('requestModal')) closeModal();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    async function submitForm(e) {
+      e.preventDefault();
+      const btn  = document.getElementById('modalSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      const form = document.getElementById('quoteForm');
+      const data = new URLSearchParams(new FormData(form));
+
+      try {
+        const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: data.toString() });
+        if (res.ok) {
+          document.getElementById('modalFormView').style.display  = 'none';
+          document.getElementById('modalSuccessView').style.display = 'block';
+        } else {
+          throw new Error('Server error');
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Try again — something went wrong';
+      }
+    }
   </script>
 
 </body>
