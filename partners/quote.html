@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Your Personalised Quote — Bonsai Stays Partners</title>
+  <meta name="description" content="Calculate your personalised housekeeping, linen, and full changeover quote in seconds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .quote-hero {
+      background: var(--green-deep);
+      padding: 120px 0 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .quote-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1800&q=60&auto=format&fit=crop');
+      background-size: cover; background-position: center;
+      opacity: 0.15;
+    }
+    .quote-hero-content { position: relative; z-index: 2; max-width: 640px; }
+    .quote-hero-content h1 { color: var(--white); margin-bottom: 16px; }
+    .quote-hero-content h1 em { font-style: italic; color: var(--gold); }
+    .quote-hero-content p { color: rgba(255,255,255,0.78); font-size: 1.05rem; line-height: 1.7; }
+
+    /* Layout */
+    .quote-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 48px;
+      padding: 56px 0 96px;
+      align-items: start;
+    }
+
+    /* Form */
+    .quote-form-section { display: flex; flex-direction: column; gap: 24px; }
+
+    .form-card {
+      background: var(--white);
+      border: 1px solid var(--gray-pale);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-card);
+    }
+    .form-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--gray-pale);
+    }
+    .form-card-icon {
+      width: 40px; height: 40px;
+      background: var(--green-tint);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .form-card-header h4 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin: 0;
+    }
+    .form-card-header p {
+      font-size: 0.8rem;
+      color: var(--gray-mid);
+      margin: 2px 0 0;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .input-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .input-group label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      letter-spacing: 0.03em;
+    }
+    .input-group label span {
+      font-size: 0.72rem;
+      color: var(--gray-light);
+      font-weight: 400;
+    }
+    .input-group input[type="number"] {
+      padding: 10px 14px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      background: var(--cream);
+      outline: none;
+      transition: var(--transition);
+      text-align: center;
+      width: 100%;
+      -moz-appearance: textfield;
+    }
+    .input-group input[type="number"]::-webkit-inner-spin-button,
+    .input-group input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+    .input-group input[type="number"]:focus {
+      border-color: var(--green-sage);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(123,160,91,0.15);
+    }
+
+    /* Checkbox grid for outdoor spaces */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .check-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--cream);
+    }
+    .check-option:hover { border-color: var(--green-sage); background: var(--white); }
+    .check-option.checked { border-color: var(--green-deep); background: var(--green-tint); }
+    .check-option input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 18px; height: 18px;
+      border: 2px solid var(--gray-pale);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .check-option.checked .check-box {
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+    }
+    .check-option.checked .check-box::after {
+      content: '✓';
+      color: var(--white);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .check-option-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--charcoal);
+    }
+
+    /* Beach towel add-on */
+    .addon-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--cream);
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+    }
+    .addon-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .toggle-switch {
+      position: relative;
+      width: 44px; height: 24px;
+      background: var(--gray-pale);
+      border-radius: 12px;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: var(--white);
+      border-radius: 50%;
+      transition: var(--transition);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.on { background: var(--green-deep); }
+    .toggle-switch.on::after { transform: translateX(20px); }
+    .addon-qty {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .addon-qty label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-mid);
+      white-space: nowrap;
+    }
+    .addon-qty input {
+      width: 70px;
+      padding: 8px 12px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+      transition: var(--transition);
+      background: var(--white);
+    }
+    .addon-qty input:focus { border-color: var(--green-sage); }
+    .addon-qty input:disabled { background: var(--gray-pale); color: var(--gray-light); }
+
+    /* Sticky Quote Panel */
+    .quote-panel {
+      position: sticky;
+      top: 88px;
+    }
+    .quote-panel-card {
+      background: var(--green-deep);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(44,74,30,0.3);
+    }
+    .quote-panel-header {
+      padding: 28px 32px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .quote-panel-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .quote-panel-header p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .quote-section {
+      padding: 20px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .quote-section-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 12px;
+    }
+    .quote-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .quote-line:last-child { margin-bottom: 0; }
+    .quote-line-label {
+      font-size: 0.83rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .quote-line-value {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .quote-line-value.zero { color: rgba(255,255,255,0.3); }
+
+    .quote-total-section {
+      padding: 24px 32px;
+      background: rgba(0,0,0,0.2);
+    }
+    .quote-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .quote-total-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .quote-total-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--gold);
+    }
+    .quote-total-sub {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: -8px;
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .quote-cta {
+      padding: 0 32px 28px;
+    }
+    .quote-cta a {
+      display: block;
+      text-align: center;
+      padding: 16px;
+      background: var(--gold);
+      color: var(--white);
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .quote-cta a:hover { background: #b8903e; transform: translateY(-1px); }
+    .quote-cta p {
+      text-align: center;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 10px;
+    }
+
+    .credits-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 8px;
+    }
+    .credits-badge strong { color: var(--white); }
+
+    /* info note */
+    .info-note {
+      background: var(--cream);
+      border: 1px solid var(--cream-dark);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--gray-mid);
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1024px) {
+      .quote-layout { grid-template-columns: 1fr; }
+      .quote-panel { position: static; }
+    }
+    @media (max-width: 640px) {
+      .input-grid { grid-template-columns: repeat(2, 1fr); }
+      .input-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:40px;width:auto;display:block;" />
+        <span class="nav-badge partner">Partners</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="quote.html" style="color:var(--green-deep);font-weight:600;">Get a Quote</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../contact.html" class="btn btn-gold" style="padding:10px 20px;font-size:0.82rem;">Contact Us</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="quote-hero">
+    <div class="container">
+      <div class="quote-hero-content">
+        <span class="eyebrow" style="color:var(--gold);">Pricing Calculator</span>
+        <h1>Get your <em>personalised</em> quote.</h1>
+        <p>Enter your property details and see your housekeeping, linen, and full changeover pricing instantly. No guesswork, no surprises.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calculator -->
+  <div class="container">
+    <div class="quote-layout">
+
+      <!-- LEFT: Form -->
+      <div class="quote-form-section">
+
+        <!-- Bedrooms -->
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-icon">🛏</div>
+            <div>
+              <h4>Bedrooms</h4>
+              <p>Enter the number of each bed type</p>
+            </div>
+          </div>
+          <div class="input-grid">
+            <div class="input-group">
+              <label>King Beds <span>(K)</span></label>
+              <input type="number" id="king" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Queen Beds <span>(Q)</span></label>
+              <input type="number" id="queen" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Double Beds <span>(D)</span></label>
+              <input type="number" id="double" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Twin Beds <span>(T)</span></label>
+              <input type="number" id="twin" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Bunk Beds <span>(2 credits each)</span></label>
+              <input type="number" id="bunk" min="0" value="0" oninput="calculate()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Bathrooms -->
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-icon">🚿</div>
+            <div>
+              <h4>Bathrooms</h4>
+              <p>Full bathrooms have a shower/tub; half baths are toilet only</p>
+            </div>
+          </div>
+          <div class="input-grid">
+            <div class="input-group">
+              <label>Full Bathrooms</label>
+              <input type="number" id="fullBath" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Half Bathrooms</label>
+              <input type="number" id="halfBath" min="0" value="0" oninput="calculate()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Interior Spaces -->
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-icon">🏠</div>
+            <div>
+              <h4>Interior Spaces</h4>
+              <p>Each space counts as 1 credit toward housekeeping</p>
+            </div>
+          </div>
+          <div class="input-grid-3">
+            <div class="input-group">
+              <label>Kitchens</label>
+              <input type="number" id="kitchens" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Dining Rooms</label>
+              <input type="number" id="dining" min="0" value="0" oninput="calculate()" />
+            </div>
+            <div class="input-group">
+              <label>Living Rooms</label>
+              <input type="number" id="living" min="0" value="0" oninput="calculate()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Outdoor Spaces -->
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-icon">🌿</div>
+            <div>
+              <h4>Outdoor Spaces</h4>
+              <p>Select all that apply — each counts as 1 credit</p>
+            </div>
+          </div>
+          <div class="checkbox-grid">
+            <div class="check-option" onclick="toggleCheck(this, 'deck')">
+              <input type="checkbox" id="deck" onchange="calculate()" />
+              <div class="check-box"></div>
+              <span class="check-option-label">🪵 Deck</span>
+            </div>
+            <div class="check-option" onclick="toggleCheck(this, 'dock')">
+              <input type="checkbox" id="dock" onchange="calculate()" />
+              <div class="check-box"></div>
+              <span class="check-option-label">⛵ Dock</span>
+            </div>
+            <div class="check-option" onclick="toggleCheck(this, 'hottub')">
+              <input type="checkbox" id="hottub" onchange="calculate()" />
+              <div class="check-box"></div>
+              <span class="check-option-label">♨️ Hot Tub</span>
+            </div>
+            <div class="check-option" onclick="toggleCheck(this, 'sauna')">
+              <input type="checkbox" id="sauna" onchange="calculate()" />
+              <div class="check-box"></div>
+              <span class="check-option-label">🧖 Sauna</span>
+            </div>
+            <div class="check-option" onclick="toggleCheck(this, 'firepit')">
+              <input type="checkbox" id="firepit" onchange="calculate()" />
+              <div class="check-box"></div>
+              <span class="check-option-label">🔥 Fire Pit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beach Towels Add-on -->
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-icon">🏖️</div>
+            <div>
+              <h4>Beach Towels</h4>
+              <p>Optional add-on — $2.00 per towel per changeover</p>
+            </div>
+          </div>
+          <div class="addon-row">
+            <div class="addon-toggle" onclick="toggleBeachTowels()">
+              <div class="toggle-switch" id="beachToggle"></div>
+              <span style="font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;color:var(--charcoal);">Add beach towels to my package</span>
+            </div>
+            <div class="addon-qty" id="beachQtyRow" style="display:none;">
+              <label>How many?</label>
+              <input type="number" id="beachQty" min="0" value="0" oninput="calculate()" />
+            </div>
+          </div>
+          <p class="info-note">Beach towels are laundered and restocked with every changeover. Great for lakefront and waterfront properties.</p>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Quote Panel -->
+      <div class="quote-panel">
+        <div class="quote-panel-card">
+          <div class="quote-panel-header">
+            <h3>Your Personalised Quote</h3>
+            <p>Updates live as you fill in your property details</p>
+            <div class="credits-badge">
+              <span>Total credits:</span>
+              <strong id="totalCredits">0</strong>
+              <span>× $12.50</span>
+            </div>
+          </div>
+
+          <!-- Housekeeping -->
+          <div class="quote-section">
+            <div class="quote-section-title">Housekeeping</div>
+            <div class="quote-line">
+              <span class="quote-line-label">Beds & Bunks</span>
+              <span class="quote-line-value" id="hkBeds">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Bathrooms</span>
+              <span class="quote-line-value" id="hkBaths">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Interior Spaces</span>
+              <span class="quote-line-value" id="hkSpaces">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Outdoor Spaces</span>
+              <span class="quote-line-value" id="hkOutdoor">$0.00</span>
+            </div>
+            <div class="quote-line" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:6px;">
+              <span class="quote-line-label" style="font-weight:700;color:rgba(255,255,255,0.9);">Housekeeping Total</span>
+              <span class="quote-line-value" style="font-size:1rem;color:var(--gold);" id="housekeepingTotal">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Linen -->
+          <div class="quote-section">
+            <div class="quote-section-title">Linen Package</div>
+            <div class="quote-line">
+              <span class="quote-line-label">Bed Linens</span>
+              <span class="quote-line-value" id="linenBeds">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Bed Towels & Wash Cloths</span>
+              <span class="quote-line-value" id="linenBedTowels">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Bathroom Towels & Mats</span>
+              <span class="quote-line-value" id="linenBathTowels">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Dish Towels</span>
+              <span class="quote-line-value" id="linenDish">$0.00</span>
+            </div>
+            <div class="quote-line" id="beachTowelLine" style="display:none;">
+              <span class="quote-line-label">Beach Towels</span>
+              <span class="quote-line-value" id="linenBeach">$0.00</span>
+            </div>
+            <div class="quote-line" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:6px;">
+              <span class="quote-line-label" style="font-weight:700;color:rgba(255,255,255,0.9);">Linen Total</span>
+              <span class="quote-line-value" style="font-size:1rem;color:var(--gold);" id="linenTotal">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Full Changeover -->
+          <div class="quote-section">
+            <div class="quote-section-title">Full Changeover Package</div>
+            <div class="quote-line">
+              <span class="quote-line-label">Housekeeping</span>
+              <span class="quote-line-value" id="pkgHK">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Linen Service</span>
+              <span class="quote-line-value" id="pkgLinen">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Bathroom Amenities</span>
+              <span class="quote-line-value" id="pkgAmenities">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Consumables Restock</span>
+              <span class="quote-line-value" id="pkgConsumables">$0.00</span>
+            </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Welcome Package</span>
+              <span class="quote-line-value" id="pkgWelcome">$25.00</span>
+            </div>
+            <div class="quote-line" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:6px;">
+              <span class="quote-line-label" style="font-weight:700;color:rgba(255,255,255,0.9);">Package Total</span>
+              <span class="quote-line-value" style="font-size:1rem;color:var(--gold);" id="changeoverTotal">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Grand Total -->
+          <div class="quote-total-section">
+            <div class="quote-total-row">
+              <span class="quote-total-label">Full Changeover</span>
+              <span class="quote-total-amount" id="grandTotal">$0.00</span>
+            </div>
+            <p class="quote-total-sub">per changeover · prices in CAD</p>
+          </div>
+
+          <div class="quote-cta">
+            <a href="../contact.html#partner">Request This Quote →</a>
+            <p>We'll follow up within 24 hours to confirm your package</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">🌿 Bonsai <span>Stays</span></div>
+          <p class="footer-desc">Premium property services across Ontario.</p>
+        </div>
+        <div class="footer-col"><h5>Partners</h5><ul><li><a href="index.html">Overview</a></li><li><a href="services.html">Services</a></li><li><a href="quote.html">Get a Quote</a></li><li><a href="about.html">About</a></li></ul></div>
+        <div class="footer-col"><h5>Services</h5><ul><li><a href="services.html">Housekeeping</a></li><li><a href="services.html">Linen Rentals</a></li><li><a href="services.html">Guest Experience</a></li><li><a href="services.html">Amenity Restocking</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../guests/index.html">For Guests</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script>
+    let beachEnabled = false;
+
+    function toggleCheck(el, id) {
+      el.classList.toggle('checked');
+      const cb = document.getElementById(id);
+      cb.checked = !cb.checked;
+      calculate();
+    }
+
+    function toggleBeachTowels() {
+      beachEnabled = !beachEnabled;
+      document.getElementById('beachToggle').classList.toggle('on', beachEnabled);
+      document.getElementById('beachQtyRow').style.display = beachEnabled ? 'flex' : 'none';
+      document.getElementById('beachTowelLine').style.display = beachEnabled ? 'flex' : 'none';
+      if (!beachEnabled) document.getElementById('beachQty').value = 0;
+      calculate();
+    }
+
+    function fmt(n) { return '$' + n.toFixed(2); }
+
+    function calculate() {
+      const king   = Math.max(0, parseInt(document.getElementById('king').value)    || 0);
+      const queen  = Math.max(0, parseInt(document.getElementById('queen').value)   || 0);
+      const dbl    = Math.max(0, parseInt(document.getElementById('double').value)  || 0);
+      const twin   = Math.max(0, parseInt(document.getElementById('twin').value)    || 0);
+      const bunk   = Math.max(0, parseInt(document.getElementById('bunk').value)    || 0);
+      const fullB  = Math.max(0, parseInt(document.getElementById('fullBath').value)|| 0);
+      const halfB  = Math.max(0, parseInt(document.getElementById('halfBath').value)|| 0);
+      const kitch  = Math.max(0, parseInt(document.getElementById('kitchens').value)|| 0);
+      const dining = Math.max(0, parseInt(document.getElementById('dining').value)  || 0);
+      const living = Math.max(0, parseInt(document.getElementById('living').value)  || 0);
+      const deck   = document.getElementById('deck').checked    ? 1 : 0;
+      const dock   = document.getElementById('dock').checked    ? 1 : 0;
+      const htub   = document.getElementById('hottub').checked  ? 1 : 0;
+      const sauna  = document.getElementById('sauna').checked   ? 1 : 0;
+      const fire   = document.getElementById('firepit').checked ? 1 : 0;
+      const bqty   = beachEnabled ? Math.max(0, parseInt(document.getElementById('beachQty').value) || 0) : 0;
+
+      // Total physical beds (for changeover tier)
+      const totalBeds = king + queen + dbl + twin + (bunk * 2);
+
+      // ── HOUSEKEEPING CREDITS ──────────────────────────────
+      const bedCredits     = king + queen + dbl + twin;
+      const bunkCredits    = bunk * 2;
+      const bathCredits    = fullB + halfB;
+      const spaceCredits   = kitch + dining + living;
+      const outdoorCredits = deck + dock + htub + sauna + fire;
+      const totalCredits   = bedCredits + bunkCredits + bathCredits + spaceCredits + outdoorCredits;
+
+      const hkBeds    = (bedCredits + bunkCredits) * 12.5;
+      const hkBaths   = bathCredits   * 12.5;
+      const hkSpaces  = spaceCredits  * 12.5;
+      const hkOutdoor = outdoorCredits * 12.5;
+      const hkTotal   = totalCredits  * 12.5;
+
+      // ── LINEN ─────────────────────────────────────────────
+      // Sheet sets
+      const sheetCost = king*11 + queen*9 + dbl*8 + twin*7 + bunk*2*7;
+
+      // Towels for beds above twin
+      const bedTowelCost = (king + queen + dbl) * (2*1.75 + 2*0.50);
+
+      // Bathroom towels + mats
+      // Full: 2 hand towels + 1 bath towel + 1 bath mat
+      const fullBathLinenCost = fullB * (2*0.80 + 1*1.75 + 1*1.50);
+      // Half: 2 hand towels
+      const halfBathLinenCost = halfB * (2*0.80);
+      const bathTowelCost = fullBathLinenCost + halfBathLinenCost;
+
+      // Dish towels
+      const dishCost = kitch * 2 * 0.80;
+
+      // Beach towels
+      const beachCost = bqty * 2.00;
+
+      const linenTotal = sheetCost + bedTowelCost + bathTowelCost + dishCost + beachCost;
+
+      // ── CHANGEOVER PACKAGE ────────────────────────────────
+      let bathAmenities, consumables;
+      if (totalBeds <= 3)      { bathAmenities =  8; consumables = 25; }
+      else if (totalBeds <= 6) { bathAmenities = 10; consumables = 35; }
+      else                     { bathAmenities = 15; consumables = 50; }
+      const welcome       = 25;
+      const changeoverTotal = hkTotal + linenTotal + bathAmenities + consumables + welcome;
+
+      // ── UPDATE UI ─────────────────────────────────────────
+      document.getElementById('totalCredits').textContent = totalCredits;
+
+      document.getElementById('hkBeds').textContent    = fmt(hkBeds);
+      document.getElementById('hkBaths').textContent   = fmt(hkBaths);
+      document.getElementById('hkSpaces').textContent  = fmt(hkSpaces);
+      document.getElementById('hkOutdoor').textContent = fmt(hkOutdoor);
+      document.getElementById('housekeepingTotal').textContent = fmt(hkTotal);
+
+      document.getElementById('linenBeds').textContent      = fmt(sheetCost);
+      document.getElementById('linenBedTowels').textContent = fmt(bedTowelCost);
+      document.getElementById('linenBathTowels').textContent= fmt(bathTowelCost);
+      document.getElementById('linenDish').textContent      = fmt(dishCost);
+      document.getElementById('linenBeach').textContent     = fmt(beachCost);
+      document.getElementById('linenTotal').textContent     = fmt(linenTotal);
+
+      document.getElementById('pkgHK').textContent          = fmt(hkTotal);
+      document.getElementById('pkgLinen').textContent       = fmt(linenTotal);
+      document.getElementById('pkgAmenities').textContent   = fmt(bathAmenities);
+      document.getElementById('pkgConsumables').textContent = fmt(consumables);
+      document.getElementById('pkgWelcome').textContent     = fmt(welcome);
+      document.getElementById('changeoverTotal').textContent= fmt(changeoverTotal);
+      document.getElementById('grandTotal').textContent     = fmt(changeoverTotal);
+    }
+
+    // Init
+    calculate();
+  </script>
+
+</body>
+</html>
