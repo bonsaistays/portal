@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Properties</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo">🌿 Bonsai <span>Stays</span></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html" class="active">Properties</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <div class="admin-page-header">
+    <div>
+      <h1>Properties</h1>
+      <p id="props-subtitle">Your managed properties</p>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Add Property</button>
+  </div>
+
+  <!-- Property cards -->
+  <div id="props-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;">
+  </div>
+
+  <div class="table-empty hidden" id="props-empty">
+    <div class="table-empty-icon">🏠</div>
+    <h3>No properties yet</h3>
+    <p>Add your first property to start creating bookings</p>
+  </div>
+
+</main>
+
+
+<!-- ═══ Modal: Add / Edit Property ══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-property">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Property</h3>
+      <button class="btn-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Tabs inside modal -->
+      <div style="display:flex;gap:4px;border-bottom:1px solid var(--a-gray-pale);margin:-8px 0 16px;">
+        <button class="modal-tab active" data-mtab="basic"    onclick="switchMTab('basic',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Basic Info</button>
+        <button class="modal-tab"        data-mtab="access"   onclick="switchMTab('access',this)"  style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Access & Door</button>
+        <button class="modal-tab"        data-mtab="guest"    onclick="switchMTab('guest',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Guest Info</button>
+        <button class="modal-tab"        data-mtab="rules"    onclick="switchMTab('rules',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">House Rules</button>
+      </div>
+
+      <!-- Tab: Basic Info -->
+      <div id="mtab-basic" class="mtab-content">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Property name *</label>
+              <input class="admin-input" id="p-name" type="text" placeholder="Blue Water Cottage" />
+            </div>
+            <div>
+              <label class="admin-label">City / Region *</label>
+              <input class="admin-input" id="p-city" type="text" placeholder="Muskoka" />
+            </div>
+          </div>
+          <div>
+            <label class="admin-label">Full address</label>
+            <input class="admin-input" id="p-address" type="text" placeholder="123 Lake Rd, Port Carling, ON P0C 1H0" />
+          </div>
+          <div>
+            <label class="admin-label">Property photo URL</label>
+            <input class="admin-input" id="p-photo" type="url" placeholder="https://images.unsplash.com/..." />
+            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Paste any image URL — shown on guest boarding pass. Leave blank for default photo.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="checkbox" id="p-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
+            <label for="p-active" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Property is active</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Access & Door -->
+      <div id="mtab-access" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Wi-Fi network name</label>
+              <input class="admin-input" id="p-wifi-name" type="text" placeholder="CottageName_Guest" />
+            </div>
+            <div>
+              <label class="admin-label">Wi-Fi password</label>
+              <input class="admin-input" id="p-wifi-pass" type="text" placeholder="YourPassword123" />
+            </div>
+          </div>
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Default door code</label>
+              <div style="display:flex;gap:8px;">
+                <input class="admin-input" id="p-door-code" type="text" placeholder="4829" style="flex:1;" />
+                <button type="button" onclick="document.getElementById('p-door-code').value=Math.floor(1000+Math.random()*9000)" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 14px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">Gen</button>
+              </div>
+              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Used as default — you can override per booking.</div>
+            </div>
+            <div>
+              <label class="admin-label">Lock type</label>
+              <select class="admin-select" id="p-lock-type">
+                <option value="code">PIN code (manual entry)</option>
+                <option value="august">August / Yale smart lock</option>
+                <option value="schlage">Schlage smart lock</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="admin-label">Arrival instructions <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">(shown to guests on arrival tab)</span></label>
+            <textarea class="admin-textarea" id="p-checkin-inst" style="min-height:130px;" placeholder="e.g. Park in the right side of the driveway. The lockbox is to the right of the front door — use your 4-digit door code. Firewood is stacked on the side deck. The key fob for the gate is on the kitchen counter."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Guest Info -->
+      <div id="mtab-guest" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:14px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;">
+            💡 This info is shown to guests on their <strong>Stay Info</strong> tab. Keep it friendly and helpful.
+          </div>
+          <div>
+            <label class="admin-label">Checkout instructions</label>
+            <textarea class="admin-textarea" id="p-checkout-inst" style="min-height:130px;" placeholder="e.g.&#10;• Load all dishes into the dishwasher and run it&#10;• Bag all garbage and leave at the end of the driveway&#10;• Strip bed linens and leave in the laundry room&#10;• Lock all doors and windows&#10;• Leave keys on the kitchen counter"></textarea>
+          </div>
+          <div>
+            <label class="admin-label">Emergency / host phone</label>
+            <input class="admin-input" id="p-host-phone" type="tel" placeholder="+1 (416) 555-0100" />
+            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Shown on the "Need Help?" card in the guest portal.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: House Rules -->
+      <div id="mtab-rules" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:14px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;">
+            💡 Guests agree to these rules when they complete their pre-arrival form.
+          </div>
+          <div>
+            <label class="admin-label">House rules</label>
+            <textarea class="admin-textarea" id="p-rules" style="min-height:220px;" placeholder="e.g.&#10;• No smoking inside the property&#10;• No parties or events&#10;• Maximum occupancy: 8 guests&#10;• Pets welcome with prior approval&#10;• Quiet hours: 10 PM – 8 AM&#10;• No open flames inside&#10;• Use of hot tub at own risk — shower before use&#10;• Please respect the neighbours&#10;• Any damages must be reported immediately"></textarea>
+          </div>
+          <div>
+            <label class="admin-label">Cancellation policy</label>
+            <textarea class="admin-textarea" id="p-cancellation" style="min-height:90px;" placeholder="e.g. Full refund if cancelled 7+ days before check-in. 50% refund within 7 days. No refund within 48 hours."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="p-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--a-red);font-size:0.82rem;padding:10px 14px;border-radius:8px;margin-top:8px;"></div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="p-save-btn" onclick="saveProperty()">Save Property</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ Modal: Delete confirm ════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-delete">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>Delete property?</h3>
+      <button class="btn-modal-close" onclick="document.getElementById('modal-delete').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.88rem;color:var(--a-gray);line-height:1.6;">This will permanently delete <strong id="delete-prop-name"></strong>. Any bookings linked to this property will lose the property reference but won't be deleted.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="document.getElementById('modal-delete').classList.add('hidden')">Cancel</button>
+      <button class="btn-danger" style="padding:11px 22px;" id="confirm-delete-btn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+// ─────────────────────────────────────────────────────────────────────────
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let _editingId   = null;
+let _deletingId  = null;
+let _properties  = [];
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  document.getElementById('admin-avatar').textContent = session.user.email[0].toUpperCase();
+  await loadProperties();
+}
+
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
+
+// ── Load & render ─────────────────────────────────────────────────────────
+async function loadProperties() {
+  const { data } = await sb.from('properties').select('*').order('name');
+  _properties = data || [];
+  document.getElementById('props-subtitle').textContent = _properties.length + ' propert' + (_properties.length === 1 ? 'y' : 'ies');
+  renderProperties();
+}
+
+function renderProperties() {
+  const grid  = document.getElementById('props-grid');
+  const empty = document.getElementById('props-empty');
+  if (!_properties.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = _properties.map(p => `
+    <div style="background:var(--a-white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+      <div style="height:160px;overflow:hidden;position:relative;">
+        <img src="${p.thumbnail_url || 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&q=70&auto=format&fit=crop'}"
+             style="width:100%;height:100%;object-fit:cover;" alt="${esc(p.name)}" />
+        <div style="position:absolute;top:12px;right:12px;">
+          <span style="background:${p.active ? '#F0FDF4' : '#F9FAFB'};color:${p.active ? '#16A34A' : '#6B7280'};font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:20px;">
+            ${p.active ? '✓ Active' : 'Inactive'}
+          </span>
+        </div>
+      </div>
+      <div style="padding:18px 20px;">
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;margin-bottom:3px;">${esc(p.name)}</div>
+        <div style="font-size:0.78rem;color:var(--a-gray);margin-bottom:14px;">📍 ${esc(p.city || '—')}${p.address ? ' · ' + esc(p.address) : ''}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div style="background:var(--a-bg);border-radius:8px;padding:10px 12px;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);margin-bottom:3px;">Wi-Fi</div>
+            <div style="font-size:0.82rem;font-weight:600;color:var(--a-charcoal);">${esc(p.wifi_name || '—')}</div>
+          </div>
+          <div style="background:var(--a-bg);border-radius:8px;padding:10px 12px;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);margin-bottom:3px;">Door code</div>
+            <div style="font-size:0.9rem;font-weight:800;letter-spacing:0.1em;color:var(--a-green);">${esc(p.door_code || '—')}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="openModal('${p.id}')" class="btn-primary" style="flex:1;justify-content:center;">Edit</button>
+          <button onclick="openDeleteModal('${p.id}','${esc(p.name)}')" class="btn-danger" style="padding:11px 16px;">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Modal open / close ────────────────────────────────────────────────────
+function openModal(propId) {
+  _editingId = propId || null;
+  document.getElementById('modal-title').textContent = propId ? 'Edit Property' : 'Add Property';
+  document.getElementById('p-save-btn').textContent  = propId ? 'Save Changes' : 'Save Property';
+  document.getElementById('p-error').classList.add('hidden');
+  switchMTab('basic', document.querySelector('.modal-tab[data-mtab="basic"]'));
+
+  if (propId) {
+    const p = _properties.find(x => x.id === propId);
+    if (!p) return;
+    document.getElementById('p-name').value          = p.name || '';
+    document.getElementById('p-city').value          = p.city || '';
+    document.getElementById('p-address').value       = p.address || '';
+    document.getElementById('p-photo').value         = p.thumbnail_url || '';
+    document.getElementById('p-active').checked      = p.active !== false;
+    document.getElementById('p-wifi-name').value     = p.wifi_name || '';
+    document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
+    document.getElementById('p-door-code').value     = p.door_code || '';
+    document.getElementById('p-lock-type').value     = p.lock_type || 'code';
+    document.getElementById('p-checkin-inst').value  = p.check_in_instructions || '';
+    document.getElementById('p-checkout-inst').value = p.checkout_instructions || '';
+    document.getElementById('p-host-phone').value    = p.host_phone || '';
+    document.getElementById('p-rules').value         = p.house_rules || '';
+    document.getElementById('p-cancellation').value  = p.cancellation_policy || '';
+  } else {
+    document.getElementById('p-name').value          = '';
+    document.getElementById('p-city').value          = '';
+    document.getElementById('p-address').value       = '';
+    document.getElementById('p-photo').value         = '';
+    document.getElementById('p-active').checked      = true;
+    document.getElementById('p-wifi-name').value     = '';
+    document.getElementById('p-wifi-pass').value     = '';
+    document.getElementById('p-door-code').value     = '';
+    document.getElementById('p-lock-type').value     = 'code';
+    document.getElementById('p-checkin-inst').value  = '';
+    document.getElementById('p-checkout-inst').value = '';
+    document.getElementById('p-host-phone').value    = '';
+    document.getElementById('p-rules').value         = '';
+    document.getElementById('p-cancellation').value  = '';
+  }
+
+  document.getElementById('modal-property').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('modal-property').classList.add('hidden'); }
+
+function switchMTab(name, btn) {
+  document.querySelectorAll('.modal-tab').forEach(b => {
+    b.style.color       = 'var(--a-gray)';
+    b.style.borderBottom = '2px solid transparent';
+  });
+  document.querySelectorAll('.mtab-content').forEach(c => c.classList.add('hidden'));
+  if (btn) { btn.style.color = 'var(--a-green)'; btn.style.borderBottom = '2px solid var(--a-green)'; }
+  const el = document.getElementById('mtab-' + name);
+  if (el) el.classList.remove('hidden');
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────
+async function saveProperty() {
+  const btn = document.getElementById('p-save-btn');
+  const err = document.getElementById('p-error');
+  err.classList.add('hidden');
+
+  const name = document.getElementById('p-name').value.trim();
+  const city = document.getElementById('p-city').value.trim();
+  if (!name) { err.textContent = 'Property name is required.'; err.classList.remove('hidden'); return; }
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+
+  const payload = {
+    name,
+    city,
+    address:                document.getElementById('p-address').value.trim(),
+    thumbnail_url:          document.getElementById('p-photo').value.trim() || null,
+    active:                 document.getElementById('p-active').checked,
+    wifi_name:              document.getElementById('p-wifi-name').value.trim(),
+    wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
+    door_code:              document.getElementById('p-door-code').value.trim(),
+    lock_type:              document.getElementById('p-lock-type').value,
+    check_in_instructions:  document.getElementById('p-checkin-inst').value.trim(),
+    checkout_instructions:  document.getElementById('p-checkout-inst').value.trim(),
+    host_phone:             document.getElementById('p-host-phone').value.trim(),
+    house_rules:            document.getElementById('p-rules').value.trim(),
+    cancellation_policy:    document.getElementById('p-cancellation').value.trim(),
+  };
+
+  let error;
+  if (_editingId) {
+    ({ error } = await sb.from('properties').update(payload).eq('id', _editingId));
+  } else {
+    ({ error } = await sb.from('properties').insert(payload));
+  }
+
+  if (error) {
+    err.textContent = 'Error saving: ' + error.message;
+    err.classList.remove('hidden');
+    btn.textContent = _editingId ? 'Save Changes' : 'Save Property';
+    btn.disabled = false;
+    return;
+  }
+
+  closeModal();
+  await loadProperties();
+  showToast(_editingId ? '✓ Property updated' : '✓ Property added');
+  btn.textContent = _editingId ? 'Save Changes' : 'Save Property';
+  btn.disabled = false;
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────
+function openDeleteModal(id, name) {
+  _deletingId = id;
+  document.getElementById('delete-prop-name').textContent = name;
+  document.getElementById('modal-delete').classList.remove('hidden');
+}
+async function confirmDelete() {
+  await sb.from('properties').delete().eq('id', _deletingId);
+  document.getElementById('modal-delete').classList.add('hidden');
+  await loadProperties();
+  showToast('Property deleted');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+init();
+</script>
+
+</body>
+</html>
