@@ -1,0 +1,92 @@
+{
+  "experiences": [
+    {
+      "id": "massage-therapy",
+      "name": "Massage Therapy",
+      "icon": "💆",
+      "description": "Registered massage therapists come to your property for a private session. Choose from deep tissue, relaxation, hot stone, or couples massage.",
+      "includes": ["Registered, insured therapist", "Portable table & all supplies", "60 or 90-minute sessions", "Couples sessions available"],
+      "price": "120",
+      "price_unit": "session",
+      "image": "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "private-yoga",
+      "name": "Private Yoga",
+      "icon": "🧘",
+      "description": "Certified instructors for sunrise flows, sunset sessions, or afternoon restorative yoga. Indoors or outdoors — dockside, in the garden, or your living room.",
+      "includes": ["Certified yoga instructor", "Mats & props provided", "All levels welcome", "Groups up to 10 people"],
+      "price": "85",
+      "price_unit": "session",
+      "image": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "private-chef",
+      "name": "Private Chef",
+      "icon": "👨‍🍳",
+      "description": "A professional chef prepares a locally sourced, custom meal in your property's kitchen. From intimate dinners for two to celebrations for 16, every dish tells a story.",
+      "includes": ["Bespoke menu consultation", "Local & seasonal ingredients", "Full kitchen cleanup", "Dietary accommodations"],
+      "price": "180",
+      "price_unit": "meal",
+      "image": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "wine-charcuterie",
+      "name": "Wine & Charcuterie",
+      "icon": "🍷",
+      "description": "Curated regional wine selections paired with artisan cheese and charcuterie boards, sourced from local Ontario producers. Ready on arrival or at your chosen time.",
+      "includes": ["3–5 Ontario wines selected", "Artisan cheese & cured meats", "Local accompaniments & accoutrements", "Non-alcoholic options available"],
+      "price": "65",
+      "price_unit": "board",
+      "image": "https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "fitness-training",
+      "name": "Fitness & Personal Training",
+      "icon": "🏋️",
+      "description": "A certified personal trainer delivers a custom session at your property — HIIT, strength, stretch, or outdoor bootcamp. No gym required.",
+      "includes": ["Certified personal trainer", "Custom workout plan", "Portable equipment available", "Suitable for all fitness levels"],
+      "price": "95",
+      "price_unit": "session",
+      "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "sound-bath",
+      "name": "Sound Bath & Meditation",
+      "icon": "🎵",
+      "description": "A guided sound healing session using crystal bowls and instruments. Perfect for groups, couples, or solo retreat experiences in your own serene space.",
+      "includes": ["Certified sound healer", "Crystal bowls & instruments", "Guided meditation component", "Up to 12 participants"],
+      "price": "110",
+      "price_unit": "session",
+      "image": "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "grocery-prestock",
+      "name": "Grocery Pre-Stock",
+      "icon": "🛒",
+      "description": "Send us your list, we shop local. Your fridge and pantry are stocked with fresh, quality groceries before you arrive — so your vacation starts the moment you walk in.",
+      "includes": ["Local grocery sourcing", "Organic options available", "Fridge & pantry organisation", "Wine & beverages included"],
+      "price": "45",
+      "price_unit": "+ groceries",
+      "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    },
+    {
+      "id": "welcome-arrangements",
+      "name": "Welcome Arrangements",
+      "icon": "💐",
+      "description": "Custom floral arrangements, curated welcome baskets, and occasion setups for birthdays, anniversaries, proposals, and baby showers — all styled and in place on arrival.",
+      "includes": ["Custom floral design", "Welcome basket with local treats", "Occasion signage & décor", "Photo-ready styling"],
+      "price": "55",
+      "price_unit": "arrangement",
+      "image": "https://images.unsplash.com/photo-1487530811015-780b4e825ddd?w=400&q=75&auto=format&fit=crop",
+      "available": true
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Properties — Bonsai Stays</title>
+  <meta name="description" content="Browse professionally managed short-term rental properties across Ontario. Filter by region, size, and amenities." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    .page-header {
+      background: var(--green-deep);
+      padding: 120px 0 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1800&q=60&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.2;
+    }
+    .page-header-content { position: relative; z-index: 2; }
+    .page-header h1 { color: var(--white); margin-bottom: 12px; }
+    .page-header p { color: rgba(255,255,255,0.75); font-size: 1.05rem; max-width: 480px; }
+
+    .filter-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-pale);
+      padding: 20px 0;
+      position: sticky;
+      top: 64px;
+      z-index: 50;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+    .filter-bar-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-search {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--cream);
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+    }
+    .filter-search input {
+      border: none; background: transparent; outline: none;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--charcoal);
+      width: 100%;
+    }
+    .filter-search input::placeholder { color: var(--gray-light); }
+    .filter-select {
+      padding: 10px 16px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: var(--charcoal);
+      background: var(--white);
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-select:focus { border-color: var(--green-sage); }
+    .filter-count {
+      font-size: 0.85rem;
+      color: var(--gray-mid);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .properties-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      padding: 48px 0 96px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 130px;
+    }
+    .sidebar-section {
+      background: var(--white);
+      border: 1px solid var(--gray-pale);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .sidebar-section h5 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      margin-bottom: 16px;
+    }
+    .sidebar-options { display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .sidebar-option label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.88rem; color: var(--gray-mid);
+      cursor: pointer;
+    }
+    .sidebar-option input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--green-deep);
+      cursor: pointer;
+    }
+    .sidebar-option-count {
+      font-size: 0.78rem; color: var(--gray-light);
+      background: var(--gray-pale); padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .price-range { display: flex; flex-direction: column; gap: 12px; }
+    .price-range input[type="range"] {
+      width: 100%; accent-color: var(--green-deep);
+    }
+    .price-labels { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--gray-mid); }
+
+    .properties-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      min-height: 200px;
+    }
+
+    .property-card { cursor: pointer; }
+    .property-img {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+    .property-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .property-card:hover .property-img img { transform: scale(1.06); }
+    .property-fav {
+      position: absolute; top: 12px; right: 12px;
+      width: 32px; height: 32px; background: rgba(255,255,255,0.92);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .property-fav:hover { transform: scale(1.1); }
+    .property-badge { position: absolute; top: 12px; left: 12px; }
+    .property-body { padding: 18px 20px 20px; }
+    .property-location { font-size: 0.75rem; font-weight: 500; color: var(--gray-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .property-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 500; color: var(--charcoal); margin-bottom: 8px; }
+    .property-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .property-meta span { font-size: 0.8rem; color: var(--gray-mid); display: flex; align-items: center; gap: 4px; }
+    .property-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--gray-pale); }
+    .property-price { font-size: 0.95rem; font-weight: 600; color: var(--charcoal); }
+    .property-price span { font-size: 0.78rem; font-weight: 400; color: var(--gray-light); }
+    .property-rating { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 600; color: var(--charcoal); }
+    .property-rating svg { color: var(--gold); }
+
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 56px; }
+    .page-btn {
+      width: 40px; height: 40px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.88rem; font-weight: 500; cursor: pointer;
+      border: 1.5px solid var(--gray-pale); color: var(--gray-mid);
+      transition: var(--transition); background: var(--white);
+    }
+    .page-btn:hover, .page-btn.active { background: var(--green-deep); border-color: var(--green-deep); color: var(--white); }
+    .page-btn.arrow { font-size: 1rem; }
+
+    .no-results { text-align: center; padding: 80px 0; grid-column: 1/-1; }
+    .no-results h3 { margin-bottom: 12px; }
+
+    .loading-state { grid-column: 1/-1; text-align: center; padding: 80px 0; color: var(--gray-mid); font-family: 'Inter', sans-serif; }
+
+    @media (max-width: 1100px) { .properties-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) {
+      .properties-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; display: flex; gap: 12px; flex-wrap: wrap; }
+      .sidebar-section { flex: 1; min-width: 200px; margin-bottom: 0; }
+    }
+    @media (max-width: 600px) { .properties-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+        <span class="nav-badge guest">Guests</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="properties.html" style="color:var(--green-deep);font-weight:600;">Properties</a></li>
+        <li><a href="experiences.html">Experiences</a></li>
+        <li><a href="regions.html">Regions</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Partners</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="container">
+      <div class="page-header-content">
+        <span class="eyebrow" style="color:var(--green-light);">Our Properties</span>
+        <h1>Find your perfect stay.</h1>
+        <p>Every property is professionally managed, immaculately prepared, and Bonsai-verified.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="container">
+      <div class="filter-bar-inner">
+        <div class="filter-search">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--gray-light);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search by name or location…" id="searchInput" oninput="filterProperties()" />
+        </div>
+        <select class="filter-select" id="regionFilter" onchange="filterProperties()">
+          <option value="">All Regions</option>
+          <option>Cottage Country</option>
+          <option>Prince Edward County</option>
+          <option>Blue Mountain</option>
+          <option>Niagara Region</option>
+          <option>Wasaga Beach</option>
+          <option>Toronto</option>
+        </select>
+        <select class="filter-select" id="guestsFilter" onchange="filterProperties()">
+          <option value="">Any Size</option>
+          <option value="2">2 guests</option>
+          <option value="4">4+ guests</option>
+          <option value="6">6+ guests</option>
+          <option value="8">8+ guests</option>
+        </select>
+        <select class="filter-select" id="sortFilter" onchange="filterProperties()">
+          <option value="rating">Top Rated</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+        </select>
+        <span class="filter-count" id="resultCount">Loading…</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="properties-layout">
+
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h5>Region</h5>
+          <div class="sidebar-options">
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-region="Cottage Country" /> Cottage Country</label><span class="sidebar-option-count">24</span></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-region="Prince Edward County" /> Prince Edward County</label><span class="sidebar-option-count">15</span></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-region="Blue Mountain" /> Blue Mountain</label><span class="sidebar-option-count">18</span></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-region="Niagara Region" /> Niagara Region</label><span class="sidebar-option-count">12</span></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-region="Wasaga Beach" /> Wasaga Beach</label><span class="sidebar-option-count">9</span></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-region="Toronto" /> Toronto</label><span class="sidebar-option-count">22</span></div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h5>Bedrooms</h5>
+          <div class="sidebar-options">
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-beds="1" /> Studio / 1 bed</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-beds="2" /> 2–3 beds</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-beds="4" /> 4–5 beds</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" checked onchange="filterProperties()" data-beds="6" /> 6+ beds</label></div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h5>Amenities</h5>
+          <div class="sidebar-options">
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> Hot Tub</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> Waterfront</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> Ski-in/Ski-out</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> Pet Friendly</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> EV Charging</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> Pool</label></div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h5>Price per Night</h5>
+          <div class="price-range">
+            <input type="range" min="100" max="1000" value="1000" id="priceRange" oninput="updatePrice(this.value)" />
+            <div class="price-labels"><span>$100</span><span id="priceLabel">Up to $1,000</span></div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h5>Bonsai Standard</h5>
+          <div class="sidebar-options">
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> Bonsai Select</label></div>
+            <div class="sidebar-option"><label><input type="checkbox" onchange="filterProperties()" /> New Listings</label></div>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="properties-grid" id="propertiesGrid">
+          <div class="loading-state">Loading properties…</div>
+        </div>
+
+        <div class="pagination">
+          <div class="page-btn arrow">←</div>
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">3</div>
+          <div class="page-btn arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">🌿 Bonsai <span>Stays</span></div>
+          <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
+          <div class="footer-social"><a href="#" aria-label="Instagram">in</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Pinterest">P</a></div>
+        </div>
+        <div class="footer-col"><h5>Explore</h5><ul><li><a href="properties.html">All Properties</a></li><li><a href="#">Cottage Country</a></li><li><a href="#">PEC</a></li><li><a href="#">Blue Mountain</a></li><li><a href="#">Niagara</a></li><li><a href="#">Toronto</a></li></ul></div>
+        <div class="footer-col"><h5>Experiences</h5><ul><li><a href="experiences.html">All Experiences</a></li><li><a href="experiences.html">Massage Therapy</a></li><li><a href="experiences.html">Private Yoga</a></li><li><a href="experiences.html">Private Chef</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../partners/index.html">For Partners</a></li><li><a href="../contact.html">Contact</a></li><li><a href="../privacy.html">Privacy</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script>
+    let allProperties = [];
+
+    const STAR = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+    async function loadProperties() {
+      try {
+        const res = await fetch('../data/properties.json');
+        const data = await res.json();
+        allProperties = data.properties;
+        filterProperties();
+      } catch(e) {
+        document.getElementById('propertiesGrid').innerHTML = '<div class="no-results"><h3>Unable to load properties</h3><p>Please try again later.</p></div>';
+      }
+    }
+
+    function renderCard(p) {
+      const badge = p.badge ? `<div class="property-badge"><span class="tag tag-${p.badge_type}">${p.badge}</span></div>` : '';
+      return `<a href="${p.direct_url || 'property-detail.html'}" class="card property-card" style="text-decoration:none;color:inherit;">
+        <div class="property-img">
+          <img src="${p.image}" alt="${p.name}" loading="lazy" />
+          <div class="property-fav">♡</div>
+          ${badge}
+        </div>
+        <div class="property-body">
+          <div class="property-location">📍 ${p.location}</div>
+          <div class="property-name">${p.name}</div>
+          <div class="property-meta"><span>🛏 ${p.bedrooms} bed${p.bedrooms!==1?'s':''}</span><span>🛁 ${p.bathrooms} bath${p.bathrooms!==1?'s':''}</span><span>👥 ${p.guests} guests</span></div>
+          <div class="property-footer">
+            <div class="property-price">$${p.price} <span>/ night</span></div>
+            <div class="property-rating">${STAR}${p.rating} <span style="color:var(--gray-light);font-weight:400;">(${p.review_count})</span></div>
+          </div>
+        </div>
+      </a>`;
+    }
+
+    function filterProperties() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const region = document.getElementById('regionFilter').value;
+      const guests = document.getElementById('guestsFilter').value;
+      const sort = document.getElementById('sortFilter').value;
+      const maxPrice = parseInt(document.getElementById('priceRange').value);
+
+      let filtered = allProperties.filter(p => {
+        const matchSearch = !search || p.name.toLowerCase().includes(search) || p.location.toLowerCase().includes(search) || p.region.toLowerCase().includes(search);
+        const matchRegion = !region || p.region === region;
+        const matchGuests = !guests || p.guests >= parseInt(guests);
+        const matchPrice = p.price <= maxPrice;
+        return matchSearch && matchRegion && matchGuests && matchPrice;
+      });
+
+      if (sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
+      else if (sort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
+      else if (sort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
+
+      const grid = document.getElementById('propertiesGrid');
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="no-results"><h3>No properties found</h3><p>Try adjusting your filters.</p></div>';
+      } else {
+        grid.innerHTML = filtered.map(renderCard).join('');
+        grid.querySelectorAll('.property-fav').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.preventDefault(); e.stopPropagation();
+            btn.textContent = btn.textContent === '♡' ? '♥' : '♡';
+            btn.style.color = btn.textContent === '♥' ? '#e53e3e' : '';
+          });
+        });
+      }
+      document.getElementById('resultCount').textContent = filtered.length + ' propert' + (filtered.length === 1 ? 'y' : 'ies');
+    }
+
+    function updatePrice(val) {
+      document.getElementById('priceLabel').textContent = 'Up to $' + parseInt(val).toLocaleString();
+      filterProperties();
+    }
+
+    loadProperties();
+  </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Bonsai Stays</title>
+  <meta name="description" content="Get in touch with Bonsai Stays. Guest inquiries, partner assessments, and general questions — we respond within 24 hours." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    .contact-hero {
+      padding: 140px 0 72px;
+      background: var(--cream);
+    }
+    .contact-hero h1 { margin-bottom: 12px; }
+    .contact-hero h1 em { font-style: italic; color: var(--green-sage); }
+    .contact-hero p { font-size: 1.05rem; color: var(--gray-mid); max-width: 480px; }
+
+    /* Tab switcher */
+    .contact-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .contact-tab {
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 2px solid var(--gray-pale);
+      color: var(--gray-mid);
+      background: var(--white);
+    }
+    .contact-tab.active {
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+      color: var(--white);
+    }
+    .contact-tab:hover:not(.active) {
+      border-color: var(--green-sage);
+      color: var(--green-deep);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Layout */
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 64px;
+      align-items: start;
+      padding-bottom: 96px;
+    }
+
+    /* Info side */
+    .contact-info h2 { margin-bottom: 16px; }
+    .contact-info h2 em { font-style: italic; color: var(--green-sage); }
+    .contact-info > p { font-size: 1rem; line-height: 1.75; margin-bottom: 36px; }
+
+    .contact-methods { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+    .contact-method {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--white); border: 1px solid var(--gray-pale);
+      border-radius: var(--radius-md); padding: 20px 22px;
+      transition: var(--transition);
+    }
+    .contact-method:hover { border-color: var(--green-light); box-shadow: var(--shadow-card); }
+    .contact-method-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .contact-method-icon.green { background: var(--green-tint); }
+    .contact-method-icon.gold { background: #FEF3E2; }
+    .contact-method h5 { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--charcoal); margin-bottom: 2px; }
+    .contact-method p { font-size: 0.82rem; color: var(--gray-mid); }
+    .contact-method a { font-size: 0.88rem; font-weight: 600; color: var(--green-deep); }
+
+    .response-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green-tint); border: 1px solid var(--green-light);
+      border-radius: 50px; padding: 8px 18px;
+      font-size: 0.82rem; font-weight: 600; color: var(--green-deep);
+    }
+    .response-badge::before { content: '●'; color: var(--green-sage); font-size: 0.6rem; }
+
+    /* Form card */
+    .contact-form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--gray-pale);
+    }
+    .contact-form-card h3 { margin-bottom: 6px; }
+    .contact-form-card > p { font-size: 0.88rem; color: var(--gray-mid); margin-bottom: 28px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--charcoal); letter-spacing: 0.04em; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 16px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; color: var(--charcoal);
+      background: var(--white); outline: none;
+      transition: var(--transition);
+    }
+    .form-group textarea { min-height: 110px; resize: vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green-sage);
+      box-shadow: 0 0 0 3px rgba(123,160,91,0.15);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Inquiry type selector */
+    .inquiry-types {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .inquiry-type {
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .inquiry-type:hover { border-color: var(--green-sage); }
+    .inquiry-type.selected { border-color: var(--green-deep); background: var(--green-tint); }
+    .inquiry-type-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .inquiry-type-label { font-size: 0.82rem; font-weight: 600; color: var(--charcoal); }
+
+    /* Map section */
+    .map-section { background: var(--cream); padding: 80px 0; }
+    .map-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .map-placeholder {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      height: 380px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 14px;
+      border: 1.5px dashed var(--gray-pale);
+      color: var(--gray-mid); font-size: 0.9rem; text-align: center;
+    }
+    .regions-contact { display: flex; flex-direction: column; gap: 14px; }
+    .region-contact-item {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--white); border-radius: var(--radius-md);
+      padding: 16px 20px; border: 1px solid var(--gray-pale);
+      transition: var(--transition);
+    }
+    .region-contact-item:hover { border-color: var(--green-light); }
+    .region-contact-item span:first-child { font-size: 1.3rem; flex-shrink: 0; }
+    .region-contact-item h5 { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--charcoal); margin-bottom: 2px; }
+    .region-contact-item p { font-size: 0.78rem; color: var(--gray-mid); }
+
+    @media (max-width: 1024px) {
+      .contact-layout { grid-template-columns: 1fr; }
+      .map-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+      .inquiry-types { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+      </a>
+      <ul class="nav-links">
+        <li><a href="guests/index.html">For Guests</a></li>
+        <li><a href="partners/index.html">For Partners</a></li>
+        <li><a href="guests/about.html">About</a></li>
+        <li><a href="contact.html" style="color:var(--green-deep);font-weight:600;">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="guests/properties.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">Browse Stays</a>
+        <a href="partners/index.html#contact" class="btn btn-primary" style="padding:10px 20px;font-size:0.82rem;">Partner with Us</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="contact-hero">
+    <div class="container">
+      <span class="eyebrow">Get in Touch</span>
+      <h1>We'd love to <em>hear from you.</em></h1>
+      <p>Whether you're a guest with a question, an owner looking to partner, or just curious about what we do — we're here.</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Tab switcher -->
+    <div style="padding-top:48px;">
+      <div class="contact-tabs">
+        <div class="contact-tab active" onclick="switchTab('guest', this)">🌿 I'm a Guest</div>
+        <div class="contact-tab" onclick="switchTab('partner', this)">🏡 I'm a Property Owner / Manager</div>
+        <div class="contact-tab" onclick="switchTab('general', this)">💬 General Enquiry</div>
+      </div>
+    </div>
+
+    <!-- GUEST TAB -->
+    <div class="tab-panel active" id="tab-guest">
+      <div class="contact-layout">
+        <div class="contact-info">
+          <span class="eyebrow">Guest Support</span>
+          <h2>We're here for your <em>stay.</em></h2>
+          <p>Questions about a property, an experience booking, or something that came up during your stay — our guest support team responds fast.</p>
+          <div class="contact-methods">
+            <div class="contact-method">
+              <div class="contact-method-icon green">📧</div>
+              <div><h5>Email Guest Support</h5><p>Typical response within 4 hours</p><a href="mailto:guests@bonsaistays.com">guests@bonsaistays.com</a></div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-method-icon green">📱</div>
+              <div><h5>Text or Call Us</h5><p>Available 8am–10pm, 7 days</p><a href="tel:+14165550100">+1 (416) 555-0100</a></div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-method-icon green">💬</div>
+              <div><h5>Live Chat</h5><p>Available on all property pages</p><a href="#">Start a chat →</a></div>
+            </div>
+          </div>
+          <div class="response-badge">We typically respond within 4 hours</div>
+          <div style="margin-top:28px;">
+            <p style="font-size:0.88rem;margin-bottom:12px;"><strong style="color:var(--charcoal);">Looking to book an experience?</strong></p>
+            <a href="guests/experiences.html" class="btn btn-outline">Browse In-Stay Experiences →</a>
+          </div>
+        </div>
+        <div class="contact-form-card">
+          <h3>Send us a message</h3>
+          <p>For property or experience enquiries, include your booking reference if you have one.</p>
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" placeholder="Jane" /></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith" /></div>
+          </div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="jane@email.com" /></div>
+          <div class="form-group">
+            <label>What's your enquiry about?</label>
+            <select>
+              <option value="">Select a topic…</option>
+              <option>Property question</option>
+              <option>Experience / service booking</option>
+              <option>Issue during my stay</option>
+              <option>Review or feedback</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Booking Reference (optional)</label><input type="text" placeholder="e.g. BST-2026-0421" /></div>
+          <div class="form-group"><label>Message</label><textarea placeholder="Tell us how we can help…"></textarea></div>
+          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">Send Message →</button>
+          <p style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--gray-light);">We respond within 4 hours during business hours.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTNER TAB -->
+    <div class="tab-panel" id="tab-partner">
+      <div class="contact-layout">
+        <div class="contact-info">
+          <span class="eyebrow">Partner Enquiries</span>
+          <h2>Let's talk about your <em>property.</em></h2>
+          <p>Reach out to our partner success team for a free, no-obligation conversation about your property and how Bonsai can help it perform at its best.</p>
+          <div class="contact-methods">
+            <div class="contact-method">
+              <div class="contact-method-icon gold">📧</div>
+              <div><h5>Email Partner Success</h5><p>Typical response within 24 hours</p><a href="mailto:partners@bonsaistays.com">partners@bonsaistays.com</a></div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-method-icon gold">📞</div>
+              <div><h5>Book a Call</h5><p>Speak directly with our team</p><a href="#">Schedule a 30-min call →</a></div>
+            </div>
+          </div>
+          <div class="response-badge" style="background:#FEF3E2;border-color:#E8CC8A;color:#8A5C0E;">Respond within 24 hours · Free assessment</div>
+          <div style="margin-top:28px;background:var(--cream);border-radius:var(--radius-md);padding:20px;">
+            <p style="font-size:0.85rem;font-weight:600;color:var(--charcoal);margin-bottom:8px;">What happens after you reach out?</p>
+            <ol style="font-size:0.84rem;color:var(--gray-mid);line-height:1.9;padding-left:18px;">
+              <li>We respond within 24 hours</li>
+              <li>Free 30-min property assessment call</li>
+              <li>Custom service proposal in 48 hours</li>
+              <li>Onboarding — usually within 1 week</li>
+            </ol>
+          </div>
+        </div>
+        <div class="contact-form-card">
+          <h3>Request a free assessment</h3>
+          <p>Tell us about your property and we'll put together a tailored plan.</p>
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" placeholder="Jane" /></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith" /></div>
+          </div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="jane@email.com" /></div>
+          <div class="form-group"><label>Phone</label><input type="tel" placeholder="+1 (416) 000-0000" /></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Number of Properties</label>
+              <select>
+                <option value="">Select…</option>
+                <option>1 property</option>
+                <option>2–3 properties</option>
+                <option>4–10 properties</option>
+                <option>11+ properties</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Primary Region</label>
+              <select>
+                <option value="">Select…</option>
+                <option>Cottage Country</option>
+                <option>Blue Mountain</option>
+                <option>Prince Edward County</option>
+                <option>Niagara Region</option>
+                <option>Wasaga Beach</option>
+                <option>Toronto</option>
+                <option>Multiple Regions</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Services Interested In</label>
+            <select>
+              <option value="">Select…</option>
+              <option>Housekeeping only</option>
+              <option>Linen program</option>
+              <option>Full service management</option>
+              <option>Not sure — let's talk</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Anything else?</label><textarea placeholder="Tell us about your property or current challenges…"></textarea></div>
+          <button class="btn btn-gold btn-lg" style="width:100%;justify-content:center;">Request My Free Assessment →</button>
+          <p style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--gray-light);">No commitment · Respond within 24 hours</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERAL TAB -->
+    <div class="tab-panel" id="tab-general">
+      <div class="contact-layout">
+        <div class="contact-info">
+          <span class="eyebrow">General Enquiries</span>
+          <h2>Say <em>hello.</em></h2>
+          <p>Press, partnerships, career enquiries, or just want to learn more about what we do — we'd love to hear from you.</p>
+          <div class="contact-methods">
+            <div class="contact-method">
+              <div class="contact-method-icon green">📧</div>
+              <div><h5>General Email</h5><p>For press, partnerships & everything else</p><a href="mailto:hello@bonsaistays.com">hello@bonsaistays.com</a></div>
+            </div>
+            <div class="contact-method">
+              <div class="contact-method-icon green">🏢</div>
+              <div><h5>Head Office</h5><p>Toronto, Ontario, Canada</p><p style="color:var(--charcoal);font-weight:500;font-size:0.88rem;">Available by appointment</p></div>
+            </div>
+          </div>
+          <div class="footer-social" style="margin-top:28px;">
+            <a href="#" aria-label="Instagram" style="background:var(--green-tint);color:var(--green-deep);">in</a>
+            <a href="#" aria-label="Facebook" style="background:var(--green-tint);color:var(--green-deep);">f</a>
+            <a href="#" aria-label="LinkedIn" style="background:var(--green-tint);color:var(--green-deep);">Li</a>
+          </div>
+        </div>
+        <div class="contact-form-card">
+          <h3>Send us a message</h3>
+          <p>We'll route your message to the right person and respond promptly.</p>
+          <div class="form-group">
+            <label>What's this about?</label>
+            <div class="inquiry-types">
+              <div class="inquiry-type selected" onclick="selectInquiry(this)"><div class="inquiry-type-icon">📰</div><div class="inquiry-type-label">Press & Media</div></div>
+              <div class="inquiry-type" onclick="selectInquiry(this)"><div class="inquiry-type-icon">🤝</div><div class="inquiry-type-label">Partnership</div></div>
+              <div class="inquiry-type" onclick="selectInquiry(this)"><div class="inquiry-type-icon">💼</div><div class="inquiry-type-label">Careers</div></div>
+              <div class="inquiry-type" onclick="selectInquiry(this)"><div class="inquiry-type-icon">💡</div><div class="inquiry-type-label">Other</div></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" placeholder="Jane" /></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith" /></div>
+          </div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="jane@email.com" /></div>
+          <div class="form-group"><label>Company / Organization (optional)</label><input type="text" placeholder="e.g. Toronto Star" /></div>
+          <div class="form-group"><label>Message</label><textarea placeholder="Tell us what's on your mind…"></textarea></div>
+          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">Send Message →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regional Coverage -->
+  <div class="map-section">
+    <div class="container">
+      <div class="map-grid">
+        <div>
+          <span class="eyebrow">Where We Are</span>
+          <h2>Local teams in every <em>region.</em></h2>
+          <div class="divider divider-left"></div>
+          <p style="margin-bottom:28px;">We're not managing remotely. Every region has a dedicated on-the-ground team available for property walkthroughs, same-day turnovers, and rapid-response maintenance.</p>
+          <div class="regions-contact">
+            <div class="region-contact-item"><span>🌲</span><div><h5>Cottage Country</h5><p>Muskoka & Haliburton · Team of 8</p></div></div>
+            <div class="region-contact-item"><span>⛷️</span><div><h5>Blue Mountain</h5><p>Collingwood & The Blue Mountains · Team of 5</p></div></div>
+            <div class="region-contact-item"><span>🍷</span><div><h5>Prince Edward County</h5><p>Picton & Wellington · Team of 4</p></div></div>
+            <div class="region-contact-item"><span>🌊</span><div><h5>Niagara Region</h5><p>Niagara-on-the-Lake · Team of 4</p></div></div>
+            <div class="region-contact-item"><span>🏖️</span><div><h5>Wasaga Beach</h5><p>Georgian Bay · Team of 3</p></div></div>
+            <div class="region-contact-item"><span>🏙️</span><div><h5>Toronto</h5><p>City-wide · Team of 10</p></div></div>
+          </div>
+        </div>
+        <div class="map-placeholder">
+          <span style="font-size:3rem;">🗺️</span>
+          <span style="font-weight:600;color:var(--charcoal);">Ontario Service Map</span>
+          <span style="font-size:0.82rem;">Interactive map coming soon</span>
+          <a href="#" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;margin-top:8px;">View Regions</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-logo">🌿 Bonsai <span>Stays</span></div><p class="footer-desc">Curated properties and premium hospitality services across Ontario.</p><div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">Li</a></div></div>
+        <div class="footer-col"><h5>Guests</h5><ul><li><a href="guests/properties.html">Browse Properties</a></li><li><a href="guests/experiences.html">Experiences</a></li><li><a href="guests/about.html">About Us</a></li></ul></div>
+        <div class="footer-col"><h5>Partners</h5><ul><li><a href="partners/index.html">Overview</a></li><li><a href="partners/services.html">Services</a></li><li><a href="partners/about.html">About</a></li><li><a href="partners/index.html#contact">Get Started</a></li></ul></div>
+        <div class="footer-col"><h5>Contact</h5><ul><li><a href="mailto:guests@bonsaistays.com">guests@bonsaistays.com</a></li><li><a href="mailto:partners@bonsaistays.com">partners@bonsaistays.com</a></li><li><a href="mailto:hello@bonsaistays.com">hello@bonsaistays.com</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Accessibility</a></div></div>
+    </div>
+  </footer>
+
+  <script>
+    function switchTab(name, el) {
+      document.querySelectorAll('.contact-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function selectInquiry(el) {
+      document.querySelectorAll('.inquiry-type').forEach(i => i.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+
+</body>
+</html>

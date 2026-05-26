@@ -1,0 +1,79 @@
+backend:
+  name: github
+  repo: bonsaistays/portal
+  branch: main
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "properties"
+    label: "Properties"
+    files:
+      - label: "All Properties"
+        name: "properties_list"
+        file: "data/properties.json"
+        fields:
+          - label: "Properties"
+            name: "properties"
+            widget: "list"
+            summary: "{{fields.name}} — {{fields.location}}"
+            fields:
+              - {label: "ID (slug, no spaces)", name: "id", widget: "string"}
+              - {label: "Property Name", name: "name", widget: "string"}
+              - {label: "Location", name: "location", widget: "string"}
+              - label: "Region"
+                name: "region"
+                widget: "select"
+                options:
+                  - "Cottage Country"
+                  - "Prince Edward County"
+                  - "Blue Mountain"
+                  - "Niagara Region"
+                  - "Wasaga Beach"
+                  - "Toronto"
+              - {label: "Bedrooms", name: "bedrooms", widget: "number", value_type: "int"}
+              - {label: "Bathrooms", name: "bathrooms", widget: "number", value_type: "int"}
+              - {label: "Max Guests", name: "guests", widget: "number", value_type: "int"}
+              - {label: "Price per Night ($)", name: "price", widget: "number", value_type: "int"}
+              - {label: "Rating (e.g. 4.97)", name: "rating", widget: "number", value_type: "float", step: 0.01}
+              - {label: "Review Count", name: "review_count", widget: "number", value_type: "int"}
+              - label: "Badge Label"
+                name: "badge"
+                widget: "select"
+                required: false
+                options: ["", "Bonsai Select", "New", "Popular"]
+              - label: "Badge Colour"
+                name: "badge_type"
+                widget: "select"
+                required: false
+                options: ["", "green", "gold"]
+              - {label: "Cover Image URL", name: "image", widget: "string"}
+              - {label: "Airbnb Listing URL", name: "airbnb_url", widget: "string"}
+              - {label: "Direct Booking URL", name: "direct_url", widget: "string"}
+              - {label: "Show on Homepage", name: "featured", widget: "boolean", default: false}
+
+  - name: "experiences"
+    label: "Experiences"
+    files:
+      - label: "All Experiences"
+        name: "experiences_list"
+        file: "data/experiences.json"
+        fields:
+          - label: "Experiences"
+            name: "experiences"
+            widget: "list"
+            summary: "{{fields.name}}"
+            fields:
+              - {label: "ID (slug)", name: "id", widget: "string"}
+              - {label: "Name", name: "name", widget: "string"}
+              - {label: "Icon (emoji)", name: "icon", widget: "string"}
+              - {label: "Description", name: "description", widget: "text"}
+              - label: "What's Included"
+                name: "includes"
+                widget: "list"
+                field: {label: "Item", name: "item", widget: "string"}
+              - {label: "Starting Price (number only)", name: "price", widget: "string"}
+              - {label: "Price Unit (e.g. session, board)", name: "price_unit", widget: "string"}
+              - {label: "Image URL", name: "image", widget: "string"}
+              - {label: "Currently Available", name: "available", widget: "boolean", default: true}

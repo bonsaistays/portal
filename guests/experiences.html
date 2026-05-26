@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>In-Stay Experiences — Bonsai Stays</title>
+  <meta name="description" content="Book massage therapy, private yoga, private chef, wine & charcuterie and more for your Bonsai Stays property. Arranged before you arrive." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    .exp-hero {
+      padding: 140px 0 80px;
+      background: var(--green-deep);
+      position: relative;
+      overflow: hidden;
+    }
+    .exp-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1800&q=60&auto=format&fit=crop');
+      background-size: cover; background-position: center;
+      opacity: 0.18;
+    }
+    .exp-hero-content { position: relative; z-index: 2; max-width: 640px; }
+    .exp-hero-content h1 { color: var(--white); margin-bottom: 16px; }
+    .exp-hero-content h1 em { font-style: italic; color: var(--green-light); }
+    .exp-hero-content p { color: rgba(255,255,255,0.78); font-size: 1.05rem; line-height: 1.7; max-width: 520px; }
+
+    .how-strip {
+      background: var(--cream);
+      padding: 40px 0;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .how-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .how-strip-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 0 28px;
+      border-right: 1px solid var(--cream-dark);
+    }
+    .how-strip-item:last-child { border-right: none; }
+    .how-strip-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green-tint); border: 1.5px solid var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600;
+      color: var(--green-deep); flex-shrink: 0;
+    }
+    .how-strip-text h5 { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+    .how-strip-text p { font-size: 0.8rem; line-height: 1.5; }
+
+    .exp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      min-height: 200px;
+    }
+    .exp-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1.5px solid var(--gray-pale);
+      box-shadow: var(--shadow-card);
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      transition: var(--transition);
+    }
+    .exp-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); border-color: var(--green-light); }
+    .exp-card-img { position: relative; }
+    .exp-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .exp-card-body { padding: 28px 28px 24px; display: flex; flex-direction: column; }
+    .exp-card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+    .exp-card-title { font-size: 1.2rem; font-weight: 500; margin-bottom: 8px; }
+    .exp-card-desc { font-size: 0.88rem; color: var(--gray-mid); line-height: 1.65; margin-bottom: 16px; flex: 1; }
+    .exp-card-includes { margin-bottom: 20px; }
+    .exp-card-includes h6 { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-deep); margin-bottom: 8px; }
+    .exp-card-includes ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .exp-card-includes li { font-size: 0.82rem; color: var(--gray-mid); display: flex; align-items: center; gap: 7px; }
+    .exp-card-includes li::before { content: '✓'; color: var(--green-sage); font-weight: 700; flex-shrink: 0; }
+    .exp-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--gray-pale); }
+    .exp-from { font-size: 0.8rem; color: var(--gray-mid); }
+    .exp-price { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--green-deep); }
+
+    .booking-section { background: var(--cream); }
+    .booking-layout {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 64px;
+      align-items: start;
+    }
+    .booking-form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--gray-pale);
+    }
+    .booking-form-card h3 { margin-bottom: 8px; }
+    .booking-form-card > p { font-size: 0.9rem; margin-bottom: 28px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--charcoal); letter-spacing: 0.04em; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 16px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; color: var(--charcoal);
+      background: var(--white); outline: none;
+      transition: var(--transition);
+    }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green-sage);
+      box-shadow: 0 0 0 3px rgba(123,160,91,0.15);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .booking-info h3 { margin-bottom: 16px; }
+    .booking-info > p { font-size: 0.95rem; line-height: 1.75; margin-bottom: 32px; }
+    .info-cards { display: flex; flex-direction: column; gap: 16px; }
+    .info-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 22px 24px;
+      display: flex; gap: 16px; align-items: flex-start;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--gray-pale);
+    }
+    .info-card-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+    .info-card h5 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+    .info-card p { font-size: 0.84rem; color: var(--gray-mid); line-height: 1.55; }
+
+    .faq-list { display: flex; flex-direction: column; gap: 0; }
+    .faq-item {
+      border-bottom: 1px solid var(--gray-pale);
+      padding: 20px 0;
+      cursor: pointer;
+    }
+    .faq-question {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600;
+      color: var(--charcoal);
+    }
+    .faq-toggle { font-size: 1.2rem; color: var(--green-sage); transition: var(--transition); flex-shrink: 0; }
+    .faq-answer {
+      font-size: 0.88rem; color: var(--gray-mid);
+      line-height: 1.7; max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-answer { max-height: 200px; padding-top: 12px; }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+
+    .loading-state { text-align: center; padding: 60px; color: var(--gray-mid); font-family: 'Inter', sans-serif; grid-column: 1/-1; }
+
+    @media (max-width: 1024px) {
+      .exp-grid { grid-template-columns: 1fr; }
+      .exp-card { grid-template-columns: 160px 1fr; }
+      .booking-layout { grid-template-columns: 1fr; }
+      .how-strip-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-strip-item:nth-child(2) { border-right: none; }
+      .how-strip-item:nth-child(3) { border-top: 1px solid var(--cream-dark); padding-top: 28px; }
+      .how-strip-item:nth-child(4) { border-top: 1px solid var(--cream-dark); padding-top: 28px; }
+    }
+    @media (max-width: 640px) {
+      .exp-card { grid-template-columns: 1fr; }
+      .exp-card-img { height: 200px; }
+      .form-row { grid-template-columns: 1fr; }
+      .how-strip-grid { grid-template-columns: 1fr; }
+      .how-strip-item { border-right: none; border-bottom: 1px solid var(--cream-dark); padding: 16px 0; }
+      .how-strip-item:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+        <span class="nav-badge guest">Guests</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="properties.html">Properties</a></li>
+        <li><a href="experiences.html" style="color:var(--green-deep);font-weight:600;">Experiences</a></li>
+        <li><a href="regions.html">Regions</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Partners</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="exp-hero">
+    <div class="container">
+      <div class="exp-hero-content">
+        <span class="eyebrow" style="color:var(--green-light);">In-Stay Experiences</span>
+        <h1>Your stay,<br /><em>extraordinarily</em> curated.</h1>
+        <p>Every experience is arranged in advance and delivered to your door — or your porch, your dock, or your living room. You just show up and enjoy.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-strip">
+    <div class="container">
+      <div class="how-strip-grid">
+        <div class="how-strip-item">
+          <div class="how-strip-num">1</div>
+          <div class="how-strip-text"><h5>Choose your experience</h5><p>Browse our curated services and select what sounds best.</p></div>
+        </div>
+        <div class="how-strip-item">
+          <div class="how-strip-num">2</div>
+          <div class="how-strip-text"><h5>Tell us your property & dates</h5><p>We match the right provider for your exact location.</p></div>
+        </div>
+        <div class="how-strip-item">
+          <div class="how-strip-num">3</div>
+          <div class="how-strip-text"><h5>We coordinate everything</h5><p>Scheduling, provider briefing, and logistics are handled.</p></div>
+        </div>
+        <div class="how-strip-item">
+          <div class="how-strip-num">4</div>
+          <div class="how-strip-text"><h5>Arrive & enjoy</h5><p>Your experience is ready when you are. Zero friction.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" id="experiences">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">All Experiences</span>
+        <h2>What would you like to <em>add?</em></h2>
+        <p>Available at all Bonsai Stays properties. Inquire at least 48 hours before your check-in.</p>
+      </div>
+      <div class="exp-grid" id="expGrid">
+        <div class="loading-state">Loading experiences…</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section booking-section" id="inquire">
+    <div class="container">
+      <div class="booking-layout">
+        <div class="booking-info">
+          <span class="eyebrow">Request an Experience</span>
+          <h2>Tell us what you'd like.<br /><em>We'll handle the rest.</em></h2>
+          <p>Fill in the form with your property, dates, and preferred experience. Our team will confirm availability and send a quote within 24 hours. Payment is collected only once confirmed.</p>
+          <div class="info-cards">
+            <div class="info-card"><div class="info-card-icon">⏰</div><div><h5>48-hour advance notice</h5><p>Inquire at least 2 days before your check-in so we can source the right provider for your location.</p></div></div>
+            <div class="info-card"><div class="info-card-icon">📍</div><div><h5>Available at all Bonsai properties</h5><p>We have vetted providers across all six regions — Cottage Country, PEC, Blue Mountain, Niagara, Wasaga, and Toronto.</p></div></div>
+            <div class="info-card"><div class="info-card-icon">💳</div><div><h5>No payment until confirmed</h5><p>We'll send you a confirmation and secure payment link once your experience is scheduled.</p></div></div>
+            <div class="info-card"><div class="info-card-icon">🔄</div><div><h5>Free cancellation up to 48 hours</h5><p>Plans change. Cancel or reschedule any experience with no charge up to 48 hours before the scheduled time.</p></div></div>
+          </div>
+        </div>
+
+        <div class="booking-form-card">
+          <h3>Experience Inquiry</h3>
+          <p>We'll confirm availability and send a quote within 24 hours.</p>
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" placeholder="Jane" /></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith" /></div>
+          </div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="jane@email.com" /></div>
+          <div class="form-group"><label>Phone</label><input type="tel" placeholder="+1 (416) 000-0000" /></div>
+          <div class="form-group">
+            <label>Experience</label>
+            <select id="experienceSelect">
+              <option value="">Choose an experience…</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Property Name or Address</label><input type="text" placeholder="e.g. The Birchwood Retreat, Muskoka" /></div>
+          <div class="form-row">
+            <div class="form-group"><label>Check-in Date</label><input type="date" /></div>
+            <div class="form-group"><label>Preferred Experience Date</label><input type="date" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Preferred Time</label>
+              <select>
+                <option value="">Select time…</option>
+                <option>7:00 AM — Sunrise</option>
+                <option>9:00 AM</option>
+                <option>11:00 AM</option>
+                <option>1:00 PM</option>
+                <option>3:00 PM</option>
+                <option>5:00 PM — Golden Hour</option>
+                <option>7:00 PM — Evening</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Number of Guests</label>
+              <select>
+                <option>1 person</option>
+                <option>2 people</option>
+                <option>3–4 people</option>
+                <option>5–8 people</option>
+                <option>9+ people</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Special Requests (optional)</label><textarea placeholder="Dietary restrictions, accessibility needs, occasion details…"></textarea></div>
+          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:8px;">Send Inquiry →</button>
+          <p style="text-align:center;margin-top:12px;font-size:0.78rem;color:var(--gray-light);">No payment required · Confirmation within 24 hours</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--white);">
+    <div class="container" style="max-width:760px;">
+      <div class="section-header text-center">
+        <span class="eyebrow">FAQ</span>
+        <h2>Common <em>questions.</em></h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">How far in advance do I need to book an experience?<span class="faq-toggle">+</span></div>
+          <div class="faq-answer">We ask for at least 48 hours notice before your check-in date. For Private Chef experiences or large groups, 72 hours or more is appreciated to ensure we find the best provider for your needs.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">Do I need to be staying at a Bonsai Stays property?<span class="faq-toggle">+</span></div>
+          <div class="faq-answer">Yes — our in-stay experiences are currently available exclusively at properties managed by Bonsai Stays. This ensures our providers are familiar with the property and can set up appropriately.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">Can I combine multiple experiences?<span class="faq-toggle">+</span></div>
+          <div class="faq-answer">Absolutely. Many guests book multiple experiences for the same stay — a morning yoga session, an evening private chef dinner, and a charcuterie board on arrival. Just list everything in your inquiry and we'll coordinate it all.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">What's the cancellation policy?<span class="faq-toggle">+</span></div>
+          <div class="faq-answer">You can cancel or reschedule any experience free of charge up to 48 hours before the scheduled time. Cancellations within 48 hours may incur a partial charge depending on the provider.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">Are providers vetted and insured?<span class="faq-toggle">+</span></div>
+          <div class="faq-answer">Yes — all experience providers in our network are professionally certified, insured, and background-checked. We only work with providers we'd trust in our own homes.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">Is the price listed inclusive of everything?<span class="faq-toggle">+</span></div>
+          <div class="faq-answer">The prices shown are starting rates. Your final quote will depend on the specific experience, duration, number of guests, and travel distance for the provider. We'll send a full breakdown before any payment is taken.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-logo">🌿 Bonsai <span>Stays</span></div><p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p><div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">P</a></div></div>
+        <div class="footer-col"><h5>Explore</h5><ul><li><a href="properties.html">All Properties</a></li><li><a href="experiences.html">Experiences</a></li><li><a href="regions.html">Regions</a></li></ul></div>
+        <div class="footer-col"><h5>Experiences</h5><ul><li><a href="#inquire">Massage Therapy</a></li><li><a href="#inquire">Private Yoga</a></li><li><a href="#inquire">Private Chef</a></li><li><a href="#inquire">Wine & Charcuterie</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../partners/index.html">For Partners</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script>
+    async function loadExperiences() {
+      try {
+        const res = await fetch('../data/experiences.json');
+        const data = await res.json();
+        const available = data.experiences.filter(e => e.available !== false);
+
+        document.getElementById('expGrid').innerHTML = available.map(exp => `
+          <div class="exp-card">
+            <div class="exp-card-img"><img src="${exp.image}" alt="${exp.name}" loading="lazy" /></div>
+            <div class="exp-card-body">
+              <div class="exp-card-icon">${exp.icon}</div>
+              <div class="exp-card-title">${exp.name}</div>
+              <p class="exp-card-desc">${exp.description}</p>
+              <div class="exp-card-includes">
+                <h6>Includes</h6>
+                <ul>${exp.includes.map(i => `<li>${i}</li>`).join('')}</ul>
+              </div>
+              <div class="exp-card-footer">
+                <div><div class="exp-from">Starting from</div><div class="exp-price">$${exp.price} / ${exp.price_unit}</div></div>
+                <a href="#inquire" class="btn btn-primary" style="padding:10px 20px;font-size:0.85rem;">Inquire</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        const select = document.getElementById('experienceSelect');
+        available.forEach(exp => {
+          const opt = document.createElement('option');
+          opt.value = exp.id;
+          opt.textContent = exp.name;
+          select.appendChild(opt);
+        });
+        const multiOpt = document.createElement('option');
+        multiOpt.value = 'multiple';
+        multiOpt.textContent = 'Multiple / Not sure yet';
+        select.appendChild(multiOpt);
+
+      } catch(e) {
+        document.getElementById('expGrid').innerHTML = '<p style="text-align:center;color:var(--gray-mid);padding:40px;">Unable to load experiences. Please try again.</p>';
+      }
+    }
+
+    function toggleFaq(item) {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+
+    loadExperiences();
+  </script>
+
+</body>
+</html>

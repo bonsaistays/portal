@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Stays — Curated Properties & Premium Guest Experiences</title>
+  <meta name="description" content="Bonsai Stays connects discerning travellers with professionally managed properties, and provides premium hospitality services to property owners across Canada." />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── Split Landing ── */
+    body { overflow: hidden; height: 100vh; }
+
+    .split-wrap {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .split-panel {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: flex 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .split-panel:hover { flex: 1.35; }
+
+    .split-panel img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .split-panel:hover img { transform: scale(1.04); }
+
+    .split-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 64px 56px;
+    }
+
+    .panel-guest .split-overlay {
+      background: linear-gradient(160deg, rgba(20,38,14,0.15) 0%, rgba(20,38,14,0.75) 100%);
+    }
+    .panel-partner .split-overlay {
+      background: linear-gradient(160deg, rgba(20,30,38,0.15) 0%, rgba(38,30,14,0.75) 100%);
+      align-items: flex-end;
+      padding-left: 72px;
+      padding-right: 56px;
+    }
+    .panel-partner .panel-content {
+      text-align: right;
+    }
+    .panel-partner .panel-eyebrow {
+      justify-content: flex-end;
+    }
+    .panel-partner .panel-eyebrow::before {
+      display: none;
+    }
+    .panel-partner .panel-eyebrow::after {
+      content: '';
+      width: 28px; height: 1.5px;
+      background: rgba(255,255,255,0.5);
+      display: inline-block;
+    }
+
+    .split-divider {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 2px;
+      height: 100%;
+      background: rgba(255,255,255,0.25);
+      z-index: 10;
+    }
+    /* circle is now a real element so it can hold the logo image */
+
+    .split-logo {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .split-logo a {
+      display: inline-block;
+      border-radius: 10px;
+      overflow: hidden;
+      line-height: 0;
+    }
+    .split-logo a img {
+      height: 156px;
+      width: auto;
+      display: block;
+    }
+
+    .split-divider-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+      overflow: hidden;
+    }
+    .split-divider-circle img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .panel-content { position: relative; z-index: 5; max-width: 420px; }
+
+    .panel-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-eyebrow::before {
+      content: '';
+      width: 28px; height: 1.5px;
+      background: rgba(255,255,255,0.5);
+      display: inline-block;
+    }
+
+    .panel-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 500;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .panel-content h2 em { font-style: italic; color: var(--green-light); }
+
+    .panel-content p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    .panel-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: var(--transition);
+      letter-spacing: 0.03em;
+    }
+    .panel-guest .panel-btn {
+      background: var(--white);
+      color: var(--green-deep);
+    }
+    .panel-guest .panel-btn:hover {
+      background: var(--green-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    .panel-partner .panel-btn {
+      background: var(--gold);
+      color: var(--white);
+    }
+    .panel-partner .panel-btn:hover {
+      background: #b8903e;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+
+    .panel-btn svg {
+      width: 18px; height: 18px;
+      transition: transform 0.3s ease;
+    }
+    .panel-btn:hover svg { transform: translateX(4px); }
+
+    /* scroll hint */
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.6;
+      animation: fadeIn 2s 1s both;
+    }
+    .scroll-hint span {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+    }
+    .scroll-hint-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+      animation: scrollDown 1.8s ease-in-out infinite;
+    }
+
+    @keyframes scrollDown {
+      0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+      40% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+      80% { opacity: 0; transform: scaleY(1); transform-origin: bottom; }
+      100% { opacity: 0; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 0.6; }
+    }
+
+    /* Mobile stacked */
+    @media (max-width: 768px) {
+      body { overflow: auto; height: auto; }
+      .split-wrap { flex-direction: column; height: auto; min-height: 100vh; }
+      .split-panel { min-height: 50vh; flex: none !important; }
+      .split-panel:hover { flex: none !important; }
+      .split-divider { display: none; }
+      .split-logo { top: 24px; }
+      .split-overlay { padding: 40px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo centered over split -->
+  <div class="split-logo">
+    <a href="/">
+      <img src="PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
+    </a>
+  </div>
+
+  <div class="split-wrap">
+
+    <!-- GUEST PANEL -->
+    <div class="split-panel panel-guest" onclick="window.location='guests/index.html'">
+      <img
+        src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=80&auto=format&fit=crop"
+        alt="Luxury cottage interior"
+        loading="eager"
+      />
+      <div class="split-overlay">
+        <div class="panel-content">
+          <div class="panel-eyebrow">For Travellers</div>
+          <h2>Your perfect stay, <em>curated</em> for you.</h2>
+          <p>Browse professionally managed properties with premium amenities. Book in-stay experiences — massage, yoga, private chef — all scheduled around your getaway.</p>
+          <a href="guests/index.html" class="panel-btn">
+            Explore Stays
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="split-divider">
+      <div class="split-divider-circle">
+        <img src="PhotosLogos/Bonsai Stays (400 x 200 px) (Logo).png" alt="Bonsai Stays" />
+      </div>
+    </div>
+
+    <!-- PARTNER PANEL -->
+    <div class="split-panel panel-partner" onclick="window.location='partners/index.html'">
+      <img
+        src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&q=80&auto=format&fit=crop"
+        alt="Beautiful property exterior"
+        loading="eager"
+      />
+      <div class="split-overlay">
+        <div class="panel-content">
+          <div class="panel-eyebrow">For Property Owners & Managers</div>
+          <h2>We handle the <em>details</em>. You collect the returns.</h2>
+          <p>Housekeeping, linen programs, amenity restocking, guest experience — we operate behind the scenes so your property performs at its best.</p>
+          <a href="partners/index.html" class="panel-btn">
+            Partner with Us
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="scroll-hint">
+    <span>Choose</span>
+    <div class="scroll-hint-line"></div>
+  </div>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+
+</body>
+</html>

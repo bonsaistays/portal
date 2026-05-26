@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Services — Bonsai Stays Partners</title>
+  <meta name="description" content="Premium housekeeping, linen programs, amenity restocking, guest experience management, property maintenance and revenue optimization for short-term rental owners across Ontario." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .services-hero {
+      padding: 140px 0 80px;
+      background: var(--green-deep);
+      position: relative;
+      overflow: hidden;
+    }
+    .services-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1800&q=60&auto=format&fit=crop');
+      background-size: cover; background-position: center;
+      opacity: 0.15;
+    }
+    .services-hero-content { position: relative; z-index: 2; max-width: 680px; }
+    .services-hero-content h1 { color: var(--white); margin-bottom: 16px; }
+    .services-hero-content h1 em { font-style: italic; color: var(--gold-light); }
+    .services-hero-content p { color: rgba(255,255,255,0.78); font-size: 1.05rem; line-height: 1.7; max-width: 540px; margin-bottom: 36px; }
+
+    /* Service detail cards */
+    .service-detail {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--gray-pale);
+    }
+    .service-detail:last-child { border-bottom: none; }
+    .service-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .service-detail-grid.reverse { direction: rtl; }
+    .service-detail-grid.reverse > * { direction: ltr; }
+    .service-detail-img {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      box-shadow: var(--shadow-hover);
+    }
+    .service-detail-img img { width: 100%; height: 100%; object-fit: cover; }
+    .service-detail-content {}
+    .service-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      font-weight: 600;
+      color: var(--green-tint);
+      line-height: 1;
+      margin-bottom: -12px;
+    }
+    .service-detail-content h2 { margin-bottom: 16px; }
+    .service-detail-content h2 em { font-style: italic; color: var(--green-sage); }
+    .service-detail-content > p { font-size: 1rem; line-height: 1.75; margin-bottom: 28px; }
+    .service-features-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+    .service-feature-item { display: flex; align-items: flex-start; gap: 14px; }
+    .service-feature-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--green-tint);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .service-feature-item h5 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
+    .service-feature-item p { font-size: 0.84rem; color: var(--gray-mid); line-height: 1.55; }
+
+    /* Linen showcase */
+    .linen-showcase {
+      background: var(--cream);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .linen-item { text-align: center; }
+    .linen-item div:first-child { font-size: 2rem; margin-bottom: 8px; }
+    .linen-item h6 { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+    .linen-item p { font-size: 0.78rem; color: var(--gray-mid); }
+
+    /* Trust badges */
+    .trust-section { background: var(--cream); }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .trust-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      text-align: center;
+      border: 1px solid var(--gray-pale);
+      box-shadow: var(--shadow-card);
+    }
+    .trust-card-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .trust-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
+    .trust-card p { font-size: 0.88rem; line-height: 1.65; }
+
+    /* Comparison table */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .comparison-table th {
+      background: var(--green-deep);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 18px 24px;
+      text-align: left;
+      letter-spacing: 0.04em;
+    }
+    .comparison-table th:first-child { width: 40%; }
+    .comparison-table td {
+      padding: 16px 24px;
+      font-size: 0.88rem;
+      color: var(--gray-mid);
+      border-bottom: 1px solid var(--gray-pale);
+      background: var(--white);
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table tr:nth-child(even) td { background: var(--cream); }
+    .comparison-table td:first-child { font-weight: 500; color: var(--charcoal); }
+    .check-green { color: var(--green-sage); font-weight: 700; font-size: 1rem; }
+    .check-gold { color: var(--gold); font-weight: 700; font-size: 1rem; }
+    .check-gray { color: var(--gray-pale); font-size: 1rem; }
+
+    /* CTA */
+    .services-cta { background: var(--green-deep); text-align: center; }
+    .services-cta h2 { color: var(--white); margin-bottom: 16px; }
+    .services-cta h2 em { color: var(--gold-light); font-style: italic; }
+    .services-cta p { color: rgba(255,255,255,0.75); font-size: 1.05rem; margin-bottom: 36px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .services-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    @media (max-width: 900px) {
+      .service-detail-grid { grid-template-columns: 1fr; gap: 40px; }
+      .service-detail-grid.reverse { direction: ltr; }
+      .trust-grid { grid-template-columns: 1fr 1fr; }
+      .linen-showcase { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .trust-grid { grid-template-columns: 1fr; }
+      .linen-showcase { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+        <span class="nav-badge partner">Partners</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="services.html" style="color:var(--green-deep);font-weight:600;">Services</a></li>
+        <li><a href="index.html#packages">Packages</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../guests/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Guests</a>
+        <a href="index.html#contact" class="btn btn-gold" style="padding:10px 20px;font-size:0.82rem;">Get Started</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="services-hero">
+    <div class="container">
+      <div class="services-hero-content">
+        <span class="eyebrow" style="color:var(--gold-light);">Our Services</span>
+        <h1>Everything your property <em>deserves.</em></h1>
+        <p>Six core services, each designed to protect your investment, elevate your guest ratings, and free your time. Use one or use them all.</p>
+        <a href="index.html#contact" class="btn btn-gold btn-lg">Get a Free Assessment</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service 1: Housekeeping -->
+  <div class="service-detail" id="housekeeping">
+    <div class="container">
+      <div class="service-detail-grid">
+        <div class="service-detail-img">
+          <img src="https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=900&q=80&auto=format&fit=crop" alt="Professional housekeeping" loading="lazy" />
+        </div>
+        <div class="service-detail-content">
+          <div class="service-num">01</div>
+          <span class="eyebrow">Housekeeping</span>
+          <h2>Hotel-grade cleaning, <em>every time.</em></h2>
+          <p>Our trained housekeeping teams follow a 47-point inspection checklist on every turnover. Not a wipe-down — a full reset. Guests arrive to a property that looks like it was prepared just for them.</p>
+          <div class="service-features-list">
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🧹</div>
+              <div><h5>Deep clean on every turnover</h5><p>Full vacuuming, mopping, surface sanitization, and kitchen cleaning after every checkout.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🛏</div>
+              <div><h5>Hotel-style bed making & staging</h5><p>Crisp hospital corners, fluffed pillows, and presentation styling that photographs beautifully.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">📸</div>
+              <div><h5>Photo inspection reports</h5><p>Timestamped photos sent within 1 hour of every turnover so you can see exactly how your property looks.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🌱</div>
+              <div><h5>Eco-friendly products available</h5><p>All-natural, non-toxic cleaning products available on request at no additional cost.</p></div>
+            </div>
+          </div>
+          <a href="index.html#contact" class="btn btn-primary">Enquire About Housekeeping →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service 2: Linen -->
+  <div class="service-detail" id="linen" style="background:var(--cream);">
+    <div class="container">
+      <div class="service-detail-grid reverse">
+        <div class="service-detail-img">
+          <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80&auto=format&fit=crop" alt="Premium linen service" loading="lazy" />
+        </div>
+        <div class="service-detail-content">
+          <div class="service-num">02</div>
+          <span class="eyebrow">Linen Program</span>
+          <h2>The linen upgrade that <em>changes reviews.</em></h2>
+          <p>Nothing impacts a guest's first impression like the quality of the linens. Our linen program provides hotel-quality sheets, duvet covers, and towels — commercially laundered and delivered fresh for every booking. No capital investment. No laundry to manage.</p>
+          <div class="linen-showcase">
+            <div class="linen-item"><div>🛏</div><h6>Bed Linens</h6><p>Egyptian cotton sheets, duvet covers, pillow cases</p></div>
+            <div class="linen-item"><div>🚿</div><h6>Bath Towels</h6><p>Fluffy bath, hand & face towels per guest</p></div>
+            <div class="linen-item"><div>🏊</div><h6>Pool & Beach</h6><p>Oversized pool & beach towels (add-on)</p></div>
+            <div class="linen-item"><div>🍽️</div><h6>Kitchen Linens</h6><p>Dish towels, oven mitts & table linens</p></div>
+            <div class="linen-item"><div>✨</div><h6>Commercial Laundry</h6><p>High-temp wash, quality inspection, no stains</p></div>
+            <div class="linen-item"><div>🔄</div><h6>Same-Day Replace</h6><p>Damaged item replaced before next guest</p></div>
+          </div>
+          <div style="margin-top:24px;"><a href="index.html#contact" class="btn btn-primary">Enquire About Linens →</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service 3: Amenity Restocking -->
+  <div class="service-detail" id="amenities">
+    <div class="container">
+      <div class="service-detail-grid">
+        <div class="service-detail-img">
+          <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=900&q=80&auto=format&fit=crop" alt="Amenity restocking" loading="lazy" />
+        </div>
+        <div class="service-detail-content">
+          <div class="service-num">03</div>
+          <span class="eyebrow">Amenity Restocking</span>
+          <h2>Fully stocked, <em>every arrival.</em></h2>
+          <p>The number one guest complaint in short-term rentals: running out of basics. Empty soap, no coffee, one roll of toilet paper. Our restocking program eliminates that entirely — your property is fully replenished before every guest arrives.</p>
+          <div class="service-features-list">
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🧴</div>
+              <div><h5>Premium toiletry kits</h5><p>Shampoo, conditioner, body wash, hand soap, and lotion — branded or unbranded.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">☕</div>
+              <div><h5>Kitchen & beverage essentials</h5><p>Coffee, tea, sugar, cooking oil, salt & pepper, dish soap, and more.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">📦</div>
+              <div><h5>Automatic inventory tracking</h5><p>We monitor stock levels and reorder before you run low. No spreadsheets required.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🎁</div>
+              <div><h5>Custom branded welcome kits</h5><p>Optional branded packaging with your property name for a premium first impression.</p></div>
+            </div>
+          </div>
+          <a href="index.html#contact" class="btn btn-primary">Enquire About Restocking →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service 4: Guest Experience -->
+  <div class="service-detail" id="guest-experience" style="background:var(--cream);">
+    <div class="container">
+      <div class="service-detail-grid reverse">
+        <div class="service-detail-img">
+          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=80&auto=format&fit=crop" alt="Guest experience management" loading="lazy" />
+        </div>
+        <div class="service-detail-content">
+          <div class="service-num">04</div>
+          <span class="eyebrow">Guest Experience</span>
+          <h2>Five-star reviews start <em>before check-in.</em></h2>
+          <p>From the first message to the final review, we manage every guest touchpoint so you don't have to. Our team handles check-in coordination, in-stay support, and review management — keeping your ratings high and your inbox quiet.</p>
+          <div class="service-features-list">
+            <div class="service-feature-item">
+              <div class="service-feature-icon">📱</div>
+              <div><h5>24/7 guest messaging & support</h5><p>Real people responding to guests in minutes, day or night.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🗺️</div>
+              <div><h5>Digital welcome guides</h5><p>Custom property guides with WiFi codes, local recommendations, check-out instructions, and more.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🔑</div>
+              <div><h5>Check-in & check-out coordination</h5><p>Keyless entry setup, early check-in management, and smooth check-out monitoring.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">⭐</div>
+              <div><h5>Review strategy & response</h5><p>We respond to every review and implement strategies to keep your ratings climbing.</p></div>
+            </div>
+          </div>
+          <a href="index.html#contact" class="btn btn-primary">Enquire About Guest Experience →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service 5: Maintenance -->
+  <div class="service-detail" id="maintenance">
+    <div class="container">
+      <div class="service-detail-grid">
+        <div class="service-detail-img">
+          <img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=900&q=80&auto=format&fit=crop" alt="Property maintenance" loading="lazy" />
+        </div>
+        <div class="service-detail-content">
+          <div class="service-num">05</div>
+          <span class="eyebrow">Property Maintenance</span>
+          <h2>Protect your asset, <em>proactively.</em></h2>
+          <p>Small issues become expensive problems when left unaddressed between guest stays. Our maintenance program keeps your property in peak condition with scheduled inspections, rapid-response repairs, and a trusted contractor network across all our regions.</p>
+          <div class="service-features-list">
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🔍</div>
+              <div><h5>Seasonal property inspections</h5><p>Full property walkthroughs before peak seasons to catch issues before guests do.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🔧</div>
+              <div><h5>Minor repairs & appliance issues</h5><p>Fast resolution on common issues — leaky faucets, appliance faults, broken fixtures.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🌊</div>
+              <div><h5>Hot tub, pool & dock care</h5><p>Regular water testing, chemical balancing, and equipment checks for waterfront properties.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🌿</div>
+              <div><h5>Landscaping & exterior upkeep</h5><p>Lawn care, snow removal, and seasonal exterior maintenance as needed.</p></div>
+            </div>
+          </div>
+          <a href="index.html#contact" class="btn btn-primary">Enquire About Maintenance →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service 6: Revenue Optimization -->
+  <div class="service-detail" id="revenue" style="background:var(--cream);">
+    <div class="container">
+      <div class="service-detail-grid reverse">
+        <div class="service-detail-img">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=80&auto=format&fit=crop" alt="Revenue optimization" loading="lazy" />
+        </div>
+        <div class="service-detail-content">
+          <div class="service-num">06</div>
+          <span class="eyebrow">Revenue Optimization</span>
+          <h2>More revenue. <em>Less guesswork.</em></h2>
+          <p>Most short-term rental owners leave 20–35% of potential revenue on the table through static pricing and underoptimized listings. Our revenue team implements dynamic pricing strategies and listing improvements that consistently increase occupancy and average nightly rates.</p>
+          <div class="service-features-list">
+            <div class="service-feature-item">
+              <div class="service-feature-icon">💹</div>
+              <div><h5>Dynamic pricing implementation</h5><p>AI-assisted pricing adjusted daily based on demand, local events, and competition.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">📷</div>
+              <div><h5>Professional photography</h5><p>Coordinated shoot with our vetted photographers. Better photos = higher click-through rates.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">🌐</div>
+              <div><h5>Multi-platform listing management</h5><p>Your property listed and synced across Airbnb, VRBO, and your direct booking site.</p></div>
+            </div>
+            <div class="service-feature-item">
+              <div class="service-feature-icon">📊</div>
+              <div><h5>Monthly performance reporting</h5><p>Revenue, occupancy, ADR, and competitive benchmarking delivered monthly.</p></div>
+            </div>
+          </div>
+          <a href="index.html#contact" class="btn btn-primary">Enquire About Revenue Optimization →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust Section -->
+  <section class="section trust-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Why It Works</span>
+        <h2>The results speak for <em>themselves.</em></h2>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-card-icon">⭐</div>
+          <h3>Average rating lifts from 4.7 to 4.95+</h3>
+          <p>Properties that join the full Bonsai program see an average rating improvement within 60 days — driven primarily by cleanliness and amenity scores.</p>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-icon">📈</div>
+          <h3>20–35% revenue increase on average</h3>
+          <p>Our dynamic pricing and listing optimization consistently outperforms self-managed properties in the same region and property category.</p>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-icon">🕐</div>
+          <h3>Save 15+ hours per property per month</h3>
+          <p>Owner surveys report saving an average of 15 hours a month per property once they're on our full management program. Your time back, guaranteed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Table -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Service Comparison</span>
+        <h2>What's included in <em>each package.</em></h2>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Essentials</th>
+              <th>Professional</th>
+              <th>Portfolio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Professional Housekeeping</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Standard Linen Service</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Premium Linen Program</td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Amenity Restocking</td><td>Basic</td><td><span class="check-green">Full</span></td><td><span class="check-green">Full + Branded</span></td></tr>
+            <tr><td>Damage Inspection Reports</td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Guest Experience Management</td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>24/7 Guest Support</td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Owner Reporting Dashboard</td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Property Maintenance</td><td><span class="check-gray">—</span></td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Revenue Optimization</td><td><span class="check-gray">—</span></td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Dedicated Account Manager</td><td><span class="check-gray">—</span></td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Quarterly Strategy Reviews</td><td><span class="check-gray">—</span></td><td><span class="check-gray">—</span></td><td><span class="check-green">✓</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:center;margin-top:36px;">
+        <a href="index.html#contact" class="btn btn-primary btn-lg">Get a Custom Quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section services-cta">
+    <div class="container">
+      <span class="eyebrow" style="color:var(--gold-light);">Ready to get started?</span>
+      <h2>Your property. Our <em>expertise.</em></h2>
+      <p>Book a free property assessment and we'll build you a custom service plan within 48 hours — no commitment required.</p>
+      <div class="services-cta-btns">
+        <a href="index.html#contact" class="btn btn-gold btn-lg">Get a Free Assessment</a>
+        <a href="about.html" class="btn btn-white btn-lg">Meet the Team</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-logo">🌿 Bonsai <span>Stays</span></div><p class="footer-desc">Ontario's premier short-term rental operations partner.</p><div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">Li</a></div></div>
+        <div class="footer-col"><h5>Services</h5><ul><li><a href="#housekeeping">Housekeeping</a></li><li><a href="#linen">Linen Program</a></li><li><a href="#amenities">Amenity Restocking</a></li><li><a href="#guest-experience">Guest Experience</a></li><li><a href="#maintenance">Maintenance</a></li><li><a href="#revenue">Revenue Optimization</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="index.html#packages">Packages</a></li><li><a href="../guests/index.html">For Guests</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Regions</h5><ul><li><a href="#">Cottage Country</a></li><li><a href="#">Blue Mountain</a></li><li><a href="#">Prince Edward County</a></li><li><a href="#">Niagara</a></li><li><a href="#">Wasaga Beach</a></li><li><a href="#">Toronto</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us — Bonsai Stays Partners</title>
+  <meta name="description" content="Learn about Bonsai Stays — Ontario's leading short-term rental operations partner. Our story, our team, and why 200+ property owners trust us." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .about-hero {
+      padding: 140px 0 96px;
+      background: var(--green-deep);
+      position: relative; overflow: hidden;
+    }
+    .about-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1800&q=60&auto=format&fit=crop');
+      background-size: cover; background-position: center;
+      opacity: 0.15;
+    }
+    .about-hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-hero-text h1 { color: var(--white); margin-bottom: 20px; }
+    .about-hero-text h1 em { font-style: italic; color: var(--gold-light); }
+    .about-hero-text p { color: rgba(255,255,255,0.8); font-size: 1.05rem; line-height: 1.75; margin-bottom: 16px; }
+    .about-hero-img { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/5; box-shadow: 0 24px 80px rgba(0,0,0,0.4); }
+    .about-hero-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Story timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 28px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--green-light), var(--green-tint));
+    }
+    .timeline-item { display: flex; gap: 32px; align-items: flex-start; padding-bottom: 48px; position: relative; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--green-deep);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .timeline-content { padding-top: 12px; }
+    .timeline-year { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 6px; }
+    .timeline-content h4 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: 6px; }
+    .timeline-content p { font-size: 0.88rem; color: var(--gray-mid); line-height: 1.65; }
+
+    /* Values */
+    .values-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+    }
+    .value-item {
+      background: var(--white); border-radius: var(--radius-lg);
+      padding: 32px 28px; border: 1.5px solid var(--gray-pale);
+      display: flex; gap: 18px; align-items: flex-start;
+      transition: var(--transition);
+    }
+    .value-item:hover { border-color: var(--green-light); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+    .value-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .value-item h4 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--charcoal); margin-bottom: 6px; }
+    .value-item p { font-size: 0.86rem; color: var(--gray-mid); line-height: 1.6; }
+
+    /* Stats */
+    .stats-band { background: var(--gold); padding: 48px 0; }
+    .stats-band-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .stats-band-item { text-align: center; padding: 0 24px; border-right: 1px solid rgba(255,255,255,0.3); }
+    .stats-band-item:last-child { border-right: none; }
+    .stats-band-num { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 600; color: var(--white); line-height: 1; display: block; margin-bottom: 6px; }
+    .stats-band-label { font-size: 0.82rem; color: rgba(255,255,255,0.85); }
+
+    /* Team */
+    .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+    .team-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      overflow: hidden; border: 1px solid var(--gray-pale);
+      box-shadow: var(--shadow-card); transition: var(--transition);
+    }
+    .team-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+    .team-photo { aspect-ratio: 1; overflow: hidden; background: var(--green-tint); }
+    .team-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 600; color: var(--green-deep); }
+    .team-body { padding: 20px 20px 22px; }
+    .team-name { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
+    .team-role { font-size: 0.8rem; color: var(--gold); font-weight: 600; margin-bottom: 10px; }
+    .team-bio { font-size: 0.82rem; color: var(--gray-mid); line-height: 1.6; }
+
+    /* Regions */
+    .regions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .region-card {
+      background: var(--white); border-radius: var(--radius-md);
+      padding: 24px; border: 1px solid var(--gray-pale);
+      display: flex; gap: 14px; align-items: flex-start;
+      transition: var(--transition);
+    }
+    .region-card:hover { border-color: var(--green-light); box-shadow: var(--shadow-card); }
+    .region-emoji { font-size: 1.8rem; flex-shrink: 0; }
+    .region-card h4 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
+    .region-card p { font-size: 0.8rem; color: var(--gray-mid); }
+    .region-card .tag { margin-top: 8px; }
+
+    /* Press -->
+    .press-logos { display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap; }
+    .press-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--gray-pale); letter-spacing: 0.05em; transition: var(--transition); }
+    .press-logo:hover { color: var(--gray-light); }
+
+    /* CTA */
+    .about-cta { background: var(--cream); text-align: center; }
+    .about-cta h2 { margin-bottom: 16px; }
+    .about-cta p { font-size: 1.05rem; margin-bottom: 36px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+    @media (max-width: 1024px) {
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-band-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .stats-band-item { border-right: none; }
+    }
+    @media (max-width: 768px) {
+      .about-hero-grid { grid-template-columns: 1fr; }
+      .about-hero-img { aspect-ratio: 16/9; }
+      .values-grid { grid-template-columns: 1fr; }
+      .regions-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .regions-grid { grid-template-columns: 1fr; }
+      .stats-band-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+        <span class="nav-badge partner">Partners</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="index.html#packages">Packages</a></li>
+        <li><a href="about.html" style="color:var(--green-deep);font-weight:600;">About</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../guests/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Guests</a>
+        <a href="index.html#contact" class="btn btn-gold" style="padding:10px 20px;font-size:0.82rem;">Get Started</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="about-hero">
+    <div class="container">
+      <div class="about-hero-grid">
+        <div class="about-hero-text">
+          <span class="eyebrow" style="color:var(--gold-light);">Our Story</span>
+          <h1>Built by operators, <em>for operators.</em></h1>
+          <p>Bonsai Stays wasn't founded by software entrepreneurs or real estate investors. It was built by people who had actually managed short-term rental properties — and grown frustrated with the gap between what guests expected and what the industry delivered.</p>
+          <p>We set out to create the operations partner we wished had existed when we were owners: expert local teams, transparent reporting, hotel-grade standards, and a genuine commitment to making every property perform at its best.</p>
+          <p>Today, we're trusted by 200+ property owners and managers across six regions in Ontario.</p>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:36px;">
+            <a href="index.html#contact" class="btn btn-gold btn-lg">Partner with Us</a>
+            <a href="services.html" class="btn btn-white btn-lg">Our Services</a>
+          </div>
+        </div>
+        <div class="about-hero-img">
+          <img src="https://images.unsplash.com/photo-1600047509358-9dc75507daeb?w=900&q=80&auto=format&fit=crop" alt="Bonsai Stays team at work" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Band -->
+  <div class="stats-band">
+    <div class="container">
+      <div class="stats-band-grid">
+        <div class="stats-band-item"><span class="stats-band-num">200+</span><span class="stats-band-label">Properties Managed</span></div>
+        <div class="stats-band-item"><span class="stats-band-num">98%</span><span class="stats-band-label">Client Retention Rate</span></div>
+        <div class="stats-band-item"><span class="stats-band-num">4.95★</span><span class="stats-band-label">Avg. Property Rating</span></div>
+        <div class="stats-band-item"><span class="stats-band-num">6</span><span class="stats-band-label">Regions Across Ontario</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Our Story / Timeline -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
+        <div>
+          <span class="eyebrow">How We Got Here</span>
+          <h2>Built from the <em>ground up.</em></h2>
+          <div class="divider divider-left"></div>
+          <p style="font-size:1rem;line-height:1.75;margin-bottom:40px;">Every milestone has made us better. Here's how Bonsai Stays grew from a single property operation into Ontario's most trusted hospitality partner.</p>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot">20</div>
+              <div class="timeline-content">
+                <div class="timeline-year">2020</div>
+                <h4>The idea takes root</h4>
+                <p>Founded with 3 properties in Muskoka after seeing firsthand how inconsistent self-management was impacting guest reviews and owner revenue.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">21</div>
+              <div class="timeline-content">
+                <div class="timeline-year">2021</div>
+                <h4>Linen program launches</h4>
+                <p>Developed our signature linen program after realising it was the single biggest driver of 5-star cleanliness reviews. 25 properties onboarded by year end.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">22</div>
+              <div class="timeline-content">
+                <div class="timeline-year">2022</div>
+                <h4>Expanding across Ontario</h4>
+                <p>Opened regional teams in Blue Mountain, Prince Edward County, and Niagara. Reached 75 managed properties and launched our guest experience division.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">23</div>
+              <div class="timeline-content">
+                <div class="timeline-year">2023</div>
+                <h4>Guest platform & in-stay experiences</h4>
+                <p>Launched the Bonsai Stays guest-facing platform, connecting travellers with our managed properties and introducing bookable in-stay experiences.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot">26</div>
+              <div class="timeline-content">
+                <div class="timeline-year">2026</div>
+                <h4>200+ properties & growing</h4>
+                <p>Operating across all six Ontario regions with a full suite of six services. Trusted by independent owners and multi-property portfolio managers alike.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="position:sticky;top:120px;">
+          <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=900&q=80&auto=format&fit=crop" alt="Property prepared by Bonsai team" style="width:100%;border-radius:var(--radius-lg);box-shadow:var(--shadow-hover);" />
+          <div style="background:var(--green-tint);border-radius:var(--radius-md);padding:28px;margin-top:24px;border:1.5px solid var(--green-light);">
+            <p style="font-family:'Playfair Display',serif;font-size:1.1rem;font-style:italic;color:var(--green-deep);line-height:1.6;margin-bottom:12px;">"We didn't build Bonsai to be the biggest operator in Ontario. We built it to be the best — and let the growth follow."</p>
+            <p style="font-size:0.82rem;font-weight:600;color:var(--gray-mid);">— Founder, Bonsai Stays</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">What Drives Us</span>
+        <h2>Our operating <em>principles.</em></h2>
+        <p>The values that shape every decision — from how we onboard a property to how we respond to a guest complaint at 2am.</p>
+      </div>
+      <div class="values-grid">
+        <div class="value-item"><div class="value-icon">🔬</div><div><h4>Standards over shortcuts</h4><p>We follow our 47-point checklist every time, even when it's faster not to. The standard exists because corners get cut, and guests notice.</p></div></div>
+        <div class="value-item"><div class="value-icon">📞</div><div><h4>Owners treated like partners</h4><p>You'll always have a direct line to your account manager. No ticketing systems, no form submissions. Real people, real conversations.</p></div></div>
+        <div class="value-item"><div class="value-icon">📍</div><div><h4>Local knowledge is irreplaceable</h4><p>Our teams live in the regions they serve. That means faster response times, better supplier relationships, and genuine local insight.</p></div></div>
+        <div class="value-item"><div class="value-icon">📊</div><div><h4>Data-informed, not data-driven</h4><p>We track everything, but we never let a metric override common sense. Numbers inform our decisions — they don't make them.</p></div></div>
+        <div class="value-item"><div class="value-icon">🤝</div><div><h4>No lock-in, ever</h4><p>Month-to-month agreements only. We believe the best retention strategy is to be so good you'd never want to leave — not to trap you in a contract.</p></div></div>
+        <div class="value-item"><div class="value-icon">🌱</div><div><h4>Long-term thinking</h4><p>We'd rather lose a client in the short term than overpromise and underdeliver. Our 98% retention rate reflects that approach.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">The Team</span>
+        <h2>The people behind the <em>standard.</em></h2>
+        <p>A tight-knit, experienced team with deep roots in hospitality operations, property management, and guest experience.</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-photo"><div class="team-photo-placeholder">D</div></div>
+          <div class="team-body">
+            <div class="team-name">Daniel M.</div>
+            <div class="team-role">Founder & CEO</div>
+            <p class="team-bio">12 years in property operations. Built Bonsai after managing his own portfolio and realizing the industry needed a better partner model.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><div class="team-photo-placeholder">M</div></div>
+          <div class="team-body">
+            <div class="team-name">Marcus T.</div>
+            <div class="team-role">Director of Operations</div>
+            <p class="team-bio">Leads all regional operations teams. Former hotel operations manager who built our quality inspection system from scratch.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><div class="team-photo-placeholder">A</div></div>
+          <div class="team-body">
+            <div class="team-name">Aisha K.</div>
+            <div class="team-role">Head of Partner Success</div>
+            <p class="team-bio">Your first call when you join Bonsai. Aisha manages all new partner onboarding and works to grow owner revenue month over month.</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><div class="team-photo-placeholder">S</div></div>
+          <div class="team-body">
+            <div class="team-name">Sarah L.</div>
+            <div class="team-role">Head of Guest Experience</div>
+            <p class="team-bio">Runs our 24/7 guest support operation. Former luxury concierge who applies hotel standards to every guest interaction on the platform.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Regions -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Where We Operate</span>
+        <h2>Local teams in every <em>market.</em></h2>
+        <p>Not remote management — actual people on the ground in every region we serve.</p>
+      </div>
+      <div class="regions-grid">
+        <div class="region-card"><div class="region-emoji">🌲</div><div><h4>Cottage Country</h4><p>Muskoka & Haliburton · 24 properties</p><span class="tag tag-green">Active</span></div></div>
+        <div class="region-card"><div class="region-emoji">⛷️</div><div><h4>Blue Mountain</h4><p>Collingwood & The Blue Mountains · 18 properties</p><span class="tag tag-green">Active</span></div></div>
+        <div class="region-card"><div class="region-emoji">🍷</div><div><h4>Prince Edward County</h4><p>Picton & Wellington · 15 properties</p><span class="tag tag-green">Active</span></div></div>
+        <div class="region-card"><div class="region-emoji">🌊</div><div><h4>Niagara Region</h4><p>Niagara-on-the-Lake · 12 properties</p><span class="tag tag-green">Active</span></div></div>
+        <div class="region-card"><div class="region-emoji">🏖️</div><div><h4>Wasaga Beach</h4><p>Georgian Bay · 9 properties</p><span class="tag tag-green">Active</span></div></div>
+        <div class="region-card"><div class="region-emoji">🏙️</div><div><h4>Toronto</h4><p>King West, The Annex, Distillery · 22 properties</p><span class="tag tag-green">Active</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section about-cta">
+    <div class="container">
+      <span class="eyebrow">Ready to partner?</span>
+      <h2>Let's talk about your <em>property.</em></h2>
+      <p>Book a free, no-obligation property assessment. We'll review your current setup and put together a custom service plan within 48 hours.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="index.html#contact" class="btn btn-gold btn-lg">Get a Free Assessment</a>
+        <a href="services.html" class="btn btn-outline btn-lg">View Our Services</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="footer-logo">🌿 Bonsai <span>Stays</span></div><p class="footer-desc">Ontario's premier short-term rental operations partner.</p><div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">Li</a></div></div>
+        <div class="footer-col"><h5>Services</h5><ul><li><a href="services.html#housekeeping">Housekeeping</a></li><li><a href="services.html#linen">Linen Program</a></li><li><a href="services.html#amenities">Amenity Restocking</a></li><li><a href="services.html#guest-experience">Guest Experience</a></li><li><a href="services.html#maintenance">Maintenance</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="index.html#packages">Packages</a></li><li><a href="../guests/index.html">For Guests</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Regions</h5><ul><li><a href="#">Cottage Country</a></li><li><a href="#">Blue Mountain</a></li><li><a href="#">Prince Edward County</a></li><li><a href="#">Niagara</a></li><li><a href="#">Wasaga Beach</a></li><li><a href="#">Toronto</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+</body>
+</html>
