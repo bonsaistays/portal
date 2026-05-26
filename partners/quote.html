@@ -530,6 +530,94 @@
       font-style: italic;
     }
 
+    /* ── Locked state — redact prices until contact submitted ── */
+    .is-locked .quote-line-value {
+      color: transparent !important;
+      background: rgba(255,255,255,0.14);
+      border-radius: 4px;
+      min-width: 52px;
+      display: inline-block;
+      user-select: none;
+    }
+    .is-locked .quote-total-amount {
+      color: transparent !important;
+      background: rgba(198,160,79,0.22);
+      border-radius: 6px;
+      min-width: 80px;
+      display: inline-block;
+      user-select: none;
+    }
+    .is-locked .membership-price-tag,
+    .is-locked .net-amount,
+    .is-locked #linenSavingPer,
+    .is-locked .savings-row span:last-child {
+      color: transparent !important;
+      background: rgba(255,255,255,0.14);
+      border-radius: 4px;
+      min-width: 44px;
+      display: inline-block;
+      user-select: none;
+    }
+    .unlock-notice {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      margin-top: 10px;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.55);
+    }
+    /* Unlock form inside panel */
+    .quote-unlock-form { padding: 0 32px 28px; }
+    .quote-unlock-form p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .quote-unlock-form p strong { color: var(--white); }
+    .unlock-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      color: var(--white);
+      background: rgba(255,255,255,0.08);
+      outline: none;
+      transition: var(--transition);
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .unlock-input::placeholder { color: rgba(255,255,255,0.35); }
+    .unlock-input:focus { border-color: var(--gold); background: rgba(255,255,255,0.12); }
+    .unlock-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--gold);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.03em;
+    }
+    .unlock-btn:hover { background: #b8903e; transform: translateY(-1px); }
+    .unlock-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .unlock-privacy {
+      text-align: center;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 8px;
+    }
+
     /* ── Modal ──────────────────────────────────────────── */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 1000;
@@ -849,10 +937,11 @@
 
       <!-- RIGHT: Quote Panel -->
       <div class="quote-panel">
-        <div class="quote-panel-card">
+        <div class="quote-panel-card is-locked" id="quotePanelCard">
           <div class="quote-panel-header">
             <h3>Your Personalised Quote</h3>
             <p>Updates live as you fill in your property details</p>
+            <div class="unlock-notice" id="lockNotice">🔒 Enter your details below to reveal your pricing</div>
           </div>
 
           <!-- Housekeeping -->
@@ -939,7 +1028,18 @@
             <p class="quote-total-sub">per changeover · prices in CAD</p>
           </div>
 
-          <div class="quote-cta">
+          <!-- Unlock form (shown when locked) -->
+          <div class="quote-unlock-form" id="unlockFormSection">
+            <p><strong>Your quote is ready.</strong><br/>Enter your details to reveal your pricing — we'll also send it to your inbox.</p>
+            <input class="unlock-input" type="text"  id="ul_name"  placeholder="Your name"     autocomplete="name" />
+            <input class="unlock-input" type="email" id="ul_email" placeholder="Email address" autocomplete="email" />
+            <input class="unlock-input" type="tel"   id="ul_phone" placeholder="Phone number"  autocomplete="tel" />
+            <button class="unlock-btn" id="unlockBtn" onclick="submitUnlock()">Reveal My Quote →</button>
+            <p class="unlock-privacy">🔒 Your details are private and never shared.</p>
+          </div>
+
+          <!-- Post-unlock CTA (hidden until revealed) -->
+          <div class="quote-cta" id="postUnlockCta" style="display:none;">
             <a href="#" onclick="openModal('quote'); return false;">Request This Quote →</a>
             <p>We'll follow up within 24 hours to confirm your package</p>
           </div>
@@ -947,7 +1047,7 @@
         </div>
 
         <!-- Membership Card -->
-        <div class="membership-card">
+        <div class="membership-card is-locked" id="membershipCard">
           <div class="membership-card-header">
             <span class="m-icon">⭐</span>
             <h4>Annual Membership</h4>
@@ -1003,7 +1103,7 @@
 
             <div class="membership-zero-state" id="membershipZeroState">Enter your property details above to see your personalised savings.</div>
 
-            <a href="#" class="membership-join-btn" onclick="openModal('membership'); return false;">Join as a Member →</a>
+            <a href="#" class="membership-join-btn" id="memberJoinBtn" onclick="openModal('membership'); return false;" style="display:none;">Join as a Member →</a>
           </div>
         </div>
 
@@ -1011,6 +1111,18 @@
 
     </div>
   </div>
+
+  <!-- Hidden form for unlock lead capture -->
+  <form name="quote-unlock" netlify netlify-honeypot="bot-field" hidden>
+    <input name="bot-field" />
+    <input name="name" />
+    <input name="email" />
+    <input name="phone" />
+    <input name="property-details" />
+    <input name="housekeeping-total" />
+    <input name="linen-total" />
+    <input name="changeover-total" />
+  </form>
 
   <!-- Hidden form for Netlify detection at build time -->
   <form name="quote-request" netlify netlify-honeypot="bot-field" hidden>
@@ -1306,6 +1418,46 @@
       const origCalc = window.calculate;
       window.calculate = function() { origCalc(); setTimeout(reportHeight, 80); };
     })();
+
+    // ── UNLOCK ───────────────────────────────────────────
+    async function submitUnlock() {
+      const name  = document.getElementById('ul_name').value.trim();
+      const email = document.getElementById('ul_email').value.trim();
+      const phone = document.getElementById('ul_phone').value.trim();
+
+      if (!name)  { document.getElementById('ul_name').focus();  return; }
+      if (!email || !email.includes('@')) { document.getElementById('ul_email').focus(); return; }
+      if (!phone) { document.getElementById('ul_phone').focus(); return; }
+
+      const btn = document.getElementById('unlockBtn');
+      btn.disabled = true;
+      btn.textContent = 'Unlocking…';
+
+      // Submit lead to Netlify
+      const body = new URLSearchParams({
+        'form-name':         'quote-unlock',
+        'bot-field':         '',
+        'name':              name,
+        'email':             email,
+        'phone':             phone,
+        'property-details':  buildPropertyDetails(),
+        'housekeeping-total': document.getElementById('housekeepingTotal').textContent,
+        'linen-total':        document.getElementById('linenTotal').textContent,
+        'changeover-total':   document.getElementById('grandTotal').textContent,
+      });
+
+      try {
+        await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+      } catch(e) { /* still reveal even if submit fails */ }
+
+      // Reveal pricing
+      document.getElementById('quotePanelCard').classList.remove('is-locked');
+      document.getElementById('membershipCard').classList.remove('is-locked');
+      document.getElementById('lockNotice').style.display        = 'none';
+      document.getElementById('unlockFormSection').style.display = 'none';
+      document.getElementById('postUnlockCta').style.display     = '';
+      document.getElementById('memberJoinBtn').style.display      = '';
+    }
 
     // ── MODAL ────────────────────────────────────────────
     // Snapshot of last calculated values for the modal summary
