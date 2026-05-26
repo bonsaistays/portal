@@ -461,7 +461,7 @@
               <input type="number" id="twin" min="0" value="0" oninput="calculate()" />
             </div>
             <div class="input-group">
-              <label>Bunk Beds <span>(2 credits each)</span></label>
+              <label>Bunk Beds</label>
               <input type="number" id="bunk" min="0" value="0" oninput="calculate()" />
             </div>
           </div>
@@ -494,7 +494,7 @@
             <div class="form-card-icon">🏠</div>
             <div>
               <h4>Interior Spaces</h4>
-              <p>Each space counts as 1 credit toward housekeeping</p>
+              <p>Kitchens, dining rooms, and living areas</p>
             </div>
           </div>
           <div class="input-grid-3">
@@ -519,7 +519,7 @@
             <div class="form-card-icon">🌿</div>
             <div>
               <h4>Outdoor Spaces</h4>
-              <p>Select all that apply — each counts as 1 credit</p>
+              <p>Select all outdoor spaces that apply</p>
             </div>
           </div>
           <div class="checkbox-grid">
@@ -581,33 +581,12 @@
           <div class="quote-panel-header">
             <h3>Your Personalised Quote</h3>
             <p>Updates live as you fill in your property details</p>
-            <div class="credits-badge">
-              <span>Total credits:</span>
-              <strong id="totalCredits">0</strong>
-              <span>× $12.50</span>
-            </div>
           </div>
 
           <!-- Housekeeping -->
           <div class="quote-section">
             <div class="quote-section-title">Housekeeping</div>
             <div class="quote-line">
-              <span class="quote-line-label">Beds & Bunks</span>
-              <span class="quote-line-value" id="hkBeds">$0.00</span>
-            </div>
-            <div class="quote-line">
-              <span class="quote-line-label">Bathrooms</span>
-              <span class="quote-line-value" id="hkBaths">$0.00</span>
-            </div>
-            <div class="quote-line">
-              <span class="quote-line-label">Interior Spaces</span>
-              <span class="quote-line-value" id="hkSpaces">$0.00</span>
-            </div>
-            <div class="quote-line">
-              <span class="quote-line-label">Outdoor Spaces</span>
-              <span class="quote-line-value" id="hkOutdoor">$0.00</span>
-            </div>
-            <div class="quote-line" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:6px;">
               <span class="quote-line-label" style="font-weight:700;color:rgba(255,255,255,0.9);">Housekeeping Total</span>
               <span class="quote-line-value" style="font-size:1rem;color:var(--gold);" id="housekeepingTotal">$0.00</span>
             </div>
@@ -757,11 +736,11 @@
       const outdoorCredits = deck + dock + htub + sauna + fire;
       const totalCredits   = bedCredits + bunkCredits + bathCredits + spaceCredits + outdoorCredits;
 
-      const hkBeds    = (bedCredits + bunkCredits) * 12.5;
-      const hkBaths   = bathCredits   * 12.5;
-      const hkSpaces  = spaceCredits  * 12.5;
-      const hkOutdoor = outdoorCredits * 12.5;
-      const hkTotal   = totalCredits  * 12.5;
+      const hkBeds    = (bedCredits + bunkCredits) * 15;
+      const hkBaths   = bathCredits   * 15;
+      const hkSpaces  = spaceCredits  * 15;
+      const hkOutdoor = outdoorCredits * 15;
+      const hkTotal   = totalCredits  * 15;
 
       // ── LINEN ─────────────────────────────────────────────
       // Sheet sets
@@ -794,12 +773,6 @@
       const changeoverTotal = hkTotal + linenTotal + bathAmenities + consumables + welcome;
 
       // ── UPDATE UI ─────────────────────────────────────────
-      document.getElementById('totalCredits').textContent = totalCredits;
-
-      document.getElementById('hkBeds').textContent    = fmt(hkBeds);
-      document.getElementById('hkBaths').textContent   = fmt(hkBaths);
-      document.getElementById('hkSpaces').textContent  = fmt(hkSpaces);
-      document.getElementById('hkOutdoor').textContent = fmt(hkOutdoor);
       document.getElementById('housekeepingTotal').textContent = fmt(hkTotal);
 
       document.getElementById('linenBeds').textContent      = fmt(sheetCost);
