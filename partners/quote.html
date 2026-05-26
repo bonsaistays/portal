@@ -813,26 +813,36 @@
           </div>
         </div>
 
-        <!-- Beach Towels Add-on -->
+        <!-- Add-ons -->
         <div class="form-card">
           <div class="form-card-header">
             <div class="form-card-icon">🏖️</div>
             <div>
-              <h4>Beach Towels</h4>
-              <p>Optional add-on — $2.00 per towel per changeover</p>
+              <h4>Add-ons</h4>
+              <p>Optional extras laundered and restocked every changeover</p>
             </div>
           </div>
-          <div class="addon-row">
+          <div class="addon-row" style="margin-bottom:10px;">
             <div class="addon-toggle" onclick="toggleBeachTowels()">
               <div class="toggle-switch" id="beachToggle"></div>
-              <span style="font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;color:var(--charcoal);">Add beach towels to my package</span>
+              <span style="font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;color:var(--charcoal);">Beach Towels <span style="font-weight:400;color:var(--gray-light);">· $2.00 each</span></span>
             </div>
             <div class="addon-qty" id="beachQtyRow" style="display:none;">
               <label>How many?</label>
               <input type="number" id="beachQty" min="0" value="0" oninput="calculate()" />
             </div>
           </div>
-          <p class="info-note">Beach towels are laundered and restocked with every changeover. Great for lakefront and waterfront properties.</p>
+          <div class="addon-row">
+            <div class="addon-toggle" onclick="toggleRobes()">
+              <div class="toggle-switch" id="robeToggle"></div>
+              <span style="font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;color:var(--charcoal);">Robes <span style="font-weight:400;color:var(--gray-light);">· $8.00 each</span></span>
+            </div>
+            <div class="addon-qty" id="robeQtyRow" style="display:none;">
+              <label>How many?</label>
+              <input type="number" id="robeQty" min="0" value="0" oninput="calculate()" />
+            </div>
+          </div>
+          <p class="info-note">Great for lakefront and waterfront properties. All add-ons are laundered and restocked with every changeover.</p>
         </div>
 
       </div>
@@ -876,6 +886,10 @@
             <div class="quote-line" id="beachTowelLine" style="display:none;">
               <span class="quote-line-label">Beach Towels</span>
               <span class="quote-line-value" id="linenBeach">$0.00</span>
+            </div>
+            <div class="quote-line" id="robeLine" style="display:none;">
+              <span class="quote-line-label">Robes</span>
+              <span class="quote-line-value" id="linenRobes">$0.00</span>
             </div>
             <div class="quote-line">
               <span class="quote-line-label">Delivery Fee</span>
@@ -1120,6 +1134,7 @@
 
   <script>
     let beachEnabled = false;
+    let robeEnabled  = false;
 
     function toggleCheck(el, id) {
       el.classList.toggle('checked');
@@ -1134,6 +1149,15 @@
       document.getElementById('beachQtyRow').style.display = beachEnabled ? 'flex' : 'none';
       document.getElementById('beachTowelLine').style.display = beachEnabled ? 'flex' : 'none';
       if (!beachEnabled) document.getElementById('beachQty').value = 0;
+      calculate();
+    }
+
+    function toggleRobes() {
+      robeEnabled = !robeEnabled;
+      document.getElementById('robeToggle').classList.toggle('on', robeEnabled);
+      document.getElementById('robeQtyRow').style.display = robeEnabled ? 'flex' : 'none';
+      document.getElementById('robeLine').style.display = robeEnabled ? 'flex' : 'none';
+      if (!robeEnabled) document.getElementById('robeQty').value = 0;
       calculate();
     }
 
@@ -1156,6 +1180,7 @@
       const sauna  = document.getElementById('sauna').checked   ? 1 : 0;
       const fire   = document.getElementById('firepit').checked ? 1 : 0;
       const bqty   = beachEnabled ? Math.max(0, parseInt(document.getElementById('beachQty').value) || 0) : 0;
+      const rqty   = robeEnabled  ? Math.max(0, parseInt(document.getElementById('robeQty').value)  || 0) : 0;
 
       // Total physical beds (for changeover tier)
       const totalBeds = king + queen + dbl + twin + (bunk * 2);
@@ -1191,11 +1216,12 @@
       // Dish towels
       const dishCost = kitch * 2 * 0.80;
 
-      // Beach towels
+      // Beach towels & robes
       const beachCost = bqty * 2.00;
+      const robeCost  = rqty * 8.00;
 
       const deliveryFee = 15;
-      const linenSubtotal = sheetCost + bedTowelCost + bathTowelCost + dishCost + beachCost;
+      const linenSubtotal = sheetCost + bedTowelCost + bathTowelCost + dishCost + beachCost + robeCost;
       const linenTotal    = linenSubtotal + deliveryFee;
 
       // ── CHANGEOVER PACKAGE ────────────────────────────────
@@ -1229,6 +1255,7 @@
       document.getElementById('linenBathTowels').textContent= fmt(bathTowelCost);
       document.getElementById('linenDish').textContent      = fmt(dishCost);
       document.getElementById('linenBeach').textContent     = fmt(beachCost);
+      document.getElementById('linenRobes').textContent     = fmt(robeCost);
       document.getElementById('linenDelivery').textContent  = fmt(deliveryFee);
       document.getElementById('linenTotal').textContent     = fmt(linenTotal);
 
