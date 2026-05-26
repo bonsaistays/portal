@@ -9,12 +9,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../assets/style.css" />
+  <!-- Detect embed mode before render to prevent flash -->
+  <script>if(new URLSearchParams(window.location.search).get('embed')){document.documentElement.classList.add('embed-mode');}</script>
   <style>
     /* Embed mode — hide chrome when loaded in iframe */
-    body.embed-mode .nav,
-    body.embed-mode .quote-hero,
-    body.embed-mode .footer { display: none !important; }
-    body.embed-mode .quote-layout { padding-top: 16px; }
+    .embed-mode .nav,
+    .embed-mode .quote-hero,
+    .embed-mode .footer { display: none !important; }
+    .embed-mode .quote-layout { padding-top: 16px; padding-bottom: 32px; }
+    .embed-mode .quote-panel { position: static !important; }
 
     .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
@@ -1265,18 +1268,16 @@
 
     // ── EMBED MODE ───────────────────────────────────────
     (function() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('embed')) {
-        document.body.classList.add('embed-mode');
-        // Report height to parent so iframe can auto-resize
-        function reportHeight() {
-          parent.postMessage({ bonsaiIframeHeight: document.body.scrollHeight }, '*');
-        }
-        window.addEventListener('load', reportHeight);
-        // Re-report after any calculate() — membership card toggles visibility
-        const origCalc = window.calculate;
-        window.calculate = function() { origCalc(); setTimeout(reportHeight, 50); };
+      if (!new URLSearchParams(window.location.search).get('embed')) return;
+      // Report height to parent so iframe can auto-resize
+      function reportHeight() {
+        parent.postMessage({ bonsaiIframeHeight: document.documentElement.scrollHeight }, '*');
       }
+      window.addEventListener('load', reportHeight);
+      window.addEventListener('resize', reportHeight);
+      // Re-report after any calculate() — membership card toggles visibility
+      const origCalc = window.calculate;
+      window.calculate = function() { origCalc(); setTimeout(reportHeight, 80); };
     })();
 
     // ── MODAL ────────────────────────────────────────────
