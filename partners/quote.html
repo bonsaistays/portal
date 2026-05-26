@@ -384,6 +384,143 @@
       margin-top: 8px;
     }
 
+    /* Membership Card */
+    .membership-card {
+      background: var(--white);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 16px;
+      box-shadow: 0 4px 24px rgba(198,160,79,0.18);
+    }
+    .membership-card-header {
+      background: var(--gold);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .membership-card-header .m-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+    .membership-card-header h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--white);
+      margin: 0;
+      flex: 1;
+    }
+    .membership-price-tag {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+    }
+    .membership-tier-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.75);
+      display: block;
+      text-align: right;
+    }
+    .membership-body { padding: 20px 24px; }
+    .membership-benefits-list {
+      list-style: none;
+      padding: 0; margin: 0 0 18px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .membership-benefits-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: var(--charcoal);
+      line-height: 1.4;
+    }
+    .benefit-check {
+      width: 20px; height: 20px;
+      background: var(--green-deep);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .membership-savings-box {
+      background: var(--green-deep);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .savings-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 10px;
+    }
+    .savings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+    }
+    .savings-row span:last-child {
+      font-weight: 600;
+      color: var(--white);
+    }
+    .savings-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin: 10px 0;
+    }
+    .net-savings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .net-savings-row .net-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+    }
+    .net-savings-row .net-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--gold);
+    }
+    .membership-join-btn {
+      display: block;
+      text-align: center;
+      padding: 14px;
+      background: var(--green-deep);
+      color: var(--white);
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .membership-join-btn:hover { background: #1a3510; transform: translateY(-1px); }
+    .membership-zero-state {
+      text-align: center;
+      padding: 12px 0 4px;
+      font-size: 0.8rem;
+      color: var(--gray-light);
+      font-style: italic;
+    }
+
     @media (max-width: 1024px) {
       .quote-layout { grid-template-columns: 1fr; }
       .quote-panel { position: static; }
@@ -615,6 +752,10 @@
               <span class="quote-line-label">Beach Towels</span>
               <span class="quote-line-value" id="linenBeach">$0.00</span>
             </div>
+            <div class="quote-line">
+              <span class="quote-line-label">Delivery Fee</span>
+              <span class="quote-line-value" id="linenDelivery">$15.00</span>
+            </div>
             <div class="quote-line" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:6px;">
               <span class="quote-line-label" style="font-weight:700;color:rgba(255,255,255,0.9);">Linen Total</span>
               <span class="quote-line-value" style="font-size:1rem;color:var(--gold);" id="linenTotal">$0.00</span>
@@ -665,6 +806,68 @@
           </div>
 
         </div>
+
+        <!-- Membership Card -->
+        <div class="membership-card">
+          <div class="membership-card-header">
+            <span class="m-icon">⭐</span>
+            <h4>Annual Membership</h4>
+            <div style="text-align:right;">
+              <span class="membership-price-tag" id="membershipPrice">—</span>
+              <span class="membership-tier-label" id="membershipTierLabel">fill in your property above</span>
+            </div>
+          </div>
+          <div class="membership-body">
+            <ul class="membership-benefits-list">
+              <li>
+                <span class="benefit-check">✓</span>
+                <span><strong>No delivery fee</strong> — saves $15 every single changeover</span>
+              </li>
+              <li>
+                <span class="benefit-check">✓</span>
+                <span><strong>10% off all linen orders</strong> — saves <strong id="linenSavingPer">$0.00</strong> per changeover based on your quote</span>
+              </li>
+              <li>
+                <span class="benefit-check">✓</span>
+                <span><strong>Free bathroom dispensers at sign-up</strong> — <span id="dispenserDetail">1 per bathroom, valued at $35 each</span></span>
+              </li>
+            </ul>
+
+            <div class="membership-savings-box" id="membershipSavingsBox">
+              <div class="savings-label">Your estimated year 1 savings</div>
+              <div class="savings-row">
+                <span>Delivery fee (70 × $15)</span>
+                <span>$1,050.00</span>
+              </div>
+              <div class="savings-row">
+                <span>Linen 10% off (70 changeovers)</span>
+                <span id="annualLinenSavings">$0.00</span>
+              </div>
+              <div class="savings-row">
+                <span>Dispenser value at sign-up</span>
+                <span id="annualDispensers">$0.00</span>
+              </div>
+              <hr class="savings-divider" />
+              <div class="savings-row" style="margin-bottom:8px;">
+                <span>Total value received</span>
+                <span id="totalSavingsValue">$1,050.00</span>
+              </div>
+              <div class="savings-row" style="margin-bottom:10px;">
+                <span>Less membership fee</span>
+                <span id="membershipCostLine">—</span>
+              </div>
+              <div class="net-savings-row">
+                <span class="net-label">You save in year 1</span>
+                <span class="net-amount" id="netSavings">—</span>
+              </div>
+            </div>
+
+            <div class="membership-zero-state" id="membershipZeroState">Enter your property details above to see your personalised savings.</div>
+
+            <a href="../contact.html#partner" class="membership-join-btn">Join as a Member →</a>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -736,11 +939,11 @@
       const outdoorCredits = deck + dock + htub + sauna + fire;
       const totalCredits   = bedCredits + bunkCredits + bathCredits + spaceCredits + outdoorCredits;
 
-      const hkBeds    = (bedCredits + bunkCredits) * 15;
-      const hkBaths   = bathCredits   * 15;
-      const hkSpaces  = spaceCredits  * 15;
-      const hkOutdoor = outdoorCredits * 15;
-      const hkTotal   = totalCredits  * 15;
+      const hkBeds    = (bedCredits + bunkCredits) * 17;
+      const hkBaths   = bathCredits   * 17;
+      const hkSpaces  = spaceCredits  * 17;
+      const hkOutdoor = outdoorCredits * 17;
+      const hkTotal   = totalCredits  * 17;
 
       // ── LINEN ─────────────────────────────────────────────
       // Sheet sets
@@ -762,7 +965,9 @@
       // Beach towels
       const beachCost = bqty * 2.00;
 
-      const linenTotal = sheetCost + bedTowelCost + bathTowelCost + dishCost + beachCost;
+      const deliveryFee = 15;
+      const linenSubtotal = sheetCost + bedTowelCost + bathTowelCost + dishCost + beachCost;
+      const linenTotal    = linenSubtotal + deliveryFee;
 
       // ── CHANGEOVER PACKAGE ────────────────────────────────
       let bathAmenities, consumables;
@@ -772,6 +977,21 @@
       const welcome       = 25;
       const changeoverTotal = hkTotal + linenTotal + bathAmenities + consumables + welcome;
 
+      // ── MEMBERSHIP ────────────────────────────────────────
+      const CHANGEOVERS_PER_YEAR = 70;
+      let membershipFee, tierLabel;
+      if (totalBeds === 0)       { membershipFee = null; tierLabel = 'fill in your property above'; }
+      else if (totalBeds <= 3)   { membershipFee = 399;  tierLabel = '1–3 beds / yr'; }
+      else if (totalBeds <= 6)   { membershipFee = 499;  tierLabel = '4–6 beds / yr'; }
+      else                       { membershipFee = 599;  tierLabel = '7+ beds / yr'; }
+
+      const linenSavingPer   = linenSubtotal * 0.10;           // 10% off linen (excl. delivery)
+      const annualDelivery   = CHANGEOVERS_PER_YEAR * 15;      // $1,050
+      const annualLinen      = CHANGEOVERS_PER_YEAR * linenSavingPer;
+      const dispenserValue   = fullB * 35;                      // $35 per full bathroom
+      const totalValue       = annualDelivery + annualLinen + dispenserValue;
+      const netSavings       = membershipFee !== null ? totalValue - membershipFee : null;
+
       // ── UPDATE UI ─────────────────────────────────────────
       document.getElementById('housekeepingTotal').textContent = fmt(hkTotal);
 
@@ -780,6 +1000,7 @@
       document.getElementById('linenBathTowels').textContent= fmt(bathTowelCost);
       document.getElementById('linenDish').textContent      = fmt(dishCost);
       document.getElementById('linenBeach').textContent     = fmt(beachCost);
+      document.getElementById('linenDelivery').textContent  = fmt(deliveryFee);
       document.getElementById('linenTotal').textContent     = fmt(linenTotal);
 
       document.getElementById('pkgHK').textContent          = fmt(hkTotal);
@@ -789,6 +1010,25 @@
       document.getElementById('pkgWelcome').textContent     = fmt(welcome);
       document.getElementById('changeoverTotal').textContent= fmt(changeoverTotal);
       document.getElementById('grandTotal').textContent     = fmt(changeoverTotal);
+
+      // Membership card
+      const hasData = totalBeds > 0;
+      document.getElementById('membershipSavingsBox').style.display  = hasData ? 'block' : 'none';
+      document.getElementById('membershipZeroState').style.display   = hasData ? 'none'  : 'block';
+      document.getElementById('membershipPrice').textContent     = membershipFee !== null ? fmt(membershipFee) : '—';
+      document.getElementById('membershipTierLabel').textContent = tierLabel;
+      document.getElementById('linenSavingPer').textContent      = fmt(linenSavingPer);
+      document.getElementById('dispenserDetail').textContent     =
+        fullB > 0 ? fullB + ' bathroom' + (fullB > 1 ? 's' : '') + ' × $35 = ' + fmt(dispenserValue) : '1 per bathroom, valued at $35 each';
+      document.getElementById('annualLinenSavings').textContent  = fmt(annualLinen);
+      document.getElementById('annualDispensers').textContent    = fmt(dispenserValue);
+      document.getElementById('totalSavingsValue').textContent   = fmt(totalValue);
+      document.getElementById('membershipCostLine').textContent  = membershipFee !== null ? '−' + fmt(membershipFee) : '—';
+      document.getElementById('netSavings').textContent          =
+        netSavings !== null ? fmt(netSavings) : '—';
+      if (netSavings !== null) {
+        document.getElementById('netSavings').style.color = netSavings >= 0 ? 'var(--gold)' : '#e88';
+      }
     }
 
     // Init
