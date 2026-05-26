@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Booking</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo">🌿 Bonsai <span>Stays</span></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <!-- Back + header -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+    <a href="dashboard.html" style="font-size:0.82rem;color:var(--a-gray);display:flex;align-items:center;gap:6px;">← All bookings</a>
+    <span style="color:var(--a-gray-pale);">|</span>
+    <div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;" id="booking-heading">Loading…</h1>
+      <div style="font-size:0.78rem;color:var(--a-gray);margin-top:2px;" id="booking-subheading">—</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+      <span class="status-pill" id="booking-status-pill">—</span>
+      <button class="btn-secondary" onclick="openEditModal()">Edit</button>
+      <button class="btn-danger" onclick="cancelBooking()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="booking-detail-grid">
+
+    <!-- LEFT: details + purchases -->
+    <div>
+
+      <!-- Guest info -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <h3>Guest Details</h3>
+          <span id="pa-status-chip" style="font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:20px;background:#EFF6FF;color:#2563EB;">Pre-arrival pending</span>
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-row"><span class="detail-row-label">Name</span><span class="detail-row-value" id="d-name">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Email</span><span class="detail-row-value" id="d-email">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Phone</span><span class="detail-row-value" id="d-phone">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Guests</span><span class="detail-row-value" id="d-guests">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Arrival ETA</span><span class="detail-row-value" id="d-arrival">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Special requests</span><span class="detail-row-value" id="d-notes" style="font-style:italic;">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Airbnb ref</span><span class="detail-row-value" id="d-airbnb">—</span></div>
+        </div>
+      </div>
+
+      <!-- Stay details -->
+      <div class="detail-card">
+        <div class="detail-card-header"><h3>Stay Details</h3></div>
+        <div class="detail-card-body">
+          <div class="detail-row"><span class="detail-row-label">Property</span><span class="detail-row-value" id="d-property">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Check-in</span><span class="detail-row-value" id="d-checkin">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Check-out</span><span class="detail-row-value" id="d-checkout">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Nights</span><span class="detail-row-value" id="d-nights">—</span></div>
+          <div class="detail-row"><span class="detail-row-label">Door code</span>
+            <span class="detail-row-value">
+              <span id="d-doorcode" style="font-size:1.1rem;font-weight:800;letter-spacing:0.1em;color:var(--a-green);">—</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guest portal link -->
+      <div class="detail-card">
+        <div class="detail-card-header"><h3>Guest Portal Link</h3></div>
+        <div class="detail-card-body">
+          <div style="font-size:0.82rem;color:var(--a-gray);margin-bottom:10px;">Share this link with your guest after booking is confirmed.</div>
+          <div class="guest-link-box" id="d-guestlink">—</div>
+          <button class="btn-copy-link" onclick="copyGuestLink()">📋 Copy link</button>
+        </div>
+      </div>
+
+      <!-- Purchases / requests -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <h3>Extras & Requests</h3>
+          <span id="purchases-count" style="font-size:0.75rem;color:var(--a-gray);">0 items</span>
+        </div>
+        <div class="detail-card-body" id="purchases-body">
+          <div style="font-size:0.85rem;color:var(--a-gray);text-align:center;padding:20px 0;">No requests yet.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Chat -->
+    <div>
+      <div class="detail-card" style="position:sticky;top:80px;">
+        <div class="detail-card-header">
+          <h3>Chat with Guest</h3>
+          <span id="chat-unread-count" style="font-size:0.72rem;color:var(--a-gray);">—</span>
+        </div>
+        <div class="admin-chat">
+          <div class="admin-chat-messages" id="admin-chat-msgs">
+            <div class="chat-empty" id="admin-chat-empty">
+              <div class="chat-empty-icon">💬</div>
+              <div style="font-size:0.82rem;">No messages yet</div>
+            </div>
+          </div>
+          <div class="admin-chat-input-wrap">
+            <input class="admin-chat-input" id="admin-chat-input" type="text" placeholder="Message guest…" onkeydown="if(event.key==='Enter')adminSend()" />
+            <button class="btn-admin-send" onclick="adminSend()">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+
+<!-- ═══ Modal: Edit Booking ══════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Booking</h3>
+      <button class="btn-modal-close" onclick="closeModal('modal-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Guest name</label>
+          <input class="admin-input" id="edit-name" type="text" />
+        </div>
+        <div>
+          <label class="admin-label">Guest email</label>
+          <input class="admin-input" id="edit-email" type="email" />
+        </div>
+      </div>
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Phone</label>
+          <input class="admin-input" id="edit-phone" type="tel" />
+        </div>
+        <div>
+          <label class="admin-label">Door code</label>
+          <input class="admin-input" id="edit-doorcode" type="text" />
+        </div>
+      </div>
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Check-in</label>
+          <input class="admin-input" id="edit-checkin" type="datetime-local" />
+        </div>
+        <div>
+          <label class="admin-label">Check-out</label>
+          <input class="admin-input" id="edit-checkout" type="datetime-local" />
+        </div>
+      </div>
+      <div>
+        <label class="admin-label">Status</label>
+        <select class="admin-select" id="edit-status">
+          <option value="upcoming">Upcoming</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-edit')">Cancel</button>
+      <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// ─────────────────────────────────────────────────────────────────────────
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let booking  = null;
+let _chatSub = null;
+const bookingId = new URLSearchParams(location.search).get('id');
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  document.getElementById('admin-avatar').textContent = session.user.email[0].toUpperCase();
+
+  if (!bookingId) { location.href = 'dashboard.html'; return; }
+  await loadBooking();
+}
+
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
+
+async function loadBooking() {
+  const { data } = await sb.from('bookings').select('*, properties(*)').eq('id', bookingId).single();
+  if (!data) { location.href = 'dashboard.html'; return; }
+  booking = data;
+  populatePage();
+  loadPurchases();
+  loadMessages();
+}
+
+function populatePage() {
+  const b  = booking;
+  const p  = b.properties || {};
+  const ci = new Date(b.check_in);
+  const co = new Date(b.check_out);
+  const nights = Math.round((co - ci) / 86400000);
+  const fmt = d => d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + ' · ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('booking-heading').textContent   = b.guest_name || 'Guest';
+  document.getElementById('booking-subheading').textContent= (p.name || '') + ' · ' + new Date(b.check_in).toLocaleDateString('en-CA',{month:'long',day:'numeric'}) + ' – ' + new Date(b.check_out).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'});
+
+  const statusPill = document.getElementById('booking-status-pill');
+  statusPill.className = 'status-pill status-' + (b.status || 'upcoming');
+  statusPill.textContent = b.status || 'upcoming';
+
+  document.getElementById('pa-status-chip').textContent = b.pre_arrival_complete ? '✓ Pre-arrival complete' : 'Pre-arrival pending';
+  document.getElementById('pa-status-chip').style.background = b.pre_arrival_complete ? '#F0FDF4' : '#EFF6FF';
+  document.getElementById('pa-status-chip').style.color = b.pre_arrival_complete ? '#16A34A' : '#2563EB';
+
+  document.getElementById('d-name').textContent     = b.guest_name || '—';
+  document.getElementById('d-email').textContent    = b.guest_email || '—';
+  document.getElementById('d-phone').textContent    = b.guest_phone || '—';
+  document.getElementById('d-guests').textContent   = b.num_guests ? b.num_guests + ' guests' : '—';
+  document.getElementById('d-arrival').textContent  = b.arrival_time || '—';
+  document.getElementById('d-notes').textContent    = b.special_requests || 'None';
+  document.getElementById('d-airbnb').textContent   = b.airbnb_confirmation || '—';
+  document.getElementById('d-property').textContent = p.name || '—';
+  document.getElementById('d-checkin').textContent  = fmt(ci);
+  document.getElementById('d-checkout').textContent = fmt(co);
+  document.getElementById('d-nights').textContent   = nights + ' night' + (nights !== 1 ? 's' : '');
+  document.getElementById('d-doorcode').textContent = b.door_code || '—';
+
+  const link = location.origin + '/portal/guest/?token=' + b.token;
+  document.getElementById('d-guestlink').textContent = link;
+}
+
+// ── Purchases ─────────────────────────────────────────────────────────────
+async function loadPurchases() {
+  const { data } = await sb.from('purchases').select('*').eq('booking_id', bookingId).order('created_at');
+  const body = document.getElementById('purchases-body');
+  document.getElementById('purchases-count').textContent = (data?.length || 0) + ' item' + ((data?.length || 0) !== 1 ? 's' : '');
+  if (!data?.length) { body.innerHTML = '<div style="font-size:0.85rem;color:var(--a-gray);text-align:center;padding:20px 0;">No requests yet.</div>'; return; }
+  body.innerHTML = data.map(p => `
+    <div class="purchase-chip">
+      <div>
+        <div class="purchase-chip-name">${esc(p.item_name)}</div>
+        <div style="font-size:0.75rem;color:var(--a-gray);">${p.amount > 0 ? '$'+(p.amount/100).toFixed(2) : 'Price TBC'} · ${new Date(p.created_at).toLocaleDateString('en-CA',{month:'short',day:'numeric'})}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <span class="purchase-chip-status ${p.status}">${p.status === 'paid' ? '✓ Confirmed' : '⏳ Pending'}</span>
+        ${p.status === 'pending' ? `<button onclick="confirmPurchase('${p.id}')" style="font-size:0.68rem;background:var(--a-green);color:#fff;padding:4px 8px;border-radius:4px;border:none;cursor:pointer;">Confirm</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function confirmPurchase(id) {
+  await sb.from('purchases').update({ status: 'paid' }).eq('id', id);
+  showToast('✓ Purchase confirmed!');
+  loadPurchases();
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────
+async function loadMessages() {
+  const { data } = await sb.from('messages').select('*').eq('booking_id', bookingId).order('created_at', { ascending: true });
+  renderMessages(data || []);
+  // Mark guest messages as read
+  await sb.from('messages').update({ read: true }).eq('booking_id', bookingId).eq('sender','guest').eq('read',false);
+  subscribeMessages();
+}
+
+function renderMessages(msgs) {
+  const el    = document.getElementById('admin-chat-msgs');
+  const empty = document.getElementById('admin-chat-empty');
+  const unread = msgs.filter(m => m.sender === 'guest' && !m.read).length;
+  document.getElementById('chat-unread-count').textContent = unread > 0 ? unread + ' unread' : msgs.length + ' messages';
+
+  if (!msgs.length) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  el.innerHTML = msgs.map(m => `
+    <div class="chat-msg ${m.sender === 'admin' ? 'guest' : 'admin'}">
+      <div class="chat-bubble">${escHtml(m.content)}</div>
+      <div class="chat-meta">${m.sender === 'guest' ? 'Guest · ' : 'You · '}${fmtTime(m.created_at)}</div>
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function subscribeMessages() {
+  if (_chatSub) return;
+  _chatSub = sb.channel('admin-chat-' + bookingId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'booking_id=eq.' + bookingId }, async payload => {
+      const el = document.getElementById('admin-chat-msgs');
+      document.getElementById('admin-chat-empty').classList.add('hidden');
+      const m = payload.new;
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + (m.sender === 'admin' ? 'guest' : 'admin');
+      div.innerHTML = `<div class="chat-bubble">${escHtml(m.content)}</div><div class="chat-meta">${m.sender === 'guest' ? 'Guest · ' : 'You · '}${fmtTime(m.created_at)}</div>`;
+      el.appendChild(div);
+      el.scrollTop = el.scrollHeight;
+      if (m.sender === 'guest') await sb.from('messages').update({ read: true }).eq('id', m.id);
+    })
+    .subscribe();
+}
+
+async function adminSend() {
+  const input = document.getElementById('admin-chat-input');
+  const txt   = input.value.trim();
+  if (!txt) return;
+  input.value = '';
+  await sb.from('messages').insert({ booking_id: bookingId, sender: 'admin', content: txt, read: true });
+}
+
+// ── Edit ──────────────────────────────────────────────────────────────────
+function openEditModal() {
+  const b  = booking;
+  const toLocal = ts => new Date(ts).toISOString().slice(0,16);
+  document.getElementById('edit-name').value     = b.guest_name || '';
+  document.getElementById('edit-email').value    = b.guest_email || '';
+  document.getElementById('edit-phone').value    = b.guest_phone || '';
+  document.getElementById('edit-doorcode').value = b.door_code || '';
+  document.getElementById('edit-checkin').value  = toLocal(b.check_in);
+  document.getElementById('edit-checkout').value = toLocal(b.check_out);
+  document.getElementById('edit-status').value   = b.status || 'upcoming';
+  document.getElementById('modal-edit').classList.remove('hidden');
+}
+
+async function saveEdit() {
+  const updates = {
+    guest_name:  document.getElementById('edit-name').value.trim(),
+    guest_email: document.getElementById('edit-email').value.trim(),
+    guest_phone: document.getElementById('edit-phone').value.trim(),
+    door_code:   document.getElementById('edit-doorcode').value.trim(),
+    check_in:    document.getElementById('edit-checkin').value,
+    check_out:   document.getElementById('edit-checkout').value,
+    status:      document.getElementById('edit-status').value,
+  };
+  await sb.from('bookings').update(updates).eq('id', bookingId);
+  closeModal('modal-edit');
+  await loadBooking();
+  showToast('✓ Booking updated');
+}
+
+async function cancelBooking() {
+  if (!confirm('Cancel this booking? The guest portal link will still work but status will show Cancelled.')) return;
+  await sb.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId);
+  await loadBooking();
+  showToast('Booking cancelled');
+}
+
+function copyGuestLink() {
+  navigator.clipboard.writeText(document.getElementById('d-guestlink').textContent.trim()).then(() => showToast('✓ Link copied!'));
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return esc(s).replace(/\n/g,'<br/>'); }
+function fmtTime(ts) { const d = new Date(ts); return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'}); }
+function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+init();
+</script>
+
+</body>
+</html>

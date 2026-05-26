@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Dashboard</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo">🌿 Bonsai <span>Stays</span></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html" class="active">Bookings</a>
+    <a href="properties.html">Properties</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <!-- Stats -->
+  <div class="admin-stats" id="stats-row">
+    <div class="stat-card"><div class="stat-icon">🏠</div><div><div class="stat-num" id="stat-active">—</div><div class="stat-label">Active stays</div></div></div>
+    <div class="stat-card"><div class="stat-icon">📅</div><div><div class="stat-num" id="stat-upcoming">—</div><div class="stat-label">Upcoming</div></div></div>
+    <div class="stat-card"><div class="stat-icon">💬</div><div><div class="stat-num" id="stat-unread">—</div><div class="stat-label">Unread messages</div></div></div>
+    <div class="stat-card"><div class="stat-icon">✨</div><div><div class="stat-num" id="stat-pending">—</div><div class="stat-label">Pending requests</div></div></div>
+  </div>
+
+  <!-- Bookings -->
+  <div class="admin-page-header">
+    <div>
+      <h1>Bookings</h1>
+      <p id="bookings-subtitle">All guest bookings</p>
+    </div>
+    <button class="btn-primary" onclick="openNewBookingModal()">+ New Booking</button>
+  </div>
+
+  <div class="bookings-card">
+    <div class="bookings-filters">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-chip" data-filter="active" onclick="setFilter('active',this)">Active</button>
+      <button class="filter-chip" data-filter="upcoming" onclick="setFilter('upcoming',this)">Upcoming</button>
+      <button class="filter-chip" data-filter="completed" onclick="setFilter('completed',this)">Completed</button>
+      <button class="filter-chip" data-filter="cancelled" onclick="setFilter('cancelled',this)">Cancelled</button>
+    </div>
+    <div id="bookings-table-wrap">
+      <table class="bookings-table" id="bookings-table">
+        <thead>
+          <tr>
+            <th>Guest</th>
+            <th>Property</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Status</th>
+            <th>Messages</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-tbody"></tbody>
+      </table>
+      <div class="table-empty hidden" id="table-empty">
+        <div class="table-empty-icon">📋</div>
+        <h3>No bookings yet</h3>
+        <p>Create your first booking to generate a guest portal link</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+
+<!-- ═══ Modal: New Booking ═══════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-new-booking">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>New Booking</h3>
+      <button class="btn-modal-close" onclick="closeModal('modal-new-booking')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Guest name *</label>
+          <input class="admin-input" id="nb-name" type="text" placeholder="Sarah Smith" />
+        </div>
+        <div>
+          <label class="admin-label">Guest email *</label>
+          <input class="admin-input" id="nb-email" type="email" placeholder="sarah@example.com" />
+        </div>
+      </div>
+
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Guest phone</label>
+          <input class="admin-input" id="nb-phone" type="tel" placeholder="+1 (416) 555-0100" />
+        </div>
+        <div>
+          <label class="admin-label">Airbnb confirmation #</label>
+          <input class="admin-input" id="nb-airbnb" type="text" placeholder="HM1234ABC" />
+        </div>
+      </div>
+
+      <div>
+        <label class="admin-label">Property *</label>
+        <select class="admin-select" id="nb-property">
+          <option value="">Select a property…</option>
+        </select>
+      </div>
+
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Check-in date & time *</label>
+          <input class="admin-input" id="nb-checkin" type="datetime-local" />
+        </div>
+        <div>
+          <label class="admin-label">Check-out date & time *</label>
+          <input class="admin-input" id="nb-checkout" type="datetime-local" />
+        </div>
+      </div>
+
+      <div>
+        <label class="admin-label">Door code</label>
+        <div style="display:flex;gap:8px;">
+          <input class="admin-input" id="nb-doorcode" type="text" placeholder="e.g. 4829" style="flex:1;" />
+          <button type="button" onclick="genCode()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 14px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">Generate</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="admin-label">Internal notes</label>
+        <textarea class="admin-textarea" id="nb-notes" placeholder="Airbnb URL, special notes, etc."></textarea>
+      </div>
+
+      <div id="nb-link-wrap" class="hidden">
+        <label class="admin-label">Guest portal link</label>
+        <div class="guest-link-box" id="nb-link">—</div>
+        <button class="btn-copy-link" onclick="copyGuestLink('nb-link')">📋 Copy link</button>
+        <div style="font-size:0.75rem;color:var(--a-gray);margin-top:8px;">Send this link to your guest — they'll use it to check in, access their door code, and message you.</div>
+      </div>
+
+      <div id="nb-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--a-red);font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-new-booking')">Cancel</button>
+      <button class="btn-primary" id="nb-save-btn" onclick="saveNewBooking()">Create Booking</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// ─────────────────────────────────────────────────────────────────────────
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let _allBookings = [];
+let _filterState = 'all';
+let _properties  = [];
+
+// ── Auth guard ────────────────────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  const email = session.user.email;
+  document.getElementById('admin-avatar').textContent = email[0].toUpperCase();
+  await Promise.all([loadProperties(), loadBookings()]);
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ── Properties ────────────────────────────────────────────────────────────
+async function loadProperties() {
+  const { data } = await sb.from('properties').select('id, name').order('name');
+  _properties = data || [];
+  const sel = document.getElementById('nb-property');
+  _properties.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Bookings ──────────────────────────────────────────────────────────────
+async function loadBookings() {
+  const { data } = await sb
+    .from('bookings')
+    .select('*, properties(name)')
+    .order('check_in', { ascending: false });
+
+  _allBookings = (data || []).map(b => {
+    const now = new Date(), cin = new Date(b.check_in), cout = new Date(b.check_out);
+    if (!b.status || b.status === 'upcoming') {
+      if (now >= cin && now <= cout) b.status = 'active';
+      else if (now < cin) b.status = 'upcoming';
+      else b.status = 'completed';
+    }
+    return b;
+  });
+
+  // Stats
+  document.getElementById('stat-active').textContent   = _allBookings.filter(b => b.status === 'active').length;
+  document.getElementById('stat-upcoming').textContent  = _allBookings.filter(b => b.status === 'upcoming').length;
+
+  // Unread messages
+  const { count: unread } = await sb.from('messages').select('id', { count: 'exact', head: true }).eq('sender','guest').eq('read',false);
+  document.getElementById('stat-unread').textContent = unread || 0;
+
+  // Pending purchases
+  const { count: pending } = await sb.from('purchases').select('id', { count: 'exact', head: true }).eq('status','pending');
+  document.getElementById('stat-pending').textContent = pending || 0;
+
+  renderTable(_allBookings);
+}
+
+function setFilter(f, btn) {
+  _filterState = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = f === 'all' ? _allBookings : _allBookings.filter(b => b.status === f);
+  renderTable(filtered);
+}
+
+function renderTable(bookings) {
+  const tbody = document.getElementById('bookings-tbody');
+  const empty = document.getElementById('table-empty');
+  document.getElementById('bookings-subtitle').textContent = bookings.length + ' booking' + (bookings.length !== 1 ? 's' : '');
+
+  if (!bookings.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const fmt = d => new Date(d).toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'});
+
+  tbody.innerHTML = bookings.map(b => `
+    <tr onclick="location.href='booking.html?id=${b.id}'">
+      <td>
+        <div class="guest-name-cell">${esc(b.guest_name || '—')}</div>
+        <div class="guest-email-cell">${esc(b.guest_email || '')}</div>
+      </td>
+      <td><span class="property-chip">${esc(b.properties?.name || '—')}</span></td>
+      <td>${fmt(b.check_in)}</td>
+      <td>${fmt(b.check_out)}</td>
+      <td><span class="status-pill status-${b.status}">${b.status}</span></td>
+      <td>${b.unread_count ? `<span class="unread-badge">${b.unread_count}</span>` : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ── New booking modal ─────────────────────────────────────────────────────
+function openNewBookingModal() {
+  document.getElementById('nb-link-wrap').classList.add('hidden');
+  document.getElementById('nb-error').classList.add('hidden');
+  document.getElementById('nb-save-btn').textContent = 'Create Booking';
+  document.getElementById('nb-save-btn').disabled = false;
+  document.getElementById('modal-new-booking').classList.remove('hidden');
+}
+
+function genCode() {
+  document.getElementById('nb-doorcode').value = Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+async function saveNewBooking() {
+  const btn = document.getElementById('nb-save-btn');
+  const err = document.getElementById('nb-error');
+  err.classList.add('hidden');
+
+  const name     = document.getElementById('nb-name').value.trim();
+  const email    = document.getElementById('nb-email').value.trim();
+  const propId   = document.getElementById('nb-property').value;
+  const checkin  = document.getElementById('nb-checkin').value;
+  const checkout = document.getElementById('nb-checkout').value;
+
+  if (!name || !email || !propId || !checkin || !checkout) {
+    err.textContent = 'Please fill in all required fields (*)';
+    err.classList.remove('hidden'); return;
+  }
+
+  btn.textContent = 'Creating…'; btn.disabled = true;
+
+  const { data, error } = await sb.from('bookings').insert({
+    guest_name:            name,
+    guest_email:           email,
+    guest_phone:           document.getElementById('nb-phone').value.trim(),
+    airbnb_confirmation:   document.getElementById('nb-airbnb').value.trim(),
+    property_id:           propId,
+    check_in:              checkin,
+    check_out:             checkout,
+    door_code:             document.getElementById('nb-doorcode').value.trim(),
+    status:                'upcoming',
+  }).select().single();
+
+  if (error) {
+    err.textContent = 'Error creating booking: ' + error.message;
+    err.classList.remove('hidden');
+    btn.textContent = 'Create Booking'; btn.disabled = false;
+    return;
+  }
+
+  const link = location.origin + '/portal/guest/?token=' + data.token;
+  document.getElementById('nb-link').textContent = link;
+  document.getElementById('nb-link-wrap').classList.remove('hidden');
+  btn.textContent = '✓ Created!';
+  await loadBookings();
+}
+
+function copyGuestLink(elId) {
+  const txt = document.getElementById(elId).textContent.trim();
+  navigator.clipboard.writeText(txt).then(() => showToast('✓ Link copied!'));
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+init();
+</script>
+
+</body>
+</html>

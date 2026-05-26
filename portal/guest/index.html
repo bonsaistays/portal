@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Your Bonsai Stay</title>
+  <meta name="theme-color" content="#0B1F14" />
+  <link rel="stylesheet" href="../assets/portal.css" />
+  <style>
+    body { background: #0B1F14; }
+    /* Smooth screen transitions */
+    .portal-screen { animation: screenIn 0.3s ease; }
+    @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: Loading
+     ═══════════════════════════════════════════════════════ -->
+<div id="s-loading" class="screen-loading portal-screen">
+  <div class="loading-logo">🌿</div>
+  <div class="spinner"></div>
+  <div class="loading-text">Loading your stay…</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: Not Found
+     ═══════════════════════════════════════════════════════ -->
+<div id="s-error" class="screen-error portal-screen hidden">
+  <div style="font-size:3rem;margin-bottom:16px;">🔍</div>
+  <h2>Booking not found</h2>
+  <p>This link may be expired or incorrect.<br/>Contact your host for a new link.</p>
+  <div style="margin-top:28px;">
+    <a href="https://bonsaistays.com" style="color:var(--g-gold);font-size:0.85rem;">← Back to Bonsai Stays</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: Boarding Pass
+     ═══════════════════════════════════════════════════════ -->
+<div id="s-bp" class="portal-wrap screen-bp portal-screen hidden">
+
+  <div class="bp-photo-wrap">
+    <img id="bp-photo" src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=900&q=80&auto=format&fit=crop" alt="Property" />
+    <div class="bp-photo-overlay"></div>
+    <div class="bp-nav">
+      <div class="bp-logo">🌿 Bonsai <span>Stays</span></div>
+      <div class="bp-status-badge" id="bp-badge">Upcoming</div>
+    </div>
+    <div class="bp-property-label">
+      <span class="eyebrow">Your property</span>
+      <h2 id="bp-prop-name">—</h2>
+    </div>
+  </div>
+
+  <div class="bp-body">
+
+    <div class="bp-welcome">Welcome</div>
+    <div class="bp-guest-name" id="bp-guest-name">—</div>
+
+    <div class="bp-dates-row">
+      <div class="bp-date-block">
+        <div class="bp-date-label">Check-in</div>
+        <div class="bp-date-main" id="bp-checkin-date">—</div>
+        <div class="bp-date-sub" id="bp-checkin-time">—</div>
+      </div>
+      <div class="bp-dates-arrow">→</div>
+      <div class="bp-date-block" style="text-align:right;">
+        <div class="bp-date-label">Check-out</div>
+        <div class="bp-date-main" id="bp-checkout-date">—</div>
+        <div class="bp-date-sub" id="bp-checkout-time">—</div>
+      </div>
+    </div>
+
+    <div class="bp-details-row">
+      <div class="bp-detail-chip">
+        <span class="label">Guests</span>
+        <span class="value" id="bp-guests">—</span>
+      </div>
+      <div class="bp-detail-chip">
+        <span class="label">Nights</span>
+        <span class="value" id="bp-nights">—</span>
+      </div>
+      <div class="bp-detail-chip">
+        <span class="label">Region</span>
+        <span class="value" id="bp-city">—</span>
+      </div>
+      <div class="bp-detail-chip">
+        <span class="label">Ref</span>
+        <span class="value" id="bp-ref" style="font-size:0.78rem;letter-spacing:0.04em;">—</span>
+      </div>
+    </div>
+
+    <div class="bp-divider"></div>
+
+    <div id="bp-prearrival-prompt" style="padding:20px 0;display:flex;align-items:center;gap:12px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(201,168,108,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📋</div>
+      <div>
+        <div style="font-size:0.83rem;font-weight:700;margin-bottom:3px;">Pre-arrival form pending</div>
+        <div style="font-size:0.75rem;color:var(--g-muted);">Takes 60 seconds — helps us prepare your stay</div>
+      </div>
+    </div>
+
+    <div id="bp-ready-prompt" class="hidden" style="padding:20px 0;display:flex;align-items:center;gap:12px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(91,191,133,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">✅</div>
+      <div>
+        <div style="font-size:0.83rem;font-weight:700;margin-bottom:3px;">You're all set!</div>
+        <div style="font-size:0.75rem;color:var(--g-muted);">Your stay details and door code are ready</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bp-cta">
+    <button class="btn-bp-primary" id="bp-cta-btn" onclick="handleBpCta()">
+      Complete Pre-Arrival →
+    </button>
+    <div class="bp-cta-note" id="bp-cta-note">Tap above to get started</div>
+  </div>
+
+</div><!-- end boarding pass -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: Pre-Arrival Form
+     ═══════════════════════════════════════════════════════ -->
+<div id="s-prearrival" class="portal-wrap screen-prearrival portal-screen hidden">
+
+  <div class="pa-header">
+    <div class="pa-back" onclick="showScreen('bp')">← Back to boarding pass</div>
+    <h2>Almost there, <span id="pa-first-name">friend</span>.</h2>
+    <p>Just a few quick details so we can make your arrival seamless and your stay perfect.</p>
+  </div>
+
+  <form class="pa-form" id="pa-form" onsubmit="submitPreArrival(event)">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First name</label>
+        <input class="form-input" id="pa-fname" type="text" placeholder="Sarah" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name</label>
+        <input class="form-input" id="pa-lname" type="text" placeholder="Smith" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="pa-email" type="email" placeholder="sarah@example.com" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Phone number</label>
+      <input class="form-input" id="pa-phone" type="tel" placeholder="+1 (416) 555-0100" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Number of guests</label>
+        <select class="form-select" id="pa-num-guests" required>
+          <option value="">Select</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+          <option>9</option><option>10+</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estimated arrival</label>
+        <select class="form-select" id="pa-arrival-time" required>
+          <option value="">Select time</option>
+          <option>Before 2:00 PM (early — subject to availability)</option>
+          <option>2:00 PM – 3:00 PM</option>
+          <option>3:00 PM – 4:00 PM</option>
+          <option>4:00 PM – 5:00 PM</option>
+          <option>5:00 PM – 6:00 PM</option>
+          <option>6:00 PM – 7:00 PM</option>
+          <option>7:00 PM – 8:00 PM</option>
+          <option>After 8:00 PM</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Occasion / special notes <span style="color:var(--g-muted);font-weight:400;letter-spacing:0;">(optional)</span></label>
+      <textarea class="form-textarea" id="pa-notes" placeholder="Celebrating a birthday? Travelling with a pet? Any dietary needs for a chef experience? Let us know…"></textarea>
+    </div>
+
+    <div class="form-checkbox-wrap">
+      <input type="checkbox" id="pa-rules" required />
+      <label for="pa-rules">I have read and agree to the <a href="#">house rules</a> and <a href="#">cancellation policy</a></label>
+    </div>
+
+    <button class="btn-submit" id="pa-submit-btn" type="submit">Complete Pre-Arrival →</button>
+
+    <div id="pa-error" class="hidden" style="background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#FCA5A5;font-size:0.82rem;padding:10px 14px;border-radius:8px;text-align:center;"></div>
+
+  </form>
+</div><!-- end pre-arrival -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: Guest Home
+     ═══════════════════════════════════════════════════════ -->
+<div id="s-home" class="portal-wrap screen-home portal-screen hidden">
+
+  <!-- Header -->
+  <div class="home-header">
+    <div class="home-header-top">
+      <div>
+        <div class="home-greeting" id="home-greeting">Welcome back</div>
+        <div class="home-logo">🌿 Bonsai <span>Stays</span></div>
+      </div>
+      <button onclick="showScreen('bp')" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.75rem;padding:7px 12px;border-radius:20px;cursor:pointer;">Boarding pass</button>
+    </div>
+    <div class="home-property-name" id="home-prop-name">—</div>
+    <div class="home-dates-pill">
+      <span id="home-checkin-short">—</span> → <span id="home-checkout-short">—</span>
+    </div>
+    <!-- Tabs -->
+    <div class="home-tabs">
+      <button class="tab-btn active" data-tab="stay" onclick="switchTab('stay')">🏠 Stay</button>
+      <button class="tab-btn" data-tab="door" onclick="switchTab('door')">🔑 Door</button>
+      <button class="tab-btn" data-tab="extras" onclick="switchTab('extras')">✨ Extras</button>
+      <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">
+        💬 Chat
+        <span class="badge hidden" id="chat-badge">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab: Stay Info -->
+  <div id="tab-stay" class="tab-content active">
+    <div class="stay-info-wrap">
+
+      <!-- Address card -->
+      <div class="info-card">
+        <div class="info-card-header"><div class="info-card-icon">📍</div><div class="info-card-title">Address</div></div>
+        <div class="info-row"><span class="info-row-label">Address</span><span class="info-row-value" id="prop-address">—</span></div>
+        <div class="info-row"><span class="info-row-label">Check-in</span><span class="info-row-value" id="si-checkin">—</span></div>
+        <div class="info-row"><span class="info-row-label">Check-out</span><span class="info-row-value" id="si-checkout">—</span></div>
+        <div class="info-row"><span class="info-row-label">Guests</span><span class="info-row-value" id="si-guests">—</span></div>
+      </div>
+
+      <!-- WiFi card -->
+      <div class="info-card wifi-card">
+        <div class="info-card-header"><div class="info-card-icon">📶</div><div class="info-card-title" style="color:rgba(255,255,255,0.6);">Wi-Fi</div></div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-bottom:4px;">Network</div>
+        <div class="wifi-name" id="wifi-name">—</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:12px;margin-bottom:4px;">Password</div>
+        <div class="wifi-pass" id="wifi-pass">—</div>
+        <button class="btn-copy-wifi" onclick="copyWifi()">📋 Copy password</button>
+      </div>
+
+      <!-- Check-in instructions -->
+      <div class="info-card">
+        <div class="info-card-header"><div class="info-card-icon">📝</div><div class="info-card-title">Arrival Instructions</div></div>
+        <div class="instructions-text" id="checkin-instructions">Loading…</div>
+      </div>
+
+      <!-- Checkout instructions -->
+      <div class="info-card">
+        <div class="info-card-header"><div class="info-card-icon">🧹</div><div class="info-card-title">Before You Leave</div></div>
+        <div class="instructions-text" style="font-size:0.85rem;line-height:1.7;color:var(--a-gray);">
+• Load all dishes into the dishwasher and run it
+• Bag all garbage and leave at the designated spot
+• Strip bed linens and leave in the laundry area
+• Return any furniture you've moved to its original position
+• Lock all doors and windows before you leave
+• Leave keys / lock box as per your arrival instructions</div>
+      </div>
+
+      <!-- Emergency contact -->
+      <div class="info-card" style="background:var(--a-green);color:#fff;">
+        <div class="info-card-header" style="border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:14px;">
+          <div class="info-card-icon">🆘</div>
+          <div class="info-card-title" style="color:rgba(255,255,255,0.6);">Need Help?</div>
+        </div>
+        <div style="font-size:0.9rem;margin-bottom:12px;font-weight:600;">We're available 24/7 for urgent matters.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="tel:+14165550100" style="background:rgba(255,255,255,0.12);color:#fff;font-size:0.82rem;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);">📞 Call us</a>
+          <button onclick="switchTab('chat')" style="background:var(--g-gold);color:#0B1F14;font-size:0.82rem;font-weight:700;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;">💬 Message us</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tab: Door -->
+  <div id="tab-door" class="tab-content">
+    <div class="door-wrap">
+
+      <div class="door-card" id="door-card-locked">
+        <div class="door-not-yet">
+          <div class="door-not-yet-icon">🔒</div>
+          <h3>Check-in opens in</h3>
+          <div style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:600;color:var(--g-gold);margin:12px 0;" id="door-countdown">—</div>
+          <p>Your door code will appear here<br/>when your check-in time arrives.</p>
+        </div>
+      </div>
+
+      <div class="door-card hidden" id="door-card-open">
+        <div class="door-status-label">✓ Check-in is open</div>
+        <div style="font-size:0.78rem;color:var(--g-muted);margin-bottom:4px;">Your door code</div>
+        <div class="door-code-display" id="door-code">—</div>
+        <div class="door-code-hint">Enter this code on the keypad to unlock your door</div>
+        <button class="btn-copy-code" onclick="copyDoorCode()">📋 Copy Code</button>
+      </div>
+
+      <!-- Additional door info -->
+      <div class="info-card" style="margin-top:16px;">
+        <div class="info-card-header"><div class="info-card-icon">💡</div><div class="info-card-title">Lock tips</div></div>
+        <div class="instructions-text" style="font-size:0.85rem;line-height:1.7;color:var(--a-gray);">
+• Enter your code followed by ✓ or the lock button
+• If the lock doesn't respond, wait 3 seconds and try again
+• Your code expires automatically at checkout time
+• Lost or trouble with the lock? Message us below</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tab: Extras -->
+  <div id="tab-extras" class="tab-content">
+    <div class="extras-wrap">
+
+      <!-- Upgrades -->
+      <div>
+        <div class="extras-section-title">Upgrade Your Stay</div>
+        <div class="upgrade-row">
+          <div class="upgrade-card" id="upgrade-early">
+            <div class="upgrade-icon">🌅</div>
+            <div class="upgrade-name">Early Check-In</div>
+            <div class="upgrade-desc">Arrive 2 hrs before your check-in time</div>
+            <div class="upgrade-price">$35</div>
+            <button class="btn-add-upgrade" id="btn-early" onclick="addUpgrade('early_checkin','Early Check-In',35)">Add →</button>
+          </div>
+          <div class="upgrade-card" id="upgrade-late">
+            <div class="upgrade-icon">🌙</div>
+            <div class="upgrade-name">Late Check-Out</div>
+            <div class="upgrade-desc">Stay 3 hrs past your checkout time</div>
+            <div class="upgrade-price">$45</div>
+            <button class="btn-add-upgrade" id="btn-late" onclick="addUpgrade('late_checkout','Late Check-Out',45)">Add →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Experiences -->
+      <div>
+        <div class="extras-section-title">In-Stay Experiences</div>
+
+        <div class="experience-card">
+          <div class="exp-icon">🍳</div>
+          <div class="exp-info">
+            <div class="exp-name">Private Chef Dinner</div>
+            <div class="exp-desc">A personal chef cooks a 3-course meal at your property</div>
+            <div class="exp-price">From $250 for 2 · add $40/person</div>
+          </div>
+          <button class="btn-book-exp" onclick="requestExperience('Private Chef Dinner','From $250')">Book</button>
+        </div>
+
+        <div class="experience-card" style="margin-top:12px;">
+          <div class="exp-icon">💆</div>
+          <div class="exp-info">
+            <div class="exp-name">In-Suite Massage</div>
+            <div class="exp-desc">Registered massage therapist comes to you</div>
+            <div class="exp-price">From $120 / 60 min</div>
+          </div>
+          <button class="btn-book-exp" onclick="requestExperience('In-Suite Massage','From $120')">Book</button>
+        </div>
+
+        <div class="experience-card" style="margin-top:12px;">
+          <div class="exp-icon">🧘</div>
+          <div class="exp-info">
+            <div class="exp-name">Morning Yoga Session</div>
+            <div class="exp-desc">Private instructor, indoors or outdoors</div>
+            <div class="exp-price">$60 / session</div>
+          </div>
+          <button class="btn-book-exp" onclick="requestExperience('Morning Yoga','$60')">Book</button>
+        </div>
+
+        <div class="experience-card" style="margin-top:12px;">
+          <div class="exp-icon">🛶</div>
+          <div class="exp-info">
+            <div class="exp-name">Watercraft Rental</div>
+            <div class="exp-desc">Kayak, canoe, or paddleboard delivered to your dock</div>
+            <div class="exp-price">From $80 / half-day</div>
+          </div>
+          <button class="btn-book-exp" onclick="requestExperience('Watercraft Rental','From $80')">Book</button>
+        </div>
+
+        <div class="experience-card" style="margin-top:12px;">
+          <div class="exp-icon">🛒</div>
+          <div class="exp-info">
+            <div class="exp-name">Grocery Pre-Stocking</div>
+            <div class="exp-desc">Groceries waiting in your fridge on arrival</div>
+            <div class="exp-price">$25 service fee + grocery cost</div>
+          </div>
+          <button class="btn-book-exp" onclick="requestExperience('Grocery Pre-Stocking','$25 fee')">Book</button>
+        </div>
+
+        <div class="experience-card" style="margin-top:12px;">
+          <div class="exp-icon">🔥</div>
+          <div class="exp-info">
+            <div class="exp-name">Bonfire Package</div>
+            <div class="exp-desc">Pre-set firepit, s'more kit, and firewood delivered</div>
+            <div class="exp-price">$45</div>
+          </div>
+          <button class="btn-book-exp" onclick="requestExperience('Bonfire Package','$45')">Book</button>
+        </div>
+
+      </div>
+
+      <!-- Purchases list -->
+      <div id="my-purchases-section" class="hidden">
+        <div class="extras-section-title">Your Requests</div>
+        <div id="my-purchases-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tab: Chat -->
+  <div id="tab-chat" class="tab-content">
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty" id="chat-empty">
+          <div class="chat-empty-icon">💬</div>
+          <div>No messages yet.<br/>Say hi to your host!</div>
+        </div>
+      </div>
+      <div class="chat-input-wrap">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Message your host…" onkeydown="if(event.key==='Enter')sendMessage()" />
+        <button class="btn-send" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end guest home -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     Experience Request Modal
+     ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="exp-modal">
+  <div class="modal" style="background:var(--g-surface);color:var(--g-white);max-width:440px;">
+    <div class="modal-header" style="border-bottom-color:var(--g-border);">
+      <h3 style="font-family:'Playfair Display',serif;color:var(--g-white);" id="exp-modal-title">Book Experience</h3>
+      <button class="btn-modal-close" onclick="closeExpModal()" style="color:var(--g-muted);">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:0.88rem;color:var(--g-muted);line-height:1.6;margin-bottom:4px;">
+        We'll confirm availability and pricing with you via chat. Any special requests or preferences?
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes / Date preference</label>
+        <textarea class="form-textarea" id="exp-notes" placeholder="e.g. Saturday evening, 6 guests, one vegetarian…" style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="border-top-color:var(--g-border);">
+      <button onclick="closeExpModal()" style="background:rgba(255,255,255,0.08);color:var(--g-muted);font-size:0.85rem;font-weight:600;padding:11px 20px;border-radius:10px;border:none;cursor:pointer;">Cancel</button>
+      <button onclick="confirmExperience()" class="btn-bp-primary" style="width:auto;padding:11px 24px;">Request →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     Scripts
+     ═══════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG — fill these in after setting up Supabase ─────────────────────
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// ─────────────────────────────────────────────────────────────────────────
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── App state ────────────────────────────────────────────────────────────
+let booking  = null;
+let property = null;
+let _pendingExpName = '';
+let _pendingExpPrice = '';
+let _doorInterval = null;
+
+// ── Screen management ─────────────────────────────────────────────────────
+function showScreen(name) {
+  ['s-loading','s-error','s-bp','s-prearrival','s-home'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+  const target = document.getElementById('s-' + name);
+  if (target) { target.classList.remove('hidden'); window.scrollTo(0,0); }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+async function boot() {
+  showScreen('loading');
+  const token = new URLSearchParams(location.search).get('token');
+  if (!token) { showScreen('error'); return; }
+
+  const { data, error } = await sb
+    .from('bookings')
+    .select('*, properties(*)')
+    .eq('token', token)
+    .single();
+
+  if (error || !data) { showScreen('error'); return; }
+
+  booking  = data;
+  property = data.properties;
+
+  populateBoardingPass();
+  showScreen('bp');
+}
+
+// ── Populate boarding pass ────────────────────────────────────────────────
+function populateBoardingPass() {
+  const checkin  = new Date(booking.check_in);
+  const checkout = new Date(booking.check_out);
+  const nights   = Math.round((checkout - checkin) / (1000*60*60*24));
+
+  const fmt = (d, opts) => d.toLocaleDateString('en-CA', opts);
+  const fmtTime = d => d.toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('bp-photo').src =
+    property.thumbnail_url || 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=900&q=80&auto=format&fit=crop';
+  document.getElementById('bp-prop-name').textContent   = property.name || '—';
+  document.getElementById('bp-guest-name').textContent  = booking.guest_name || '—';
+  document.getElementById('bp-checkin-date').textContent = fmt(checkin,{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('bp-checkin-time').textContent = fmtTime(checkin);
+  document.getElementById('bp-checkout-date').textContent= fmt(checkout,{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('bp-checkout-time').textContent= fmtTime(checkout);
+  document.getElementById('bp-guests').textContent  = booking.num_guests || '—';
+  document.getElementById('bp-nights').textContent  = nights;
+  document.getElementById('bp-city').textContent    = property.city || '—';
+  document.getElementById('bp-ref').textContent     = 'BST-' + booking.id.slice(0,6).toUpperCase();
+
+  // Status badge
+  const now = new Date();
+  let status = 'Upcoming';
+  if (now >= checkin && now <= checkout) status = 'Active';
+  else if (now > checkout) status = 'Completed';
+  document.getElementById('bp-badge').textContent = status;
+
+  // Pre-arrival state
+  if (booking.pre_arrival_complete) {
+    document.getElementById('bp-prearrival-prompt').classList.add('hidden');
+    document.getElementById('bp-ready-prompt').classList.remove('hidden');
+    document.getElementById('bp-cta-btn').textContent = 'View My Stay →';
+    document.getElementById('bp-cta-note').textContent = 'Your stay details and door code are inside';
+  }
+
+  // Pre-fill PA first name
+  if (booking.guest_name) {
+    document.getElementById('pa-first-name').textContent = booking.guest_name.split(' ')[0];
+  }
+}
+
+// ── Handle boarding pass CTA ──────────────────────────────────────────────
+function handleBpCta() {
+  if (booking.pre_arrival_complete) {
+    populateHome();
+    showScreen('home');
+  } else {
+    showScreen('prearrival');
+  }
+}
+
+// ── Pre-arrival form submit ───────────────────────────────────────────────
+async function submitPreArrival(e) {
+  e.preventDefault();
+  const btn = document.getElementById('pa-submit-btn');
+  const err = document.getElementById('pa-error');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  err.classList.add('hidden');
+
+  const updates = {
+    guest_name:           document.getElementById('pa-fname').value.trim() + ' ' + document.getElementById('pa-lname').value.trim(),
+    guest_email:          document.getElementById('pa-email').value.trim(),
+    guest_phone:          document.getElementById('pa-phone').value.trim(),
+    num_guests:           document.getElementById('pa-num-guests').value,
+    arrival_time:         document.getElementById('pa-arrival-time').value,
+    special_requests:     document.getElementById('pa-notes').value.trim(),
+    pre_arrival_complete: true,
+  };
+
+  const { error } = await sb.from('bookings').update(updates).eq('id', booking.id);
+  if (error) {
+    err.textContent = 'Something went wrong. Please try again.';
+    err.classList.remove('hidden');
+    btn.textContent = 'Complete Pre-Arrival →'; btn.disabled = false;
+    return;
+  }
+
+  Object.assign(booking, updates);
+  populateBoardingPass();
+  populateHome();
+  showScreen('home');
+  showToast('🎉 You\'re all set! Welcome to ' + (property.name || 'your stay'));
+}
+
+// ── Populate home screen ──────────────────────────────────────────────────
+function populateHome() {
+  const checkin  = new Date(booking.check_in);
+  const checkout = new Date(booking.check_out);
+  const fmtShort = d => d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+  const fmtFull  = d => d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'}) + ', ' +
+                        d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('home-prop-name').textContent    = property.name || '—';
+  document.getElementById('home-checkin-short').textContent = fmtShort(checkin);
+  document.getElementById('home-checkout-short').textContent= fmtShort(checkout);
+  document.getElementById('home-greeting').textContent     = 'Welcome, ' + (booking.guest_name || '');
+
+  document.getElementById('prop-address').textContent   = property.address || '—';
+  document.getElementById('si-checkin').textContent     = fmtFull(checkin);
+  document.getElementById('si-checkout').textContent    = fmtFull(checkout);
+  document.getElementById('si-guests').textContent      = (booking.num_guests || '—') + ' guests';
+  document.getElementById('wifi-name').textContent      = property.wifi_name || '—';
+  document.getElementById('wifi-pass').textContent      = property.wifi_password || '—';
+  document.getElementById('checkin-instructions').textContent = property.check_in_instructions || 'Your host will provide arrival instructions closer to your check-in date.';
+
+  startDoorCountdown(checkin);
+  loadMessages();
+  loadPurchases();
+}
+
+// ── Door countdown & code reveal ─────────────────────────────────────────
+function startDoorCountdown(checkin) {
+  if (_doorInterval) clearInterval(_doorInterval);
+  function tick() {
+    const now  = new Date();
+    const diff = checkin - now;
+    if (diff <= 0) {
+      clearInterval(_doorInterval);
+      document.getElementById('door-card-locked').classList.add('hidden');
+      document.getElementById('door-card-open').classList.remove('hidden');
+      document.getElementById('door-code').textContent = booking.door_code || '—';
+    } else {
+      const h = Math.floor(diff/3600000);
+      const m = Math.floor((diff%3600000)/60000);
+      const s = Math.floor((diff%60000)/1000);
+      document.getElementById('door-countdown').textContent =
+        (h > 0 ? h + 'h ' : '') + m + 'm ' + s + 's';
+    }
+  }
+  tick();
+  _doorInterval = setInterval(tick, 1000);
+}
+
+function copyDoorCode() {
+  navigator.clipboard.writeText(booking.door_code || '').then(() => showToast('✓ Door code copied!'));
+}
+function copyWifi() {
+  navigator.clipboard.writeText(property.wifi_password || '').then(() => showToast('✓ Wi-Fi password copied!'));
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
+  if (name === 'chat') {
+    document.getElementById('chat-badge').classList.add('hidden');
+    markMessagesRead();
+    setTimeout(() => {
+      const msgs = document.getElementById('chat-messages');
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 100);
+  }
+}
+
+// ── Purchases / Extras ────────────────────────────────────────────────────
+async function loadPurchases() {
+  const { data } = await sb.from('purchases').select('*').eq('booking_id', booking.id);
+  if (!data || data.length === 0) return;
+  renderPurchases(data);
+}
+
+function renderPurchases(purchases) {
+  const section = document.getElementById('my-purchases-section');
+  const list    = document.getElementById('my-purchases-list');
+  section.classList.remove('hidden');
+  list.innerHTML = purchases.map(p => `
+    <div class="purchase-chip">
+      <div>
+        <div class="purchase-chip-name">${p.item_name}</div>
+        <div style="font-size:0.75rem;color:var(--a-gray);">$${(p.amount/100).toFixed(2)}</div>
+      </div>
+      <div class="purchase-chip-status ${p.status}">${p.status === 'paid' ? '✓ Confirmed' : '⏳ Pending'}</div>
+    </div>
+  `).join('');
+
+  // Mark upgrade buttons as purchased
+  purchases.forEach(p => {
+    if (p.item_type === 'early_checkin') {
+      const btn = document.getElementById('btn-early');
+      if (btn) { btn.textContent = '✓ Added'; btn.classList.add('purchased'); btn.disabled = true; }
+      document.getElementById('upgrade-early').classList.add('purchased');
+    }
+    if (p.item_type === 'late_checkout') {
+      const btn = document.getElementById('btn-late');
+      if (btn) { btn.textContent = '✓ Added'; btn.classList.add('purchased'); btn.disabled = true; }
+      document.getElementById('upgrade-late').classList.add('purchased');
+    }
+  });
+}
+
+async function addUpgrade(itemType, itemName, dollars) {
+  const { data, error } = await sb.from('purchases').insert({
+    booking_id: booking.id,
+    item_type:  itemType,
+    item_name:  itemName,
+    amount:     dollars * 100,
+    status:     'pending',
+  }).select().single();
+  if (error) { showToast('Error — please message your host'); return; }
+  showToast('✓ ' + itemName + ' requested!');
+  loadPurchases();
+  // Also send a chat message
+  await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: 'I\'d like to add: ' + itemName + ' ($' + dollars + '). Please confirm!' });
+  loadMessages();
+}
+
+// Experience modal
+function requestExperience(name, price) {
+  _pendingExpName  = name;
+  _pendingExpPrice = price;
+  document.getElementById('exp-modal-title').textContent = 'Request: ' + name;
+  document.getElementById('exp-notes').value = '';
+  document.getElementById('exp-modal').classList.remove('hidden');
+}
+function closeExpModal() { document.getElementById('exp-modal').classList.add('hidden'); }
+async function confirmExperience() {
+  const notes = document.getElementById('exp-notes').value.trim();
+  const msg   = 'I\'d like to book: ' + _pendingExpName + ' (' + _pendingExpPrice + ')' + (notes ? '\n' + notes : '');
+  await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: msg });
+  await sb.from('purchases').insert({ booking_id: booking.id, item_type: 'experience', item_name: _pendingExpName, amount: 0, status: 'pending' });
+  closeExpModal();
+  showToast('✓ Request sent! We\'ll confirm via chat.');
+  switchTab('chat');
+  loadMessages();
+  loadPurchases();
+}
+
+// ── Chat ─────────────────────────────────────────────────────────────────
+let _chatSub = null;
+
+async function loadMessages() {
+  const { data } = await sb.from('messages').select('*').eq('booking_id', booking.id).order('created_at', { ascending: true });
+  renderMessages(data || []);
+  subscribeMessages();
+}
+
+function renderMessages(msgs) {
+  const el = document.getElementById('chat-messages');
+  const empty = document.getElementById('chat-empty');
+  if (!msgs.length) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  el.innerHTML = msgs.map(m => `
+    <div class="chat-msg ${m.sender}">
+      <div class="chat-bubble">${escHtml(m.content)}</div>
+      <div class="chat-meta">${m.sender === 'admin' ? 'Bonsai Stays · ' : ''}${fmtMsgTime(m.created_at)}</div>
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function subscribeMessages() {
+  if (_chatSub) return;
+  _chatSub = sb.channel('chat-' + booking.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'booking_id=eq.' + booking.id }, payload => {
+      appendMessage(payload.new);
+      if (payload.new.sender === 'admin') {
+        const badge = document.getElementById('chat-badge');
+        const active = document.querySelector('.tab-btn[data-tab="chat"]')?.classList.contains('active');
+        if (!active) { badge.textContent = parseInt(badge.textContent || '0') + 1; badge.classList.remove('hidden'); }
+      }
+    })
+    .subscribe();
+}
+
+function appendMessage(msg) {
+  const el    = document.getElementById('chat-messages');
+  document.getElementById('chat-empty').classList.add('hidden');
+  const div   = document.createElement('div');
+  div.className = 'chat-msg ' + msg.sender;
+  div.innerHTML = `<div class="chat-bubble">${escHtml(msg.content)}</div><div class="chat-meta">${msg.sender === 'admin' ? 'Bonsai Stays · ' : ''}${fmtMsgTime(msg.created_at)}</div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const txt   = input.value.trim();
+  if (!txt) return;
+  input.value = '';
+  await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: txt });
+}
+
+async function markMessagesRead() {
+  await sb.from('messages').update({ read: true }).eq('booking_id', booking.id).eq('sender', 'admin').eq('read', false);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function fmtMsgTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+}
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>'); }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ── Start ─────────────────────────────────────────────────────────────────
+boot();
+</script>
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a15e4a761875d1c37232646/1jpioabv2';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+
+</body>
+</html>
