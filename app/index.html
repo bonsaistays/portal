@@ -439,6 +439,8 @@
           <input class="otp-digit" type="tel" maxlength="1" />
           <input class="otp-digit" type="tel" maxlength="1" />
           <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
         </div>
       </div>
       <div id="login-otp-error" class="login-error hidden"></div>
@@ -745,7 +747,7 @@ async function verifyOtp() {
   const digits = [...document.querySelectorAll('.otp-digit')].map(d => d.value).join('');
   const err    = document.getElementById('login-otp-error');
   const btn    = document.getElementById('login-otp-btn');
-  if (digits.length < 6) { err.textContent = 'Enter all 6 digits.'; err.classList.remove('hidden'); return; }
+  if (digits.length < 8) { err.textContent = 'Enter all 8 digits.'; err.classList.remove('hidden'); return; }
   err.classList.add('hidden');
   btn.textContent = 'Verifying…'; btn.disabled = true;
   const { data, error } = await sb.auth.verifyOtp({ email: _loginEmail, token: digits, type: 'email' });
