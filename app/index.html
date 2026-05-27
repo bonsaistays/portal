@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Bonsai Stays — Bon Voyage</title>
+  <meta name="theme-color" content="#0B1F14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Bonsai Stays" />
+  <link rel="manifest" href="/app/manifest.json" />
+  <link rel="apple-touch-icon" href="/PhotosLogos/Bonsa Stays.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green:   #0B1F14;
+      --green2:  #122C1A;
+      --green3:  #1A4028;
+      --sage:    #5BBF85;
+      --gold:    #C9A86C;
+      --gold2:   #E8C98A;
+      --white:   #FFFFFF;
+      --muted:   rgba(255,255,255,0.55);
+      --border:  rgba(255,255,255,0.10);
+      --cream:   #F5F3EF;
+      --charcoal:#111827;
+      --gray:    #6B7280;
+      --radius:  16px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background: var(--green); color: var(--white); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; }
+    img { display: block; max-width: 100%; }
+    .hidden { display: none !important; }
+
+    /* ── App shell ─────────────────────────────────────── */
+    #app {
+      height: 100dvh;
+      display: flex; flex-direction: column;
+      max-width: 430px; margin: 0 auto;
+      position: relative; overflow: hidden;
+    }
+
+    /* ── Screens ───────────────────────────────────────── */
+    .screen { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .screen-anim { animation: fadeUp 0.25s ease; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── Splash ────────────────────────────────────────── */
+    #screen-splash {
+      background: var(--green);
+      align-items: center; justify-content: center; gap: 20px;
+    }
+    .splash-logo { height: 42px; filter: brightness(0) invert(1); }
+    .splash-spinner { width: 32px; height: 32px; border: 2.5px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Login ─────────────────────────────────────────── */
+    #screen-login {
+      background: var(--green);
+      padding: calc(var(--safe-top) + 48px) 28px calc(var(--safe-bot) + 32px);
+      justify-content: center;
+    }
+    .login-logo-wrap { text-align: center; margin-bottom: 40px; }
+    .login-logo-wrap img { height: 36px; filter: brightness(0) invert(1); margin: 0 auto 14px; }
+    .login-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 600; color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .login-tagline { font-size: 0.82rem; color: var(--muted); }
+    .login-form { display: flex; flex-direction: column; gap: 14px; }
+    .login-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; display: block; }
+    .login-input {
+      width: 100%; background: var(--green2); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 15px 16px; color: var(--white);
+      font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;
+    }
+    .login-input:focus { outline: none; border-color: var(--gold); }
+    .login-input::placeholder { color: var(--muted); }
+    .login-btn {
+      background: var(--gold); color: var(--green);
+      font-size: 0.95rem; font-weight: 700;
+      padding: 17px; border-radius: 12px;
+      width: 100%; transition: background 0.2s;
+    }
+    .login-btn:hover { background: var(--gold2); }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-note { text-align: center; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+    .login-error { background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3); color: #FCA5A5; font-size: 0.82rem; padding: 12px 14px; border-radius: 10px; text-align: center; }
+
+    /* OTP digit inputs */
+    .otp-row { display: flex; gap: 10px; justify-content: center; }
+    .otp-digit {
+      width: 46px; height: 56px;
+      background: var(--green2); border: 1.5px solid var(--border);
+      border-radius: 12px; color: var(--white);
+      font-size: 1.4rem; font-weight: 700; text-align: center;
+      font-family: inherit; transition: border-color 0.2s; -webkit-appearance: none;
+    }
+    .otp-digit:focus { outline: none; border-color: var(--gold); background: var(--green3); }
+
+    /* ── Main app layout ───────────────────────────────── */
+    #screen-app {
+      background: var(--green);
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bot);
+    }
+
+    /* Top bar */
+    .app-topbar {
+      padding: 16px 20px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .app-topbar img { height: 24px; filter: brightness(0) invert(1); }
+    .topbar-greeting { font-size: 0.78rem; color: var(--muted); text-align: right; }
+    .topbar-name { font-size: 0.88rem; font-weight: 600; color: var(--white); }
+
+    /* Tab content area */
+    .tab-pages { flex: 1; overflow: hidden; position: relative; }
+    .tab-page { position: absolute; inset: 0; overflow-y: auto; padding-bottom: 12px; }
+    .tab-page::-webkit-scrollbar { display: none; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      display: flex;
+      background: var(--green2);
+      border-top: 1px solid var(--border);
+      padding: 10px 0 calc(var(--safe-bot) + 10px);
+      flex-shrink: 0;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: none; padding: 4px 0;
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); transition: color 0.2s;
+    }
+    .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
+    .nav-item.active { color: var(--gold); }
+
+    /* ── HOME TAB ──────────────────────────────────────── */
+    .home-scroll { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* Weather card */
+    .weather-card {
+      background: linear-gradient(135deg, var(--green3) 0%, #0d2a1a 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      position: relative; overflow: hidden;
+    }
+    .weather-card::before {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 140px; height: 140px; border-radius: 50%;
+      background: rgba(201,168,108,0.06);
+    }
+    .weather-location { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+    .weather-main { display: flex; align-items: center; justify-content: space-between; }
+    .weather-temp { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 600; line-height: 1; }
+    .weather-emoji { font-size: 3rem; line-height: 1; }
+    .weather-desc { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+    .weather-range { display: flex; gap: 12px; margin-top: 8px; }
+    .weather-range span { font-size: 0.78rem; color: var(--muted); }
+    .weather-range b { color: var(--white); }
+
+    /* Points summary */
+    .points-card {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .points-left {}
+    .points-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .points-value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+    .points-sub { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+    .tier-badge {
+      padding: 6px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .tier-Classic { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid var(--border); }
+    .tier-Silver  { background: rgba(192,192,192,0.15); color: #E0E0E0; border: 1px solid rgba(192,192,192,0.3); }
+    .tier-Gold    { background: rgba(201,168,108,0.15); color: var(--gold); border: 1px solid rgba(201,168,108,0.3); }
+
+    /* Points history mini */
+    .history-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-desc { color: rgba(255,255,255,0.8); }
+    .history-pts { font-weight: 700; }
+    .history-pts.pos { color: var(--sage); }
+    .history-pts.neg { color: #FC8181; }
+
+    /* Upcoming booking */
+    .booking-teaser {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .booking-teaser-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .booking-teaser-prop { font-weight: 700; font-size: 0.92rem; margin-bottom: 3px; }
+    .booking-teaser-dates { font-size: 0.78rem; color: var(--muted); }
+    .btn-view-stay {
+      margin-left: auto; flex-shrink: 0;
+      background: var(--gold); color: var(--green);
+      font-size: 0.72rem; font-weight: 700;
+      padding: 8px 14px; border-radius: 8px;
+    }
+
+    /* Section header */
+    .section-head { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+
+    /* ── CARD TAB ──────────────────────────────────────── */
+    .card-page { padding: 16px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+
+    .loyalty-card {
+      width: 100%; max-width: 380px;
+      aspect-ratio: 1.586;
+      background: #0A0A0A;
+      border-radius: 18px;
+      padding: 22px 24px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    /* Shimmer overlay */
+    .loyalty-card::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.04) 50%, transparent 65%);
+      background-size: 200% 100%;
+      animation: cardShimmer 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes cardShimmer { 0%,100%{background-position:200% 0} 50%{background-position:-200% 0} }
+
+    /* Decorative circles */
+    .loyalty-card::before {
+      content: ''; position: absolute;
+      right: -60px; bottom: -60px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,108,0.08) 0%, transparent 70%);
+    }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; position: relative; z-index: 1; }
+    .card-logo { height: 22px; filter: brightness(0) invert(1); }
+    .card-program-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem; font-weight: 600; font-style: italic;
+      color: var(--gold); text-align: right;
+    }
+
+    /* Chip */
+    .card-chip {
+      width: 38px; height: 30px;
+      background: linear-gradient(135deg, #C9A86C 0%, #E8C98A 50%, #C9A86C 100%);
+      border-radius: 5px; position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 4px;
+    }
+    .chip-cell { background: rgba(0,0,0,0.2); border-radius: 2px; }
+    .chip-cell:nth-child(2) { border-radius: 0 2px 2px 0; }
+
+    .card-bottom { position: relative; z-index: 1; }
+    .card-member-name { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--white); margin-bottom: 4px; }
+    .card-member-meta { display: flex; align-items: center; justify-content: space-between; }
+    .card-since { font-size: 0.65rem; color: rgba(255,255,255,0.45); letter-spacing: 0.1em; text-transform: uppercase; }
+    .card-tier-pill {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 20px;
+    }
+    .card-tier-Classic { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+    .card-tier-Silver  { background: rgba(192,192,192,0.2); color: #E0E0E0; }
+    .card-tier-Gold    { background: rgba(201,168,108,0.2); color: var(--gold); }
+
+    /* Member ID under card */
+    .card-id-row { text-align: center; }
+    .card-id-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+    .card-id-value { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.15em; color: var(--white); }
+
+    /* Show to business instructions */
+    .card-show-tip {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      font-size: 0.8rem; color: var(--muted); line-height: 1.6;
+      text-align: center; width: 100%; max-width: 380px;
+    }
+    .card-show-tip strong { color: var(--white); }
+
+    /* Points on card page */
+    .card-points-row {
+      display: flex; gap: 10px; width: 100%; max-width: 380px;
+    }
+    .card-pts-chip {
+      flex: 1; background: var(--green2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px; text-align: center;
+    }
+    .card-pts-chip .lbl { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .card-pts-chip .val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; }
+
+    /* Tier progress */
+    .tier-progress-wrap { width: 100%; max-width: 380px; background: var(--green2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .tier-progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px; }
+    .tier-bar-bg { background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden; }
+    .tier-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 4px; transition: width 0.6s ease; }
+    .tier-next { font-size: 0.72rem; color: var(--muted); margin-top: 8px; text-align: center; }
+
+    /* ── EXPLORE TAB ───────────────────────────────────── */
+    .explore-scroll { padding: 12px 16px 16px; }
+    .region-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 16px; scrollbar-width: none; }
+    .region-chips::-webkit-scrollbar { display: none; }
+    .region-chip {
+      flex-shrink: 0; padding: 7px 16px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+      background: var(--green2); border: 1.5px solid var(--border); color: var(--muted);
+      transition: all 0.2s; cursor: pointer;
+    }
+    .region-chip.active { background: var(--gold); border-color: var(--gold); color: var(--green); }
+
+    .cat-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 14px; scrollbar-width: none; }
+    .cat-chips::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600;
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .cat-chip.active { border-color: var(--sage); color: var(--sage); }
+
+    .biz-grid { display: flex; flex-direction: column; gap: 12px; }
+    .biz-card {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      display: flex; gap: 0;
+    }
+    .biz-photo { width: 90px; flex-shrink: 0; background: var(--green3); }
+    .biz-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .biz-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+    .biz-info { padding: 14px; flex: 1; min-width: 0; }
+    .biz-cat { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sage); margin-bottom: 4px; }
+    .biz-name { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .biz-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .biz-deal-tag { display: inline-flex; align-items: center; gap: 5px; background: rgba(201,168,108,0.12); border: 1px solid rgba(201,168,108,0.3); color: var(--gold); font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+
+    .explore-empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 0.85rem; }
+    .explore-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── DEALS TAB ─────────────────────────────────────── */
+    .deals-scroll { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .deal-card {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+    }
+    .deal-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .deal-biz-name { font-weight: 700; font-size: 0.92rem; }
+    .deal-region { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .deal-discount {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--green); font-size: 0.82rem; font-weight: 800;
+      padding: 6px 12px; border-radius: 8px; flex-shrink: 0;
+    }
+    .deal-desc { font-size: 0.82rem; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 12px; }
+    .deal-code-wrap { background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .deal-code-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .deal-code-value { font-size: 1rem; font-weight: 800; letter-spacing: 0.15em; color: var(--gold); }
+    .btn-copy-deal { font-size: 0.72rem; font-weight: 700; background: var(--gold); color: var(--green); padding: 6px 12px; border-radius: 6px; }
+    .deal-card-show { margin-top: 10px; text-align: center; font-size: 0.75rem; color: var(--muted); }
+
+    .deals-empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 0.85rem; }
+    .deals-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: calc(var(--safe-bot) + 80px); left: 50%; transform: translateX(-50%);
+      background: var(--green3); color: var(--white); border: 1px solid var(--border);
+      font-size: 0.85rem; font-weight: 600;
+      padding: 11px 22px; border-radius: 40px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+      z-index: 999; white-space: nowrap;
+    }
+    @keyframes toastIn  { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+    @keyframes toastOut { to{opacity:0;transform:translateX(-50%) translateY(10px)} }
+
+    /* Install prompt */
+    .install-bar {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      background: var(--green2); border-top: 1px solid var(--border);
+      padding: 14px 20px calc(var(--safe-bot) + 14px);
+      display: flex; align-items: center; gap: 12px;
+      z-index: 200;
+    }
+    .install-bar img { height: 32px; filter: brightness(0) invert(1); flex-shrink: 0; }
+    .install-bar-text { flex: 1; }
+    .install-bar-text strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+    .install-bar-text span { font-size: 0.75rem; color: var(--muted); }
+    .btn-install { background: var(--gold); color: var(--green); font-size: 0.8rem; font-weight: 700; padding: 10px 16px; border-radius: 8px; flex-shrink: 0; }
+    .btn-install-close { background: none; color: var(--muted); font-size: 1.1rem; flex-shrink: 0; padding: 4px; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Splash -->
+  <div id="screen-splash" class="screen">
+    <img class="splash-logo" src="/PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
+    <div class="splash-spinner"></div>
+  </div>
+
+  <!-- Login -->
+  <div id="screen-login" class="screen hidden">
+    <div class="login-logo-wrap">
+      <img src="/PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
+      <div class="login-card-name">Bon Voyage</div>
+      <div class="login-tagline">Your Bonsai member passport</div>
+    </div>
+
+    <!-- Step 1: Email -->
+    <div id="login-step-email" class="login-form">
+      <div>
+        <label class="login-label" for="login-email">Email address</label>
+        <input class="login-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div id="login-email-error" class="login-error hidden"></div>
+      <button class="login-btn" id="login-email-btn" onclick="sendOtp()">Get my access code →</button>
+      <div class="login-note">We'll send a one-time code to your email.</div>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div id="login-step-otp" class="login-form hidden">
+      <div>
+        <label class="login-label">Enter your 6-digit code</label>
+        <div class="otp-row" id="otp-row">
+          <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
+          <input class="otp-digit" type="tel" maxlength="1" />
+        </div>
+      </div>
+      <div id="login-otp-error" class="login-error hidden"></div>
+      <button class="login-btn" id="login-otp-btn" onclick="verifyOtp()">Verify →</button>
+      <div class="login-note" id="otp-note">Code sent to <strong id="otp-email-display"></strong> · <a href="#" onclick="resetLogin(event)" style="color:var(--gold);">Change email</a></div>
+    </div>
+
+    <!-- Step 3: Name (new members) -->
+    <div id="login-step-name" class="login-form hidden">
+      <div>
+        <label class="login-label">Your name</label>
+        <input class="login-input" id="login-name" type="text" placeholder="Sarah Smith" autocomplete="name" />
+      </div>
+      <div id="login-name-error" class="login-error hidden"></div>
+      <button class="login-btn" id="login-name-btn" onclick="saveName()">Join Bon Voyage →</button>
+      <div class="login-note">Welcome! Let's set up your member card.</div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="screen-app" class="screen hidden" style="display:flex;flex-direction:column;">
+    <!-- Top bar -->
+    <div class="app-topbar">
+      <img src="/PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
+      <div>
+        <div class="topbar-greeting" id="topbar-greeting">Good morning</div>
+        <div class="topbar-name" id="topbar-name">—</div>
+      </div>
+    </div>
+
+    <!-- Tab pages -->
+    <div class="tab-pages">
+
+      <!-- HOME -->
+      <div class="tab-page" id="tab-home">
+        <div class="home-scroll">
+
+          <!-- Weather -->
+          <div class="weather-card" id="weather-card">
+            <div class="weather-location" id="weather-location">Fetching weather…</div>
+            <div class="weather-main">
+              <div class="weather-temp" id="weather-temp">—</div>
+              <div class="weather-emoji" id="weather-emoji">🌤️</div>
+            </div>
+            <div class="weather-desc" id="weather-desc">—</div>
+            <div class="weather-range">
+              <span>↑ <b id="weather-high">—</b></span>
+              <span>↓ <b id="weather-low">—</b></span>
+            </div>
+          </div>
+
+          <!-- Points -->
+          <div class="points-card">
+            <div class="points-left">
+              <div class="points-label">Bon Voyage Points</div>
+              <div class="points-value" id="home-points">0</div>
+              <div class="points-sub" id="home-points-sub">Keep staying to earn more</div>
+            </div>
+            <div class="tier-badge" id="home-tier-badge">Classic</div>
+          </div>
+
+          <!-- Upcoming booking -->
+          <div id="home-booking-section" class="hidden">
+            <div class="section-head">Your upcoming stay</div>
+            <div class="booking-teaser">
+              <div class="booking-teaser-icon">🏡</div>
+              <div>
+                <div class="booking-teaser-prop" id="home-booking-prop">—</div>
+                <div class="booking-teaser-dates" id="home-booking-dates">—</div>
+              </div>
+              <a id="home-booking-link" href="#" class="btn-view-stay">View Stay</a>
+            </div>
+          </div>
+
+          <!-- Points history -->
+          <div id="home-history-section" class="hidden">
+            <div class="section-head">Recent Points</div>
+            <div style="background:var(--green2);border:1px solid var(--border);border-radius:var(--radius);padding:4px 16px;" id="home-history-list"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CARD -->
+      <div class="tab-page hidden" id="tab-card">
+        <div class="card-page">
+
+          <div class="loyalty-card" id="loyalty-card">
+            <div class="card-top">
+              <img class="card-logo" src="/PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
+              <div class="card-program-name">Bon Voyage</div>
+            </div>
+            <div class="card-chip">
+              <div class="chip-cell"></div><div class="chip-cell"></div>
+              <div class="chip-cell"></div><div class="chip-cell"></div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-member-name" id="card-name">—</div>
+              <div class="card-member-meta">
+                <div class="card-since">Member since <span id="card-since">—</span></div>
+                <div class="card-tier-pill" id="card-tier-pill">Classic</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-id-row">
+            <div class="card-id-label">Member ID</div>
+            <div class="card-id-value" id="card-member-id">BV-000000</div>
+          </div>
+
+          <div class="card-points-row">
+            <div class="card-pts-chip">
+              <div class="lbl">Points</div>
+              <div class="val" id="card-points">0</div>
+            </div>
+            <div class="card-pts-chip">
+              <div class="lbl">Stays</div>
+              <div class="val" id="card-stays">0</div>
+            </div>
+          </div>
+
+          <div class="tier-progress-wrap">
+            <div class="tier-progress-label">
+              <span id="tier-current-label">Classic</span>
+              <span id="tier-next-label">Silver</span>
+            </div>
+            <div class="tier-bar-bg"><div class="tier-bar-fill" id="tier-bar" style="width:0%"></div></div>
+            <div class="tier-next" id="tier-next-msg">—</div>
+          </div>
+
+          <div class="card-show-tip">
+            <strong>Show this card at any partner business</strong><br/>
+            to receive your Bon Voyage member discount.
+          </div>
+
+        </div>
+      </div>
+
+      <!-- EXPLORE -->
+      <div class="tab-page hidden" id="tab-explore">
+        <div class="explore-scroll">
+          <div class="region-chips" id="explore-region-chips">
+            <button class="region-chip active" data-region="all" onclick="filterExplore('all',this)">All Regions</button>
+            <button class="region-chip" data-region="Muskoka" onclick="filterExplore('Muskoka',this)">🌲 Muskoka</button>
+            <button class="region-chip" data-region="Collingwood" onclick="filterExplore('Collingwood',this)">⛷️ Collingwood</button>
+            <button class="region-chip" data-region="Toronto" onclick="filterExplore('Toronto',this)">🏙️ Toronto</button>
+          </div>
+          <div class="cat-chips" id="explore-cat-chips">
+            <button class="cat-chip active" data-cat="all" onclick="filterCat('all',this)">All</button>
+            <button class="cat-chip" data-cat="Restaurant" onclick="filterCat('Restaurant',this)">🍽️ Eat</button>
+            <button class="cat-chip" data-cat="Activity" onclick="filterCat('Activity',this)">🎯 Do</button>
+            <button class="cat-chip" data-cat="Shop" onclick="filterCat('Shop',this)">🛍️ Shop</button>
+            <button class="cat-chip" data-cat="Spa" onclick="filterCat('Spa',this)">💆 Spa</button>
+            <button class="cat-chip" data-cat="Cafe" onclick="filterCat('Cafe',this)">☕ Café</button>
+            <button class="cat-chip" data-cat="Bar" onclick="filterCat('Bar',this)">🍷 Bar</button>
+          </div>
+          <div class="biz-grid" id="biz-grid">
+            <div class="explore-empty"><div class="explore-empty-icon">🔍</div>Loading recommendations…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEALS -->
+      <div class="tab-page hidden" id="tab-deals">
+        <div class="deals-scroll" id="deals-list">
+          <div class="deals-empty"><div class="deals-empty-icon">🏷️</div>Loading member deals…</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home',this)"><span class="nav-icon">🏠</span>Home</button>
+      <button class="nav-item" data-tab="card" onclick="switchTab('card',this)"><span class="nav-icon">💳</span>My Card</button>
+      <button class="nav-item" data-tab="explore" onclick="switchTab('explore',this)"><span class="nav-icon">🗺️</span>Explore</button>
+      <button class="nav-item" data-tab="deals" onclick="switchTab('deals',this)"><span class="nav-icon">🏷️</span>Deals</button>
+    </nav>
+  </div>
+
+</div>
+
+<!-- PWA install prompt (Android/desktop) -->
+<div class="install-bar hidden" id="install-bar">
+  <img src="/PhotosLogos/Bonsa Stays.png" alt="" />
+  <div class="install-bar-text">
+    <strong>Add to Home Screen</strong>
+    <span>Install the Bonsai Stays app for quick access</span>
+  </div>
+  <button class="btn-install" id="btn-install" onclick="installPwa()">Install</button>
+  <button class="btn-install-close" onclick="document.getElementById('install-bar').classList.add('hidden')">✕</button>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+// ─────────────────────────────────────────────────────────────────────────
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// WMO weather codes
+const WMO = {
+  0:['☀️','Clear sky'],1:['🌤️','Mainly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],
+  45:['🌫️','Fog'],48:['🌫️','Icy fog'],
+  51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Heavy drizzle'],
+  61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],
+  71:['🌨️','Light snow'],73:['🌨️','Snow'],75:['❄️','Heavy snow'],
+  80:['🌦️','Showers'],81:['🌧️','Rain showers'],82:['⛈️','Heavy showers'],
+  95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Severe storm'],
+};
+
+// App state
+let _member = null;
+let _businesses = [];
+let _exploreRegion = 'all';
+let _exploreCat = 'all';
+let _loginEmail = '';
+let _deferredPrompt = null;
+
+// ── PWA install ───────────────────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); _deferredPrompt = e;
+  setTimeout(() => document.getElementById('install-bar').classList.remove('hidden'), 3000);
+});
+function installPwa() {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  _deferredPrompt.userChoice.then(() => { _deferredPrompt = null; document.getElementById('install-bar').classList.add('hidden'); });
+}
+
+// Service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/app/sw.js').catch(console.warn);
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+async function boot() {
+  showScreen('splash');
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    await loadMember(session.user);
+  } else {
+    showScreen('login');
+  }
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+function showScreen(name) {
+  ['splash','login','app'].forEach(s => {
+    const el = document.getElementById('screen-' + s);
+    if (el) el.classList.add('hidden');
+  });
+  const el = document.getElementById('screen-' + name);
+  if (el) { el.classList.remove('hidden'); if (name !== 'splash') el.classList.add('screen-anim'); }
+}
+
+async function sendOtp() {
+  const email = document.getElementById('login-email').value.trim();
+  const err   = document.getElementById('login-email-error');
+  const btn   = document.getElementById('login-email-btn');
+  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  btn.textContent = 'Sending…'; btn.disabled = true;
+  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  if (error) { err.textContent = error.message; err.classList.remove('hidden'); btn.textContent = 'Get my access code →'; btn.disabled = false; return; }
+  _loginEmail = email;
+  document.getElementById('otp-email-display').textContent = email;
+  document.getElementById('login-step-email').classList.add('hidden');
+  document.getElementById('login-step-otp').classList.remove('hidden');
+  setTimeout(() => document.querySelector('.otp-digit').focus(), 100);
+  btn.textContent = 'Get my access code →'; btn.disabled = false;
+}
+
+// OTP digit auto-advance
+document.getElementById('otp-row').addEventListener('input', e => {
+  if (e.target.classList.contains('otp-digit') && e.target.value) {
+    const digits = [...document.querySelectorAll('.otp-digit')];
+    const idx = digits.indexOf(e.target);
+    if (idx < 5) digits[idx + 1].focus();
+    else verifyOtp();
+  }
+});
+document.getElementById('otp-row').addEventListener('keydown', e => {
+  if (e.key === 'Backspace' && !e.target.value) {
+    const digits = [...document.querySelectorAll('.otp-digit')];
+    const idx = digits.indexOf(e.target);
+    if (idx > 0) digits[idx - 1].focus();
+  }
+});
+
+async function verifyOtp() {
+  const digits = [...document.querySelectorAll('.otp-digit')].map(d => d.value).join('');
+  const err    = document.getElementById('login-otp-error');
+  const btn    = document.getElementById('login-otp-btn');
+  if (digits.length < 6) { err.textContent = 'Enter all 6 digits.'; err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+  const { data, error } = await sb.auth.verifyOtp({ email: _loginEmail, token: digits, type: 'email' });
+  if (error) { err.textContent = 'Invalid or expired code. Try again.'; err.classList.remove('hidden'); btn.textContent = 'Verify →'; btn.disabled = false; return; }
+  await loadMember(data.user);
+  btn.textContent = 'Verify →'; btn.disabled = false;
+}
+
+function resetLogin(e) { e.preventDefault(); document.getElementById('login-step-otp').classList.add('hidden'); document.getElementById('login-step-email').classList.remove('hidden'); }
+
+async function saveName() {
+  const name = document.getElementById('login-name').value.trim();
+  const err  = document.getElementById('login-name-error');
+  const btn  = document.getElementById('login-name-btn');
+  if (!name) { err.textContent = 'Please enter your name.'; err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  btn.textContent = 'Joining…'; btn.disabled = true;
+  const { data: { user } } = await sb.auth.getUser();
+  const num = 'BV-' + String(Math.floor(100000 + Math.random() * 900000));
+  const { error } = await sb.from('members').update({ name, member_number: num }).eq('user_id', user.id);
+  if (error) { err.textContent = error.message; err.classList.remove('hidden'); btn.textContent = 'Join Bon Voyage →'; btn.disabled = false; return; }
+  _member.name = name; _member.member_number = num;
+  populateApp();
+  showScreen('app');
+  btn.textContent = 'Join Bon Voyage →'; btn.disabled = false;
+}
+
+// ── Load / create member ──────────────────────────────────────────────────
+async function loadMember(user) {
+  let { data: member } = await sb.from('members').select('*').eq('user_id', user.id).single();
+  if (!member) {
+    const num = 'BV-' + String(Math.floor(100000 + Math.random() * 900000));
+    const { data: newMember } = await sb.from('members').insert({ user_id: user.id, email: user.email, member_number: num }).select().single();
+    member = newMember;
+  }
+  _member = member;
+  if (!member.name) {
+    showScreen('login');
+    document.getElementById('login-step-email').classList.add('hidden');
+    document.getElementById('login-step-otp').classList.add('hidden');
+    document.getElementById('login-step-name').classList.remove('hidden');
+    return;
+  }
+  populateApp();
+  showScreen('app');
+  loadWeather();
+  loadBusinesses();
+  loadHistory();
+  checkUpcomingBooking();
+}
+
+// ── Populate app ──────────────────────────────────────────────────────────
+function populateApp() {
+  const m = _member;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('topbar-greeting').textContent = greeting + ',';
+  document.getElementById('topbar-name').textContent = m.name?.split(' ')[0] || '';
+
+  // Tier logic
+  const pts = m.points || 0;
+  const tier = pts >= 1500 ? 'Gold' : pts >= 500 ? 'Silver' : 'Classic';
+  const tierColor = { Classic: 'rgba(255,255,255,0.7)', Silver: '#E0E0E0', Gold: '#C9A86C' };
+
+  // Home tab
+  document.getElementById('home-points').textContent = pts.toLocaleString();
+  document.getElementById('home-points-sub').textContent = pts === 0 ? 'Complete your first stay to earn points' : 'Points earned across ' + (m.total_stays || 0) + ' stay' + ((m.total_stays||0)!==1?'s':'');
+  const homeBadge = document.getElementById('home-tier-badge');
+  homeBadge.textContent = tier; homeBadge.className = 'tier-badge tier-' + tier;
+
+  // Card tab
+  document.getElementById('card-name').textContent = (m.name || '').toUpperCase();
+  document.getElementById('card-since').textContent = new Date(m.member_since || m.created_at).toLocaleDateString('en-CA',{month:'short',year:'numeric'});
+  const cardTier = document.getElementById('card-tier-pill');
+  cardTier.textContent = tier; cardTier.className = 'card-tier-pill card-tier-' + tier;
+  document.getElementById('card-member-id').textContent = m.member_number || 'BV-000000';
+  document.getElementById('card-points').textContent = pts.toLocaleString();
+  document.getElementById('card-stays').textContent = m.total_stays || 0;
+
+  // Tier progress bar
+  const tiers = [{name:'Classic',min:0,max:500},{name:'Silver',min:500,max:1500},{name:'Gold',min:1500,max:1500}];
+  const current = pts >= 1500 ? tiers[2] : pts >= 500 ? tiers[1] : tiers[0];
+  const next = pts >= 1500 ? null : pts >= 500 ? tiers[2] : tiers[1];
+  document.getElementById('tier-current-label').textContent = current.name;
+  if (next) {
+    const pct = Math.min(100, Math.round(((pts - current.min) / (next.min - current.min)) * 100));
+    document.getElementById('tier-bar').style.width = pct + '%';
+    document.getElementById('tier-next-label').textContent = next.name;
+    document.getElementById('tier-next-msg').textContent = (next.min - pts) + ' points to ' + next.name;
+  } else {
+    document.getElementById('tier-bar').style.width = '100%';
+    document.getElementById('tier-next-label').textContent = 'Gold ✓';
+    document.getElementById('tier-next-msg').textContent = '🎉 You\'ve reached Gold status!';
+  }
+}
+
+// ── Weather (Open-Meteo — no API key) ─────────────────────────────────────
+async function loadWeather() {
+  try {
+    // Use geolocation if available, fallback to Muskoka
+    const getCoords = () => new Promise((res, rej) => navigator.geolocation?.getCurrentPosition(
+      p => res({ lat: p.coords.latitude, lng: p.coords.longitude, name: 'Your location' }),
+      () => res({ lat: 45.1, lng: -79.4, name: 'Muskoka' })
+    ) ?? res({ lat: 45.1, lng: -79.4, name: 'Muskoka' }));
+
+    const { lat, lng, name } = await getCoords();
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=1`);
+    const d = await r.json();
+    const cw = d.current_weather;
+    const [emoji, desc] = WMO[cw.weathercode] || ['🌤️', 'Partly cloudy'];
+
+    document.getElementById('weather-location').textContent = name;
+    document.getElementById('weather-temp').textContent = Math.round(cw.temperature) + '°C';
+    document.getElementById('weather-emoji').textContent = emoji;
+    document.getElementById('weather-desc').textContent = desc;
+    document.getElementById('weather-high').textContent = Math.round(d.daily.temperature_2m_max[0]) + '°';
+    document.getElementById('weather-low').textContent  = Math.round(d.daily.temperature_2m_min[0]) + '°';
+  } catch { document.getElementById('weather-location').textContent = 'Weather unavailable'; }
+}
+
+// ── Businesses ────────────────────────────────────────────────────────────
+async function loadBusinesses() {
+  const { data } = await sb.from('businesses').select('*').eq('active', true).order('name');
+  _businesses = data || [];
+  renderBusinesses();
+  renderDeals();
+}
+
+function renderBusinesses() {
+  const grid = document.getElementById('biz-grid');
+  let list = _businesses;
+  if (_exploreRegion !== 'all') list = list.filter(b => b.region === _exploreRegion);
+  if (_exploreCat !== 'all')    list = list.filter(b => b.category === _exploreCat);
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="explore-empty"><div class="explore-empty-icon">🔍</div>' +
+      (_businesses.length ? 'No results for this filter.' : 'Local recommendations coming soon for this region!') + '</div>';
+    return;
+  }
+  const catEmoji = { Restaurant:'🍽️', Activity:'🎯', Shop:'🛍️', Spa:'💆', Cafe:'☕', Bar:'🍷' };
+  grid.innerHTML = list.map(b => `
+    <div class="biz-card">
+      <div class="biz-photo">
+        ${b.photo_url ? `<img src="${esc(b.photo_url)}" alt="${esc(b.name)}" loading="lazy" />` : `<div class="biz-photo-placeholder">${catEmoji[b.category]||'🏪'}</div>`}
+      </div>
+      <div class="biz-info">
+        <div class="biz-cat">${esc(b.category||'')} · ${esc(b.region||'')}</div>
+        <div class="biz-name">${esc(b.name)}</div>
+        <div class="biz-desc">${esc(b.description||'')}</div>
+        ${b.deal_description ? `<span class="biz-deal-tag">🏷️ Member deal</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDeals() {
+  const list = document.getElementById('deals-list');
+  const deals = _businesses.filter(b => b.deal_description);
+  if (!deals.length) {
+    list.innerHTML = '<div class="deals-empty"><div class="deals-empty-icon">🏷️</div>Exclusive member deals coming soon!</div>';
+    return;
+  }
+  list.innerHTML = deals.map(b => `
+    <div class="deal-card">
+      <div class="deal-card-top">
+        <div>
+          <div class="deal-biz-name">${esc(b.name)}</div>
+          <div class="deal-region">📍 ${esc(b.region||'')} · ${esc(b.category||'')}</div>
+        </div>
+        ${b.deal_description ? `<div class="deal-discount">🏷️ Deal</div>` : ''}
+      </div>
+      <div class="deal-desc">${esc(b.deal_description||'')}</div>
+      ${b.deal_code ? `
+        <div class="deal-code-wrap">
+          <div><div class="deal-code-label">Your code</div><div class="deal-code-value">${esc(b.deal_code)}</div></div>
+          <button class="btn-copy-deal" onclick="copyCode('${esc(b.deal_code)}')">Copy</button>
+        </div>
+      ` : ''}
+      <div class="deal-card-show">Show your Bon Voyage card at the register</div>
+    </div>
+  `).join('');
+}
+
+function filterExplore(region, btn) {
+  _exploreRegion = region;
+  document.querySelectorAll('.region-chip').forEach(c => c.classList.toggle('active', c.dataset.region === region));
+  renderBusinesses();
+}
+function filterCat(cat, btn) {
+  _exploreCat = cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === cat));
+  renderBusinesses();
+}
+
+// ── Points history ────────────────────────────────────────────────────────
+async function loadHistory() {
+  const { data } = await sb.from('points_history').select('*').eq('member_id', _member.id).order('created_at', { ascending: false }).limit(5);
+  if (!data?.length) return;
+  document.getElementById('home-history-section').classList.remove('hidden');
+  document.getElementById('home-history-list').innerHTML = data.map(h => `
+    <div class="history-item">
+      <div class="history-desc">${esc(h.description || 'Points earned')}</div>
+      <div class="history-pts ${h.points >= 0 ? 'pos' : 'neg'}">${h.points >= 0 ? '+' : ''}${h.points} pts</div>
+    </div>
+  `).join('');
+}
+
+// ── Upcoming booking ──────────────────────────────────────────────────────
+async function checkUpcomingBooking() {
+  if (!_member.email) return;
+  const now = new Date().toISOString();
+  const { data } = await sb.from('bookings').select('*, properties(name)').eq('guest_email', _member.email).gte('check_out', now).order('check_in').limit(1).single();
+  if (!data) return;
+  const ci = new Date(data.check_in); const co = new Date(data.check_out);
+  const fmt = d => d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+  document.getElementById('home-booking-section').classList.remove('hidden');
+  document.getElementById('home-booking-prop').textContent  = data.properties?.name || 'Your stay';
+  document.getElementById('home-booking-dates').textContent = fmt(ci) + ' – ' + fmt(co);
+  document.getElementById('home-booking-link').href = '/portal/guest/?token=' + data.token;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  if (btn) btn.classList.add('active');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => showToast('✓ Code copied!'));
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showToast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+
+boot();
+</script>
+</body>
+</html>

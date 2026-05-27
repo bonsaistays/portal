@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Businesses</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:28px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="members.html">Members</a>
+    <a href="businesses.html" class="active">Businesses</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <div class="admin-page-header">
+    <div>
+      <h1>Local Businesses & Deals</h1>
+      <p id="biz-subtitle">Businesses featured in the Bon Voyage member app</p>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Add Business</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <span style="font-size:0.78rem;font-weight:600;color:var(--a-gray);padding:6px 0;align-self:center;">Region:</span>
+      <button class="filter-chip active" data-region="" onclick="setRegion('',this)">All</button>
+      <button class="filter-chip" data-region="Muskoka" onclick="setRegion('Muskoka',this)">Muskoka</button>
+      <button class="filter-chip" data-region="Collingwood" onclick="setRegion('Collingwood',this)">Collingwood</button>
+      <button class="filter-chip" data-region="Toronto" onclick="setRegion('Toronto',this)">Toronto</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:16px;">
+      <span style="font-size:0.78rem;font-weight:600;color:var(--a-gray);padding:6px 0;align-self:center;">Category:</span>
+      <button class="filter-chip active" data-cat="" onclick="setCat('',this)">All</button>
+      <button class="filter-chip" data-cat="Food & Drink" onclick="setCat('Food & Drink',this)">Food & Drink</button>
+      <button class="filter-chip" data-cat="Activities" onclick="setCat('Activities',this)">Activities</button>
+      <button class="filter-chip" data-cat="Spa & Wellness" onclick="setCat('Spa & Wellness',this)">Spa & Wellness</button>
+      <button class="filter-chip" data-cat="Shopping" onclick="setCat('Shopping',this)">Shopping</button>
+      <button class="filter-chip" data-cat="Transport" onclick="setCat('Transport',this)">Transport</button>
+    </div>
+  </div>
+
+  <!-- Business grid -->
+  <div id="biz-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;"></div>
+
+  <div class="table-empty hidden" id="biz-empty">
+    <div class="table-empty-icon">🏪</div>
+    <h3>No businesses yet</h3>
+    <p>Add local businesses and deals to feature in the Bon Voyage member app</p>
+  </div>
+
+</main>
+
+
+<!-- ═══ Modal: Add / Edit Business ══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-biz">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h3 id="modal-title">Add Business</h3>
+      <button class="btn-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <input type="hidden" id="f-id" />
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="grid-column:1/-1;">
+          <label class="form-label">Business Name *</label>
+          <input class="form-input" id="f-name" type="text" placeholder="e.g. The Boathouse Restaurant" />
+        </div>
+
+        <div>
+          <label class="form-label">Category *</label>
+          <select class="form-input" id="f-category">
+            <option value="">Select category</option>
+            <option>Food & Drink</option>
+            <option>Activities</option>
+            <option>Spa & Wellness</option>
+            <option>Shopping</option>
+            <option>Transport</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label">Region *</label>
+          <select class="form-input" id="f-region">
+            <option value="">Select region</option>
+            <option>Muskoka</option>
+            <option>Collingwood</option>
+            <option>Toronto</option>
+          </select>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" id="f-description" rows="3" placeholder="Brief description shown to members..."></textarea>
+        </div>
+
+        <div>
+          <label class="form-label">Address</label>
+          <input class="form-input" id="f-address" type="text" placeholder="123 Main St, Huntsville" />
+        </div>
+
+        <div>
+          <label class="form-label">Phone</label>
+          <input class="form-input" id="f-phone" type="text" placeholder="+1 705 000 0000" />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label class="form-label">Website URL</label>
+          <input class="form-input" id="f-website" type="url" placeholder="https://..." />
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label class="form-label">Photo URL</label>
+          <input class="form-input" id="f-photo" type="url" placeholder="https://... (direct image link)" />
+        </div>
+
+        <div style="grid-column:1/-1;border-top:1px solid var(--a-gray-pale);padding-top:14px;margin-top:4px;">
+          <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-green);margin:0 0 12px;">Member Deal</p>
+        </div>
+
+        <div style="grid-column:1/-1;">
+          <label class="form-label">Deal Description</label>
+          <input class="form-input" id="f-deal-desc" type="text" placeholder="e.g. 15% off your total bill" />
+        </div>
+
+        <div>
+          <label class="form-label">Deal Code (optional)</label>
+          <input class="form-input" id="f-deal-code" type="text" placeholder="e.g. BONVOYAGE15" />
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding-top:24px;">
+          <label style="font-size:0.85rem;font-weight:600;color:var(--a-dark);">Active in app</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="f-active" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveBusiness()">Save Business</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allBiz = [];
+let activeRegion = '';
+let activeCat = '';
+
+// ── Auth guard ────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  const email = session.user.email || '';
+  document.getElementById('admin-avatar').textContent = email[0]?.toUpperCase() || 'A';
+  await loadBusinesses();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ── Load ─────────────────────────────────────────────────
+async function loadBusinesses() {
+  const { data, error } = await sb.from('businesses').select('*').order('name');
+  if (error) { showToast('Error loading businesses: ' + error.message, 'error'); return; }
+  allBiz = data || [];
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('biz-grid');
+  const empty = document.getElementById('biz-empty');
+  let list = allBiz;
+  if (activeRegion) list = list.filter(b => b.region === activeRegion);
+  if (activeCat) list = list.filter(b => b.category === activeCat);
+
+  document.getElementById('biz-subtitle').textContent =
+    `${allBiz.length} business${allBiz.length !== 1 ? 'es' : ''} — ${list.length} shown`;
+
+  if (!list.length) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = list.map(b => `
+    <div class="prop-card" style="overflow:hidden;">
+      ${b.photo_url
+        ? `<div style="height:160px;background:url('${b.photo_url}') center/cover no-repeat;border-radius:10px 10px 0 0;margin:-20px -20px 16px;"></div>`
+        : `<div style="height:80px;background:var(--a-gray-pale);border-radius:10px 10px 0 0;margin:-20px -20px 16px;display:flex;align-items:center;justify-content:center;font-size:2rem;">🏪</div>`
+      }
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div>
+          <h3 style="font-size:1rem;font-weight:700;color:var(--a-dark);margin:0 0 4px;">${b.name}</h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+            <span class="status-badge status-upcoming" style="font-size:0.7rem;">${b.category}</span>
+            <span class="status-badge" style="font-size:0.7rem;background:#f0f4f0;color:var(--a-green);">${b.region}</span>
+            ${!b.active ? `<span class="status-badge status-cancelled" style="font-size:0.7rem;">Inactive</span>` : ''}
+          </div>
+        </div>
+      </div>
+      ${b.description ? `<p style="font-size:0.83rem;color:var(--a-gray);margin:0 0 10px;line-height:1.5;">${b.description}</p>` : ''}
+      ${b.deal_description ? `
+        <div style="background:#fffbf2;border:1px solid #e8c84a33;border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+          <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#8a6f00;margin-bottom:3px;">🎁 Member Deal</div>
+          <div style="font-size:0.83rem;color:var(--a-dark);">${b.deal_description}</div>
+          ${b.deal_code ? `<div style="font-size:0.78rem;color:#8a6f00;font-weight:600;margin-top:4px;">Code: ${b.deal_code}</div>` : ''}
+        </div>
+      ` : ''}
+      ${b.address ? `<div style="font-size:0.78rem;color:var(--a-gray);margin-bottom:4px;">📍 ${b.address}</div>` : ''}
+      ${b.phone ? `<div style="font-size:0.78rem;color:var(--a-gray);margin-bottom:4px;">📞 ${b.phone}</div>` : ''}
+      ${b.website ? `<div style="font-size:0.78rem;margin-bottom:12px;"><a href="${b.website}" target="_blank" style="color:var(--a-green);">🔗 ${b.website.replace(/^https?:\/\//, '')}</a></div>` : ''}
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn-ghost" style="flex:1;" onclick="openEdit('${b.id}')">Edit</button>
+        <button class="btn-ghost" style="flex:1;color:var(--a-red);" onclick="deleteBusiness('${b.id}','${b.name.replace(/'/g,"\\'")}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Filters ───────────────────────────────────────────────
+function setRegion(val, el) {
+  activeRegion = val;
+  document.querySelectorAll('[data-region]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderGrid();
+}
+function setCat(val, el) {
+  activeCat = val;
+  document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderGrid();
+}
+
+// ── Modal ─────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modal-title').textContent = 'Add Business';
+  document.getElementById('f-id').value = '';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-region').value = '';
+  document.getElementById('f-description').value = '';
+  document.getElementById('f-address').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-website').value = '';
+  document.getElementById('f-photo').value = '';
+  document.getElementById('f-deal-desc').value = '';
+  document.getElementById('f-deal-code').value = '';
+  document.getElementById('f-active').checked = true;
+  document.getElementById('modal-biz').classList.remove('hidden');
+}
+
+function openEdit(id) {
+  const b = allBiz.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('modal-title').textContent = 'Edit Business';
+  document.getElementById('f-id').value = b.id;
+  document.getElementById('f-name').value = b.name || '';
+  document.getElementById('f-category').value = b.category || '';
+  document.getElementById('f-region').value = b.region || '';
+  document.getElementById('f-description').value = b.description || '';
+  document.getElementById('f-address').value = b.address || '';
+  document.getElementById('f-phone').value = b.phone || '';
+  document.getElementById('f-website').value = b.website || '';
+  document.getElementById('f-photo').value = b.photo_url || '';
+  document.getElementById('f-deal-desc').value = b.deal_description || '';
+  document.getElementById('f-deal-code').value = b.deal_code || '';
+  document.getElementById('f-active').checked = b.active;
+  document.getElementById('modal-biz').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-biz').classList.add('hidden');
+}
+
+async function saveBusiness() {
+  const id = document.getElementById('f-id').value;
+  const name = document.getElementById('f-name').value.trim();
+  const category = document.getElementById('f-category').value;
+  const region = document.getElementById('f-region').value;
+
+  if (!name || !category || !region) {
+    showToast('Name, category and region are required', 'error'); return;
+  }
+
+  const payload = {
+    name,
+    category,
+    region,
+    description: document.getElementById('f-description').value.trim() || null,
+    address:     document.getElementById('f-address').value.trim() || null,
+    phone:       document.getElementById('f-phone').value.trim() || null,
+    website:     document.getElementById('f-website').value.trim() || null,
+    photo_url:   document.getElementById('f-photo').value.trim() || null,
+    deal_description: document.getElementById('f-deal-desc').value.trim() || null,
+    deal_code:   document.getElementById('f-deal-code').value.trim() || null,
+    active:      document.getElementById('f-active').checked,
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from('businesses').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('businesses').insert(payload));
+  }
+
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast(id ? 'Business updated!' : 'Business added!');
+  closeModal();
+  loadBusinesses();
+}
+
+async function deleteBusiness(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  const { error } = await sb.from('businesses').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Business deleted');
+  loadBusinesses();
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type === 'error' ? ' toast-error' : '');
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('modal-biz').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+init();
+</script>
+</body>
+</html>

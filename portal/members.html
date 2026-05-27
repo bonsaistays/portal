@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Members</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:28px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="members.html" class="active">Members</a>
+    <a href="businesses.html">Businesses</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <div class="admin-page-header">
+    <div>
+      <h1>Bon Voyage Members</h1>
+      <p id="mem-subtitle">All loyalty program members</p>
+    </div>
+    <button class="btn-primary" onclick="openAdjustModal(null)">+ Add Points</button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="admin-stats" id="member-stats" style="margin-bottom:24px;">
+    <div class="stat-card"><div class="stat-icon">👥</div><div><div class="stat-num" id="s-total">—</div><div class="stat-label">Total members</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="color:#c8c8c8;">⬜</div><div><div class="stat-num" id="s-classic">—</div><div class="stat-label">Classic</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🥈</div><div><div class="stat-num" id="s-silver">—</div><div class="stat-label">Silver</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🥇</div><div><div class="stat-num" id="s-gold">—</div><div class="stat-label">Gold</div></div></div>
+  </div>
+
+  <!-- Search -->
+  <div style="margin-bottom:16px;">
+    <input class="form-input" id="search-input" type="text" placeholder="Search by name or email…" oninput="renderTable()" style="max-width:360px;" />
+  </div>
+
+  <!-- Tier filter -->
+  <div style="display:flex;gap:6px;margin-bottom:20px;">
+    <button class="filter-chip active" data-tier="" onclick="setTier('',this)">All</button>
+    <button class="filter-chip" data-tier="Classic" onclick="setTier('Classic',this)">Classic</button>
+    <button class="filter-chip" data-tier="Silver" onclick="setTier('Silver',this)">Silver</button>
+    <button class="filter-chip" data-tier="Gold" onclick="setTier('Gold',this)">Gold</button>
+  </div>
+
+  <div class="bookings-card">
+    <div id="members-table-wrap">
+      <table class="bookings-table" id="members-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Member #</th>
+            <th>Tier</th>
+            <th>Points</th>
+            <th>Stays</th>
+            <th>Member Since</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="members-tbody"></tbody>
+      </table>
+    </div>
+    <div class="table-empty hidden" id="members-empty">
+      <div class="table-empty-icon">👥</div>
+      <h3>No members yet</h3>
+      <p>Members appear here when guests sign up to the Bon Voyage app</p>
+    </div>
+  </div>
+
+</main>
+
+
+<!-- ═══ Member Detail / Points Modal ═════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-member">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h3 id="modal-mem-title">Member Details</h3>
+      <button class="btn-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Member summary -->
+      <div id="modal-mem-summary" style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--a-gray-pale);border-radius:10px;margin-bottom:20px;">
+        <div id="modal-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--a-green);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0;"></div>
+        <div>
+          <div id="modal-mem-name" style="font-size:1rem;font-weight:700;color:var(--a-dark);"></div>
+          <div id="modal-mem-email" style="font-size:0.83rem;color:var(--a-gray);"></div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <span id="modal-tier-badge" class="status-badge"></span>
+            <span id="modal-mem-pts" style="font-size:0.83rem;font-weight:600;color:var(--a-green);"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adjust points -->
+      <div style="border:1px solid var(--a-gray-pale);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-green);margin:0 0 12px;">Adjust Points</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label class="form-label">Points (use – for deduct)</label>
+            <input class="form-input" id="adj-points" type="number" placeholder="e.g. 100 or -50" />
+          </div>
+          <div>
+            <label class="form-label">Type</label>
+            <select class="form-input" id="adj-type">
+              <option value="bonus">Bonus</option>
+              <option value="earned">Earned</option>
+              <option value="redeemed">Redeemed</option>
+              <option value="adjusted">Adjusted</option>
+            </select>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label class="form-label">Description / Reason</label>
+            <input class="form-input" id="adj-desc" type="text" placeholder="e.g. Welcome bonus, Completed stay at Muskoka cabin…" />
+          </div>
+        </div>
+        <button class="btn-primary" style="margin-top:12px;" onclick="saveAdjust()">Apply Points</button>
+      </div>
+
+      <!-- Points history -->
+      <div>
+        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-gray);margin:0 0 10px;">Points History</p>
+        <div id="modal-history" style="max-height:220px;overflow-y:auto;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allMembers = [];
+let activeTier = '';
+let currentMemberId = null;
+
+const TIER_COLORS = {
+  Classic: { bg: '#f5f5f5', color: '#555' },
+  Silver:  { bg: '#e8edf2', color: '#4a6a8a' },
+  Gold:    { bg: '#fffbea', color: '#8a6f00' },
+};
+
+// ── Auth guard ─────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  const email = session.user.email || '';
+  document.getElementById('admin-avatar').textContent = email[0]?.toUpperCase() || 'A';
+  await loadMembers();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ── Load ───────────────────────────────────────────────────
+async function loadMembers() {
+  const { data, error } = await sb.from('members').select('*').order('created_at', { ascending: false });
+  if (error) { showToast('Error loading members: ' + error.message, 'error'); return; }
+  allMembers = data || [];
+
+  // Stats
+  document.getElementById('s-total').textContent = allMembers.length;
+  document.getElementById('s-classic').textContent = allMembers.filter(m => m.tier === 'Classic').length;
+  document.getElementById('s-silver').textContent  = allMembers.filter(m => m.tier === 'Silver').length;
+  document.getElementById('s-gold').textContent    = allMembers.filter(m => m.tier === 'Gold').length;
+  document.getElementById('mem-subtitle').textContent =
+    `${allMembers.length} member${allMembers.length !== 1 ? 's' : ''}`;
+
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('members-tbody');
+  const empty = document.getElementById('members-empty');
+  const q = document.getElementById('search-input').value.toLowerCase();
+
+  let list = allMembers;
+  if (activeTier) list = list.filter(m => m.tier === activeTier);
+  if (q) list = list.filter(m =>
+    (m.name || '').toLowerCase().includes(q) ||
+    (m.email || '').toLowerCase().includes(q) ||
+    (m.member_number || '').toLowerCase().includes(q)
+  );
+
+  if (!list.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = list.map(m => {
+    const tc = TIER_COLORS[m.tier] || TIER_COLORS.Classic;
+    const since = m.member_since
+      ? new Date(m.member_since).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })
+      : '—';
+    return `<tr>
+      <td>
+        <div style="font-weight:600;color:var(--a-dark);">${m.name}</div>
+        <div style="font-size:0.78rem;color:var(--a-gray);">${m.email}</div>
+      </td>
+      <td style="font-size:0.83rem;font-family:monospace;color:var(--a-green);">${m.member_number || '—'}</td>
+      <td>
+        <span class="status-badge" style="background:${tc.bg};color:${tc.color};">${m.tier}</span>
+      </td>
+      <td style="font-weight:600;color:var(--a-dark);">${(m.points || 0).toLocaleString()}</td>
+      <td>${m.total_stays || 0}</td>
+      <td style="font-size:0.83rem;">${since}</td>
+      <td>
+        <button class="btn-ghost" style="font-size:0.78rem;padding:4px 12px;" onclick="openMemberModal('${m.id}')">Details</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Filters ───────────────────────────────────────────────
+function setTier(val, el) {
+  activeTier = val;
+  document.querySelectorAll('[data-tier]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+// ── Member modal ──────────────────────────────────────────
+async function openMemberModal(id) {
+  currentMemberId = id;
+  const m = allMembers.find(x => x.id === id);
+  if (!m) return;
+
+  const tc = TIER_COLORS[m.tier] || TIER_COLORS.Classic;
+  document.getElementById('modal-mem-title').textContent = 'Member Details';
+  document.getElementById('modal-avatar').textContent = (m.name || '?')[0].toUpperCase();
+  document.getElementById('modal-mem-name').textContent = m.name;
+  document.getElementById('modal-mem-email').textContent = m.email + (m.phone ? ' · ' + m.phone : '');
+  document.getElementById('modal-tier-badge').textContent = m.tier;
+  document.getElementById('modal-tier-badge').style.background = tc.bg;
+  document.getElementById('modal-tier-badge').style.color = tc.color;
+  document.getElementById('modal-mem-pts').textContent = (m.points || 0).toLocaleString() + ' points · ' + (m.total_stays || 0) + ' stays';
+  document.getElementById('adj-points').value = '';
+  document.getElementById('adj-desc').value = '';
+
+  // Load history
+  const { data: hist } = await sb.from('points_history')
+    .select('*').eq('member_id', id).order('created_at', { ascending: false }).limit(30);
+
+  const histEl = document.getElementById('modal-history');
+  if (!hist || !hist.length) {
+    histEl.innerHTML = '<p style="font-size:0.83rem;color:var(--a-gray);text-align:center;padding:16px 0;">No points history yet</p>';
+  } else {
+    histEl.innerHTML = hist.map(h => {
+      const positive = h.points > 0;
+      const d = new Date(h.created_at).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' });
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--a-gray-pale);">
+        <div>
+          <div style="font-size:0.85rem;color:var(--a-dark);">${h.description}</div>
+          <div style="font-size:0.75rem;color:var(--a-gray);">${d} · ${h.type}</div>
+        </div>
+        <div style="font-weight:700;font-size:0.9rem;color:${positive ? '#1a7a1a' : '#c0392b'};">${positive ? '+' : ''}${h.points}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('modal-member').classList.remove('hidden');
+}
+
+function openAdjustModal(id) {
+  // If no specific member, just open modal — admin must pick from table
+  if (!id) { showToast('Click "Details" on a member to adjust their points', 'error'); return; }
+  openMemberModal(id);
+}
+
+function closeModal() {
+  document.getElementById('modal-member').classList.add('hidden');
+  currentMemberId = null;
+}
+
+async function saveAdjust() {
+  if (!currentMemberId) return;
+  const pts = parseInt(document.getElementById('adj-points').value);
+  const type = document.getElementById('adj-type').value;
+  const desc = document.getElementById('adj-desc').value.trim();
+
+  if (isNaN(pts) || pts === 0) { showToast('Enter a non-zero point amount', 'error'); return; }
+  if (!desc) { showToast('Please add a description', 'error'); return; }
+
+  const m = allMembers.find(x => x.id === currentMemberId);
+  if (!m) return;
+
+  const newPoints = Math.max(0, (m.points || 0) + pts);
+
+  // Calculate new tier
+  let newTier = 'Classic';
+  if (newPoints >= 1500) newTier = 'Gold';
+  else if (newPoints >= 500) newTier = 'Silver';
+
+  // Insert history entry
+  const { error: hErr } = await sb.from('points_history').insert({
+    member_id: currentMemberId,
+    points: pts,
+    type,
+    description: desc,
+  });
+  if (hErr) { showToast('Error: ' + hErr.message, 'error'); return; }
+
+  // Update member
+  const { error: mErr } = await sb.from('members').update({
+    points: newPoints,
+    tier: newTier,
+  }).eq('id', currentMemberId);
+  if (mErr) { showToast('Error: ' + mErr.message, 'error'); return; }
+
+  showToast(`${pts > 0 ? '+' : ''}${pts} points applied!`);
+  await loadMembers();
+  // Refresh modal
+  const updated = allMembers.find(x => x.id === currentMemberId);
+  if (updated) openMemberModal(currentMemberId);
+}
+
+// ── Toast ──────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type === 'error' ? ' toast-error' : '');
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+document.getElementById('modal-member').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+init();
+</script>
+</body>
+</html>

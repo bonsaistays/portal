@@ -1,0 +1,25 @@
+{
+  "name": "Bonsai Stays",
+  "short_name": "Bonsai Stays",
+  "description": "Your Bon Voyage member passport — local deals, loyalty rewards, and stay management.",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1F14",
+  "theme_color": "#0B1F14",
+  "icons": [
+    {
+      "src": "/PhotosLogos/Bonsa Stays.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/PhotosLogos/Bonsa Stays.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
