@@ -424,28 +424,18 @@
         <input class="login-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email" />
       </div>
       <div id="login-email-error" class="login-error hidden"></div>
-      <button class="login-btn" id="login-email-btn" onclick="sendOtp()">Get my access code →</button>
-      <div class="login-note">We'll send a one-time code to your email.</div>
+      <button class="login-btn" id="login-email-btn" onclick="sendOtp()">Send sign-in link →</button>
+      <div class="login-note">We'll send a secure link to your email.</div>
     </div>
 
-    <!-- Step 2: OTP -->
-    <div id="login-step-otp" class="login-form hidden">
-      <div>
-        <label class="login-label">Enter your 6-digit code</label>
-        <div class="otp-row" id="otp-row">
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-          <input class="otp-digit" type="tel" maxlength="1" />
-        </div>
-      </div>
-      <div id="login-otp-error" class="login-error hidden"></div>
-      <button class="login-btn" id="login-otp-btn" onclick="verifyOtp()">Verify →</button>
-      <div class="login-note" id="otp-note">Code sent to <strong id="otp-email-display"></strong> · <a href="#" onclick="resetLogin(event)" style="color:var(--gold);">Change email</a></div>
+    <!-- Step 2: Check email -->
+    <div id="login-step-otp" class="login-form hidden" style="text-align:center;align-items:center;">
+      <div style="font-size:3rem;margin-bottom:8px;">📬</div>
+      <div style="font-size:1.05rem;font-weight:600;color:var(--white);margin-bottom:8px;">Check your email</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">We sent a sign-in link to</div>
+      <div style="font-size:0.9rem;font-weight:600;color:var(--gold);margin-bottom:20px;" id="otp-email-display"></div>
+      <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Tap the link in the email to sign in.<br/>You can close this tab while you check.</div>
+      <div style="margin-top:24px;font-size:0.78rem;color:var(--muted);">Wrong email? <a href="#" onclick="resetLogin(event)" style="color:var(--gold);">Go back</a></div>
     </div>
 
     <!-- Step 3: Name (new members) -->
@@ -724,36 +714,6 @@ async function sendOtp() {
   document.getElementById('login-step-otp').classList.remove('hidden');
   setTimeout(() => document.querySelector('.otp-digit').focus(), 100);
   btn.textContent = 'Get my access code →'; btn.disabled = false;
-}
-
-// OTP digit auto-advance
-document.getElementById('otp-row').addEventListener('input', e => {
-  if (e.target.classList.contains('otp-digit') && e.target.value) {
-    const digits = [...document.querySelectorAll('.otp-digit')];
-    const idx = digits.indexOf(e.target);
-    if (idx < 5) digits[idx + 1].focus();
-    else verifyOtp();
-  }
-});
-document.getElementById('otp-row').addEventListener('keydown', e => {
-  if (e.key === 'Backspace' && !e.target.value) {
-    const digits = [...document.querySelectorAll('.otp-digit')];
-    const idx = digits.indexOf(e.target);
-    if (idx > 0) digits[idx - 1].focus();
-  }
-});
-
-async function verifyOtp() {
-  const digits = [...document.querySelectorAll('.otp-digit')].map(d => d.value).join('');
-  const err    = document.getElementById('login-otp-error');
-  const btn    = document.getElementById('login-otp-btn');
-  if (digits.length < 8) { err.textContent = 'Enter all 8 digits.'; err.classList.remove('hidden'); return; }
-  err.classList.add('hidden');
-  btn.textContent = 'Verifying…'; btn.disabled = true;
-  const { data, error } = await sb.auth.verifyOtp({ email: _loginEmail, token: digits, type: 'email' });
-  if (error) { err.textContent = 'Invalid or expired code. Try again.'; err.classList.remove('hidden'); btn.textContent = 'Verify →'; btn.disabled = false; return; }
-  await loadMember(data.user);
-  btn.textContent = 'Verify →'; btn.disabled = false;
 }
 
 function resetLogin(e) { e.preventDefault(); document.getElementById('login-step-otp').classList.add('hidden'); document.getElementById('login-step-email').classList.remove('hidden'); }
