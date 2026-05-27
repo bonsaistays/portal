@@ -671,20 +671,41 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────
+let _memberLoading = false;
+
 async function boot() {
   showScreen('splash');
 
-  // Handle magic link click — Supabase puts tokens in the URL hash
+  // Fallback: if still spinning after 6 seconds, show login
+  const splashFallback = setTimeout(() => {
+    if (document.getElementById('screen-splash') && !document.getElementById('screen-splash').classList.contains('hidden')) {
+      showScreen('login');
+    }
+  }, 6000);
+
+  // Handle magic link — fires when Supabase processes the URL hash tokens
   sb.auth.onAuthStateChange(async (event, session) => {
-    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+    if (event === 'SIGNED_IN' && session && !_memberLoading) {
+      clearTimeout(splashFallback);
+      _memberLoading = true;
       await loadMember(session.user);
+      _memberLoading = false;
     }
   });
 
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    await loadMember(session.user);
-  } else {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && !_memberLoading) {
+      clearTimeout(splashFallback);
+      _memberLoading = true;
+      await loadMember(session.user);
+      _memberLoading = false;
+    } else if (!session) {
+      clearTimeout(splashFallback);
+      showScreen('login');
+    }
+  } catch(e) {
+    clearTimeout(splashFallback);
     showScreen('login');
   }
 }
