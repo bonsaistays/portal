@@ -712,7 +712,7 @@ async function sendOtp() {
   document.getElementById('otp-email-display').textContent = email;
   document.getElementById('login-step-email').classList.add('hidden');
   document.getElementById('login-step-otp').classList.remove('hidden');
-  setTimeout(() => document.querySelector('.otp-digit').focus(), 100);
+  // magic link flow — no digit inputs to focus
   btn.textContent = 'Get my access code →'; btn.disabled = false;
 }
 
@@ -737,26 +737,44 @@ async function saveName() {
 
 // ── Load / create member ──────────────────────────────────────────────────
 async function loadMember(user) {
-  let { data: member } = await sb.from('members').select('*').eq('user_id', user.id).single();
-  if (!member) {
-    const num = 'BV-' + String(Math.floor(100000 + Math.random() * 900000));
-    const { data: newMember } = await sb.from('members').insert({ user_id: user.id, email: user.email, member_number: num }).select().single();
-    member = newMember;
-  }
-  _member = member;
-  if (!member.name) {
+  try {
+    let { data: member } = await sb.from('members').select('*').eq('user_id', user.id).single();
+    if (!member) {
+      const num = 'BV-' + String(Math.floor(100000 + Math.random() * 900000));
+      const { data: newMember, error: insertError } = await sb.from('members')
+        .insert({ user_id: user.id, email: user.email, member_number: num, name: '' })
+        .select().single();
+      if (insertError) {
+        // Member might exist with same email — try fetching by email
+        const { data: byEmail } = await sb.from('members').select('*').eq('email', user.email).single();
+        member = byEmail;
+        // Link user_id if missing
+        if (member && !member.user_id) {
+          await sb.from('members').update({ user_id: user.id }).eq('id', member.id);
+        }
+      } else {
+        member = newMember;
+      }
+    }
+    if (!member) { showScreen('login'); return; }
+    _member = member;
+    if (!member.name || member.name.trim() === '') {
+      showScreen('login');
+      document.getElementById('login-step-email').classList.add('hidden');
+      document.getElementById('login-step-otp').classList.add('hidden');
+      document.getElementById('login-step-name').classList.remove('hidden');
+      return;
+    }
+    populateApp();
+    showScreen('app');
+    loadWeather();
+    loadBusinesses();
+    loadHistory();
+    checkUpcomingBooking();
+  } catch(e) {
+    console.error('loadMember error:', e);
     showScreen('login');
-    document.getElementById('login-step-email').classList.add('hidden');
-    document.getElementById('login-step-otp').classList.add('hidden');
-    document.getElementById('login-step-name').classList.remove('hidden');
-    return;
   }
-  populateApp();
-  showScreen('app');
-  loadWeather();
-  loadBusinesses();
-  loadHistory();
-  checkUpcomingBooking();
 }
 
 // ── Populate app ──────────────────────────────────────────────────────────
