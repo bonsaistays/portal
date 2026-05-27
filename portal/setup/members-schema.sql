@@ -12,7 +12,7 @@ create table if not exists members (
   phone           text,
   member_number   text unique not null,  -- e.g. BV-000123
   member_since    timestamptz default now(),
-  tier            text default 'Classic' check (tier in ('Classic','Silver','Gold')),
+  tier            text default 'Black' check (tier in ('Black','Gold','Platinum')),
   points          integer default 0,
   total_stays     integer default 0,
   created_at      timestamptz default now()

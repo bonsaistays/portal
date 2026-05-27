@@ -180,9 +180,9 @@
     .tier-badge {
       padding: 6px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
     }
-    .tier-Classic { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid var(--border); }
-    .tier-Silver  { background: rgba(192,192,192,0.15); color: #E0E0E0; border: 1px solid rgba(192,192,192,0.3); }
-    .tier-Gold    { background: rgba(201,168,108,0.15); color: var(--gold); border: 1px solid rgba(201,168,108,0.3); }
+    .tier-Black    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); }
+    .tier-Gold     { background: rgba(201,168,108,0.2); color: var(--gold); border: 1px solid rgba(201,168,108,0.4); }
+    .tier-Platinum { background: rgba(229,228,226,0.15); color: #E8E6E1; border: 1px solid rgba(229,228,226,0.4); }
 
     /* Points history mini */
     .history-item {
@@ -630,6 +630,8 @@
             <div class="tier-next" id="tier-next-msg">—</div>
           </div>
 
+          <div id="card-earn-info" style="text-align:center;font-size:0.8rem;color:var(--muted);background:var(--green2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;line-height:1.6;"></div>
+
           <div class="card-show-tip">
             <strong>Show this card at any partner business</strong><br/>
             to receive your Bon Voyage member discount.
@@ -964,6 +966,19 @@ async function loadMember(user) {
   }
 }
 
+// ── Tier config ───────────────────────────────────────────────────────────
+const TIERS = [
+  { name: 'Black',    min: 0,     max: 1999,  earn: 1.00, redeem: 100, emoji: '⚫' },
+  { name: 'Gold',     min: 2000,  max: 9999,  earn: 1.25, redeem: 90,  emoji: '🥇' },
+  { name: 'Platinum', min: 10000, max: null,  earn: 1.50, redeem: 75,  emoji: '💎' },
+];
+
+function getTier(pts) {
+  if (pts >= 10000) return TIERS[2];
+  if (pts >= 2000)  return TIERS[1];
+  return TIERS[0];
+}
+
 // ── Populate app ──────────────────────────────────────────────────────────
 function populateApp() {
   const m = _member;
@@ -972,40 +987,47 @@ function populateApp() {
   document.getElementById('topbar-greeting').textContent = greeting + ',';
   document.getElementById('topbar-name').textContent = m.name?.split(' ')[0] || '';
 
-  // Tier logic
-  const pts = m.points || 0;
-  const tier = pts >= 1500 ? 'Gold' : pts >= 500 ? 'Silver' : 'Classic';
-  const tierColor = { Classic: 'rgba(255,255,255,0.7)', Silver: '#E0E0E0', Gold: '#C9A86C' };
+  const pts  = m.points || 0;
+  const tier = getTier(pts);
+  const nextTier = TIERS[TIERS.indexOf(tier) + 1] || null;
 
   // Home tab
   document.getElementById('home-points').textContent = pts.toLocaleString();
-  document.getElementById('home-points-sub').textContent = pts === 0 ? 'Complete your first stay to earn points' : 'Points earned across ' + (m.total_stays || 0) + ' stay' + ((m.total_stays||0)!==1?'s':'');
+  document.getElementById('home-points-sub').textContent = pts === 0
+    ? 'Complete your first stay to earn points'
+    : 'Points earned across ' + (m.total_stays || 0) + ' stay' + ((m.total_stays||0) !== 1 ? 's' : '');
   const homeBadge = document.getElementById('home-tier-badge');
-  homeBadge.textContent = tier; homeBadge.className = 'tier-badge tier-' + tier;
+  homeBadge.textContent = tier.emoji + ' ' + tier.name;
+  homeBadge.className = 'tier-badge tier-' + tier.name;
 
   // Card tab
   document.getElementById('card-name').textContent = (m.name || '').toUpperCase();
-  document.getElementById('card-since').textContent = new Date(m.member_since || m.created_at).toLocaleDateString('en-CA',{month:'short',year:'numeric'});
+  document.getElementById('card-since').textContent = new Date(m.member_since || m.created_at).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' });
   const cardTier = document.getElementById('card-tier-pill');
-  cardTier.textContent = tier; cardTier.className = 'card-tier-pill card-tier-' + tier;
+  cardTier.textContent = tier.emoji + ' ' + tier.name;
+  cardTier.className = 'card-tier-pill card-tier-' + tier.name;
   document.getElementById('card-member-id').textContent = m.member_number || 'BV-000000';
   document.getElementById('card-points').textContent = pts.toLocaleString();
   document.getElementById('card-stays').textContent = m.total_stays || 0;
 
   // Tier progress bar
-  const tiers = [{name:'Classic',min:0,max:500},{name:'Silver',min:500,max:1500},{name:'Gold',min:1500,max:1500}];
-  const current = pts >= 1500 ? tiers[2] : pts >= 500 ? tiers[1] : tiers[0];
-  const next = pts >= 1500 ? null : pts >= 500 ? tiers[2] : tiers[1];
-  document.getElementById('tier-current-label').textContent = current.name;
-  if (next) {
-    const pct = Math.min(100, Math.round(((pts - current.min) / (next.min - current.min)) * 100));
+  document.getElementById('tier-current-label').textContent = tier.emoji + ' ' + tier.name;
+  if (nextTier) {
+    const pct = Math.min(100, Math.round(((pts - tier.min) / (nextTier.min - tier.min)) * 100));
     document.getElementById('tier-bar').style.width = pct + '%';
-    document.getElementById('tier-next-label').textContent = next.name;
-    document.getElementById('tier-next-msg').textContent = (next.min - pts) + ' points to ' + next.name;
+    document.getElementById('tier-next-label').textContent = nextTier.emoji + ' ' + nextTier.name;
+    const ptsNeeded = (nextTier.min - pts).toLocaleString();
+    document.getElementById('tier-next-msg').textContent = ptsNeeded + ' more points to reach ' + nextTier.name;
   } else {
     document.getElementById('tier-bar').style.width = '100%';
-    document.getElementById('tier-next-label').textContent = 'Gold ✓';
-    document.getElementById('tier-next-msg').textContent = '🎉 You\'ve reached Gold status!';
+    document.getElementById('tier-next-label').textContent = '💎 Platinum ✓';
+    document.getElementById('tier-next-msg').textContent = '🎉 You\'ve reached Platinum — our highest tier!';
+  }
+
+  // Earning & redemption info under the card
+  const earnInfo = document.getElementById('card-earn-info');
+  if (earnInfo) {
+    earnInfo.innerHTML = `<strong>${tier.emoji} ${tier.name}</strong> · Earn <strong>${tier.earn}pt</strong> per $1 spent · Redeem <strong>${tier.redeem}pts = $1</strong>`;
   }
 }
 

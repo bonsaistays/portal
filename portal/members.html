@@ -36,9 +36,9 @@
   <!-- Stats row -->
   <div class="admin-stats" id="member-stats" style="margin-bottom:24px;">
     <div class="stat-card"><div class="stat-icon">👥</div><div><div class="stat-num" id="s-total">—</div><div class="stat-label">Total members</div></div></div>
-    <div class="stat-card"><div class="stat-icon" style="color:#c8c8c8;">⬜</div><div><div class="stat-num" id="s-classic">—</div><div class="stat-label">Classic</div></div></div>
-    <div class="stat-card"><div class="stat-icon">🥈</div><div><div class="stat-num" id="s-silver">—</div><div class="stat-label">Silver</div></div></div>
-    <div class="stat-card"><div class="stat-icon">🥇</div><div><div class="stat-num" id="s-gold">—</div><div class="stat-label">Gold</div></div></div>
+    <div class="stat-card"><div class="stat-icon">⚫</div><div><div class="stat-num" id="s-classic">—</div><div class="stat-label">Black</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🥇</div><div><div class="stat-num" id="s-silver">—</div><div class="stat-label">Gold</div></div></div>
+    <div class="stat-card"><div class="stat-icon">💎</div><div><div class="stat-num" id="s-gold">—</div><div class="stat-label">Platinum</div></div></div>
   </div>
 
   <!-- Search -->
@@ -49,9 +49,9 @@
   <!-- Tier filter -->
   <div style="display:flex;gap:6px;margin-bottom:20px;">
     <button class="filter-chip active" data-tier="" onclick="setTier('',this)">All</button>
-    <button class="filter-chip" data-tier="Classic" onclick="setTier('Classic',this)">Classic</button>
-    <button class="filter-chip" data-tier="Silver" onclick="setTier('Silver',this)">Silver</button>
-    <button class="filter-chip" data-tier="Gold" onclick="setTier('Gold',this)">Gold</button>
+    <button class="filter-chip" data-tier="Black" onclick="setTier('Black',this)">⚫ Black</button>
+    <button class="filter-chip" data-tier="Gold" onclick="setTier('Gold',this)">🥇 Gold</button>
+    <button class="filter-chip" data-tier="Platinum" onclick="setTier('Platinum',this)">💎 Platinum</button>
   </div>
 
   <div class="bookings-card">
@@ -153,9 +153,9 @@ let activeTier = '';
 let currentMemberId = null;
 
 const TIER_COLORS = {
-  Classic: { bg: '#f5f5f5', color: '#555' },
-  Silver:  { bg: '#e8edf2', color: '#4a6a8a' },
-  Gold:    { bg: '#fffbea', color: '#8a6f00' },
+  Black:    { bg: '#1a1a1a', color: '#fff' },
+  Gold:     { bg: '#fffbea', color: '#8a6f00' },
+  Platinum: { bg: '#f0f0ef', color: '#5a5a6a' },
 };
 
 // ── Auth guard ─────────────────────────────────────────────
@@ -180,9 +180,9 @@ async function loadMembers() {
 
   // Stats
   document.getElementById('s-total').textContent = allMembers.length;
-  document.getElementById('s-classic').textContent = allMembers.filter(m => m.tier === 'Classic').length;
-  document.getElementById('s-silver').textContent  = allMembers.filter(m => m.tier === 'Silver').length;
-  document.getElementById('s-gold').textContent    = allMembers.filter(m => m.tier === 'Gold').length;
+  document.getElementById('s-classic').textContent = allMembers.filter(m => m.tier === 'Black').length;
+  document.getElementById('s-silver').textContent  = allMembers.filter(m => m.tier === 'Gold').length;
+  document.getElementById('s-gold').textContent    = allMembers.filter(m => m.tier === 'Platinum').length;
   document.getElementById('mem-subtitle').textContent =
     `${allMembers.length} member${allMembers.length !== 1 ? 's' : ''}`;
 
@@ -309,9 +309,9 @@ async function saveAdjust() {
   const newPoints = Math.max(0, (m.points || 0) + pts);
 
   // Calculate new tier
-  let newTier = 'Classic';
-  if (newPoints >= 1500) newTier = 'Gold';
-  else if (newPoints >= 500) newTier = 'Silver';
+  let newTier = 'Black';
+  if (newPoints >= 10000) newTier = 'Platinum';
+  else if (newPoints >= 2000) newTier = 'Gold';
 
   // Insert history entry
   const { error: hErr } = await sb.from('points_history').insert({
