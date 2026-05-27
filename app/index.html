@@ -681,6 +681,14 @@ if ('serviceWorker' in navigator) {
 // ── Boot ──────────────────────────────────────────────────────────────────
 async function boot() {
   showScreen('splash');
+
+  // Handle magic link click — Supabase puts tokens in the URL hash
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+      await loadMember(session.user);
+    }
+  });
+
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     await loadMember(session.user);
