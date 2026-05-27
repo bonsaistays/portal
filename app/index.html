@@ -214,6 +214,75 @@
     /* Section header */
     .section-head { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
 
+    /* ── MY STAY TAB ──────────────────────────────────── */
+    .stay-scroll { padding: 0 0 24px; display: flex; flex-direction: column; }
+    .stay-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 48px 32px; text-align: center; gap: 12px; }
+    .stay-empty-icon { font-size: 3rem; }
+    .stay-empty h3 { font-size: 1.1rem; font-weight: 700; }
+    .stay-empty p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    .stay-hero {
+      background: linear-gradient(180deg, var(--green3) 0%, var(--green) 100%);
+      padding: 20px 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stay-prop-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; }
+    .stay-dates { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; }
+    .stay-status-pill {
+      display: inline-block; padding: 4px 12px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .stay-status-upcoming { background: rgba(91,191,133,0.15); color: var(--sage); border: 1px solid rgba(91,191,133,0.3); }
+    .stay-status-active   { background: rgba(201,168,108,0.2); color: var(--gold); border: 1px solid rgba(201,168,108,0.4); }
+    .stay-status-completed{ background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--border); }
+
+    .stay-section { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+    .stay-section-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+
+    /* Door code */
+    .door-locked-box { background: var(--green2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+    .door-countdown-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 6px; }
+    .door-countdown-val { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+    .door-countdown-note { font-size: 0.78rem; color: var(--muted); }
+    .door-open-box { background: var(--green3); border: 1px solid rgba(201,168,108,0.4); border-radius: var(--radius); padding: 20px; text-align: center; }
+    .door-code-val { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 600; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 6px; }
+    .door-code-note { font-size: 0.78rem; color: var(--muted); }
+
+    /* WiFi */
+    .wifi-row { display: flex; align-items: center; justify-content: space-between; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+    .wifi-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .wifi-value { font-size: 0.95rem; font-weight: 600; color: var(--white); }
+    .btn-copy-small { background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--muted); font-size: 0.72rem; font-weight: 600; padding: 6px 12px; border-radius: 6px; }
+
+    /* Instructions */
+    .stay-instructions-text { font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.7; white-space: pre-wrap; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+
+    /* Extras */
+    .extra-item { display: flex; align-items: center; gap: 14px; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.2s; }
+    .extra-item:hover { border-color: var(--gold); }
+    .extra-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .extra-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+    .extra-desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .extra-price { margin-left: auto; font-weight: 700; color: var(--gold); font-size: 0.9rem; flex-shrink: 0; }
+
+    /* Chat */
+    .stay-chat-wrap { display: flex; flex-direction: column; gap: 12px; }
+    .chat-msgs { display: flex; flex-direction: column; gap: 8px; min-height: 80px; max-height: 280px; overflow-y: auto; margin-bottom: 4px; }
+    .chat-msgs::-webkit-scrollbar { display: none; }
+    .chat-bubble { max-width: 78%; display: flex; flex-direction: column; gap: 3px; }
+    .bubble-guest { align-self: flex-end; align-items: flex-end; }
+    .bubble-host  { align-self: flex-start; align-items: flex-start; }
+    .bubble-text { padding: 10px 14px; border-radius: 16px; font-size: 0.88rem; line-height: 1.4; }
+    .bubble-guest .bubble-text { background: var(--gold); color: var(--green); border-bottom-right-radius: 4px; }
+    .bubble-host  .bubble-text { background: var(--green2); border: 1px solid var(--border); color: var(--white); border-bottom-left-radius: 4px; }
+    .bubble-time { font-size: 0.65rem; color: var(--muted); padding: 0 4px; }
+    .chat-empty { font-size: 0.82rem; color: var(--muted); text-align: center; padding: 20px; }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input { flex: 1; background: var(--green2); border: 1.5px solid var(--border); border-radius: 12px; padding: 11px 14px; color: var(--white); font-family: inherit; font-size: 0.88rem; }
+    .chat-input:focus { outline: none; border-color: var(--gold); }
+    .chat-input::placeholder { color: var(--muted); }
+    .chat-send { background: var(--gold); color: var(--green); font-weight: 700; font-size: 0.85rem; padding: 11px 18px; border-radius: 12px; }
+
     /* ── CARD TAB ──────────────────────────────────────── */
     .card-page { padding: 16px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
@@ -501,7 +570,7 @@
                 <div class="booking-teaser-prop" id="home-booking-prop">—</div>
                 <div class="booking-teaser-dates" id="home-booking-dates">—</div>
               </div>
-              <a id="home-booking-link" href="#" class="btn-view-stay">View Stay</a>
+              <button class="btn-view-stay" onclick="switchTab('stay',document.querySelector('[data-tab=stay]'))">View Stay</button>
             </div>
           </div>
 
@@ -593,6 +662,102 @@
         </div>
       </div>
 
+      <!-- MY STAY -->
+      <div class="tab-page hidden" id="tab-stay">
+
+        <!-- Empty state -->
+        <div class="stay-empty" id="stay-empty">
+          <div class="stay-empty-icon">🏡</div>
+          <h3>No upcoming stays</h3>
+          <p>Your booking details, door code, WiFi, and host chat will all appear here once you have an active booking with us.</p>
+        </div>
+
+        <!-- Loaded state -->
+        <div class="stay-scroll hidden" id="stay-loaded">
+
+          <!-- Hero -->
+          <div class="stay-hero">
+            <div class="stay-prop-name" id="stay-prop-name">—</div>
+            <div class="stay-dates" id="stay-dates">—</div>
+            <span class="stay-status-pill" id="stay-status-pill">Upcoming</span>
+          </div>
+
+          <!-- Door Code -->
+          <div class="stay-section">
+            <div class="stay-section-title">🚪 Door Access</div>
+            <div id="stay-door-locked" class="door-locked-box">
+              <div class="door-countdown-label">Time until check-in</div>
+              <div class="door-countdown-val" id="stay-countdown">—</div>
+              <div class="door-countdown-note">Your door code will appear here at check-in time</div>
+            </div>
+            <div id="stay-door-open" class="door-open-box hidden">
+              <div class="door-countdown-label">Your door code</div>
+              <div class="door-code-val" id="stay-door-code">—</div>
+              <div class="door-code-note">Enter this code at the keypad to unlock your door</div>
+            </div>
+          </div>
+
+          <!-- WiFi -->
+          <div class="stay-section" id="stay-wifi-section">
+            <div class="stay-section-title">📶 WiFi</div>
+            <div class="wifi-row">
+              <div><div class="wifi-label">Network</div><div class="wifi-value" id="stay-wifi-name">—</div></div>
+              <button class="btn-copy-small" onclick="copyText(document.getElementById('stay-wifi-name').textContent)">Copy</button>
+            </div>
+            <div class="wifi-row">
+              <div><div class="wifi-label">Password</div><div class="wifi-value" id="stay-wifi-pass">—</div></div>
+              <button class="btn-copy-small" onclick="copyText(document.getElementById('stay-wifi-pass').textContent)">Copy</button>
+            </div>
+          </div>
+
+          <!-- Check-in Instructions -->
+          <div class="stay-section" id="stay-instr-section">
+            <div class="stay-section-title">📋 Check-in Instructions</div>
+            <div class="stay-instructions-text" id="stay-instructions">—</div>
+          </div>
+
+          <!-- Extras -->
+          <div class="stay-section">
+            <div class="stay-section-title">✨ Request Extras</div>
+            <div class="extra-item" onclick="requestExtra('early_checkin','Early Check-in (11am)',5000)">
+              <div class="extra-icon">⏰</div>
+              <div><div class="extra-name">Early Check-in</div><div class="extra-desc">Check in from 11am · subject to availability</div></div>
+              <div class="extra-price">$50</div>
+            </div>
+            <div class="extra-item" onclick="requestExtra('late_checkout','Late Checkout (12pm)',5000)">
+              <div class="extra-icon">🌙</div>
+              <div><div class="extra-name">Late Checkout</div><div class="extra-desc">Check out at 12pm · subject to availability</div></div>
+              <div class="extra-price">$50</div>
+            </div>
+            <div class="extra-item" onclick="requestExtra('firewood','Firewood Bundle',2500)">
+              <div class="extra-icon">🪵</div>
+              <div><div class="extra-name">Firewood Bundle</div><div class="extra-desc">Delivered before arrival</div></div>
+              <div class="extra-price">$25</div>
+            </div>
+            <div class="extra-item" onclick="requestExtra('groceries','Grocery Pre-stock',0)">
+              <div class="extra-icon">🛒</div>
+              <div><div class="extra-name">Grocery Pre-stock</div><div class="extra-desc">Send us your list, we'll stock the fridge</div></div>
+              <div class="extra-price">Custom</div>
+            </div>
+          </div>
+
+          <!-- Chat -->
+          <div class="stay-section" style="border-bottom:none;">
+            <div class="stay-section-title">💬 Chat with Host</div>
+            <div class="stay-chat-wrap">
+              <div class="chat-msgs" id="stay-chat-msgs">
+                <div class="chat-empty">Loading messages…</div>
+              </div>
+              <div class="chat-input-row">
+                <input class="chat-input" id="stay-chat-input" type="text" placeholder="Message your host…" onkeydown="if(event.key==='Enter')sendStayMessage()" />
+                <button class="chat-send" onclick="sendStayMessage()">Send</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- DEALS -->
       <div class="tab-page hidden" id="tab-deals">
         <div class="deals-scroll" id="deals-list">
@@ -604,10 +769,11 @@
 
     <!-- Bottom nav -->
     <nav class="bottom-nav">
-      <button class="nav-item active" data-tab="home" onclick="switchTab('home',this)"><span class="nav-icon">🏠</span>Home</button>
-      <button class="nav-item" data-tab="card" onclick="switchTab('card',this)"><span class="nav-icon">💳</span>My Card</button>
-      <button class="nav-item" data-tab="explore" onclick="switchTab('explore',this)"><span class="nav-icon">🗺️</span>Explore</button>
-      <button class="nav-item" data-tab="deals" onclick="switchTab('deals',this)"><span class="nav-icon">🏷️</span>Deals</button>
+      <button class="nav-item active" data-tab="home"    onclick="switchTab('home',this)"><span class="nav-icon">🏠</span>Home</button>
+      <button class="nav-item"        data-tab="card"    onclick="switchTab('card',this)"><span class="nav-icon">💳</span>Card</button>
+      <button class="nav-item"        data-tab="stay"    onclick="switchTab('stay',this)"><span class="nav-icon">🏡</span>My Stay</button>
+      <button class="nav-item"        data-tab="explore" onclick="switchTab('explore',this)"><span class="nav-icon">🗺️</span>Explore</button>
+      <button class="nav-item"        data-tab="deals"   onclick="switchTab('deals',this)"><span class="nav-icon">🏷️</span>Deals</button>
     </nav>
   </div>
 
@@ -791,7 +957,7 @@ async function loadMember(user) {
     loadWeather();
     loadBusinesses();
     loadHistory();
-    checkUpcomingBooking();
+    loadStay();
   } catch(e) {
     console.error('loadMember error:', e);
     showScreen('login');
@@ -954,18 +1120,156 @@ async function loadHistory() {
   `).join('');
 }
 
-// ── Upcoming booking ──────────────────────────────────────────────────────
-async function checkUpcomingBooking() {
-  if (!_member.email) return;
+// ── My Stay ───────────────────────────────────────────────────────────────
+let _booking = null;
+let _stayProperty = null;
+let _stayChannel = null;
+let _doorInterval = null;
+
+async function loadStay() {
+  if (!_member?.email) return;
   const now = new Date().toISOString();
-  const { data } = await sb.from('bookings').select('*, properties(name)').eq('guest_email', _member.email).gte('check_out', now).order('check_in').limit(1).single();
-  if (!data) return;
-  const ci = new Date(data.check_in); const co = new Date(data.check_out);
-  const fmt = d => d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
+  const { data } = await sb.from('bookings')
+    .select('*, properties(*)')
+    .eq('guest_email', _member.email)
+    .in('status', ['upcoming','active','confirmed'])
+    .gte('check_out', now)
+    .order('check_in')
+    .limit(1)
+    .single();
+
+  if (!data) {
+    document.getElementById('stay-empty').classList.remove('hidden');
+    document.getElementById('stay-loaded').classList.add('hidden');
+    return;
+  }
+
+  _booking = data;
+  _stayProperty = data.properties;
+  populateStay();
+  startDoorCountdown();
+  loadStayMessages();
+  subscribeStayChat();
+}
+
+function populateStay() {
+  const b = _booking;
+  const p = _stayProperty;
+  document.getElementById('stay-empty').classList.add('hidden');
+  document.getElementById('stay-loaded').classList.remove('hidden');
+
+  // Header
+  document.getElementById('stay-prop-name').textContent = p?.name || 'Your Stay';
+  const ci = new Date(b.check_in), co = new Date(b.check_out);
+  const fmt = d => d.toLocaleDateString('en-CA', { month: 'long', day: 'numeric' });
+  document.getElementById('stay-dates').textContent = fmt(ci) + ' – ' + fmt(co);
+
+  // Status pill
+  const now = new Date();
+  const pill = document.getElementById('stay-status-pill');
+  if (now >= ci && now <= co) { pill.textContent = 'Active'; pill.className = 'stay-status-pill stay-status-active'; }
+  else if (now > co)          { pill.textContent = 'Completed'; pill.className = 'stay-status-pill stay-status-completed'; }
+  else                        { pill.textContent = 'Upcoming'; pill.className = 'stay-status-pill stay-status-upcoming'; }
+
+  // WiFi
+  if (p?.wifi_name) {
+    document.getElementById('stay-wifi-name').textContent = p.wifi_name;
+    document.getElementById('stay-wifi-pass').textContent = p.wifi_password || '—';
+  } else {
+    document.getElementById('stay-wifi-section').style.display = 'none';
+  }
+
+  // Instructions
+  if (p?.check_in_instructions) {
+    document.getElementById('stay-instructions').textContent = p.check_in_instructions;
+  } else {
+    document.getElementById('stay-instr-section').style.display = 'none';
+  }
+
+  // Home tab teaser
   document.getElementById('home-booking-section').classList.remove('hidden');
-  document.getElementById('home-booking-prop').textContent  = data.properties?.name || 'Your stay';
+  document.getElementById('home-booking-prop').textContent  = p?.name || 'Your stay';
   document.getElementById('home-booking-dates').textContent = fmt(ci) + ' – ' + fmt(co);
-  document.getElementById('home-booking-link').href = '/portal/guest/?token=' + data.token;
+}
+
+function startDoorCountdown() {
+  if (_doorInterval) clearInterval(_doorInterval);
+  function tick() {
+    const now = new Date();
+    const ci  = new Date(_booking.check_in);
+    const code = _booking.door_code || _stayProperty?.door_code;
+    if (now >= ci && code) {
+      document.getElementById('stay-door-locked').classList.add('hidden');
+      document.getElementById('stay-door-open').classList.remove('hidden');
+      document.getElementById('stay-door-code').textContent = code;
+      clearInterval(_doorInterval);
+    } else {
+      const diff = ci - now;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('stay-countdown').textContent =
+        d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+    }
+  }
+  tick();
+  _doorInterval = setInterval(tick, 1000);
+}
+
+async function loadStayMessages() {
+  if (!_booking) return;
+  const { data } = await sb.from('messages')
+    .select('*').eq('booking_id', _booking.id).order('created_at');
+  const msgs = data || [];
+  const container = document.getElementById('stay-chat-msgs');
+  if (!msgs.length) {
+    container.innerHTML = '<div class="chat-empty">No messages yet. Say hello to your host! 👋</div>';
+    return;
+  }
+  container.innerHTML = msgs.map(m => `
+    <div class="chat-bubble bubble-${m.sender === 'guest' ? 'guest' : 'host'}">
+      <div class="bubble-text">${esc(m.content)}</div>
+      <div class="bubble-time">${new Date(m.created_at).toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function subscribeStayChat() {
+  if (_stayChannel) sb.removeChannel(_stayChannel);
+  _stayChannel = sb.channel('app-chat-' + _booking.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `booking_id=eq.${_booking.id}` },
+      () => loadStayMessages())
+    .subscribe();
+}
+
+async function sendStayMessage() {
+  const input = document.getElementById('stay-chat-input');
+  const content = input.value.trim();
+  if (!content || !_booking) return;
+  input.value = '';
+  await sb.from('messages').insert({ booking_id: _booking.id, sender: 'guest', content, read: false });
+}
+
+async function requestExtra(type, name, amount) {
+  if (!_booking) return;
+  await sb.from('purchases').insert({ booking_id: _booking.id, item_type: type, item_name: name, amount, status: 'pending' });
+  await sb.from('messages').insert({ booking_id: _booking.id, sender: 'guest', content: `I'd like to request: ${name}`, read: false });
+  showToastMsg('✅ Request sent! Your host will confirm shortly.');
+  await loadStayMessages();
+}
+
+function showToastMsg(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--sage);color:var(--green);padding:10px 20px;border-radius:20px;font-weight:700;font-size:0.85rem;z-index:9999;white-space:nowrap;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function copyText(text) {
+  navigator.clipboard?.writeText(text).then(() => showToastMsg('Copied!')).catch(() => {});
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────
