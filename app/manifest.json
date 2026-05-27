@@ -6,8 +6,8 @@
   "scope": "/app/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0B1F14",
-  "theme_color": "#0B1F14",
+  "background_color": "#1C0A06",
+  "theme_color": "#1C0A06",
   "icons": [
     {
       "src": "/PhotosLogos/Bonsa Stays.png",
