@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Catch Supabase magic link redirects and send to /app/ -->
+  <script>
+    if (window.location.hash && window.location.hash.includes('access_token=')) {
+      window.location.replace('/app/' + window.location.hash);
+    }
+  </script>
   <title>Bonsai Stays — Curated Properties & Premium Guest Experiences</title>
   <meta name="description" content="Bonsai Stays connects discerning travellers with professionally managed properties, and provides premium hospitality services to property owners across Canada." />
   <link rel="stylesheet" href="assets/style.css" />
