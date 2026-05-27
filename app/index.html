@@ -706,7 +706,7 @@ async function sendOtp() {
   if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; err.classList.remove('hidden'); return; }
   err.classList.add('hidden');
   btn.textContent = 'Sending…'; btn.disabled = true;
-  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: window.location.origin + '/app/' } });
+  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: 'https://stellar-biscotti-e0bd66.netlify.app/app/' } });
   if (error) { err.textContent = error.message; err.classList.remove('hidden'); btn.textContent = 'Get my access code →'; btn.disabled = false; return; }
   _loginEmail = email;
   document.getElementById('otp-email-display').textContent = email;
