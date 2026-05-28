@@ -104,6 +104,82 @@
     }
     .otp-digit:focus { outline: none; border-color: var(--gold); background: var(--green3); }
 
+    /* ── Survey / Onboarding ──────────────────────────── */
+    #screen-survey {
+      background: var(--green);
+      padding: calc(var(--safe-top) + 28px) 0 calc(var(--safe-bot) + 16px);
+      flex-direction: column;
+    }
+    .survey-wrap {
+      display: flex; flex-direction: column;
+      height: 100%; padding: 0 28px;
+    }
+    .survey-progress {
+      height: 4px; background: var(--border); border-radius: 2px;
+      margin-bottom: 10px; overflow: hidden;
+    }
+    .survey-progress-bar {
+      height: 100%; background: var(--gold); border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .survey-step-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 28px;
+    }
+    .survey-cards { flex: 1; overflow: hidden; position: relative; }
+    .survey-card {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0; transform: translateX(48px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .survey-card.active  { opacity: 1; transform: translateX(0); pointer-events: auto; }
+    .survey-card.exit    { opacity: 0; transform: translateX(-48px); }
+    .survey-q-emoji { font-size: 2.2rem; margin-bottom: 12px; }
+    .survey-q {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem; font-weight: 600; color: var(--white);
+      line-height: 1.3; margin-bottom: 10px;
+    }
+    .survey-hint { font-size: 0.73rem; color: var(--muted); margin-bottom: 16px; }
+    .survey-choices {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      overflow-y: auto; max-height: 260px; padding-bottom: 4px;
+    }
+    .survey-choices::-webkit-scrollbar { display: none; }
+    .choice-chip {
+      padding: 11px 18px; border-radius: 50px;
+      border: 1.5px solid var(--border);
+      background: var(--green2); color: var(--white);
+      font-size: 0.88rem; font-weight: 500;
+      transition: all 0.15s ease; cursor: pointer;
+    }
+    .choice-chip.selected {
+      background: var(--gold); border-color: var(--gold);
+      color: var(--green); font-weight: 700;
+    }
+    .survey-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0 6px;
+    }
+    .survey-back {
+      background: none; color: var(--muted);
+      font-size: 0.85rem; padding: 10px 0;
+    }
+    .survey-next {
+      background: var(--gold); color: var(--green);
+      font-size: 0.9rem; font-weight: 700;
+      padding: 14px 32px; border-radius: 12px;
+      opacity: 0.35; transition: opacity 0.2s, background 0.2s;
+    }
+    .survey-next.ready { opacity: 1; }
+    .survey-skip {
+      background: none; color: var(--muted); font-size: 0.73rem;
+      text-align: center; padding: 6px 0; width: 100%;
+      text-decoration: underline;
+    }
+
     /* ── Main app layout ───────────────────────────────── */
     #screen-app {
       background: var(--green);
@@ -519,6 +595,110 @@
     </div>
   </div>
 
+  <!-- Survey / Onboarding -->
+  <div id="screen-survey" class="screen hidden">
+    <div class="survey-wrap">
+
+      <div class="survey-progress">
+        <div class="survey-progress-bar" id="survey-progress-bar" style="width:16.67%"></div>
+      </div>
+      <div class="survey-step-label" id="survey-step-label">1 of 6</div>
+
+      <div class="survey-cards" id="survey-cards">
+
+        <!-- Card 0: Who do you travel with -->
+        <div class="survey-card active" data-card="0">
+          <div class="survey-q-emoji">🧳</div>
+          <div class="survey-q">Who do you usually travel with?</div>
+          <div class="survey-choices" data-key="travel_with" data-multi="false">
+            <button class="choice-chip" data-val="solo">🙋 Solo traveller</button>
+            <button class="choice-chip" data-val="couple">💑 Couple</button>
+            <button class="choice-chip" data-val="family">👨‍👩‍👧 Family with kids</button>
+            <button class="choice-chip" data-val="group">👯 Group of friends</button>
+          </div>
+        </div>
+
+        <!-- Card 1: Ideal stay type -->
+        <div class="survey-card" data-card="1">
+          <div class="survey-q-emoji">🏡</div>
+          <div class="survey-q">What's your ideal stay?</div>
+          <div class="survey-hint">Choose all that apply</div>
+          <div class="survey-choices" data-key="stay_types" data-multi="true">
+            <button class="choice-chip" data-val="lakeside">🏞️ Lakeside cottage</button>
+            <button class="choice-chip" data-val="ski_chalet">⛷️ Ski chalet</button>
+            <button class="choice-chip" data-val="forest_cabin">🌲 Forest cabin</button>
+            <button class="choice-chip" data-val="urban">🏙️ Urban retreat</button>
+            <button class="choice-chip" data-val="beachfront">🏖️ Beachfront</button>
+            <button class="choice-chip" data-val="farm">🌾 Farm stay</button>
+          </div>
+        </div>
+
+        <!-- Card 2: What matters most -->
+        <div class="survey-card" data-card="2">
+          <div class="survey-q-emoji">✨</div>
+          <div class="survey-q">What matters most during a stay?</div>
+          <div class="survey-hint">Choose all that apply</div>
+          <div class="survey-choices" data-key="interests" data-multi="true">
+            <button class="choice-chip" data-val="spa">🧘 Spa & wellness</button>
+            <button class="choice-chip" data-val="outdoors">🥾 Outdoor adventures</button>
+            <button class="choice-chip" data-val="food_wine">🍷 Food & wine</button>
+            <button class="choice-chip" data-val="pet_friendly">🐾 Pet-friendly</button>
+            <button class="choice-chip" data-val="remote">🔕 Remote & private</button>
+            <button class="choice-chip" data-val="family_fun">🎲 Family activities</button>
+          </div>
+        </div>
+
+        <!-- Card 3: Travel frequency -->
+        <div class="survey-card" data-card="3">
+          <div class="survey-q-emoji">📅</div>
+          <div class="survey-q">How often do you get away?</div>
+          <div class="survey-choices" data-key="travel_frequency" data-multi="false">
+            <button class="choice-chip" data-val="1">Once a year</button>
+            <button class="choice-chip" data-val="2_3">2–3 times a year</button>
+            <button class="choice-chip" data-val="4_5">4–5 times a year</button>
+            <button class="choice-chip" data-val="6plus">6+ times a year</button>
+          </div>
+        </div>
+
+        <!-- Card 4: Preferred regions -->
+        <div class="survey-card" data-card="4">
+          <div class="survey-q-emoji">📍</div>
+          <div class="survey-q">Which regions are you drawn to?</div>
+          <div class="survey-hint">Choose all that apply</div>
+          <div class="survey-choices" data-key="regions" data-multi="true">
+            <button class="choice-chip" data-val="muskoka">Muskoka</button>
+            <button class="choice-chip" data-val="collingwood">Collingwood</button>
+            <button class="choice-chip" data-val="blue_mountains">Blue Mountains</button>
+            <button class="choice-chip" data-val="pec">Prince Edward County</button>
+            <button class="choice-chip" data-val="niagara">Niagara</button>
+            <button class="choice-chip" data-val="everywhere">Everywhere ✈️</button>
+          </div>
+        </div>
+
+        <!-- Card 5: How did you hear about us -->
+        <div class="survey-card" data-card="5">
+          <div class="survey-q-emoji">💬</div>
+          <div class="survey-q">How did you first hear about Bonsai Stays?</div>
+          <div class="survey-choices" data-key="referral_source" data-multi="false">
+            <button class="choice-chip" data-val="google">🔍 Google search</button>
+            <button class="choice-chip" data-val="instagram">📸 Instagram</button>
+            <button class="choice-chip" data-val="word_of_mouth">🗣️ Word of mouth</button>
+            <button class="choice-chip" data-val="airbnb">🏠 Found on Airbnb</button>
+            <button class="choice-chip" data-val="other">✨ Other</button>
+          </div>
+        </div>
+
+      </div><!-- /survey-cards -->
+
+      <div class="survey-nav">
+        <button class="survey-back" id="survey-back" onclick="surveyBack()">← Back</button>
+        <button class="survey-next" id="survey-next" onclick="surveyNext()">Next →</button>
+      </div>
+      <button class="survey-skip" onclick="skipSurvey()">Skip for now</button>
+
+    </div>
+  </div>
+
   <!-- Main App -->
   <div id="screen-app" class="screen hidden" style="display:flex;flex-direction:column;">
     <!-- Top bar -->
@@ -880,7 +1060,7 @@ async function boot() {
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 function showScreen(name) {
-  ['splash','login','app'].forEach(s => {
+  ['splash','login','survey','app'].forEach(s => {
     const el = document.getElementById('screen-' + s);
     if (el) el.classList.add('hidden');
   });
@@ -954,16 +1134,116 @@ async function loadMember(user) {
       document.getElementById('login-step-name').classList.remove('hidden');
       return;
     }
-    populateApp();
-    showScreen('app');
-    loadWeather();
-    loadBusinesses();
-    loadHistory();
-    loadStay();
+    // Show survey for new/incomplete members, otherwise go straight to app
+    if (!member.onboarding_complete) {
+      initSurvey();
+      showScreen('survey');
+      // Preload data in background while survey is shown
+      loadWeather();
+      loadBusinesses();
+    } else {
+      populateApp();
+      showScreen('app');
+      loadWeather();
+      loadBusinesses();
+      loadHistory();
+      loadStay();
+    }
   } catch(e) {
     console.error('loadMember error:', e);
     showScreen('login');
   }
+}
+
+// ── Survey / Onboarding ───────────────────────────────────────────────────
+let _surveyStep = 0;
+const SURVEY_TOTAL = 6;
+const _surveyAnswers = {};
+
+function initSurvey() {
+  _surveyStep = 0;
+  // Re-attach chip handlers (safe to call multiple times)
+  document.querySelectorAll('.survey-choices .choice-chip').forEach(btn => {
+    btn.replaceWith(btn.cloneNode(true)); // strip old listeners
+  });
+  document.querySelectorAll('.survey-choices .choice-chip').forEach(btn => {
+    btn.addEventListener('click', () => handleChipClick(btn));
+  });
+  updateSurveyUI();
+}
+
+function handleChipClick(btn) {
+  const group = btn.closest('.survey-choices');
+  const isMulti = group.dataset.multi === 'true';
+  const key = group.dataset.key;
+  if (isMulti) {
+    btn.classList.toggle('selected');
+  } else {
+    group.querySelectorAll('.choice-chip').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+  const selected = [...group.querySelectorAll('.choice-chip.selected')].map(b => b.dataset.val);
+  _surveyAnswers[key] = isMulti ? selected : (selected[0] || null);
+  updateSurveyNextBtn();
+}
+
+function updateSurveyNextBtn() {
+  const card = document.querySelector(`.survey-card[data-card="${_surveyStep}"]`);
+  const group = card?.querySelector('.survey-choices');
+  if (!group) return;
+  const key = group.dataset.key;
+  const val = _surveyAnswers[key];
+  const hasAnswer = val && (Array.isArray(val) ? val.length > 0 : true);
+  document.getElementById('survey-next').classList.toggle('ready', !!hasAnswer);
+}
+
+function updateSurveyUI() {
+  document.getElementById('survey-progress-bar').style.width = `${((_surveyStep + 1) / SURVEY_TOTAL) * 100}%`;
+  document.getElementById('survey-step-label').textContent = `${_surveyStep + 1} of ${SURVEY_TOTAL}`;
+  document.querySelectorAll('.survey-card').forEach(c => c.classList.remove('active','exit'));
+  const active = document.querySelector(`.survey-card[data-card="${_surveyStep}"]`);
+  if (active) active.classList.add('active');
+  document.getElementById('survey-back').style.visibility = _surveyStep === 0 ? 'hidden' : 'visible';
+  const nextBtn = document.getElementById('survey-next');
+  nextBtn.textContent = _surveyStep === SURVEY_TOTAL - 1 ? 'Done ✓' : 'Next →';
+  nextBtn.disabled = false;
+  updateSurveyNextBtn();
+}
+
+function surveyBack() {
+  if (_surveyStep === 0) return;
+  document.querySelector(`.survey-card[data-card="${_surveyStep}"]`)?.classList.add('exit');
+  _surveyStep--;
+  setTimeout(updateSurveyUI, 50);
+}
+
+function surveyNext() {
+  if (!document.getElementById('survey-next').classList.contains('ready')) return;
+  if (_surveyStep === SURVEY_TOTAL - 1) { completeSurvey(); return; }
+  document.querySelector(`.survey-card[data-card="${_surveyStep}"]`)?.classList.add('exit');
+  _surveyStep++;
+  setTimeout(updateSurveyUI, 50);
+}
+
+async function completeSurvey() {
+  const btn = document.getElementById('survey-next');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  await sb.from('members').update({ profile: _surveyAnswers, onboarding_complete: true }).eq('id', _member.id);
+  _member.onboarding_complete = true;
+  _member.profile = _surveyAnswers;
+  populateApp();
+  showScreen('app');
+  loadHistory();
+  loadStay();
+}
+
+async function skipSurvey() {
+  await sb.from('members').update({ onboarding_complete: true }).eq('id', _member.id);
+  _member.onboarding_complete = true;
+  populateApp();
+  showScreen('app');
+  loadHistory();
+  loadStay();
 }
 
 // ── Tier config ───────────────────────────────────────────────────────────
