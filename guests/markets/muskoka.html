@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muskoka / Cottage Country — Bonsai Stays</title>
+  <meta name="description" content="Discover curated lakefront cottages, boathouses, and forest retreats across Muskoka and Ontario's cottage country. Professionally managed. Beautifully stocked." />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../assets/style.css" />
+  <style>
+    .nav { background: transparent; }
+    .nav.scrolled { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    .market-hero {
+      height: 88vh;
+      min-height: 560px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 80px;
+    }
+    .market-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1516571748831-5d81767b788d?w=1800&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center 50%;
+    }
+    .market-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,20,8,0.82) 0%, rgba(10,20,8,0.3) 55%, rgba(10,20,8,0.05) 100%);
+    }
+    .market-hero-content { position: relative; z-index: 5; }
+    .market-hero-content .eyebrow { color: var(--green-light); }
+    .market-hero-content h1 { color: var(--white); font-size: clamp(2.4rem, 5vw, 4rem); margin-bottom: 16px; line-height: 1.1; }
+    .market-hero-content h1 em { font-style: italic; color: var(--gold); }
+    .market-hero-content p { color: rgba(255,255,255,0.82); font-size: 1.1rem; max-width: 560px; margin-bottom: 32px; line-height: 1.7; }
+    .market-hero-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px; }
+    .market-chip {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      backdrop-filter: blur(6px);
+    }
+    .market-hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .market-stats { background: var(--white); border-bottom: 1px solid var(--gray-pale); padding: 20px 0; }
+    .market-stats-inner { display: flex; gap: 0; align-items: center; }
+    .market-stat { flex: 1; text-align: center; padding: 8px 24px; border-right: 1px solid var(--gray-pale); }
+    .market-stat:last-child { border-right: none; }
+    .market-stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 600; color: var(--green-deep); display: block; }
+    .market-stat-label { font-size: 0.78rem; color: var(--gray-mid); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .properties-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    @media (max-width: 1000px) { .properties-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .properties-grid { grid-template-columns: 1fr; } }
+
+    .prop-card { background: var(--white); border-radius: var(--radius-lg); overflow: hidden; border: 1.5px solid var(--gray-pale); box-shadow: var(--shadow-card); transition: var(--transition); display: flex; flex-direction: column; }
+    .prop-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); border-color: var(--green-light); }
+    .prop-card-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .prop-card-body { padding: 20px 22px 18px; flex: 1; display: flex; flex-direction: column; }
+    .prop-card-region { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 6px; }
+    .prop-card-title { font-size: 1.05rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+    .prop-card-loc { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 12px; }
+    .prop-card-meta { display: flex; gap: 12px; font-size: 0.8rem; color: var(--gray-mid); flex-wrap: wrap; margin-bottom: 14px; }
+    .prop-card-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--gray-pale); }
+    .prop-card-price { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--green-deep); }
+    .prop-card-price small { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 400; color: var(--gray-mid); }
+    .loading-state { text-align: center; padding: 60px 0; color: var(--gray-mid); font-size: 0.95rem; grid-column: 1/-1; }
+    .no-results { text-align: center; padding: 60px 0; grid-column: 1/-1; }
+
+    .partners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    @media (max-width: 900px) { .partners-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .partners-grid { grid-template-columns: 1fr; } }
+
+    .partner-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px 24px; border: 1.5px solid var(--gray-pale); box-shadow: var(--shadow-card); transition: var(--transition); }
+    .partner-card:hover { box-shadow: var(--shadow-hover); border-color: var(--green-light); }
+    .partner-card-icon { font-size: 2rem; margin-bottom: 14px; }
+    .partner-card-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 6px; }
+    .partner-card h4 { font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; }
+    .partner-card p { font-size: 0.83rem; color: var(--gray-mid); line-height: 1.65; }
+
+    .lake-feature {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-hover);
+    }
+    .lake-feature-img { aspect-ratio: 1; object-fit: cover; width: 100%; height: 100%; display: block; }
+    .lake-feature-content { background: var(--green-deep); padding: 52px 48px; display: flex; flex-direction: column; justify-content: center; }
+    @media (max-width: 800px) { .lake-feature { grid-template-columns: 1fr; } }
+
+    .market-cta-inner { text-align: center; max-width: 620px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="mainNav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:background 0.3s,box-shadow 0.3s;">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-logo">
+        <img src="../../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;filter:brightness(0) invert(1);" id="navLogo" />
+        <span class="nav-badge guest">Guests</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="../properties.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">Properties</a></li>
+        <li><a href="../experiences.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">Experiences</a></li>
+        <li><a href="../about.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">About</a></li>
+        <li><a href="../loyalty.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">Bon Voyage</a></li>
+      </ul>
+      <div class="nav-cta" style="display:flex;gap:8px;align-items:center;">
+        <a href="../../partners/list-your-property.html" class="btn btn-primary" style="padding:10px 18px;font-size:0.82rem;">List My Property</a>
+        <a href="../../partners/index.html" class="btn" style="padding:10px 18px;font-size:0.82rem;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;" id="navPartners">For Partners</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="market-hero">
+    <div class="market-hero-bg"></div>
+    <div class="market-hero-overlay"></div>
+    <div class="container">
+      <div class="market-hero-content">
+        <span class="eyebrow">Muskoka / Cottage Country</span>
+        <h1>Where the lakes<br /><em>call you back.</em></h1>
+        <p>Ontario's most iconic cottage destination. Crystal-clear lakes, towering pines, and weekends that slow right down. All managed to a standard the region has never seen before.</p>
+        <div class="market-hero-chips">
+          <span class="market-chip">🌊 Lakefront Cottages</span>
+          <span class="market-chip">⛵ Boathouses</span>
+          <span class="market-chip">🌲 Forest Cabins</span>
+          <span class="market-chip">🏡 Luxury Lodges</span>
+        </div>
+        <div class="market-hero-btns">
+          <a href="#properties" class="btn btn-primary btn-lg">Browse Stays →</a>
+          <a href="../experiences.html" class="btn btn-lg" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;">Explore Experiences</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="market-stats">
+    <div class="container">
+      <div class="market-stats-inner">
+        <div class="market-stat"><span class="market-stat-num" id="propCount">—</span><span class="market-stat-label">Properties</span></div>
+        <div class="market-stat"><span class="market-stat-num">4.97★</span><span class="market-stat-label">Avg. Rating</span></div>
+        <div class="market-stat"><span class="market-stat-num">1,600+</span><span class="market-stat-label">Lakes in Muskoka</span></div>
+        <div class="market-stat"><span class="market-stat-num">2h</span><span class="market-stat-label">Drive from Toronto</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties -->
+  <section class="section" id="properties" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">Available Properties</span>
+          <h2>Muskoka <em>stays.</em></h2>
+        </div>
+        <a href="../properties.html?region=Muskoka" class="btn btn-outline" style="flex-shrink:0;">View All →</a>
+      </div>
+      <div class="properties-grid" id="propertiesGrid">
+        <div class="loading-state">Loading properties…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature: Lakefront Living -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="lake-feature">
+        <img class="lake-feature-img" src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=900&q=80&auto=format&fit=crop" alt="Muskoka cottage with dock" loading="lazy" />
+        <div class="lake-feature-content">
+          <span class="eyebrow" style="color:var(--green-light);">Lakefront Living</span>
+          <h2 style="color:var(--white);margin-bottom:20px;font-size:clamp(1.6rem,3vw,2.4rem);">Some things are better <em>by the water.</em></h2>
+          <p style="color:rgba(255,255,255,0.8);font-size:1rem;line-height:1.8;margin-bottom:28px;">Every lakefront property in our Muskoka collection comes with a private dock, Muskoka chairs, and a fully equipped interior ready for the best weekend of the year. No surprises. Just the lake.</p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px;">
+            <li style="color:rgba(255,255,255,0.85);font-size:0.88rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);">✓</span> Private dock &amp; waterfront access</li>
+            <li style="color:rgba(255,255,255,0.85);font-size:0.88rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);">✓</span> Muskoka chairs, fire pits &amp; outdoor furniture</li>
+            <li style="color:rgba(255,255,255,0.85);font-size:0.88rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);">✓</span> Kayaks, canoes &amp; paddleboards (many properties)</li>
+            <li style="color:rgba(255,255,255,0.85);font-size:0.88rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);">✓</span> Earn Bon Voyage points every night</li>
+          </ul>
+          <a href="../properties.html?region=Muskoka" class="btn btn-primary">Browse Lakefront Properties →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experiences & Partners -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Muskoka Experiences</span>
+        <h2>Curated for <em>cottage country.</em></h2>
+        <p>We work with Muskoka's best local guides and providers to build experiences that match the landscape perfectly.</p>
+      </div>
+      <div class="partners-grid">
+        <div class="partner-card">
+          <div class="partner-card-icon">👨‍🍳</div>
+          <div class="partner-card-tag">Dining</div>
+          <h4>Private Chef Dinner</h4>
+          <p>A local chef arrives with Ontario-sourced ingredients and prepares a multi-course meal in your cottage kitchen. Ideal for birthdays, anniversaries, or a family gathering done right.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">⛵</div>
+          <div class="partner-card-tag">On the Water</div>
+          <h4>Watercraft Rentals</h4>
+          <p>Pontoon boats, ski boats, jet skis, kayaks, and paddleboards — delivered to your dock. Half-day and full-day rentals available with optional guided lake tours.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🧖</div>
+          <div class="partner-card-tag">Wellness</div>
+          <h4>Massage &amp; Wellness</h4>
+          <p>Registered massage therapists and wellness practitioners who come to your cottage. Nothing quite like a deep-tissue massage after a day on the lake.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🧘</div>
+          <div class="partner-card-tag">Wellness</div>
+          <h4>Sunrise Yoga by the Lake</h4>
+          <p>A certified instructor leads a morning yoga session on your dock or deck as the mist rises off the water. A Muskoka morning like no other.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🎣</div>
+          <div class="partner-card-tag">Adventure</div>
+          <h4>Guided Fishing</h4>
+          <p>Local fishing guides lead half-day and full-day excursions for bass, pickerel, and pike on some of Muskoka's most productive lakes. All gear included.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🔥</div>
+          <div class="partner-card-tag">Evenings</div>
+          <h4>Bonfire &amp; S'mores Package</h4>
+          <p>We set up a lakeside bonfire with all the wood, s'mores supplies, and lanterns ready for your arrival. Perfect for family evenings or starlit conversations.</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:40px;">
+        <a href="../experiences.html" class="btn btn-primary btn-lg">Book an Experience →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What's Nearby -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Area Guide</span>
+        <h2>The best of <em>Muskoka.</em></h2>
+        <p>Beyond your cottage door — towns, trails, and treasures worth exploring.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+        <div style="background:var(--cream);border-radius:var(--radius-lg);padding:28px 22px;border:1.5px solid var(--gray-pale);">
+          <div style="font-size:1.8rem;margin-bottom:12px;">🏘️</div>
+          <h4 style="font-size:0.95rem;font-weight:600;margin-bottom:8px;color:var(--charcoal);">Huntsville</h4>
+          <p style="font-size:0.82rem;color:var(--gray-mid);line-height:1.65;">Algonquin Theatre, farmers markets, and the gateway to Algonquin Park. Charming downtown worth an afternoon.</p>
+        </div>
+        <div style="background:var(--cream);border-radius:var(--radius-lg);padding:28px 22px;border:1.5px solid var(--gray-pale);">
+          <div style="font-size:1.8rem;margin-bottom:12px;">🛶</div>
+          <h4 style="font-size:0.95rem;font-weight:600;margin-bottom:8px;color:var(--charcoal);">Port Carling</h4>
+          <p style="font-size:0.82rem;color:var(--gray-mid);line-height:1.65;">The hub of the Muskoka Lakes. Boutique shops, restaurant patios on the water, and the iconic locks connecting three lakes.</p>
+        </div>
+        <div style="background:var(--cream);border-radius:var(--radius-lg);padding:28px 22px;border:1.5px solid var(--gray-pale);">
+          <div style="font-size:1.8rem;margin-bottom:12px;">🌲</div>
+          <h4 style="font-size:0.95rem;font-weight:600;margin-bottom:8px;color:var(--charcoal);">Algonquin Park</h4>
+          <p style="font-size:0.82rem;color:var(--gray-mid);line-height:1.65;">Canada's oldest provincial park, 90 minutes east. Canoe routes, wildlife, and fall colours that belong on a postcard.</p>
+        </div>
+        <div style="background:var(--cream);border-radius:var(--radius-lg);padding:28px 22px;border:1.5px solid var(--gray-pale);">
+          <div style="font-size:1.8rem;margin-bottom:12px;">🍷</div>
+          <h4 style="font-size:0.95rem;font-weight:600;margin-bottom:8px;color:var(--charcoal);">Gravenhurst</h4>
+          <p style="font-size:0.82rem;color:var(--gray-mid);line-height:1.65;">Opera house, wharf district, and the Muskoka Brewery. The southernmost town in cottage country with a strong local dining scene.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="background:var(--green-deep);">
+    <div class="container">
+      <div class="market-cta-inner">
+        <span class="eyebrow" style="color:var(--green-light);">Ready for Cottage Country?</span>
+        <h2 style="color:var(--white);margin-bottom:16px;">Your Muskoka weekend <em>starts here.</em></h2>
+        <p style="color:rgba(255,255,255,0.8);font-size:1.05rem;margin-bottom:36px;">Browse our lakefront cottages, forest cabins, and luxury lodges — and stack on your favourite experiences before you arrive.</p>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a href="../properties.html?region=Muskoka" class="btn btn-primary btn-lg">Browse Muskoka Properties →</a>
+          <a href="../loyalty.html" class="btn btn-lg" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.35);color:#fff;">Join Bon Voyage</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:30px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
+          <div class="footer-social"><a href="#" aria-label="Instagram">in</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Pinterest">P</a></div>
+        </div>
+        <div class="footer-col"><h5>Markets</h5><ul><li><a href="toronto.html">Toronto / GTA</a></li><li><a href="muskoka.html">Muskoka / Cottage Country</a></li><li><a href="collingwood.html">Collingwood / Wasaga Beach</a></li></ul></div>
+        <div class="footer-col"><h5>Explore</h5><ul><li><a href="../properties.html">All Properties</a></li><li><a href="../experiences.html">Experiences</a></li><li><a href="../loyalty.html">Bon Voyage</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="../about.html">About Us</a></li><li><a href="../../partners/index.html">For Partners</a></li><li><a href="../../partners/list-your-property.html">List My Property</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const nav = document.getElementById('mainNav');
+    const navLogo = document.getElementById('navLogo');
+    const navLinks = document.querySelectorAll('.nav-link-light');
+    const navPartners = document.getElementById('navPartners');
+    function onScroll() {
+      if (window.scrollY > 60) {
+        nav.classList.add('scrolled');
+        navLogo.style.filter = '';
+        navLinks.forEach(l => l.style.color = '');
+        navPartners.style.background = '';
+        navPartners.style.border = '';
+        navPartners.style.color = '';
+      } else {
+        nav.classList.remove('scrolled');
+        navLogo.style.filter = 'brightness(0) invert(1)';
+        navLinks.forEach(l => l.style.color = 'rgba(255,255,255,0.9)');
+        navPartners.style.background = 'rgba(255,255,255,0.15)';
+        navPartners.style.border = '1px solid rgba(255,255,255,0.35)';
+        navPartners.style.color = '#fff';
+      }
+    }
+    window.addEventListener('scroll', onScroll);
+
+    const sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+
+    const STAR = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+    async function loadProperties() {
+      const grid = document.getElementById('propertiesGrid');
+      try {
+        const { data, error } = await sb
+          .from('properties')
+          .select('id,name,city,thumbnail_url,region,price,bedrooms,bathrooms,guests,badge,badge_type,rating,review_count')
+          .eq('active', true)
+          .ilike('region', '%muskoka%')
+          .order('sort_order', { ascending: true });
+
+        if (error || !data?.length) throw new Error('no data');
+
+        document.getElementById('propCount').textContent = data.length;
+        grid.innerHTML = data.map(p => propCard(p)).join('');
+      } catch(e) {
+        document.getElementById('propCount').textContent = '—';
+        grid.innerHTML = `
+          <div class="no-results">
+            <h3>Properties coming soon</h3>
+            <p>We're curating Muskoka's finest cottages. <a href="../properties.html">Browse all properties</a> in the meantime.</p>
+          </div>`;
+      }
+    }
+
+    function propCard(p) {
+      const rating = p.rating || 4.9;
+      const reviews = p.review_count || 0;
+      const img = p.thumbnail_url || 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80&auto=format&fit=crop';
+      return `
+        <a href="../property-detail.html?id=${p.id}" style="text-decoration:none;color:inherit;">
+          <div class="prop-card">
+            <img class="prop-card-img" src="${img}" alt="${p.name}" loading="lazy" />
+            <div class="prop-card-body">
+              <div class="prop-card-region">Muskoka / Cottage Country</div>
+              <div class="prop-card-title">${p.name}</div>
+              <div class="prop-card-loc">📍 ${p.city || 'Muskoka, ON'}</div>
+              <div class="prop-card-meta">
+                <span>🛏️ ${p.bedrooms || '—'} bed</span>
+                <span>🚿 ${p.bathrooms || '—'} bath</span>
+                <span>👥 Up to ${p.guests || '—'} guests</span>
+              </div>
+              <div class="prop-card-footer">
+                <div class="prop-card-price">$${p.price || '—'}<small>/night</small></div>
+                <div style="display:flex;align-items:center;gap:4px;font-size:0.8rem;color:var(--gray-mid);">${STAR} ${rating}${reviews ? ` <span style="color:var(--gray-light)">(${reviews})</span>` : ''}</div>
+              </div>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    loadProperties();
+  </script>
+
+  <!-- Tawk.to -->
+  <script>var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a15e4a761875d1c37232646/1jpioabv2';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>

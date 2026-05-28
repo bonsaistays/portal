@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toronto / GTA Properties — Bonsai Stays</title>
+  <meta name="description" content="Discover curated short-term rentals across Toronto and the GTA. Downtown condos, King West lofts, and Beaches bungalows — all managed to the Bonsai standard." />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../assets/style.css" />
+  <style>
+    .nav { background: transparent; }
+    .nav.scrolled { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .market-hero {
+      height: 88vh;
+      min-height: 560px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 80px;
+    }
+    .market-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1503891450247-ee5f8ec46dc3?w=1800&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center 40%;
+    }
+    .market-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,20,8,0.82) 0%, rgba(10,20,8,0.3) 55%, rgba(10,20,8,0.05) 100%);
+    }
+    .market-hero-content {
+      position: relative;
+      z-index: 5;
+    }
+    .market-hero-content .eyebrow { color: var(--green-light); }
+    .market-hero-content h1 { color: var(--white); font-size: clamp(2.4rem, 5vw, 4rem); margin-bottom: 16px; line-height: 1.1; }
+    .market-hero-content h1 em { font-style: italic; color: var(--gold); }
+    .market-hero-content p { color: rgba(255,255,255,0.82); font-size: 1.1rem; max-width: 560px; margin-bottom: 32px; line-height: 1.7; }
+    .market-hero-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px; }
+    .market-chip {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      backdrop-filter: blur(6px);
+    }
+    .market-hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Stats bar */
+    .market-stats {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-pale);
+      padding: 20px 0;
+    }
+    .market-stats-inner {
+      display: flex;
+      gap: 0;
+      align-items: center;
+    }
+    .market-stat {
+      flex: 1;
+      text-align: center;
+      padding: 8px 24px;
+      border-right: 1px solid var(--gray-pale);
+    }
+    .market-stat:last-child { border-right: none; }
+    .market-stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--green-deep);
+      display: block;
+    }
+    .market-stat-label {
+      font-size: 0.78rem;
+      color: var(--gray-mid);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Properties section */
+    .properties-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    @media (max-width: 1000px) { .properties-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .properties-grid { grid-template-columns: 1fr; } }
+
+    .prop-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1.5px solid var(--gray-pale);
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .prop-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); border-color: var(--green-light); }
+    .prop-card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+    }
+    .prop-card-body { padding: 20px 22px 18px; flex: 1; display: flex; flex-direction: column; }
+    .prop-card-region { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 6px; }
+    .prop-card-title { font-size: 1.05rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+    .prop-card-loc { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 12px; }
+    .prop-card-meta { display: flex; gap: 12px; font-size: 0.8rem; color: var(--gray-mid); flex-wrap: wrap; margin-bottom: 14px; }
+    .prop-card-meta span { display: flex; align-items: center; gap: 4px; }
+    .prop-card-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--gray-pale); }
+    .prop-card-price { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--green-deep); }
+    .prop-card-price small { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 400; color: var(--gray-mid); }
+    .prop-card-badge {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--gold); color: var(--white); border-radius: 100px; padding: 3px 10px;
+    }
+    .prop-card-badge.new { background: var(--green-sage); }
+
+    .loading-state { text-align: center; padding: 60px 0; color: var(--gray-mid); font-size: 0.95rem; grid-column: 1/-1; }
+    .no-results { text-align: center; padding: 60px 0; grid-column: 1/-1; }
+    .no-results h3 { margin-bottom: 10px; }
+
+    /* Experiences / Partners */
+    .partners-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px) { .partners-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .partners-grid { grid-template-columns: 1fr; } }
+
+    .partner-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      border: 1.5px solid var(--gray-pale);
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+    }
+    .partner-card:hover { box-shadow: var(--shadow-hover); border-color: var(--green-light); }
+    .partner-card-icon { font-size: 2rem; margin-bottom: 14px; }
+    .partner-card-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 6px; }
+    .partner-card h4 { font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; }
+    .partner-card p { font-size: 0.83rem; color: var(--gray-mid); line-height: 1.65; }
+
+    /* Area guide */
+    .area-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .area-guide-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .area-guide-grid { grid-template-columns: 1fr; } }
+
+    .area-card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 3/4;
+      cursor: pointer;
+    }
+    .area-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+    .area-card:hover img { transform: scale(1.05); }
+    .area-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,20,8,0.75) 0%, transparent 55%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px 18px;
+    }
+    .area-card-overlay h5 { color: var(--white); font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+    .area-card-overlay span { color: rgba(255,255,255,0.7); font-size: 0.76rem; }
+
+    /* CTA */
+    .market-cta-inner { text-align: center; max-width: 620px; margin: 0 auto; }
+    .market-cta-inner h2 { margin-bottom: 16px; }
+    .market-cta-inner p { font-size: 1.05rem; margin-bottom: 36px; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="mainNav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:background 0.3s,box-shadow 0.3s;">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-logo">
+        <img src="../../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;filter:brightness(0) invert(1);" id="navLogo" />
+        <span class="nav-badge guest">Guests</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="../properties.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">Properties</a></li>
+        <li><a href="../experiences.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">Experiences</a></li>
+        <li><a href="../about.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">About</a></li>
+        <li><a href="../loyalty.html" style="color:rgba(255,255,255,0.9);" class="nav-link-light">Bon Voyage</a></li>
+      </ul>
+      <div class="nav-cta" style="display:flex;gap:8px;align-items:center;">
+        <a href="../../partners/list-your-property.html" class="btn btn-primary" style="padding:10px 18px;font-size:0.82rem;">List My Property</a>
+        <a href="../../partners/index.html" class="btn" style="padding:10px 18px;font-size:0.82rem;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;" id="navPartners">For Partners</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="market-hero">
+    <div class="market-hero-bg"></div>
+    <div class="market-hero-overlay"></div>
+    <div class="container">
+      <div class="market-hero-content">
+        <span class="eyebrow">Toronto / GTA</span>
+        <h1>The city,<br /><em>elevated.</em></h1>
+        <p>Canada's most dynamic city — from King West lofts to Beaches bungalows. Every Bonsai Stays property is professionally managed, hotel-quality stocked, and ready the moment you arrive.</p>
+        <div class="market-hero-chips">
+          <span class="market-chip">🏙️ Downtown Condos</span>
+          <span class="market-chip">🛋️ Design Lofts</span>
+          <span class="market-chip">🏡 Townhomes</span>
+          <span class="market-chip">✨ Luxury Suites</span>
+        </div>
+        <div class="market-hero-btns">
+          <a href="#properties" class="btn btn-primary btn-lg">Browse Stays →</a>
+          <a href="../experiences.html" class="btn btn-lg" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;">Explore Experiences</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="market-stats">
+    <div class="container">
+      <div class="market-stats-inner">
+        <div class="market-stat"><span class="market-stat-num" id="propCount">—</span><span class="market-stat-label">Properties</span></div>
+        <div class="market-stat"><span class="market-stat-num">4.95★</span><span class="market-stat-label">Avg. Rating</span></div>
+        <div class="market-stat"><span class="market-stat-num">48h</span><span class="market-stat-label">Avg. Response Time</span></div>
+        <div class="market-stat"><span class="market-stat-num">100%</span><span class="market-stat-label">Professionally Managed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties -->
+  <section class="section" id="properties" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">Available Properties</span>
+          <h2>Toronto &amp; GTA <em>stays.</em></h2>
+        </div>
+        <a href="../properties.html?region=Toronto" class="btn btn-outline" style="flex-shrink:0;">View All →</a>
+      </div>
+      <div class="properties-grid" id="propertiesGrid">
+        <div class="loading-state">Loading properties…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Area Guide -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Explore Toronto</span>
+        <h2>Neighbourhoods we <em>love.</em></h2>
+        <p>Every Bonsai Stays property is rooted in a neighbourhood with its own character. Here's what makes Toronto home.</p>
+      </div>
+      <div class="area-guide-grid">
+        <div class="area-card">
+          <img src="https://images.unsplash.com/photo-1517090504586-fde19ea6066f?w=600&q=80&auto=format&fit=crop" alt="King West Toronto" loading="lazy" />
+          <div class="area-card-overlay"><h5>King West</h5><span>Nightlife &amp; Dining</span></div>
+        </div>
+        <div class="area-card">
+          <img src="https://images.unsplash.com/photo-1565118531796-763e5082d113?w=600&q=80&auto=format&fit=crop" alt="Distillery District Toronto" loading="lazy" />
+          <div class="area-card-overlay"><h5>Distillery District</h5><span>Arts &amp; Culture</span></div>
+        </div>
+        <div class="area-card">
+          <img src="https://images.unsplash.com/photo-1579547945413-497e1b99dac0?w=600&q=80&auto=format&fit=crop" alt="The Beaches Toronto" loading="lazy" />
+          <div class="area-card-overlay"><h5>The Beaches</h5><span>Relaxed Lakefront</span></div>
+        </div>
+        <div class="area-card">
+          <img src="https://images.unsplash.com/photo-1503891450247-ee5f8ec46dc3?w=600&q=80&auto=format&fit=crop" alt="Downtown Toronto" loading="lazy" />
+          <div class="area-card-overlay"><h5>Downtown Core</h5><span>Central &amp; Connected</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Local Experiences & Partners -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Local Experiences</span>
+        <h2>Everything you need, <em>arranged.</em></h2>
+        <p>We work with Toronto's best local providers to bring curated experiences directly to your door — or suite.</p>
+      </div>
+      <div class="partners-grid">
+        <div class="partner-card">
+          <div class="partner-card-icon">🧖</div>
+          <div class="partner-card-tag">Wellness</div>
+          <h4>In-Suite Spa Treatments</h4>
+          <p>Registered massage therapists, facials, and relaxation packages brought to your property. Perfect for post-travel recovery or a weekend treat.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">👨‍🍳</div>
+          <div class="partner-card-tag">Dining</div>
+          <h4>Private Chef Experience</h4>
+          <p>Toronto's top independent chefs cook a multi-course dinner in your kitchen using locally sourced ingredients. Dietary needs always accommodated.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🛍️</div>
+          <div class="partner-card-tag">Lifestyle</div>
+          <h4>Personal Shopping &amp; Styling</h4>
+          <p>A personal stylist takes you through Toronto's best boutiques on Queen West, Yorkville, and beyond — or curates a look delivered to your stay.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🎨</div>
+          <div class="partner-card-tag">Culture</div>
+          <h4>Art &amp; Culture Tours</h4>
+          <p>Private guided walks through Kensington Market, the Distillery District, and the city's gallery scene with a local art historian.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🥂</div>
+          <div class="partner-card-tag">Dining</div>
+          <h4>Restaurant Reservations</h4>
+          <p>Skip the wait lists. We have relationships with Toronto's most sought-after dining rooms and can secure tables that aren't available online.</p>
+        </div>
+        <div class="partner-card">
+          <div class="partner-card-icon">🛒</div>
+          <div class="partner-card-tag">Convenience</div>
+          <h4>Grocery Pre-Stocking</h4>
+          <p>Arrive to a fully stocked fridge. We partner with premium Toronto grocers to have your essentials — and some luxuries — waiting when you check in.</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:40px;">
+        <a href="../experiences.html" class="btn btn-primary btn-lg">Book an Experience →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Bonsai in Toronto -->
+  <section class="section" style="background:var(--green-deep);">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+        <div>
+          <span class="eyebrow" style="color:var(--green-light);">The Bonsai Difference</span>
+          <h2 style="color:var(--white);margin-bottom:20px;">Hotel quality.<br /><em>Home feeling.</em></h2>
+          <p style="color:rgba(255,255,255,0.8);font-size:1.05rem;line-height:1.8;margin-bottom:24px;">Every Toronto property in our collection is held to the same standard as our cottage escapes. That means hotel-grade linens, a spotlessly prepared space, and a local team available when you need them — not just an app.</p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:36px;">
+            <li style="color:rgba(255,255,255,0.85);font-size:0.9rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);font-size:1rem;">✓</span> Same-day response to every guest message</li>
+            <li style="color:rgba(255,255,255,0.85);font-size:0.9rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);font-size:1rem;">✓</span> Premium linen, toiletries &amp; amenity packs</li>
+            <li style="color:rgba(255,255,255,0.85);font-size:0.9rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);font-size:1rem;">✓</span> Verified, professionally photographed listings</li>
+            <li style="color:rgba(255,255,255,0.85);font-size:0.9rem;display:flex;align-items:center;gap:10px;"><span style="color:var(--gold);font-size:1rem;">✓</span> Earn Bon Voyage loyalty points every night</li>
+          </ul>
+          <a href="../properties.html?region=Toronto" class="btn btn-primary btn-lg">See All Toronto Properties →</a>
+        </div>
+        <div style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:4/5;box-shadow:var(--shadow-hover);">
+          <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80&auto=format&fit=crop" alt="Beautifully prepared Toronto property interior" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="market-cta-inner">
+        <span class="eyebrow">Ready to Book?</span>
+        <h2>Your Toronto stay <em>awaits.</em></h2>
+        <p>Browse our full collection of Toronto properties or start earning Bon Voyage points on your first stay.</p>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a href="../properties.html?region=Toronto" class="btn btn-primary btn-lg">Browse Properties →</a>
+          <a href="../loyalty.html" class="btn btn-outline btn-lg">Join Bon Voyage</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:30px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
+          <div class="footer-social"><a href="#" aria-label="Instagram">in</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Pinterest">P</a></div>
+        </div>
+        <div class="footer-col"><h5>Markets</h5><ul><li><a href="toronto.html">Toronto / GTA</a></li><li><a href="muskoka.html">Muskoka / Cottage Country</a></li><li><a href="collingwood.html">Collingwood / Wasaga Beach</a></li></ul></div>
+        <div class="footer-col"><h5>Explore</h5><ul><li><a href="../properties.html">All Properties</a></li><li><a href="../experiences.html">Experiences</a></li><li><a href="../loyalty.html">Bon Voyage</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="../about.html">About Us</a></li><li><a href="../../partners/index.html">For Partners</a></li><li><a href="../../partners/list-your-property.html">List My Property</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    // Nav scroll behaviour
+    const nav = document.getElementById('mainNav');
+    const navLogo = document.getElementById('navLogo');
+    const navLinks = document.querySelectorAll('.nav-link-light');
+    const navPartners = document.getElementById('navPartners');
+    function onScroll() {
+      if (window.scrollY > 60) {
+        nav.classList.add('scrolled');
+        navLogo.style.filter = '';
+        navLinks.forEach(l => l.style.color = '');
+        navPartners.style.background = '';
+        navPartners.style.border = '';
+        navPartners.style.color = '';
+      } else {
+        nav.classList.remove('scrolled');
+        navLogo.style.filter = 'brightness(0) invert(1)';
+        navLinks.forEach(l => l.style.color = 'rgba(255,255,255,0.9)');
+        navPartners.style.background = 'rgba(255,255,255,0.15)';
+        navPartners.style.border = '1px solid rgba(255,255,255,0.35)';
+        navPartners.style.color = '#fff';
+      }
+    }
+    window.addEventListener('scroll', onScroll);
+
+    // Supabase
+    const sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+
+    const STAR = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
+    async function loadProperties() {
+      const grid = document.getElementById('propertiesGrid');
+      try {
+        const { data, error } = await sb
+          .from('properties')
+          .select('id,name,city,thumbnail_url,region,price,bedrooms,bathrooms,guests,badge,badge_type,rating,review_count')
+          .eq('active', true)
+          .ilike('region', '%toronto%')
+          .order('sort_order', { ascending: true });
+
+        if (error || !data?.length) throw new Error('no data');
+
+        document.getElementById('propCount').textContent = data.length;
+        grid.innerHTML = data.map(p => propCard(p)).join('');
+      } catch(e) {
+        document.getElementById('propCount').textContent = '—';
+        grid.innerHTML = `
+          <div class="no-results">
+            <h3>Properties coming soon</h3>
+            <p>We're curating Toronto's best stays. <a href="../properties.html">Browse all properties</a> in the meantime.</p>
+          </div>`;
+      }
+    }
+
+    function propCard(p) {
+      const badge = p.badge ? `<span class="prop-card-badge${p.badge_type === 'new' ? ' new' : ''}">${p.badge}</span>` : '';
+      const rating = p.rating || 4.9;
+      const reviews = p.review_count || 0;
+      const img = p.thumbnail_url || 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&q=80&auto=format&fit=crop';
+      return `
+        <a href="../property-detail.html?id=${p.id}" style="text-decoration:none;color:inherit;">
+          <div class="prop-card">
+            <img class="prop-card-img" src="${img}" alt="${p.name}" loading="lazy" />
+            <div class="prop-card-body">
+              <div class="prop-card-region">Toronto / GTA</div>
+              <div class="prop-card-title">${p.name}</div>
+              <div class="prop-card-loc">📍 ${p.city || 'Toronto, ON'}</div>
+              <div class="prop-card-meta">
+                <span>🛏️ ${p.bedrooms || '—'} bed</span>
+                <span>🚿 ${p.bathrooms || '—'} bath</span>
+                <span>👥 Up to ${p.guests || '—'} guests</span>
+              </div>
+              <div class="prop-card-footer">
+                <div class="prop-card-price">$${p.price || '—'}<small>/night</small></div>
+                <div style="display:flex;align-items:center;gap:4px;font-size:0.8rem;color:var(--gray-mid);">${STAR} ${rating}${reviews ? ` <span style="color:var(--gray-light)">(${reviews})</span>` : ''}</div>
+              </div>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    loadProperties();
+  </script>
+
+  <!-- Tawk.to -->
+  <script>var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src='https://embed.tawk.to/6a15e4a761875d1c37232646/1jpioabv2';s1.charset='UTF-8';s1.setAttribute('crossorigin','*');s0.parentNode.insertBefore(s1,s0);})();</script>
+</body>
+</html>
