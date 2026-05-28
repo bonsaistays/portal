@@ -422,7 +422,7 @@ function renderTable() {
   empty.classList.add('hidden');
 
   tbody.innerHTML = list.map(m => {
-    const tc = TIER_COLORS[m.tier] || TIER_COLORS.Classic;
+    const tc = TIER_COLORS[m.tier] || { bg: '#1a1a1a', color: '#fff' };
     const since = m.member_since
       ? new Date(m.member_since).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })
       : '—';
