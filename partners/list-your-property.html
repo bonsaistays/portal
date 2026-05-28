@@ -46,9 +46,21 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 32px;
     }
-    .benefit-item { text-align: center; }
+    .benefit-item {
+      text-align: center; display: block; color: inherit;
+      background: rgba(255,255,255,0.06); border-radius: 16px;
+      padding: 28px 20px; border: 1.5px solid rgba(255,255,255,0.08);
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .benefit-item:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(201,164,90,0.35);
+      transform: translateY(-3px);
+    }
+    .benefit-item:hover .benefit-title { color: var(--gold); }
     .benefit-icon { font-size: 2rem; margin-bottom: 12px; }
-    .benefit-title { font-size: 0.95rem; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
+    .benefit-title { font-size: 0.95rem; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; transition: color 0.2s; }
     .benefit-desc { font-size: 0.82rem; color: var(--gray-mid); line-height: 1.6; }
 
     /* Form layout */
@@ -197,26 +209,26 @@
   <div class="benefits-strip">
     <div class="container">
       <div class="benefits-grid">
-        <div class="benefit-item">
+        <a class="benefit-item" href="/app/">
           <div class="benefit-icon">🎯</div>
           <div class="benefit-title">Quality Guest Audience</div>
           <div class="benefit-desc">Our Bon Voyage members are vetted, repeat travellers with above-average spend and care for the properties they stay in.</div>
-        </div>
-        <div class="benefit-item">
+        </a>
+        <a class="benefit-item" href="/guests/properties.html">
           <div class="benefit-icon">📅</div>
           <div class="benefit-title">Live Calendar Sync</div>
           <div class="benefit-desc">Your availability syncs automatically from Airbnb, VRBO, and any other platform so you never get double-booked.</div>
-        </div>
-        <div class="benefit-item">
+        </a>
+        <a class="benefit-item" href="/guests/properties.html">
           <div class="benefit-icon">✨</div>
           <div class="benefit-title">Premium Positioning</div>
           <div class="benefit-desc">Properties are showcased with professional copywriting and appear alongside our most highly-rated managed stays.</div>
-        </div>
-        <div class="benefit-item">
+        </a>
+        <a class="benefit-item" href="/partners/services.html">
           <div class="benefit-icon">🤝</div>
           <div class="benefit-title">Lower Commission Than the Rest</div>
           <div class="benefit-desc">Our commission is significantly lower than Airbnb, VRBO, and Booking.com — so you keep more of what your property earns on every booking.</div>
-        </div>
+        </a>
       </div>
     </div>
   </div>
