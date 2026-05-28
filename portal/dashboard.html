@@ -124,11 +124,17 @@
         </div>
       </div>
 
-      <div>
-        <label class="admin-label">Door code</label>
-        <div style="display:flex;gap:8px;">
-          <input class="admin-input" id="nb-doorcode" type="text" placeholder="e.g. 4829" style="flex:1;" />
-          <button type="button" onclick="genCode()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 14px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">Generate</button>
+      <div class="admin-form-row">
+        <div>
+          <label class="admin-label">Booking value ($) <span style="font-weight:400;color:var(--a-gray);">— used for points</span></label>
+          <input class="admin-input" id="nb-total" type="number" min="0" step="0.01" placeholder="e.g. 850.00" />
+        </div>
+        <div>
+          <label class="admin-label">Door code</label>
+          <div style="display:flex;gap:8px;">
+            <input class="admin-input" id="nb-doorcode" type="text" placeholder="e.g. 4829" style="flex:1;" />
+            <button type="button" onclick="genCode()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 14px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">Generate</button>
+          </div>
         </div>
       </div>
 
@@ -225,6 +231,12 @@ async function loadBookings() {
   document.getElementById('stat-pending').textContent = pending || 0;
 
   renderTable(_allBookings);
+
+  // Auto-award points for any bookings past check-out date
+  try {
+    const { data: awarded } = await sb.rpc('award_checkout_points');
+    if (awarded > 0) showToast(`🎉 Points awarded for ${awarded} completed stay${awarded > 1 ? 's' : ''}!`);
+  } catch(e) { /* function not yet created — silently skip */ }
 }
 
 function setFilter(f, btn) {
@@ -295,6 +307,7 @@ async function saveNewBooking() {
 
   btn.textContent = 'Creating…'; btn.disabled = true;
 
+  const totalRaw = parseFloat(document.getElementById('nb-total').value) || 0;
   const { data, error } = await sb.from('bookings').insert({
     guest_name:            name,
     guest_email:           email,
@@ -304,6 +317,7 @@ async function saveNewBooking() {
     check_in:              checkin,
     check_out:             checkout,
     door_code:             document.getElementById('nb-doorcode').value.trim(),
+    total_price:           Math.round(totalRaw * 100), // stored in cents
     status:                'upcoming',
   }).select().single();
 

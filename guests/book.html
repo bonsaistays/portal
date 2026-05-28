@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Stay — Bonsai Stays</title>
+  <meta name="description" content="Book your next stay directly with Bonsai Stays. Choose your property, dates, and personalise your experience." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    body { background: var(--cream); }
+
+    /* ── Nav ── */
+    .book-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(254,252,248,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--gray-pale);
+      padding: 0 24px;
+    }
+    .book-nav-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .book-nav-logo img { height: 36px; width: auto; }
+    .book-nav-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.85rem; color: var(--gray-mid);
+      transition: color 0.2s;
+    }
+    .book-nav-back:hover { color: var(--green-deep); }
+
+    /* ── Page layout ── */
+    .book-wrap {
+      max-width: 1080px; margin: 0 auto; padding: 48px 24px 80px;
+      display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start;
+    }
+    @media (max-width: 860px) {
+      .book-wrap { grid-template-columns: 1fr; }
+      .book-sidebar { order: -1; }
+    }
+
+    /* ── Page header ── */
+    .book-heading { margin-bottom: 36px; }
+    .book-heading .eyebrow { margin-bottom: 8px; }
+    .book-heading h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 600; color: var(--charcoal); margin-bottom: 8px; }
+    .book-heading p { color: var(--gray-mid); font-size: 0.95rem; }
+
+    /* ── Form sections ── */
+    .book-section {
+      background: var(--white); border-radius: var(--radius-md);
+      padding: 28px; margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .book-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 600; color: var(--charcoal);
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--gray-pale);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .book-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .book-row { grid-template-columns: 1fr; } }
+
+    .book-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .book-field:last-child { margin-bottom: 0; }
+    .book-label {
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--gray-mid);
+    }
+    .book-input, .book-select, .book-textarea {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 0.95rem;
+      color: var(--charcoal); background: var(--white);
+      transition: border-color 0.2s;
+    }
+    .book-input:focus, .book-select:focus, .book-textarea:focus {
+      outline: none; border-color: var(--green-mid);
+    }
+    .book-input::placeholder, .book-textarea::placeholder { color: var(--gray-light); }
+    .book-textarea { resize: vertical; min-height: 90px; }
+
+    /* Guest count */
+    .guest-counter {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm); background: var(--white);
+    }
+    .guest-counter-label { font-size: 0.9rem; color: var(--charcoal); }
+    .guest-counter-sub  { font-size: 0.75rem; color: var(--gray-light); }
+    .counter-btns { display: flex; align-items: center; gap: 12px; }
+    .counter-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid var(--gray-pale); background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 600; color: var(--green-deep);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .counter-btn:hover { border-color: var(--green-mid); background: var(--green-tint); }
+    .counter-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .counter-val { font-size: 1rem; font-weight: 600; color: var(--charcoal); min-width: 24px; text-align: center; }
+
+    /* Extras */
+    .extras-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 560px) { .extras-grid { grid-template-columns: 1fr; } }
+
+    .extra-card {
+      border: 1.5px solid var(--gray-pale); border-radius: var(--radius-sm);
+      padding: 14px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: flex-start; gap: 12px;
+      user-select: none;
+    }
+    .extra-card:hover { border-color: var(--green-mid); }
+    .extra-card.selected {
+      border-color: var(--green-mid); background: var(--green-tint);
+    }
+    .extra-check {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 1.5px solid var(--gray-pale);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px; transition: all 0.15s;
+    }
+    .extra-card.selected .extra-check {
+      background: var(--green-mid); border-color: var(--green-mid);
+      color: white; font-size: 0.7rem;
+    }
+    .extra-emoji { font-size: 1.4rem; flex-shrink: 0; }
+    .extra-info { flex: 1; }
+    .extra-name { font-size: 0.88rem; font-weight: 600; color: var(--charcoal); margin-bottom: 2px; }
+    .extra-price { font-size: 0.75rem; color: var(--green-mid); font-weight: 600; }
+    .extra-desc { font-size: 0.75rem; color: var(--gray-mid); margin-top: 2px; }
+
+    /* ── Sidebar ── */
+    .book-sidebar { position: sticky; top: 84px; }
+    .sidebar-card {
+      background: var(--white); border-radius: var(--radius-md);
+      padding: 24px; box-shadow: var(--shadow-card);
+      margin-bottom: 16px;
+    }
+    .sidebar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-weight: 600; color: var(--charcoal);
+      margin-bottom: 16px;
+    }
+    .sidebar-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 6px 0; border-bottom: 1px solid var(--gray-pale);
+      font-size: 0.88rem;
+    }
+    .sidebar-row:last-child { border-bottom: none; }
+    .sidebar-row .lbl { color: var(--gray-mid); }
+    .sidebar-row .val { font-weight: 600; color: var(--charcoal); }
+    .sidebar-row .val.green { color: var(--green-mid); }
+
+    .sidebar-perks { background: var(--green-tint); border-radius: var(--radius-sm); padding: 14px; margin-top: 16px; }
+    .sidebar-perks p { font-size: 0.8rem; color: var(--green-deep); line-height: 1.6; margin: 0; }
+    .sidebar-perks strong { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+
+    /* ── Submit ── */
+    .book-submit {
+      width: 100%; padding: 16px;
+      background: var(--green-deep); color: var(--white);
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .book-submit:hover { background: var(--green-mid); }
+    .book-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .book-error {
+      background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C;
+      font-size: 0.83rem; padding: 12px 14px; border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Success state ── */
+    #state-success {
+      text-align: center; padding: 60px 24px;
+      background: var(--white); border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+    }
+    .success-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    #state-success h2 { color: var(--charcoal); margin-bottom: 12px; }
+    #state-success p { max-width: 460px; margin: 0 auto 28px; }
+    .btn-back-home {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; background: var(--green-deep); color: var(--white);
+      border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .btn-back-home:hover { background: var(--green-mid); }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="book-nav">
+  <div class="book-nav-inner">
+    <div class="book-nav-logo">
+      <a href="../index.html">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
+      </a>
+    </div>
+    <a href="index.html" class="book-nav-back">
+      ← Back to properties
+    </a>
+  </div>
+</nav>
+
+<div id="state-form">
+<div class="book-wrap">
+
+  <!-- ── Left: Form ── -->
+  <div class="book-main">
+
+    <div class="book-heading">
+      <span class="eyebrow">Direct Booking</span>
+      <h1>Book your stay</h1>
+      <p>Reserve directly with us for the best rate — and earn Bon Voyage loyalty points on every dollar.</p>
+    </div>
+
+    <div id="book-error" class="book-error hidden"></div>
+
+    <!-- Section 1: Property & Dates -->
+    <div class="book-section">
+      <div class="book-section-title">🏡 Property &amp; Dates</div>
+
+      <div class="book-field">
+        <label class="book-label">Property *</label>
+        <select class="book-select" id="f-property">
+          <option value="">Loading properties…</option>
+        </select>
+      </div>
+
+      <div class="book-row">
+        <div class="book-field">
+          <label class="book-label">Check-in *</label>
+          <input class="book-input" id="f-checkin" type="date" />
+        </div>
+        <div class="book-field">
+          <label class="book-label">Check-out *</label>
+          <input class="book-input" id="f-checkout" type="date" />
+        </div>
+      </div>
+
+      <div class="book-field" style="margin-bottom:12px;">
+        <label class="book-label" style="margin-bottom:10px;">Guests</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="guest-counter">
+            <div>
+              <div class="guest-counter-label">Adults</div>
+              <div class="guest-counter-sub">Age 13+</div>
+            </div>
+            <div class="counter-btns">
+              <button class="counter-btn" onclick="changeCount('adults',-1)" id="adults-minus">−</button>
+              <span class="counter-val" id="adults-val">2</span>
+              <button class="counter-btn" onclick="changeCount('adults',1)">+</button>
+            </div>
+          </div>
+          <div class="guest-counter">
+            <div>
+              <div class="guest-counter-label">Children</div>
+              <div class="guest-counter-sub">Under 13</div>
+            </div>
+            <div class="counter-btns">
+              <button class="counter-btn" onclick="changeCount('children',-1)" id="children-minus">−</button>
+              <span class="counter-val" id="children-val">0</span>
+              <button class="counter-btn" onclick="changeCount('children',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Your Details -->
+    <div class="book-section">
+      <div class="book-section-title">👤 Your Details</div>
+      <div class="book-row">
+        <div class="book-field">
+          <label class="book-label">Full name *</label>
+          <input class="book-input" id="f-name" type="text" placeholder="Sarah Smith" autocomplete="name" />
+        </div>
+        <div class="book-field">
+          <label class="book-label">Phone</label>
+          <input class="book-input" id="f-phone" type="tel" placeholder="+1 (416) 555-0100" autocomplete="tel" />
+        </div>
+      </div>
+      <div class="book-field">
+        <label class="book-label">Email address *</label>
+        <input class="book-input" id="f-email" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+    </div>
+
+    <!-- Section 3: Add-on Extras -->
+    <div class="book-section">
+      <div class="book-section-title">✨ Personalise Your Stay <span style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:400;color:var(--gray-mid);">(optional)</span></div>
+      <p style="font-size:0.85rem;color:var(--gray-mid);margin-bottom:18px;">All extras are confirmed and priced by our team after booking. Select what interests you.</p>
+
+      <div class="extras-grid">
+        <div class="extra-card" data-extra="Massage therapy" onclick="toggleExtra(this)">
+          <span class="extra-emoji">💆</span>
+          <div class="extra-info">
+            <div class="extra-name">Massage therapy</div>
+            <div class="extra-price">From $120 / person</div>
+            <div class="extra-desc">In-property wellness treatment</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Private chef dinner" onclick="toggleExtra(this)">
+          <span class="extra-emoji">👨‍🍳</span>
+          <div class="extra-info">
+            <div class="extra-name">Private chef dinner</div>
+            <div class="extra-price">From $150 / person</div>
+            <div class="extra-desc">Curated menu, fully catered</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Yoga or fitness session" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🧘</span>
+          <div class="extra-info">
+            <div class="extra-name">Yoga / fitness</div>
+            <div class="extra-price">From $80 / session</div>
+            <div class="extra-desc">Private instructor, any level</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Wine and charcuterie welcome" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🍷</span>
+          <div class="extra-info">
+            <div class="extra-name">Wine &amp; charcuterie</div>
+            <div class="extra-price">From $75</div>
+            <div class="extra-desc">Ready on arrival</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Fresh flower arrangement" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🌸</span>
+          <div class="extra-info">
+            <div class="extra-name">Fresh flowers</div>
+            <div class="extra-price">From $45</div>
+            <div class="extra-desc">Seasonal arrangement on arrival</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Special occasion setup" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🎂</span>
+          <div class="extra-info">
+            <div class="extra-name">Special occasion</div>
+            <div class="extra-price">From $60</div>
+            <div class="extra-desc">Decorations, cake, surprises</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Bonfire and smores kit" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🪵</span>
+          <div class="extra-info">
+            <div class="extra-name">Bonfire &amp; s'mores kit</div>
+            <div class="extra-price">From $35</div>
+            <div class="extra-desc">Firewood, starters, all supplies</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Early check-in (noon)" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🚗</span>
+          <div class="extra-info">
+            <div class="extra-name">Early check-in</div>
+            <div class="extra-price">From $50</div>
+            <div class="extra-desc">Arrive from noon (subject to availability)</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Late check-out (2pm)" onclick="toggleExtra(this)">
+          <span class="extra-emoji">🌙</span>
+          <div class="extra-info">
+            <div class="extra-name">Late check-out</div>
+            <div class="extra-price">From $50</div>
+            <div class="extra-desc">Depart by 2pm (subject to availability)</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+        <div class="extra-card" data-extra="Baby and toddler gear" onclick="toggleExtra(this)">
+          <span class="extra-emoji">👶</span>
+          <div class="extra-info">
+            <div class="extra-name">Baby &amp; toddler gear</div>
+            <div class="extra-price">Complimentary</div>
+            <div class="extra-desc">Crib, highchair, bath items</div>
+          </div>
+          <div class="extra-check"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Special Requests -->
+    <div class="book-section">
+      <div class="book-section-title">📝 Special Requests</div>
+      <div class="book-field">
+        <label class="book-label">Anything else we should know?</label>
+        <textarea class="book-textarea" id="f-requests" placeholder="Dietary requirements, accessibility needs, celebrations, pet details, arrival notes…"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Right: Sidebar ── -->
+  <aside class="book-sidebar">
+
+    <div class="sidebar-card">
+      <div class="sidebar-title">Booking Summary</div>
+      <div id="summary-rows">
+        <div class="sidebar-row">
+          <span class="lbl">Property</span>
+          <span class="val" id="sum-property">—</span>
+        </div>
+        <div class="sidebar-row">
+          <span class="lbl">Check-in</span>
+          <span class="val" id="sum-checkin">—</span>
+        </div>
+        <div class="sidebar-row">
+          <span class="lbl">Check-out</span>
+          <span class="val" id="sum-checkout">—</span>
+        </div>
+        <div class="sidebar-row">
+          <span class="lbl">Nights</span>
+          <span class="val" id="sum-nights">—</span>
+        </div>
+        <div class="sidebar-row">
+          <span class="lbl">Guests</span>
+          <span class="val" id="sum-guests">2 adults</span>
+        </div>
+        <div class="sidebar-row" id="sum-extras-row" style="display:none;">
+          <span class="lbl">Extras</span>
+          <span class="val green" id="sum-extras">—</span>
+        </div>
+      </div>
+
+      <div class="sidebar-perks">
+        <strong>🎯 Bon Voyage Rewards</strong>
+        <p>Book directly and earn loyalty points on every dollar spent. Points can be redeemed for discounts on future stays.</p>
+      </div>
+
+      <div id="book-error-sidebar" class="book-error hidden" style="margin-top:16px;margin-bottom:0;"></div>
+
+      <button class="book-submit" id="submit-btn" onclick="submitBooking()" style="margin-top:20px;">
+        Request Booking →
+      </button>
+      <p style="font-size:0.73rem;color:var(--gray-light);text-align:center;margin-top:10px;">We'll confirm availability and pricing within 24 hours.</p>
+    </div>
+
+  </aside>
+
+</div>
+</div>
+
+<!-- Success state -->
+<div id="state-success" class="hidden container" style="padding-top:60px;padding-bottom:80px;">
+  <div id="state-success-inner">
+    <div class="success-icon">🎉</div>
+    <h2>Booking request sent!</h2>
+    <p>Thanks — we've received your request and will confirm availability and pricing within 24 hours. Check your email for a confirmation.</p>
+    <a href="index.html" class="btn-back-home">← Back to properties</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let _adults = 2, _children = 0, _properties = [];
+
+// ── Load properties ───────────────────────────────────────
+(async () => {
+  const { data } = await sb.from('properties').select('id, name').order('name');
+  _properties = data || [];
+  const sel = document.getElementById('f-property');
+  sel.innerHTML = '<option value="">Select a property…</option>' +
+    _properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  sel.addEventListener('change', updateSummary);
+})();
+
+// ── Guest counters ────────────────────────────────────────
+function changeCount(type, delta) {
+  if (type === 'adults')   { _adults   = Math.max(1, _adults + delta); document.getElementById('adults-val').textContent = _adults; }
+  if (type === 'children') { _children = Math.max(0, _children + delta); document.getElementById('children-val').textContent = _children; }
+  document.getElementById('adults-minus').disabled   = _adults <= 1;
+  document.getElementById('children-minus').disabled = _children <= 0;
+  updateSummary();
+}
+
+// ── Extras ────────────────────────────────────────────────
+function toggleExtra(card) {
+  card.classList.toggle('selected');
+  const check = card.querySelector('.extra-check');
+  check.textContent = card.classList.contains('selected') ? '✓' : '';
+  updateSummary();
+}
+
+// ── Summary sidebar ───────────────────────────────────────
+function updateSummary() {
+  const propId = document.getElementById('f-property').value;
+  const prop   = _properties.find(p => p.id === propId);
+  const cin    = document.getElementById('f-checkin').value;
+  const cout   = document.getElementById('f-checkout').value;
+
+  document.getElementById('sum-property').textContent = prop?.name || '—';
+
+  const fmtDate = v => v ? new Date(v + 'T12:00:00').toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}) : '—';
+  document.getElementById('sum-checkin').textContent  = fmtDate(cin);
+  document.getElementById('sum-checkout').textContent = fmtDate(cout);
+
+  if (cin && cout) {
+    const nights = Math.round((new Date(cout) - new Date(cin)) / 86400000);
+    document.getElementById('sum-nights').textContent = nights > 0 ? nights + ' night' + (nights !== 1 ? 's' : '') : '—';
+  } else {
+    document.getElementById('sum-nights').textContent = '—';
+  }
+
+  const guestStr = _adults + ' adult' + (_adults !== 1 ? 's' : '') + (_children > 0 ? ', ' + _children + ' child' + (_children !== 1 ? 'ren' : '') : '');
+  document.getElementById('sum-guests').textContent = guestStr;
+
+  const selectedExtras = [...document.querySelectorAll('.extra-card.selected')].map(c => c.dataset.extra);
+  const extRow = document.getElementById('sum-extras-row');
+  if (selectedExtras.length) {
+    document.getElementById('sum-extras').textContent = selectedExtras.length + ' selected';
+    extRow.style.display = 'flex';
+  } else {
+    extRow.style.display = 'none';
+  }
+}
+
+// Live update as dates change
+document.getElementById('f-checkin').addEventListener('change', updateSummary);
+document.getElementById('f-checkout').addEventListener('change', updateSummary);
+
+// ── Submit ────────────────────────────────────────────────
+async function submitBooking() {
+  const btn  = document.getElementById('submit-btn');
+  const err  = document.getElementById('book-error');
+  const errS = document.getElementById('book-error-sidebar');
+  err.classList.add('hidden'); errS.classList.add('hidden');
+
+  const name     = document.getElementById('f-name').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
+  const phone    = document.getElementById('f-phone').value.trim();
+  const propId   = document.getElementById('f-property').value;
+  const checkin  = document.getElementById('f-checkin').value;
+  const checkout = document.getElementById('f-checkout').value;
+  const requests = document.getElementById('f-requests').value.trim();
+
+  // Validation
+  const errors = [];
+  if (!name)     errors.push('Full name is required.');
+  if (!email || !email.includes('@')) errors.push('A valid email is required.');
+  if (!propId)   errors.push('Please select a property.');
+  if (!checkin)  errors.push('Check-in date is required.');
+  if (!checkout) errors.push('Check-out date is required.');
+  if (checkin && checkout && new Date(checkout) <= new Date(checkin)) errors.push('Check-out must be after check-in.');
+
+  if (errors.length) {
+    const msg = errors.join(' ');
+    err.textContent = msg; err.classList.remove('hidden');
+    errS.textContent = msg; errS.classList.remove('hidden');
+    return;
+  }
+
+  btn.textContent = 'Sending…'; btn.disabled = true;
+
+  const selectedExtras = [...document.querySelectorAll('.extra-card.selected')].map(c => c.dataset.extra);
+
+  const specialReqs = [
+    requests,
+    selectedExtras.length ? 'Requested extras: ' + selectedExtras.join(', ') : ''
+  ].filter(Boolean).join('\n\n');
+
+  const { error } = await sb.from('bookings').insert({
+    guest_name:      name,
+    guest_email:     email,
+    guest_phone:     phone,
+    property_id:     propId,
+    check_in:        checkin + 'T15:00:00',
+    check_out:       checkout + 'T11:00:00',
+    num_guests:      _adults + _children,
+    special_requests: specialReqs || null,
+    extras:          selectedExtras,
+    status:          'inquiry',
+  });
+
+  if (error) {
+    const msg = 'Something went wrong — please try again or contact us directly.';
+    err.textContent = msg; err.classList.remove('hidden');
+    errS.textContent = msg; errS.classList.remove('hidden');
+    btn.textContent = 'Request Booking →'; btn.disabled = false;
+    return;
+  }
+
+  document.getElementById('state-form').classList.add('hidden');
+  document.getElementById('state-success').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Init counters
+document.getElementById('adults-minus').disabled   = true;
+document.getElementById('children-minus').disabled = true;
+</script>
+
+</body>
+</html>
