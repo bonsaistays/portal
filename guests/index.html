@@ -59,19 +59,40 @@
       align-items: center;
       gap: 0;
       box-shadow: 0 8px 48px rgba(0,0,0,0.25);
-      max-width: 620px;
+      max-width: 860px;
+      width: 100%;
     }
     .search-field {
       flex: 1;
-      padding: 14px 20px;
+      padding: 14px 18px;
       border: none;
       outline: none;
       font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--charcoal);
       background: transparent;
+      min-width: 0;
     }
     .search-field::placeholder { color: var(--gray-light); }
+    .search-date {
+      padding: 14px 14px;
+      border: none;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      color: var(--charcoal);
+      background: transparent;
+      cursor: pointer;
+      min-width: 130px;
+    }
+    .search-date::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+    .search-label {
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--gray-light); padding: 0 4px 0 16px;
+      white-space: nowrap; display: flex; flex-direction: column; gap: 2px;
+    }
+    .search-label span { color: var(--charcoal); font-size: 0.82rem; font-weight: 400; letter-spacing: 0; text-transform: none; }
     .search-sep { width: 1px; height: 32px; background: var(--gray-pale); flex-shrink: 0; }
     .search-btn {
       background: var(--green-deep);
@@ -495,8 +516,9 @@
       .booking-grid { grid-template-columns: 1fr; }
       .regions-grid { grid-template-columns: 1fr; }
       .region-card.featured { grid-column: span 1; aspect-ratio: 4/3; }
-      .search-bar { flex-wrap: wrap; padding: 12px; }
+      .search-bar { flex-wrap: wrap; padding: 12px; gap: 8px; }
       .search-sep { display: none; }
+      .search-field, .search-date { width: 100%; padding: 12px 14px; }
       .search-btn { width: 100%; justify-content: center; }
     }
   </style>
@@ -517,8 +539,9 @@
         <li><a href="about.html">About</a></li>
         <li><a href="../contact.html">Contact</a></li>
       </ul>
-      <div class="nav-cta">
-        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Partners</a>
+      <div class="nav-cta" style="display:flex;gap:8px;align-items:center;">
+        <a href="../partners/list-your-property.html" class="btn btn-primary" style="padding:10px 18px;font-size:0.82rem;">List My Property</a>
+        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 18px;font-size:0.82rem;">For Partners</a>
       </div>
       <div class="nav-hamburger">
         <span></span><span></span><span></span>
@@ -536,8 +559,23 @@
         <h1>Your escape,<br /><em>elevated.</em></h1>
         <p>Discover handpicked properties managed to the highest standard. Then book in-stay massages, yoga, private chefs — all seamlessly arranged before you arrive.</p>
         <div class="search-bar">
-          <input class="search-field" type="text" placeholder="Where are you going?" />
-          <button class="search-btn">
+          <select class="search-field" id="hero-region" style="cursor:pointer;appearance:none;background-image:none;">
+            <option value="">📍 Any destination</option>
+            <option value="Muskoka">🌲 Muskoka / Cottage Country</option>
+            <option value="Collingwood">⛷️ Collingwood / Wasaga Beach</option>
+            <option value="Toronto">🏙️ Toronto / GTA</option>
+          </select>
+          <div class="search-sep"></div>
+          <div style="display:flex;flex-direction:column;padding:4px 4px 4px 14px;">
+            <span style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-light);">Check-in</span>
+            <input class="search-date" id="hero-checkin" type="date" />
+          </div>
+          <div class="search-sep"></div>
+          <div style="display:flex;flex-direction:column;padding:4px 4px 4px 14px;">
+            <span style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-light);">Check-out</span>
+            <input class="search-date" id="hero-checkout" type="date" />
+          </div>
+          <button class="search-btn" onclick="heroSearch()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             Search
           </button>
@@ -956,6 +994,28 @@
       } catch(e) { console.error('Failed to load properties', e); }
     }
     loadHomepageProperties();
+
+    // Hero search
+    function heroSearch() {
+      const region   = document.getElementById('hero-region').value;
+      const checkin  = document.getElementById('hero-checkin').value;
+      const checkout = document.getElementById('hero-checkout').value;
+      const params   = new URLSearchParams();
+      if (region)   params.set('region', region);
+      if (checkin)  params.set('checkin', checkin);
+      if (checkout) params.set('checkout', checkout);
+      const qs = params.toString();
+      window.location.href = 'properties.html' + (qs ? '?' + qs : '');
+    }
+    // Set min dates for date inputs
+    (function() {
+      const today = new Date().toISOString().split('T')[0];
+      const ci = document.getElementById('hero-checkin');
+      const co = document.getElementById('hero-checkout');
+      if (ci) ci.min = today;
+      if (co) co.min = today;
+      if (ci) ci.addEventListener('change', () => { if (co && ci.value) co.min = ci.value; });
+    })();
 
     // Filter chips
     function filterChip(el) {

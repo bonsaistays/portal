@@ -218,8 +218,9 @@
         <li><a href="regions.html">Regions</a></li>
         <li><a href="about.html">About</a></li>
       </ul>
-      <div class="nav-cta">
-        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Partners</a>
+      <div class="nav-cta" style="display:flex;gap:8px;align-items:center;">
+        <a href="../partners/list-your-property.html" class="btn btn-primary" style="padding:10px 18px;font-size:0.82rem;">List My Property</a>
+        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 18px;font-size:0.82rem;">For Partners</a>
       </div>
       <div class="nav-hamburger"><span></span><span></span><span></span></div>
     </div>
@@ -561,6 +562,17 @@
       availabilityCache = {};
       filterProperties();
     }
+
+    // Pre-fill from URL params (e.g. from hero search bar)
+    (function() {
+      const p = new URLSearchParams(location.search);
+      if (p.get('checkin'))  document.getElementById('dateCheckin').value  = p.get('checkin');
+      if (p.get('checkout')) document.getElementById('dateCheckout').value = p.get('checkout');
+      if (p.get('region')) {
+        const sel = document.getElementById('regionFilter');
+        if (sel) sel.value = p.get('region');
+      }
+    })();
 
     loadProperties();
   </script>
