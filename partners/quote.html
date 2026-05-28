@@ -1437,22 +1437,19 @@
       btn.disabled = true;
       btn.textContent = 'Unlocking…';
 
-      // Submit lead to Netlify
-      const body = new URLSearchParams({
-        'form-name':         'quote-unlock',
-        'bot-field':         '',
-        'name':              name,
-        'email':             email,
-        'phone':             phone,
-        'property-details':  buildPropertyDetails(),
-        'housekeeping-total': document.getElementById('housekeepingTotal').textContent,
-        'linen-total':        document.getElementById('linenTotal').textContent,
-        'changeover-total':   document.getElementById('grandTotal').textContent,
-      });
-
+      // Save lead to Supabase
       try {
-        await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
-      } catch(e) { /* still reveal even if submit fails */ }
+        await _sb.from('quote_leads').insert({
+          type:               'unlock',
+          name,
+          email,
+          phone,
+          property_details:   buildPropertyDetails(),
+          housekeeping_total: document.getElementById('housekeepingTotal').textContent,
+          linen_total:        document.getElementById('linenTotal').textContent,
+          changeover_total:   document.getElementById('grandTotal').textContent,
+        });
+      } catch(e) { /* reveal pricing regardless */ }
 
       // Reveal pricing
       document.getElementById('quotePanelCard').classList.remove('is-locked');
@@ -1547,17 +1544,31 @@
       btn.disabled = true;
       btn.textContent = 'Sending…';
 
-      const form = document.getElementById('quoteForm');
-      const data = new URLSearchParams(new FormData(form));
+      const name      = document.getElementById('f_name').value.trim();
+      const email     = document.getElementById('f_email').value.trim();
+      const phone     = document.getElementById('f_phone').value.trim();
+      const propName  = document.getElementById('f_propName').value.trim();
+      const notes     = document.getElementById('f_notes').value.trim();
 
       try {
-        const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: data.toString() });
-        if (res.ok) {
-          document.getElementById('modalFormView').style.display  = 'none';
-          document.getElementById('modalSuccessView').style.display = 'block';
-        } else {
-          throw new Error('Server error');
-        }
+        await _sb.from('quote_leads').insert({
+          type:               'request',
+          request_type:       document.getElementById('f_requestType').value,
+          name,
+          email,
+          phone:              phone || null,
+          property_name:      propName || null,
+          property_details:   document.getElementById('f_propertyDetails').value,
+          housekeeping_total: document.getElementById('f_hkTotal').value,
+          linen_total:        document.getElementById('f_linenTotal').value,
+          changeover_total:   document.getElementById('f_changeoverTotal').value,
+          membership_tier:    document.getElementById('f_membershipTier').value,
+          membership_price:   document.getElementById('f_membershipPrice').value,
+          estimated_savings:  document.getElementById('f_savings').value,
+          notes:              notes || null,
+        });
+        document.getElementById('modalFormView').style.display   = 'none';
+        document.getElementById('modalSuccessView').style.display = 'block';
       } catch (err) {
         btn.disabled = false;
         btn.textContent = 'Try again — something went wrong';
@@ -1565,6 +1576,13 @@
     }
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const _sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+  </script>
 
   <!--Start of Tawk.to Script-->
   <script type="text/javascript">
