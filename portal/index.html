@@ -28,7 +28,9 @@
       <button type="submit" class="btn-submit" id="login-btn">Sign in →</button>
     </form>
 
-    <div style="text-align:center;margin-top:20px;">
+    <div id="forgot-msg" class="hidden" style="margin-top:16px;padding:12px 14px;border-radius:8px;background:rgba(91,191,133,0.12);border:1px solid rgba(91,191,133,0.3);font-size:0.82rem;color:#2e7d52;text-align:center;line-height:1.5;"></div>
+
+    <div style="text-align:center;margin-top:16px;">
       <a href="#" id="forgot-link" onclick="forgotPassword(event)" style="font-size:0.78rem;color:var(--g-muted);">Forgot password?</a>
     </div>
   </div>
@@ -74,9 +76,33 @@ async function doLogin(e) {
 async function forgotPassword(e) {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
-  if (!email) { alert('Enter your email address first.'); return; }
-  await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/portal/reset-password.html' });
-  alert('Password reset email sent — check your inbox.');
+  const msg   = document.getElementById('forgot-msg');
+  const link  = document.getElementById('forgot-link');
+  if (!email) {
+    msg.textContent = 'Enter your email address above first.';
+    msg.style.background = 'rgba(220,38,38,0.1)';
+    msg.style.borderColor = 'rgba(220,38,38,0.3)';
+    msg.style.color = '#b91c1c';
+    msg.classList.remove('hidden');
+    return;
+  }
+  link.textContent = 'Sending…';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: location.origin + '/portal/reset-password.html'
+  });
+  link.textContent = 'Forgot password?';
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.background = 'rgba(220,38,38,0.1)';
+    msg.style.borderColor = 'rgba(220,38,38,0.3)';
+    msg.style.color = '#b91c1c';
+  } else {
+    msg.textContent = '📬 Check your inbox — we sent a password reset link to ' + email;
+    msg.style.background = 'rgba(91,191,133,0.12)';
+    msg.style.borderColor = 'rgba(91,191,133,0.3)';
+    msg.style.color = '#2e7d52';
+  }
+  msg.classList.remove('hidden');
 }
 </script>
 
