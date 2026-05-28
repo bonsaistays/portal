@@ -1163,7 +1163,7 @@ async function forgotPw(e) {
   const err   = document.getElementById('si-error');
   if (!email) { err.style.cssText=''; err.textContent = 'Enter your email above first, then tap Forgot password.'; err.classList.remove('hidden'); return; }
   err.classList.add('hidden');
-  await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/portal/reset-password.html' });
+  await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/app/reset-password.html' });
   err.style.background = 'rgba(91,191,133,0.12)';
   err.style.borderColor = 'rgba(91,191,133,0.3)';
   err.style.color = '#5BBF85';
