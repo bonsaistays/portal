@@ -5,6 +5,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bonsai Portal — Members</title>
   <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    /* ── Folio Modal ─────────────────────────────────────── */
+    .folio-modal {
+      max-width: 660px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+    }
+    .folio-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--a-gray-pale);
+      flex-shrink: 0;
+    }
+    .folio-avatar-row { display: flex; align-items: center; gap: 16px; }
+    .folio-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--a-green); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 700; flex-shrink: 0;
+    }
+    .folio-name  { font-size: 1.05rem; font-weight: 700; color: var(--a-charcoal); }
+    .folio-email { font-size: 0.82rem; color: var(--a-gray); margin: 2px 0 8px; }
+    .folio-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .folio-pts { font-size: 0.8rem; font-weight: 600; color: var(--a-green); }
+    .folio-num { font-size: 0.78rem; font-family: monospace; color: var(--a-gray); }
+
+    /* ── Tabs ───────────────────────────────────────────── */
+    .folio-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--a-gray-pale);
+      flex-shrink: 0;
+      padding: 0 24px;
+    }
+    .folio-tab {
+      padding: 12px 16px;
+      font-size: 0.83rem; font-weight: 600;
+      color: var(--a-gray);
+      background: none;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .folio-tab:hover { color: var(--a-green); }
+    .folio-tab.active { color: var(--a-green); border-bottom-color: var(--a-green); }
+
+    /* ── Panels ─────────────────────────────────────────── */
+    .folio-body { flex: 1; overflow-y: auto; padding: 20px 24px 24px; }
+    .folio-panel { display: block; }
+    .folio-panel.hidden { display: none !important; }
+
+    .folio-section-label {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--a-green); margin-bottom: 10px;
+    }
+
+    /* ── Overview ───────────────────────────────────────── */
+    .folio-info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 4px;
+    }
+    .folio-info-cell {
+      background: var(--a-bg); border-radius: 8px; padding: 10px 14px;
+    }
+    .folio-info-cell .lbl { font-size: 0.7rem; color: var(--a-gray); margin-bottom: 3px; }
+    .folio-info-cell .val { font-size: 0.88rem; font-weight: 600; color: var(--a-charcoal); }
+
+    .survey-answer-row {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 12px 0; border-bottom: 1px solid var(--a-gray-pale);
+    }
+    .survey-answer-row:last-child { border-bottom: none; }
+    .survey-q-label { font-size: 0.78rem; color: var(--a-gray); font-weight: 500; }
+    .survey-ans-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .survey-ans-chip {
+      padding: 4px 12px; border-radius: 50px;
+      background: var(--a-green-tint); color: var(--a-green);
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .survey-empty {
+      font-size: 0.83rem; color: var(--a-gray);
+      font-style: italic; padding: 16px 0;
+    }
+
+    /* ── Preference chips ───────────────────────────────── */
+    .pref-chips {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px;
+    }
+    .pref-chip {
+      padding: 7px 14px; border-radius: 50px;
+      border: 1.5px solid var(--a-gray-pale);
+      background: #fff; color: var(--a-charcoal);
+      font-size: 0.82rem; font-weight: 500;
+      transition: all 0.15s ease; cursor: pointer;
+    }
+    .pref-chip:hover { border-color: var(--a-green); color: var(--a-green); }
+    .pref-chip.selected {
+      background: var(--a-green); border-color: var(--a-green);
+      color: #fff; font-weight: 600;
+    }
+
+    /* ── Tags ───────────────────────────────────────────── */
+    .tag-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 50px;
+      background: var(--a-charcoal); color: #fff;
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .tag-remove {
+      background: none; color: rgba(255,255,255,0.6);
+      font-size: 0.85rem; line-height: 1; padding: 0;
+      transition: color 0.15s;
+    }
+    .tag-remove:hover { color: #fff; }
+  </style>
 </head>
 <body class="admin-body">
 
@@ -81,60 +202,151 @@
 </main>
 
 
-<!-- ═══ Member Detail / Points Modal ═════════════════════════════════════ -->
+<!-- ═══ Member Folio Modal ════════════════════════════════════════════════ -->
 <div class="modal-overlay hidden" id="modal-member">
-  <div class="modal" style="max-width:560px;">
-    <div class="modal-header">
-      <h3 id="modal-mem-title">Member Details</h3>
+  <div class="modal folio-modal">
+
+    <!-- Header -->
+    <div class="folio-header">
+      <div class="folio-avatar-row">
+        <div id="modal-avatar" class="folio-avatar"></div>
+        <div>
+          <div id="modal-mem-name" class="folio-name"></div>
+          <div id="modal-mem-email" class="folio-email"></div>
+          <div class="folio-badges">
+            <span id="modal-tier-badge" class="status-badge"></span>
+            <span id="modal-mem-pts" class="folio-pts"></span>
+            <span id="modal-mem-num" class="folio-num"></span>
+          </div>
+        </div>
+      </div>
       <button class="btn-modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body">
 
-      <!-- Member summary -->
-      <div id="modal-mem-summary" style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--a-gray-pale);border-radius:10px;margin-bottom:20px;">
-        <div id="modal-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--a-green);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0;"></div>
-        <div>
-          <div id="modal-mem-name" style="font-size:1rem;font-weight:700;color:var(--a-dark);"></div>
-          <div id="modal-mem-email" style="font-size:0.83rem;color:var(--a-gray);"></div>
-          <div style="display:flex;gap:8px;margin-top:6px;">
-            <span id="modal-tier-badge" class="status-badge"></span>
-            <span id="modal-mem-pts" style="font-size:0.83rem;font-weight:600;color:var(--a-green);"></span>
-          </div>
-        </div>
+    <!-- Tabs -->
+    <div class="folio-tabs">
+      <button class="folio-tab active" data-panel="overview" onclick="switchFolioTab('overview',this)">📋 Overview</button>
+      <button class="folio-tab" data-panel="folio" onclick="switchFolioTab('folio',this)">✨ Preferences</button>
+      <button class="folio-tab" data-panel="points" onclick="switchFolioTab('points',this)">💎 Points</button>
+    </div>
+
+    <!-- Scrollable body -->
+    <div class="modal-body folio-body">
+
+      <!-- ── OVERVIEW ─────────────────────────────────── -->
+      <div class="folio-panel" id="panel-overview">
+        <div class="folio-section-label">Member Info</div>
+        <div class="folio-info-grid" id="overview-info-grid"></div>
+        <div class="folio-section-label" style="margin-top:20px;">From Their Questionnaire</div>
+        <div id="overview-survey"></div>
       </div>
 
-      <!-- Adjust points -->
-      <div style="border:1px solid var(--a-gray-pale);border-radius:10px;padding:16px;margin-bottom:20px;">
-        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-green);margin:0 0 12px;">Adjust Points</p>
+      <!-- ── PREFERENCES ──────────────────────────────── -->
+      <div class="folio-panel hidden" id="panel-folio">
+
+        <div class="folio-section-label">🍽️ Dietary &amp; Food Needs</div>
+        <div class="pref-chips" data-pref="dietary">
+          <button class="pref-chip" data-val="vegetarian">Vegetarian</button>
+          <button class="pref-chip" data-val="vegan">Vegan</button>
+          <button class="pref-chip" data-val="gluten_free">Gluten-free</button>
+          <button class="pref-chip" data-val="dairy_free">Dairy-free</button>
+          <button class="pref-chip" data-val="nut_allergy">⚠️ Nut allergy</button>
+          <button class="pref-chip" data-val="shellfish_allergy">⚠️ Shellfish allergy</button>
+          <button class="pref-chip" data-val="halal">Halal</button>
+          <button class="pref-chip" data-val="kosher">Kosher</button>
+          <button class="pref-chip" data-val="no_alcohol">No alcohol</button>
+        </div>
+
+        <div class="folio-section-label" style="margin-top:18px;">🏡 Property Must-Haves</div>
+        <div class="pref-chips" data-pref="property">
+          <button class="pref-chip" data-val="hot_tub">Hot tub</button>
+          <button class="pref-chip" data-val="pool">Pool</button>
+          <button class="pref-chip" data-val="fireplace">Fireplace</button>
+          <button class="pref-chip" data-val="waterfront">Waterfront</button>
+          <button class="pref-chip" data-val="quiet_private">Quiet &amp; private</button>
+          <button class="pref-chip" data-val="pet_friendly">Pet-friendly</button>
+          <button class="pref-chip" data-val="full_kitchen">Full kitchen</button>
+          <button class="pref-chip" data-val="ground_floor">Ground floor</button>
+          <button class="pref-chip" data-val="ev_charger">EV charger</button>
+          <button class="pref-chip" data-val="accessible">Accessibility needs</button>
+        </div>
+
+        <div class="folio-section-label" style="margin-top:18px;">✨ Favourite In-Stay Extras</div>
+        <div class="pref-chips" data-pref="extras">
+          <button class="pref-chip" data-val="massage">Massage</button>
+          <button class="pref-chip" data-val="private_chef">Private chef</button>
+          <button class="pref-chip" data-val="yoga">Yoga / fitness</button>
+          <button class="pref-chip" data-val="wine">Wine &amp; spirits</button>
+          <button class="pref-chip" data-val="flowers">Fresh flowers</button>
+          <button class="pref-chip" data-val="charcuterie">Charcuterie board</button>
+          <button class="pref-chip" data-val="early_checkin">Early check-in</button>
+          <button class="pref-chip" data-val="late_checkout">Late check-out</button>
+          <button class="pref-chip" data-val="baby_gear">Baby gear</button>
+          <button class="pref-chip" data-val="bonfire">Bonfire kit</button>
+        </div>
+
+        <div class="folio-section-label" style="margin-top:18px;">🐾 Pets</div>
+        <input class="form-input" id="pref-pets" type="text" placeholder="e.g. Golden retriever named Max, 2 cats" />
+
+        <div class="folio-section-label" style="margin-top:18px;">🎂 Special Occasions</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
-            <label class="form-label">Points (use – for deduct)</label>
-            <input class="form-input" id="adj-points" type="number" placeholder="e.g. 100 or -50" />
+            <label class="form-label">Birthday</label>
+            <input class="form-input" id="pref-birthday" type="date" />
           </div>
           <div>
-            <label class="form-label">Type</label>
-            <select class="form-input" id="adj-type">
-              <option value="bonus">Bonus</option>
-              <option value="earned">Earned</option>
-              <option value="redeemed">Redeemed</option>
-              <option value="adjusted">Adjusted</option>
-            </select>
+            <label class="form-label">Anniversary</label>
+            <input class="form-input" id="pref-anniversary" type="date" />
           </div>
           <div style="grid-column:1/-1;">
-            <label class="form-label">Description / Reason</label>
-            <input class="form-input" id="adj-desc" type="text" placeholder="e.g. Welcome bonus, Completed stay at Muskoka cabin…" />
+            <label class="form-label">Other occasion notes</label>
+            <input class="form-input" id="pref-occasions-note" type="text" placeholder="e.g. Always travels on their anniversary in July" />
           </div>
         </div>
-        <button class="btn-primary" style="margin-top:12px;" onclick="saveAdjust()">Apply Points</button>
+
+        <div class="folio-section-label" style="margin-top:18px;">📝 Private Admin Notes</div>
+        <textarea class="form-input" id="pref-notes" rows="3" placeholder="Only visible to the Bonsai team — e.g. Very detail-oriented, loves a handwritten welcome note…" style="resize:vertical;"></textarea>
+
+        <div class="folio-section-label" style="margin-top:18px;">🏷️ Tags</div>
+        <div id="pref-tags-wrap" style="display:flex;flex-wrap:wrap;gap:8px;min-height:32px;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input class="form-input" id="pref-tag-input" type="text" placeholder="Add tag… e.g. VIP, Corporate, Media" style="flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}" />
+          <button class="btn-ghost" onclick="addTag()" style="padding:0 18px;flex-shrink:0;">+ Add</button>
+        </div>
+
+        <button class="btn-primary" style="margin-top:24px;width:100%;" onclick="saveFolio()">Save Preferences</button>
       </div>
 
-      <!-- Points history -->
-      <div>
-        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-gray);margin:0 0 10px;">Points History</p>
-        <div id="modal-history" style="max-height:220px;overflow-y:auto;"></div>
+      <!-- ── POINTS ────────────────────────────────────── -->
+      <div class="folio-panel hidden" id="panel-points">
+        <div style="border:1px solid var(--a-gray-pale);border-radius:10px;padding:16px;margin-bottom:20px;">
+          <p class="folio-section-label" style="margin-bottom:12px;">Adjust Points</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label class="form-label">Points (use – to deduct)</label>
+              <input class="form-input" id="adj-points" type="number" placeholder="e.g. 100 or -50" />
+            </div>
+            <div>
+              <label class="form-label">Type</label>
+              <select class="form-input" id="adj-type">
+                <option value="bonus">Bonus</option>
+                <option value="earned">Earned</option>
+                <option value="redeemed">Redeemed</option>
+                <option value="adjusted">Adjusted</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1;">
+              <label class="form-label">Description / Reason</label>
+              <input class="form-input" id="adj-desc" type="text" placeholder="e.g. Welcome bonus, Completed stay at Muskoka cabin…" />
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:12px;" onclick="saveAdjust()">Apply Points</button>
+        </div>
+        <p class="folio-section-label" style="margin-bottom:10px;">Points History</p>
+        <div id="modal-history" style="max-height:260px;overflow-y:auto;"></div>
       </div>
 
-    </div>
+    </div><!-- /folio-body -->
   </div>
 </div>
 
@@ -241,50 +453,231 @@ function setTier(val, el) {
   renderTable();
 }
 
-// ── Member modal ──────────────────────────────────────────
+// ── Survey label maps ─────────────────────────────────────
+const SURVEY_LABELS = {
+  travel_with: {
+    solo: '🙋 Solo traveller', couple: '💑 Couple',
+    family: '👨‍👩‍👧 Family with kids', group: '👯 Group of friends'
+  },
+  stay_types: {
+    lakeside: '🏞️ Lakeside cottage', ski_chalet: '⛷️ Ski chalet',
+    forest_cabin: '🌲 Forest cabin', urban: '🏙️ Urban retreat',
+    beachfront: '🏖️ Beachfront', farm: '🌾 Farm stay'
+  },
+  interests: {
+    spa: '🧘 Spa & wellness', outdoors: '🥾 Outdoor adventures',
+    food_wine: '🍷 Food & wine', pet_friendly: '🐾 Pet-friendly',
+    remote: '🔕 Remote & private', family_fun: '🎲 Family activities'
+  },
+  travel_frequency: {
+    '1': 'Once a year', '2_3': '2–3 times a year',
+    '4_5': '4–5 times a year', '6plus': '6+ times a year'
+  },
+  regions: {
+    muskoka: 'Muskoka', collingwood: 'Collingwood',
+    blue_mountains: 'Blue Mountains', pec: 'Prince Edward County',
+    niagara: 'Niagara', everywhere: 'Everywhere ✈️'
+  },
+  referral_source: {
+    google: '🔍 Google search', instagram: '📸 Instagram',
+    word_of_mouth: '🗣️ Word of mouth', airbnb: '🏠 Found on Airbnb', other: '✨ Other'
+  },
+};
+const SURVEY_QUESTIONS = {
+  travel_with:      'Who they travel with',
+  stay_types:       'Ideal stay type',
+  interests:        'What matters most',
+  travel_frequency: 'Travel frequency',
+  regions:          'Preferred regions',
+  referral_source:  'How they found us',
+};
+
+// ── Folio tab switching ───────────────────────────────────
+function switchFolioTab(panel, el) {
+  document.querySelectorAll('.folio-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.folio-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('panel-' + panel).classList.remove('hidden');
+}
+
+// ── Open member folio ─────────────────────────────────────
 async function openMemberModal(id) {
   currentMemberId = id;
   const m = allMembers.find(x => x.id === id);
   if (!m) return;
 
-  const tc = TIER_COLORS[m.tier] || TIER_COLORS.Classic;
-  document.getElementById('modal-mem-title').textContent = 'Member Details';
+  // Reset to first tab
+  document.querySelectorAll('.folio-tab').forEach((b, i) => b.classList.toggle('active', i === 0));
+  document.querySelectorAll('.folio-panel').forEach((p, i) => p.classList.toggle('hidden', i !== 0));
+
+  // Header
+  const tc = TIER_COLORS[m.tier] || { bg: '#1a1a1a', color: '#fff' };
   document.getElementById('modal-avatar').textContent = (m.name || '?')[0].toUpperCase();
-  document.getElementById('modal-mem-name').textContent = m.name;
-  document.getElementById('modal-mem-email').textContent = m.email + (m.phone ? ' · ' + m.phone : '');
+  document.getElementById('modal-mem-name').textContent = m.name || '—';
+  document.getElementById('modal-mem-email').textContent = m.email + (m.phone ? '  ·  ' + m.phone : '');
   document.getElementById('modal-tier-badge').textContent = m.tier;
-  document.getElementById('modal-tier-badge').style.background = tc.bg;
-  document.getElementById('modal-tier-badge').style.color = tc.color;
-  document.getElementById('modal-mem-pts').textContent = (m.points || 0).toLocaleString() + ' points · ' + (m.total_stays || 0) + ' stays';
-  document.getElementById('adj-points').value = '';
-  document.getElementById('adj-desc').value = '';
+  document.getElementById('modal-tier-badge').style.cssText = `background:${tc.bg};color:${tc.color};`;
+  document.getElementById('modal-mem-pts').textContent = (m.points || 0).toLocaleString() + ' pts  ·  ' + (m.total_stays || 0) + ' stays';
+  document.getElementById('modal-mem-num').textContent = m.member_number || '';
 
-  // Load history
-  const { data: hist } = await sb.from('points_history')
-    .select('*').eq('member_id', id).order('created_at', { ascending: false }).limit(30);
+  renderOverview(m);
+  renderFolioPrefs(m);
 
-  const histEl = document.getElementById('modal-history');
-  if (!hist || !hist.length) {
-    histEl.innerHTML = '<p style="font-size:0.83rem;color:var(--a-gray);text-align:center;padding:16px 0;">No points history yet</p>';
-  } else {
-    histEl.innerHTML = hist.map(h => {
-      const positive = h.points > 0;
-      const d = new Date(h.created_at).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' });
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--a-gray-pale);">
-        <div>
-          <div style="font-size:0.85rem;color:var(--a-dark);">${h.description}</div>
-          <div style="font-size:0.75rem;color:var(--a-gray);">${d} · ${h.type}</div>
-        </div>
-        <div style="font-weight:700;font-size:0.9rem;color:${positive ? '#1a7a1a' : '#c0392b'};">${positive ? '+' : ''}${h.points}</div>
-      </div>`;
-    }).join('');
-  }
+  // Load points history (lazy — only populates when tab is visible)
+  loadPointsHistory(id);
 
   document.getElementById('modal-member').classList.remove('hidden');
 }
 
+// ── Overview tab ──────────────────────────────────────────
+function renderOverview(m) {
+  // Info grid
+  const since = m.member_since
+    ? new Date(m.member_since).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })
+    : '—';
+  const joined = m.created_at
+    ? new Date(m.created_at).toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' })
+    : '—';
+
+  document.getElementById('overview-info-grid').innerHTML = [
+    { lbl: 'Member Since', val: since },
+    { lbl: 'Member Number', val: `<span style="font-family:monospace;color:var(--a-green);">${m.member_number || '—'}</span>` },
+    { lbl: 'Total Stays', val: m.total_stays || 0 },
+    { lbl: 'Points Balance', val: `<span style="color:var(--a-green);">${(m.points || 0).toLocaleString()}</span>` },
+    { lbl: 'Phone', val: m.phone || '—' },
+    { lbl: 'Account Created', val: joined },
+  ].map(c => `<div class="folio-info-cell"><div class="lbl">${c.lbl}</div><div class="val">${c.val}</div></div>`).join('');
+
+  // Survey answers
+  const profile = m.profile || {};
+  const hasAny = Object.keys(SURVEY_QUESTIONS).some(k => profile[k] && (Array.isArray(profile[k]) ? profile[k].length : true));
+  const surveyEl = document.getElementById('overview-survey');
+
+  if (!hasAny) {
+    surveyEl.innerHTML = '<p class="survey-empty">This member hasn\'t completed the onboarding questionnaire yet.</p>';
+    return;
+  }
+
+  surveyEl.innerHTML = Object.entries(SURVEY_QUESTIONS).map(([key, question]) => {
+    const raw = profile[key];
+    if (!raw || (Array.isArray(raw) && !raw.length)) return '';
+    const vals = Array.isArray(raw) ? raw : [raw];
+    const chips = vals.map(v => {
+      const label = (SURVEY_LABELS[key] || {})[v] || v;
+      return `<span class="survey-ans-chip">${label}</span>`;
+    }).join('');
+    return `<div class="survey-answer-row">
+      <div class="survey-q-label">${question}</div>
+      <div class="survey-ans-chips">${chips}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Preferences tab ───────────────────────────────────────
+function renderFolioPrefs(m) {
+  const prefs = m.preferences || {};
+
+  // Chips: clear all, then select saved
+  document.querySelectorAll('.pref-chips').forEach(group => {
+    const key = group.dataset.pref;
+    const saved = prefs[key] || [];
+    group.querySelectorAll('.pref-chip').forEach(chip => {
+      chip.classList.toggle('selected', saved.includes(chip.dataset.val));
+      chip.onclick = () => chip.classList.toggle('selected');
+    });
+  });
+
+  // Text fields
+  document.getElementById('pref-pets').value           = prefs.pets || '';
+  document.getElementById('pref-birthday').value       = prefs.birthday || '';
+  document.getElementById('pref-anniversary').value    = prefs.anniversary || '';
+  document.getElementById('pref-occasions-note').value = prefs.occasions_note || '';
+  document.getElementById('pref-notes').value          = prefs.admin_notes || '';
+
+  // Tags
+  _currentTags = Array.isArray(prefs.tags) ? [...prefs.tags] : [];
+  renderTags();
+}
+
+// ── Tags ──────────────────────────────────────────────────
+let _currentTags = [];
+
+function renderTags() {
+  document.getElementById('pref-tags-wrap').innerHTML = _currentTags.map(t =>
+    `<span class="tag-pill">${t}<button class="tag-remove" onclick="removeTag('${t.replace(/'/g,"\\'")}')">✕</button></span>`
+  ).join('');
+}
+function addTag() {
+  const inp = document.getElementById('pref-tag-input');
+  const val = inp.value.trim();
+  if (!val || _currentTags.includes(val)) { inp.value = ''; return; }
+  _currentTags.push(val);
+  inp.value = '';
+  renderTags();
+}
+function removeTag(t) {
+  _currentTags = _currentTags.filter(x => x !== t);
+  renderTags();
+}
+
+// ── Save preferences ──────────────────────────────────────
+async function saveFolio() {
+  if (!currentMemberId) return;
+  const btn = document.querySelector('#panel-folio .btn-primary');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+
+  const prefs = {};
+
+  // Collect chip groups
+  document.querySelectorAll('.pref-chips').forEach(group => {
+    const key = group.dataset.pref;
+    prefs[key] = [...group.querySelectorAll('.pref-chip.selected')].map(c => c.dataset.val);
+  });
+
+  // Text fields
+  prefs.pets           = document.getElementById('pref-pets').value.trim();
+  prefs.birthday       = document.getElementById('pref-birthday').value;
+  prefs.anniversary    = document.getElementById('pref-anniversary').value;
+  prefs.occasions_note = document.getElementById('pref-occasions-note').value.trim();
+  prefs.admin_notes    = document.getElementById('pref-notes').value.trim();
+  prefs.tags           = _currentTags;
+
+  const { error } = await sb.from('members').update({ preferences: prefs }).eq('id', currentMemberId);
+  if (error) {
+    showToast('Error saving: ' + error.message, 'error');
+  } else {
+    // Update local cache
+    const idx = allMembers.findIndex(x => x.id === currentMemberId);
+    if (idx > -1) allMembers[idx].preferences = prefs;
+    showToast('Preferences saved ✓');
+  }
+
+  btn.textContent = 'Save Preferences'; btn.disabled = false;
+}
+
+// ── Points history ────────────────────────────────────────
+async function loadPointsHistory(id) {
+  const { data: hist } = await sb.from('points_history')
+    .select('*').eq('member_id', id).order('created_at', { ascending: false }).limit(40);
+  const histEl = document.getElementById('modal-history');
+  if (!hist || !hist.length) {
+    histEl.innerHTML = '<p style="font-size:0.83rem;color:var(--a-gray);text-align:center;padding:16px 0;">No points history yet</p>';
+    return;
+  }
+  histEl.innerHTML = hist.map(h => {
+    const positive = h.points > 0;
+    const d = new Date(h.created_at).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' });
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--a-gray-pale);">
+      <div>
+        <div style="font-size:0.85rem;color:var(--a-charcoal);">${h.description}</div>
+        <div style="font-size:0.75rem;color:var(--a-gray);">${d} · ${h.type}</div>
+      </div>
+      <div style="font-weight:700;font-size:0.9rem;color:${positive?'#1a7a1a':'#c0392b'};flex-shrink:0;margin-left:12px;">${positive?'+':''}${h.points}</div>
+    </div>`;
+  }).join('');
+}
+
 function openAdjustModal(id) {
-  // If no specific member, just open modal — admin must pick from table
   if (!id) { showToast('Click "Details" on a member to adjust their points', 'error'); return; }
   openMemberModal(id);
 }
@@ -296,44 +689,27 @@ function closeModal() {
 
 async function saveAdjust() {
   if (!currentMemberId) return;
-  const pts = parseInt(document.getElementById('adj-points').value);
+  const pts  = parseInt(document.getElementById('adj-points').value);
   const type = document.getElementById('adj-type').value;
   const desc = document.getElementById('adj-desc').value.trim();
-
   if (isNaN(pts) || pts === 0) { showToast('Enter a non-zero point amount', 'error'); return; }
   if (!desc) { showToast('Please add a description', 'error'); return; }
 
   const m = allMembers.find(x => x.id === currentMemberId);
   if (!m) return;
-
   const newPoints = Math.max(0, (m.points || 0) + pts);
-
-  // Calculate new tier
   let newTier = 'Black';
   if (newPoints >= 10000) newTier = 'Platinum';
   else if (newPoints >= 2000) newTier = 'Gold';
 
-  // Insert history entry
-  const { error: hErr } = await sb.from('points_history').insert({
-    member_id: currentMemberId,
-    points: pts,
-    type,
-    description: desc,
-  });
+  const { error: hErr } = await sb.from('points_history').insert({ member_id: currentMemberId, points: pts, type, description: desc });
   if (hErr) { showToast('Error: ' + hErr.message, 'error'); return; }
-
-  // Update member
-  const { error: mErr } = await sb.from('members').update({
-    points: newPoints,
-    tier: newTier,
-  }).eq('id', currentMemberId);
+  const { error: mErr } = await sb.from('members').update({ points: newPoints, tier: newTier }).eq('id', currentMemberId);
   if (mErr) { showToast('Error: ' + mErr.message, 'error'); return; }
 
   showToast(`${pts > 0 ? '+' : ''}${pts} points applied!`);
   await loadMembers();
-  // Refresh modal
-  const updated = allMembers.find(x => x.id === currentMemberId);
-  if (updated) openMemberModal(currentMemberId);
+  openMemberModal(currentMemberId);
 }
 
 // ── Toast ──────────────────────────────────────────────────
