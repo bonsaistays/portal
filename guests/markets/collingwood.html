@@ -80,16 +80,26 @@
     .loading-state { text-align: center; padding: 60px 0; color: var(--gray-mid); font-size: 0.95rem; grid-column: 1/-1; }
     .no-results { text-align: center; padding: 60px 0; grid-column: 1/-1; }
 
-    .partners-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    @media (max-width: 900px) { .partners-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 540px) { .partners-grid { grid-template-columns: 1fr; } }
-
-    .partner-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px 24px; border: 1.5px solid var(--gray-pale); box-shadow: var(--shadow-card); transition: var(--transition); }
-    .partner-card:hover { box-shadow: var(--shadow-hover); border-color: var(--green-light); }
-    .partner-card-icon { font-size: 2rem; margin-bottom: 14px; }
-    .partner-card-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 6px; }
-    .partner-card h4 { font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; }
-    .partner-card p { font-size: 0.83rem; color: var(--gray-mid); line-height: 1.65; }
+    /* Local partner cards */
+    .local-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .local-cat-chip { padding: 8px 18px; border-radius: 100px; border: 1.5px solid var(--gray-pale); font-size: 0.8rem; font-weight: 600; color: var(--gray-mid); background: var(--white); cursor: pointer; transition: var(--transition); }
+    .local-cat-chip.active, .local-cat-chip:hover { background: var(--green-deep); border-color: var(--green-deep); color: var(--white); }
+    .biz-grid-web { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; min-height: 120px; }
+    @media (max-width: 900px) { .biz-grid-web { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 520px) { .biz-grid-web { grid-template-columns: 1fr; } }
+    .biz-card-web { background: var(--white); border-radius: var(--radius-lg); overflow: hidden; border: 1.5px solid var(--gray-pale); box-shadow: var(--shadow-card); transition: var(--transition); display: flex; flex-direction: column; }
+    .biz-card-web:hover { box-shadow: var(--shadow-hover); border-color: var(--green-light); transform: translateY(-3px); }
+    .biz-card-photo { width: 100%; aspect-ratio: 16/9; background: var(--cream); overflow: hidden; }
+    .biz-card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .biz-card-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; background: var(--cream); min-height: 140px; }
+    .biz-card-body { padding: 18px 20px 16px; flex: 1; display: flex; flex-direction: column; }
+    .biz-card-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 5px; }
+    .biz-card-name { font-size: 1rem; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
+    .biz-card-desc { font-size: 0.82rem; color: var(--gray-mid); line-height: 1.65; flex: 1; }
+    .biz-deal-badge { display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; padding: 5px 12px; background: linear-gradient(135deg, var(--gold), #E8C98A); color: #fff; border-radius: 100px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; width: fit-content; }
+    .biz-empty-state { grid-column: 1/-1; text-align: center; padding: 56px 20px; }
+    .biz-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .biz-empty-state h4 { margin-bottom: 8px; color: var(--charcoal); }
 
     /* Seasons toggle */
     .seasons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
@@ -248,54 +258,31 @@
     </div>
   </section>
 
-  <!-- Experiences & Partners -->
-  <section class="section" style="background:var(--cream);">
+  <!-- Local Partners -->
+  <section class="section" style="background:var(--cream);" id="local-partners">
     <div class="container">
-      <div class="section-header text-center">
-        <span class="eyebrow">Local Experiences</span>
-        <h2>Curated for <em>every season.</em></h2>
-        <p>Our Collingwood partners offer experiences that match the mountain and bay lifestyle — from the slopes to the spa.</p>
+      <div class="section-header" style="margin-bottom:28px;">
+        <div>
+          <span class="eyebrow">Local Partners</span>
+          <h2>The best of <em>Collingwood.</em></h2>
+          <p>Hand-picked local businesses Bonsai Stays guests love. Bon Voyage members get exclusive deals.</p>
+        </div>
+        <a href="../../app/" class="btn btn-outline" style="flex-shrink:0;align-self:flex-start;">Get Member Deals →</a>
       </div>
-      <div class="partners-grid">
-        <div class="partner-card">
-          <div class="partner-card-icon">⛷️</div>
-          <div class="partner-card-tag">Winter</div>
-          <h4>Ski &amp; Snowboard Packages</h4>
-          <p>Lift tickets, equipment rental, and lesson bookings at Blue Mountain and nearby hills — all arranged before you arrive. No queues, no last-minute stress.</p>
-        </div>
-        <div class="partner-card">
-          <div class="partner-card-icon">🧖</div>
-          <div class="partner-card-tag">Recovery</div>
-          <h4>Spa &amp; Après-Ski Recovery</h4>
-          <p>In-chalet massage therapy and recovery sessions after a day on the slopes. Deep tissue, hot stone, or a full couples' spa afternoon in your own space.</p>
-        </div>
-        <div class="partner-card">
-          <div class="partner-card-icon">👨‍🍳</div>
-          <div class="partner-card-tag">Dining</div>
-          <h4>Private Chef</h4>
-          <p>A local chef arrives to cook for your group using Georgian Bay-region ingredients. Perfect for group getaways where eating together is part of the weekend.</p>
-        </div>
-        <div class="partner-card">
-          <div class="partner-card-icon">🏄</div>
-          <div class="partner-card-tag">Summer</div>
-          <h4>Paddleboard &amp; Kayak</h4>
-          <p>Georgian Bay flat-water paddling delivered to your accommodation. Guided sunrise tours and full-day rentals available through our local partners.</p>
-        </div>
-        <div class="partner-card">
-          <div class="partner-card-icon">🍷</div>
-          <div class="partner-card-tag">Food &amp; Drink</div>
-          <h4>Wine &amp; Cheese Tastings</h4>
-          <p>A curated selection from Georgian Bay and Niagara wineries, paired with artisan cheeses and locally sourced charcuterie — delivered to your chalet or suite.</p>
-        </div>
-        <div class="partner-card">
-          <div class="partner-card-icon">🧘</div>
-          <div class="partner-card-tag">Wellness</div>
-          <h4>Yoga Retreats</h4>
-          <p>Morning yoga sessions led by certified instructors, inside your chalet or on the deck overlooking the mountain or bay. Group and private formats available.</p>
-        </div>
+      <div class="local-cats">
+        <button class="local-cat-chip active" onclick="filterPartners('all',this)">All</button>
+        <button class="local-cat-chip" onclick="filterPartners('Restaurant',this)">🍽️ Eat</button>
+        <button class="local-cat-chip" onclick="filterPartners('Cafe',this)">☕ Café</button>
+        <button class="local-cat-chip" onclick="filterPartners('Bar',this)">🍷 Drink</button>
+        <button class="local-cat-chip" onclick="filterPartners('Spa',this)">💆 Spa</button>
+        <button class="local-cat-chip" onclick="filterPartners('Activity',this)">🎯 Do</button>
+        <button class="local-cat-chip" onclick="filterPartners('Shop',this)">🛍️ Shop</button>
       </div>
-      <div style="text-align:center;margin-top:40px;">
-        <a href="../experiences.html" class="btn btn-primary btn-lg">Book an Experience →</a>
+      <div class="biz-grid-web" id="bizGridWeb">
+        <div class="biz-empty-state">
+          <div class="biz-empty-icon">⏳</div>
+          <h4>Loading local partners…</h4>
+        </div>
       </div>
     </div>
   </section>
@@ -437,6 +424,62 @@
     }
 
     loadProperties();
+
+    // Local Partners
+    const MARKET_REGION = 'Collingwood';
+    let _allPartners = [], _activeCat = 'all';
+
+    async function loadLocalPartners() {
+      try {
+        const { data, error } = await sb
+          .from('businesses')
+          .select('*')
+          .eq('active', true)
+          .ilike('region', '%' + MARKET_REGION + '%')
+          .order('name');
+        _allPartners = data || [];
+      } catch(e) {
+        _allPartners = [];
+      }
+      renderPartners();
+    }
+
+    function filterPartners(cat, btn) {
+      _activeCat = cat;
+      document.querySelectorAll('.local-cat-chip').forEach(b => b.classList.toggle('active', b === btn));
+      renderPartners();
+    }
+
+    function renderPartners() {
+      const grid = document.getElementById('bizGridWeb');
+      const emo = { Restaurant:'🍽️', Activity:'🎯', Shop:'🛍️', Spa:'💆', Cafe:'☕', Bar:'🍷' };
+      const list = _activeCat === 'all' ? _allPartners : _allPartners.filter(b => b.category === _activeCat);
+      if (!list.length) {
+        grid.innerHTML = `
+          <div class="biz-empty-state">
+            <div class="biz-empty-icon">${_activeCat === 'all' ? '🏔️' : (emo[_activeCat] || '🏪')}</div>
+            <h4>${_activeCat === 'all' ? 'Partners coming soon' : 'No partners in this category yet'}</h4>
+            <p style="color:var(--gray-mid);font-size:0.85rem;">We're curating the best of Collingwood — check back soon.</p>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = list.map(b => `
+        <div class="biz-card-web">
+          <div class="biz-card-photo">
+            ${b.photo_url
+              ? `<img src="${b.photo_url}" alt="${b.name}" loading="lazy" />`
+              : `<div class="biz-card-photo-placeholder">${emo[b.category] || '🏪'}</div>`}
+          </div>
+          <div class="biz-card-body">
+            <div class="biz-card-tag">${b.category || ''} · ${b.region || ''}</div>
+            <div class="biz-card-name">${b.name}</div>
+            <div class="biz-card-desc">${b.description || ''}</div>
+            ${b.deal_description ? `<div class="biz-deal-badge">🏷️ Bon Voyage Deal</div>` : ''}
+          </div>
+        </div>`).join('');
+    }
+
+    loadLocalPartners();
   </script>
 
   <!-- Tawk.to -->
