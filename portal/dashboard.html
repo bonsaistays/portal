@@ -150,6 +150,13 @@
         <div style="font-size:0.75rem;color:var(--a-gray);margin-top:8px;">Send this link to your guest — they'll use it to check in, access their door code, and message you.</div>
       </div>
 
+      <div id="nb-invite-wrap" class="hidden" style="margin-top:16px;background:var(--a-green-tint);border:1.5px solid var(--a-sage);border-radius:12px;padding:16px;">
+        <label class="admin-label" style="color:var(--a-sage);">🌿 Bon Voyage App Invite Code</label>
+        <div style="font-size:1.3rem;font-weight:800;letter-spacing:0.12em;color:var(--a-green);margin:8px 0 4px;" id="nb-invite-code">—</div>
+        <div style="font-size:0.75rem;color:var(--a-gray);margin-bottom:10px;">Share this code with your guest so they can sign up to the Bon Voyage app and access property info, door code, and earn points.</div>
+        <button class="btn-copy-link" onclick="copyInvite()">📋 Copy invite code</button>
+      </div>
+
       <div id="nb-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--a-red);font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
 
     </div>
@@ -279,6 +286,7 @@ function renderTable(bookings) {
 // ── New booking modal ─────────────────────────────────────────────────────
 function openNewBookingModal() {
   document.getElementById('nb-link-wrap').classList.add('hidden');
+  document.getElementById('nb-invite-wrap').classList.add('hidden');
   document.getElementById('nb-error').classList.add('hidden');
   document.getElementById('nb-save-btn').textContent = 'Create Booking';
   document.getElementById('nb-save-btn').disabled = false;
@@ -331,6 +339,17 @@ async function saveNewBooking() {
   const link = location.origin + '/portal/guest/?token=' + data.token;
   document.getElementById('nb-link').textContent = link;
   document.getElementById('nb-link-wrap').classList.remove('hidden');
+
+  // Auto-generate an app invite code for this booking
+  const inviteCode = genInviteCode();
+  await sb.from('invite_codes').insert({
+    code:       inviteCode,
+    type:       'booking',
+    booking_id: data.id,
+  });
+  document.getElementById('nb-invite-code').textContent = inviteCode;
+  document.getElementById('nb-invite-wrap').classList.remove('hidden');
+
   btn.textContent = '✓ Created!';
   await loadBookings();
 }
@@ -338,6 +357,17 @@ async function saveNewBooking() {
 function copyGuestLink(elId) {
   const txt = document.getElementById(elId).textContent.trim();
   navigator.clipboard.writeText(txt).then(() => showToast('✓ Link copied!'));
+}
+
+function genInviteCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function copyInvite() {
+  const code = document.getElementById('nb-invite-code').textContent.trim();
+  const msg  = `You're invited to join Bon Voyage — the Bonsai Stays member app! 🌿\n\nUse code ${code} when you sign up at:\nhttps://stellar-biscotti-e0bd66.netlify.app/app/\n\nYou'll get access to your property info, door code, and start earning points on every stay.`;
+  navigator.clipboard.writeText(msg).then(() => showToast('✓ Invite message copied!'));
 }
 
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }

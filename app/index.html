@@ -272,6 +272,71 @@
     .tier-Gold     { background: rgba(201,168,108,0.2); color: var(--gold); border: 1px solid rgba(201,168,108,0.4); }
     .tier-Platinum { background: rgba(229,228,226,0.15); color: #E8E6E1; border: 1px solid rgba(229,228,226,0.4); }
 
+    /* ── Invite card (home tab) ───────────────────── */
+    .invite-card {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .invite-card-left { flex: 1; }
+    .invite-card-title { font-size: 0.88rem; font-weight: 700; color: var(--green); }
+    .invite-card-sub { font-size: 0.72rem; color: rgba(28,10,6,0.65); margin-top: 3px; }
+    .invite-dots { display: flex; gap: 4px; margin-top: 9px; }
+    .invite-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(28,10,6,0.18); flex-shrink: 0; }
+    .invite-dot.used { background: var(--green); }
+    .invite-card-arrow { font-size: 1.1rem; color: rgba(28,10,6,0.5); }
+
+    /* ── Invite bottom sheet ──────────────────────── */
+    .sheet-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.55);
+      z-index: 199; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: auto; }
+    .invite-sheet {
+      position: absolute; inset-x: 0; bottom: 0;
+      background: var(--green2); border-radius: 20px 20px 0 0;
+      padding: 10px 20px calc(var(--safe-bot) + 28px);
+      z-index: 200; max-height: 82vh; overflow-y: auto;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .invite-sheet.open { transform: translateY(0); }
+    .invite-sheet::-webkit-scrollbar { display: none; }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 4px auto 18px; }
+    .sheet-title { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+    .sheet-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .invite-item {
+      background: var(--green3); border-radius: 12px;
+      padding: 13px 15px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .invite-item-body { flex: 1; min-width: 0; }
+    .invite-code-text { font-size: 1rem; font-weight: 800; color: var(--gold); letter-spacing: 0.1em; }
+    .invite-item-meta { font-size: 0.7rem; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .invite-pill { font-size: 0.65rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; }
+    .invite-pill.pending { background: rgba(201,168,108,0.18); color: var(--gold); }
+    .invite-pill.used    { background: rgba(91,191,133,0.15); color: #5BBF85; }
+    .invite-copy { background: none; border: 1px solid var(--border); color: var(--muted); padding: 7px 11px; border-radius: 8px; font-size: 0.72rem; flex-shrink: 0; }
+    .invite-new-btn {
+      width: 100%; padding: 16px; border-radius: 12px;
+      background: var(--gold); color: var(--green);
+      font-size: 0.95rem; font-weight: 700; margin-top: 6px;
+    }
+    .invite-new-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .invite-select {
+      width: 100%; background: var(--green3); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 13px 14px; color: var(--white);
+      font-size: 0.88rem; font-family: inherit; margin-bottom: 12px;
+      appearance: none;
+    }
+    .invite-select:focus { outline: none; border-color: var(--gold); }
+    .invite-select option { background: var(--green2); }
+    .sheet-section-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin: 18px 0 10px;
+    }
+
     /* Points history mini */
     .history-item {
       display: flex; align-items: center; justify-content: space-between;
@@ -624,9 +689,14 @@
           <button class="pw-toggle" type="button" onclick="togglePw('su-confirm',this)">👁</button>
         </div>
       </div>
+      <div>
+        <label class="login-label">Invite Code</label>
+        <input class="login-input" id="su-code" type="text" placeholder="XXXXXXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:0.1em;" />
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:6px;line-height:1.5;">Required to join — received with a booking confirmation or from an existing member.</div>
+      </div>
       <div id="su-error" class="login-error hidden"></div>
       <button class="login-btn" id="su-btn" onclick="signUp()">Create account →</button>
-      <div class="login-note">Join free — earn points on every stay.</div>
+      <div class="login-note">Exclusive membership — invite only.</div>
     </div>
 
     <!-- Name step (edge case: member exists but has no name) -->
@@ -785,6 +855,16 @@
               <div class="points-sub" id="home-points-sub">Keep staying to earn more</div>
             </div>
             <div class="tier-badge" id="home-tier-badge">Classic</div>
+          </div>
+
+          <!-- Invite Friends card -->
+          <div class="invite-card" onclick="openInviteSheet()">
+            <div class="invite-card-left">
+              <div class="invite-card-title">🌿 Invite Friends</div>
+              <div class="invite-card-sub" id="invite-card-sub">Loading…</div>
+              <div class="invite-dots" id="invite-dots"></div>
+            </div>
+            <div class="invite-card-arrow">›</div>
           </div>
 
           <!-- Upcoming booking -->
@@ -995,6 +1075,29 @@
 
     </div>
 
+    <!-- Invite sheet overlay -->
+    <div class="sheet-overlay" id="invite-overlay" onclick="closeInviteSheet()"></div>
+
+    <!-- Invite bottom sheet -->
+    <div class="invite-sheet" id="invite-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Invite Friends</div>
+      <div class="sheet-sub" id="invite-sheet-sub">Loading…</div>
+
+      <!-- Existing invite codes -->
+      <div id="invite-list"></div>
+
+      <!-- Create new invite -->
+      <div id="invite-create-section">
+        <div class="sheet-section-label">Create a new invite</div>
+        <select class="invite-select" id="invite-booking-select">
+          <option value="">No booking attached (sign-up only)</option>
+        </select>
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">Attach a current booking to share your property info, door code, and check-in details with this guest.</div>
+        <button class="invite-new-btn" id="invite-new-btn" onclick="createInvite()">Generate Invite Code</button>
+      </div>
+    </div>
+
     <!-- Bottom nav -->
     <nav class="bottom-nav">
       <button class="nav-item active" data-tab="home"    onclick="switchTab('home',this)"><span class="nav-icon">🏠</span>Home</button>
@@ -1130,13 +1233,17 @@ async function signIn() {
   btn.textContent = 'Sign in →'; btn.disabled = false;
 }
 
-let _signupName = '';
+let _signupName       = '';
+let _signupInviteCode = '';
+let _signupInviteId   = null;
+let _signupBookingId  = null;
 
 async function signUp() {
   const name  = document.getElementById('su-name').value.trim();
   const email = document.getElementById('su-email').value.trim();
   const pw    = document.getElementById('su-password').value;
   const pw2   = document.getElementById('su-confirm').value;
+  const code  = document.getElementById('su-code').value.trim().toUpperCase();
   const err   = document.getElementById('su-error');
   const btn   = document.getElementById('su-btn');
   err.classList.add('hidden');
@@ -1144,7 +1251,33 @@ async function signUp() {
   if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; err.classList.remove('hidden'); return; }
   if (pw.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.remove('hidden'); return; }
   if (pw !== pw2) { err.textContent = 'Passwords do not match.'; err.classList.remove('hidden'); return; }
-  btn.textContent = 'Creating account…'; btn.disabled = true;
+  if (!code) { err.textContent = 'An invite code is required to join.'; err.classList.remove('hidden'); return; }
+
+  btn.textContent = 'Checking code…'; btn.disabled = true;
+
+  // Validate invite code
+  const { data: invite } = await sb
+    .from('invite_codes')
+    .select('id, booking_id, expires_at')
+    .eq('code', code)
+    .eq('active', true)
+    .is('redeemed_by', null)
+    .maybeSingle();
+
+  if (!invite) {
+    err.textContent = 'Invalid or already used invite code. Check with the person who sent it.';
+    err.classList.remove('hidden');
+    btn.textContent = 'Create account →'; btn.disabled = false;
+    return;
+  }
+  if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+    err.textContent = 'This invite code has expired.';
+    err.classList.remove('hidden');
+    btn.textContent = 'Create account →'; btn.disabled = false;
+    return;
+  }
+
+  btn.textContent = 'Creating account…';
   const { data, error } = await sb.auth.signUp({ email, password: pw });
   if (error) {
     err.textContent = error.message;
@@ -1153,6 +1286,9 @@ async function signUp() {
     return;
   }
   _signupName = name;
+  _signupInviteCode = code;
+  _signupInviteId   = invite.id;
+  _signupBookingId  = invite.booking_id;
   await loadMember(data.user);
   btn.textContent = 'Create account →'; btn.disabled = false;
 }
@@ -1207,6 +1343,22 @@ async function loadMember(user) {
         }
       } else {
         member = newMember;
+        // Redeem invite code now that we have a member record
+        if (_signupInviteId && member) {
+          await sb.from('invite_codes').update({
+            redeemed_by: member.id,
+            redeemed_at: new Date().toISOString(),
+          }).eq('id', _signupInviteId);
+          // If code had a booking attached, add member to that booking's guest list
+          if (_signupBookingId) {
+            const { data: bk } = await sb.from('bookings').select('guest_member_ids').eq('id', _signupBookingId).single();
+            const existing = bk?.guest_member_ids || [];
+            if (!existing.includes(member.id)) {
+              await sb.from('bookings').update({ guest_member_ids: [...existing, member.id] }).eq('id', _signupBookingId);
+            }
+          }
+          _signupInviteId = null; _signupBookingId = null;
+        }
       }
     }
     if (!member) { showScreen('login'); return; }
@@ -1354,6 +1506,9 @@ function populateApp() {
   const pts  = m.points || 0;
   const tier = getTier(pts);
   const nextTier = TIERS[TIERS.indexOf(tier) + 1] || null;
+
+  // Invite card
+  loadInviteCard();
 
   // Home tab
   document.getElementById('home-points').textContent = pts.toLocaleString();
@@ -1664,6 +1819,152 @@ function switchTab(name, btn) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.remove('hidden');
   if (btn) btn.classList.add('active');
+}
+
+// ── Invite system ─────────────────────────────────────────────────────────
+const MAX_INVITES = 8;
+
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+async function loadInviteCard() {
+  if (!_member) return;
+  const { data } = await sb.from('invite_codes')
+    .select('id, redeemed_by')
+    .eq('created_by', _member.id)
+    .eq('type', 'member');
+  const used  = (data || []).length;
+  const remaining = MAX_INVITES - used;
+  document.getElementById('invite-card-sub').textContent =
+    remaining > 0 ? `${used} of ${MAX_INVITES} invites used` : 'All 8 invites used';
+  const dots = document.getElementById('invite-dots');
+  dots.innerHTML = Array.from({ length: MAX_INVITES }, (_, i) =>
+    `<div class="invite-dot${i < used ? ' used' : ''}"></div>`
+  ).join('');
+}
+
+async function openInviteSheet() {
+  if (!_member) return;
+  document.getElementById('invite-overlay').classList.add('open');
+  document.getElementById('invite-sheet').classList.add('open');
+  await refreshInviteSheet();
+}
+
+function closeInviteSheet() {
+  document.getElementById('invite-overlay').classList.remove('open');
+  document.getElementById('invite-sheet').classList.remove('open');
+}
+
+async function refreshInviteSheet() {
+  const listEl = document.getElementById('invite-list');
+  const subEl  = document.getElementById('invite-sheet-sub');
+  listEl.innerHTML = '<div style="font-size:0.82rem;color:var(--muted);text-align:center;padding:16px;">Loading…</div>';
+
+  // Load invites
+  const { data: codes } = await sb.from('invite_codes')
+    .select('id, code, redeemed_by, redeemed_at, booking_id, created_at')
+    .eq('created_by', _member.id)
+    .eq('type', 'member')
+    .order('created_at', { ascending: false });
+
+  const used = (codes || []).length;
+  const remaining = MAX_INVITES - used;
+  subEl.textContent = remaining > 0
+    ? `You have ${remaining} invite${remaining !== 1 ? 's' : ''} remaining. Share a code and your friend uses it to sign up.`
+    : 'You\'ve used all 8 invites.';
+
+  // Load member's bookings for the "attach booking" dropdown
+  const { data: bookings } = await sb.from('bookings')
+    .select('id, property_id, check_in, check_out')
+    .or(`guest_email.eq.${_member.email},guest_member_ids.cs.["${_member.id}"]`)
+    .gte('check_out', new Date().toISOString())
+    .order('check_in', { ascending: true })
+    .limit(10);
+
+  const sel = document.getElementById('invite-booking-select');
+  sel.innerHTML = '<option value="">No booking attached (sign-up only)</option>';
+  (bookings || []).forEach(b => {
+    const checkin = new Date(b.check_in).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+    sel.innerHTML += `<option value="${b.id}">${checkin} stay</option>`;
+  });
+
+  // Render codes
+  if (!codes || codes.length === 0) {
+    listEl.innerHTML = '<div style="font-size:0.82rem;color:var(--muted);padding:8px 0 16px;">No invites created yet.</div>';
+  } else {
+    listEl.innerHTML = codes.map(c => {
+      const isUsed = !!c.redeemed_by;
+      const meta = isUsed
+        ? `Used ${new Date(c.redeemed_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}`
+        : (c.booking_id ? '🏡 Stay access included' : 'Sign-up only');
+      return `
+        <div class="invite-item">
+          <div class="invite-item-body">
+            <div class="invite-code-text">${c.code}</div>
+            <div class="invite-item-meta">${meta}</div>
+          </div>
+          <span class="invite-pill ${isUsed ? 'used' : 'pending'}">${isUsed ? 'Used' : 'Pending'}</span>
+          ${!isUsed ? `<button class="invite-copy" onclick="copyInviteCode('${c.code}')">Copy</button>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  // Disable create button if at max
+  const btn = document.getElementById('invite-new-btn');
+  const createSection = document.getElementById('invite-create-section');
+  if (remaining <= 0) {
+    btn.disabled = true;
+    btn.textContent = 'All 8 invites used';
+    createSection.style.opacity = '0.5';
+  } else {
+    btn.disabled = false;
+    btn.textContent = `Generate Invite Code (${remaining} left)`;
+    createSection.style.opacity = '1';
+  }
+
+  loadInviteCard();
+}
+
+async function createInvite() {
+  const btn = document.getElementById('invite-new-btn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  const bookingId = document.getElementById('invite-booking-select').value || null;
+
+  // Try up to 3 times to get a unique code
+  let code, insertErr;
+  for (let i = 0; i < 3; i++) {
+    code = genCode();
+    const res = await sb.from('invite_codes').insert({
+      code,
+      type: 'member',
+      created_by: _member.id,
+      booking_id: bookingId || null,
+    });
+    insertErr = res.error;
+    if (!insertErr) break;
+  }
+
+  if (insertErr) {
+    showToast('Could not create invite — try again');
+    btn.disabled = false;
+    return;
+  }
+
+  showToast('✓ Invite created!');
+  await refreshInviteSheet();
+  copyInviteCode(code);
+}
+
+function copyInviteCode(code) {
+  const msg = `You're invited to join Bon Voyage — the Bonsai Stays member app! 🌿\n\nUse code ${code} when you sign up at: ${location.origin}/app/`;
+  if (navigator.share) {
+    navigator.share({ title: 'Bon Voyage Invite', text: msg }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(msg).then(() => showToast('✓ Invite copied!'));
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
