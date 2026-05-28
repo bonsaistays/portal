@@ -61,6 +61,7 @@
         <button class="modal-tab"        data-mtab="access"   onclick="switchMTab('access',this)"  style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Access & Door</button>
         <button class="modal-tab"        data-mtab="guest"    onclick="switchMTab('guest',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Guest Info</button>
         <button class="modal-tab"        data-mtab="rules"    onclick="switchMTab('rules',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">House Rules</button>
+        <button class="modal-tab"        data-mtab="listing"  onclick="switchMTab('listing',this)"  style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">📅 Listing &amp; Calendar</button>
       </div>
 
       <!-- Tab: Basic Info -->
@@ -161,6 +162,80 @@
           <div>
             <label class="admin-label">Cancellation policy</label>
             <textarea class="admin-textarea" id="p-cancellation" style="min-height:90px;" placeholder="e.g. Full refund if cancelled 7+ days before check-in. 50% refund within 7 days. No refund within 48 hours."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Listing & Calendar -->
+      <div id="mtab-listing" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:14px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;">
+            📅 iCal URLs are how we pull live availability from Airbnb, VRBO etc. Find them in each platform's <strong>Calendar → Export</strong> settings.
+          </div>
+
+          <!-- Listing details -->
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Region</label>
+              <select class="admin-select" id="p-region">
+                <option value="">Select…</option>
+                <option>Cottage Country</option>
+                <option>Prince Edward County</option>
+                <option>Blue Mountain</option>
+                <option>Niagara Region</option>
+                <option>Wasaga Beach</option>
+                <option>Toronto</option>
+                <option>Ottawa</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Price / Night ($)</label>
+              <input class="admin-input" id="p-price" type="number" min="0" placeholder="290" />
+            </div>
+          </div>
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Bedrooms</label>
+              <input class="admin-input" id="p-bedrooms" type="number" min="1" max="20" value="3" />
+            </div>
+            <div>
+              <label class="admin-label">Bathrooms</label>
+              <input class="admin-input" id="p-bathrooms" type="number" min="1" max="20" value="2" />
+            </div>
+          </div>
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Max Guests</label>
+              <input class="admin-input" id="p-guests" type="number" min="1" max="30" value="6" />
+            </div>
+            <div>
+              <label class="admin-label">Badge</label>
+              <input class="admin-input" id="p-badge" type="text" placeholder="Bonsai Select" />
+            </div>
+          </div>
+
+          <!-- Booking platform links -->
+          <div>
+            <label class="admin-label">Airbnb Listing URL</label>
+            <input class="admin-input" id="p-airbnb-url" type="url" placeholder="https://www.airbnb.ca/rooms/12345678" />
+          </div>
+          <div>
+            <label class="admin-label">VRBO Listing URL</label>
+            <input class="admin-input" id="p-vrbo-url" type="url" placeholder="https://www.vrbo.com/..." />
+          </div>
+
+          <!-- iCal URLs -->
+          <div>
+            <label class="admin-label" style="margin-bottom:8px;">iCal Calendar URLs</label>
+            <div id="ical-rows"></div>
+            <button type="button" onclick="addIcalRow()" style="width:100%;padding:10px;border:1.5px dashed rgba(61,139,98,0.35);border-radius:10px;background:none;color:var(--a-sage);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">+ Add calendar source</button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="checkbox" id="p-featured" style="width:16px;height:16px;accent-color:var(--a-sage);" />
+            <label for="p-featured" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Featured on homepage</label>
           </div>
         </div>
       </div>
@@ -289,6 +364,18 @@ function openModal(propId) {
     document.getElementById('p-host-phone').value    = p.host_phone || '';
     document.getElementById('p-rules').value         = p.house_rules || '';
     document.getElementById('p-cancellation').value  = p.cancellation_policy || '';
+    // Listing & calendar tab
+    document.getElementById('p-region').value        = p.region || '';
+    document.getElementById('p-price').value         = p.price || '';
+    document.getElementById('p-bedrooms').value      = p.bedrooms ?? 3;
+    document.getElementById('p-bathrooms').value     = p.bathrooms ?? 2;
+    document.getElementById('p-guests').value        = p.guests ?? 6;
+    document.getElementById('p-badge').value         = p.badge || '';
+    document.getElementById('p-airbnb-url').value    = p.airbnb_url || '';
+    document.getElementById('p-vrbo-url').value      = p.vrbo_url || '';
+    document.getElementById('p-featured').checked    = p.featured || false;
+    document.getElementById('ical-rows').innerHTML   = '';
+    (p.ical_urls || []).forEach(u => addIcalRow(u.platform, u.url));
   } else {
     document.getElementById('p-name').value          = '';
     document.getElementById('p-city').value          = '';
@@ -304,6 +391,17 @@ function openModal(propId) {
     document.getElementById('p-host-phone').value    = '';
     document.getElementById('p-rules').value         = '';
     document.getElementById('p-cancellation').value  = '';
+    // Listing & calendar tab
+    document.getElementById('p-region').value        = '';
+    document.getElementById('p-price').value         = '';
+    document.getElementById('p-bedrooms').value      = 3;
+    document.getElementById('p-bathrooms').value     = 2;
+    document.getElementById('p-guests').value        = 6;
+    document.getElementById('p-badge').value         = '';
+    document.getElementById('p-airbnb-url').value    = '';
+    document.getElementById('p-vrbo-url').value      = '';
+    document.getElementById('p-featured').checked    = false;
+    document.getElementById('ical-rows').innerHTML   = '';
   }
 
   document.getElementById('modal-property').classList.remove('hidden');
@@ -349,6 +447,17 @@ async function saveProperty() {
     host_phone:             document.getElementById('p-host-phone').value.trim(),
     house_rules:            document.getElementById('p-rules').value.trim(),
     cancellation_policy:    document.getElementById('p-cancellation').value.trim(),
+    // Listing & calendar fields
+    region:      document.getElementById('p-region').value,
+    price:       parseInt(document.getElementById('p-price').value) || 0,
+    bedrooms:    parseInt(document.getElementById('p-bedrooms').value) || 1,
+    bathrooms:   parseInt(document.getElementById('p-bathrooms').value) || 1,
+    guests:      parseInt(document.getElementById('p-guests').value) || 2,
+    badge:       document.getElementById('p-badge').value.trim(),
+    airbnb_url:  document.getElementById('p-airbnb-url').value.trim(),
+    vrbo_url:    document.getElementById('p-vrbo-url').value.trim(),
+    featured:    document.getElementById('p-featured').checked,
+    ical_urls:   collectIcalUrls(),
   };
 
   let error;
@@ -384,6 +493,31 @@ async function confirmDelete() {
   document.getElementById('modal-delete').classList.add('hidden');
   await loadProperties();
   showToast('Property deleted');
+}
+
+// ── iCal helpers ─────────────────────────────────────────────────────────
+const ICAL_PLATFORMS = ['Airbnb','VRBO','Booking.com','Expedia','Tripadvisor','Direct','Other'];
+
+function addIcalRow(platform = 'Airbnb', url = '') {
+  const row = document.createElement('div');
+  row.className = 'ical-row';
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px;';
+  row.innerHTML = `
+    <select class="admin-select" style="flex:0 0 130px;padding:9px 10px;">
+      ${ICAL_PLATFORMS.map(p => `<option value="${p}"${p===platform?' selected':''}>${p}</option>`).join('')}
+    </select>
+    <input class="admin-input" type="url" style="flex:1;" placeholder="https://www.airbnb.com/calendar/ical/…" value="${esc(url)}" />
+    <button type="button" onclick="this.closest('.ical-row').remove()"
+      style="flex-shrink:0;width:34px;height:38px;border-radius:8px;background:#fef2f2;color:var(--a-red);border:1px solid rgba(220,38,38,0.2);cursor:pointer;font-size:1rem;">✕</button>
+  `;
+  document.getElementById('ical-rows').appendChild(row);
+}
+
+function collectIcalUrls() {
+  return Array.from(document.querySelectorAll('#ical-rows .ical-row')).map(row => ({
+    platform: row.querySelector('select').value,
+    url: row.querySelector('input').value.trim(),
+  })).filter(u => u.url.startsWith('http'));
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────

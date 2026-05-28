@@ -235,8 +235,28 @@
     </div>
   </div>
 
+  <!-- Availability notification banner -->
+  <div id="avail-banner" style="display:none;background:var(--green-deep);color:#fff;text-align:center;padding:10px;font-size:0.85rem;font-weight:500;position:sticky;top:64px;z-index:99;"></div>
+
   <div class="filter-bar">
     <div class="container">
+      <!-- Date row -->
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+        <span style="font-size:0.8rem;font-weight:600;color:var(--gray-mid);white-space:nowrap;">📅 Check availability:</span>
+        <input type="date" id="dateCheckin" class="filter-select" style="font-size:0.85rem;cursor:pointer;"
+          placeholder="Check-in" onchange="document.getElementById('dateCheckout').min=this.value;" />
+        <span style="color:var(--gray-light);font-size:0.85rem;">→</span>
+        <input type="date" id="dateCheckout" class="filter-select" style="font-size:0.85rem;cursor:pointer;"
+          placeholder="Check-out" />
+        <button onclick="checkAvailability()"
+          style="padding:10px 20px;background:var(--green-deep);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;">
+          Search
+        </button>
+        <button onclick="clearDates()"
+          style="padding:10px 14px;background:none;border:1.5px solid var(--gray-pale);color:var(--gray-mid);border-radius:var(--radius-sm);font-size:0.82rem;font-family:inherit;cursor:pointer;">
+          Clear
+        </button>
+      </div>
       <div class="filter-bar-inner">
         <div class="filter-search">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--gray-light);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -244,8 +264,11 @@
         </div>
         <select class="filter-select" id="regionFilter" onchange="filterProperties()">
           <option value="">All Regions</option>
-          <option>Muskoka / Cottage Country</option>
-          <option>Collingwood / Wasaga Beach</option>
+          <option>Cottage Country</option>
+          <option>Prince Edward County</option>
+          <option>Blue Mountain</option>
+          <option>Niagara Region</option>
+          <option>Wasaga Beach</option>
           <option>Toronto</option>
         </select>
         <select class="filter-select" id="guestsFilter" onchange="filterProperties()">
@@ -345,32 +368,117 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
+    const sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+
     let allProperties = [];
+    // Map of property id → Set of blocked "YYYY-MM-DD" strings (populated on date search)
+    let availabilityCache = {};
 
     const STAR = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
+    /* ── Load from Supabase ─────────────────────────────────────────────── */
     async function loadProperties() {
       try {
-        const res = await fetch('../data/properties.json?v=' + Date.now());
-        const data = await res.json();
-        allProperties = data.properties;
-        filterProperties();
+        const { data, error } = await sb
+          .from('properties')
+          .select('id,name,city,thumbnail_url,region,price,bedrooms,bathrooms,guests,badge,badge_type,featured,rating,review_count,ical_urls,airbnb_url')
+          .eq('active', true)
+          .order('sort_order', { ascending: true });
+
+        if (error || !data?.length) throw new Error('empty');
+
+        // Normalise to match legacy JSON shape
+        allProperties = data.map(p => ({
+          ...p,
+          location: p.city || '',
+          image: p.thumbnail_url || '',
+          direct_url: `property-detail.html?id=${p.id}`,
+          rating: p.rating || 4.9,
+          review_count: p.review_count || 0,
+        }));
       } catch(e) {
-        document.getElementById('propertiesGrid').innerHTML = '<div class="no-results"><h3>Unable to load properties</h3><p>Please try again later.</p></div>';
+        // Fallback: load from static JSON
+        try {
+          const res = await fetch('../data/properties.json?v=' + Date.now());
+          const data = await res.json();
+          allProperties = data.properties;
+        } catch(e2) {
+          document.getElementById('propertiesGrid').innerHTML =
+            '<div class="no-results"><h3>Unable to load properties</h3><p>Please try again later.</p></div>';
+          return;
+        }
       }
+      filterProperties();
     }
 
-    function renderCard(p) {
-      const badge = p.badge ? `<div class="property-badge"><span class="tag tag-${p.badge_type}">${p.badge}</span></div>` : '';
-      return `<a href="${p.direct_url || 'property-detail.html'}" class="card property-card" style="text-decoration:none;color:inherit;">
-        <div class="property-img">
-          <img src="${p.image}" alt="${p.name}" loading="lazy" />
+    /* ── Availability check ─────────────────────────────────────────────── */
+    async function checkAvailability() {
+      const checkin  = document.getElementById('dateCheckin').value;
+      const checkout = document.getElementById('dateCheckout').value;
+      if (!checkin || !checkout || checkin >= checkout) return;
+
+      const banner = document.getElementById('avail-banner');
+      banner.textContent = '⏳ Checking availability across all properties…';
+      banner.style.display = 'block';
+
+      availabilityCache = {};
+      const propsWithIcal = allProperties.filter(p => p.ical_urls?.length);
+
+      await Promise.allSettled(propsWithIcal.map(async (p) => {
+        const urls = p.ical_urls.map(u => u.url).filter(u => u.startsWith('http'));
+        if (!urls.length) return;
+        try {
+          const res = await fetch(`/.netlify/functions/ical-fetch?urls=${encodeURIComponent(urls.join(','))}`);
+          const json = await res.json();
+          const blocked = new Set();
+          for (const { start, end } of (json.blocked || [])) {
+            let cur = new Date(start + 'T00:00:00');
+            const endD = new Date(end + 'T00:00:00');
+            while (cur < endD) {
+              blocked.add(cur.toISOString().slice(0, 10));
+              cur.setDate(cur.getDate() + 1);
+            }
+          }
+          availabilityCache[p.id] = blocked;
+        } catch(e) {}
+      }));
+
+      banner.style.display = 'none';
+      filterProperties();
+    }
+
+    function isAvailable(p, checkin, checkout) {
+      if (!checkin || !checkout) return true;
+      if (!availabilityCache[p.id]) return true; // no data = assume available
+      const blocked = availabilityCache[p.id];
+      let cur = new Date(checkin + 'T00:00:00');
+      const end = new Date(checkout + 'T00:00:00');
+      while (cur < end) {
+        if (blocked.has(cur.toISOString().slice(0, 10))) return false;
+        cur.setDate(cur.getDate() + 1);
+      }
+      return true;
+    }
+
+    /* ── Render ─────────────────────────────────────────────────────────── */
+    function renderCard(p, unavailable = false) {
+      const badge = p.badge ? `<div class="property-badge"><span class="tag tag-${p.badge_type || 'green'}">${p.badge}</span></div>` : '';
+      const unavailBadge = unavailable
+        ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;border-radius:inherit;"><span style="background:#fff;color:#333;font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:20px;">Not available</span></div>`
+        : '';
+      return `<a href="${p.direct_url || 'property-detail.html'}" class="card property-card" style="text-decoration:none;color:inherit;${unavailable ? 'opacity:0.6;' : ''}">
+        <div class="property-img" style="position:relative;">
+          <img src="${p.image || p.thumbnail_url || ''}" alt="${p.name}" loading="lazy" />
           <div class="property-fav">♡</div>
-          ${badge}
+          ${badge}${unavailBadge}
         </div>
         <div class="property-body">
-          <div class="property-location">📍 ${p.location}</div>
+          <div class="property-location">📍 ${p.location || p.city || ''}</div>
           <div class="property-name">${p.name}</div>
           <div class="property-meta"><span>🛏 ${p.bedrooms} bed${p.bedrooms!==1?'s':''}</span><span>🛁 ${p.bathrooms} bath${p.bathrooms!==1?'s':''}</span><span>👥 ${p.guests} guests</span></div>
           <div class="property-footer">
@@ -381,30 +489,53 @@
       </a>`;
     }
 
+    /* ── Filter & sort ──────────────────────────────────────────────────── */
     function filterProperties() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const region = document.getElementById('regionFilter').value;
-      const guests = document.getElementById('guestsFilter').value;
-      const sort = document.getElementById('sortFilter').value;
+      const search   = document.getElementById('searchInput').value.toLowerCase();
+      const region   = document.getElementById('regionFilter').value;
+      const guests   = document.getElementById('guestsFilter').value;
+      const sort     = document.getElementById('sortFilter').value;
       const maxPrice = parseInt(document.getElementById('priceRange').value);
+      const checkin  = document.getElementById('dateCheckin')?.value  || '';
+      const checkout = document.getElementById('dateCheckout')?.value || '';
 
-      let filtered = allProperties.filter(p => {
-        const matchSearch = !search || p.name.toLowerCase().includes(search) || p.location.toLowerCase().includes(search) || p.region.toLowerCase().includes(search);
+      let available = [], unavailable = [];
+
+      allProperties.forEach(p => {
+        const matchSearch = !search || p.name.toLowerCase().includes(search) || (p.location||'').toLowerCase().includes(search) || (p.region||'').toLowerCase().includes(search);
         const matchRegion = !region || p.region === region;
         const matchGuests = !guests || p.guests >= parseInt(guests);
-        const matchPrice = p.price <= maxPrice;
-        return matchSearch && matchRegion && matchGuests && matchPrice;
+        const matchPrice  = (p.price || 0) <= maxPrice;
+        if (!matchSearch || !matchRegion || !matchGuests || !matchPrice) return;
+
+        if (checkin && checkout && Object.keys(availabilityCache).length) {
+          if (isAvailable(p, checkin, checkout)) available.push(p);
+          else unavailable.push(p);
+        } else {
+          available.push(p);
+        }
       });
 
-      if (sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
-      else if (sort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
-      else if (sort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
+      if (sort === 'rating') {
+        available.sort((a,b) => b.rating - a.rating);
+        unavailable.sort((a,b) => b.rating - a.rating);
+      } else if (sort === 'price-asc') {
+        available.sort((a,b) => a.price - b.price);
+        unavailable.sort((a,b) => a.price - b.price);
+      } else if (sort === 'price-desc') {
+        available.sort((a,b) => b.price - a.price);
+        unavailable.sort((a,b) => b.price - a.price);
+      }
 
       const grid = document.getElementById('propertiesGrid');
-      if (filtered.length === 0) {
+      const total = available.length + unavailable.length;
+      if (total === 0) {
         grid.innerHTML = '<div class="no-results"><h3>No properties found</h3><p>Try adjusting your filters.</p></div>';
       } else {
-        grid.innerHTML = filtered.map(renderCard).join('');
+        grid.innerHTML = [
+          ...available.map(p => renderCard(p, false)),
+          ...unavailable.map(p => renderCard(p, true)),
+        ].join('');
         grid.querySelectorAll('.property-fav').forEach(btn => {
           btn.addEventListener('click', e => {
             e.preventDefault(); e.stopPropagation();
@@ -413,11 +544,21 @@
           });
         });
       }
-      document.getElementById('resultCount').textContent = filtered.length + ' propert' + (filtered.length === 1 ? 'y' : 'ies');
+      document.getElementById('resultCount').textContent =
+        checkin && checkout && Object.keys(availabilityCache).length
+          ? `${available.length} available · ${unavailable.length} unavailable`
+          : total + ' propert' + (total === 1 ? 'y' : 'ies');
     }
 
     function updatePrice(val) {
       document.getElementById('priceLabel').textContent = 'Up to $' + parseInt(val).toLocaleString();
+      filterProperties();
+    }
+
+    function clearDates() {
+      document.getElementById('dateCheckin').value = '';
+      document.getElementById('dateCheckout').value = '';
+      availabilityCache = {};
       filterProperties();
     }
 

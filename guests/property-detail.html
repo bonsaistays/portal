@@ -181,6 +181,25 @@
     .experiences-upsell p { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 12px; }
     .experiences-upsell a { font-size: 0.82rem; font-weight: 600; color: var(--green-deep); text-decoration: underline; text-underline-offset: 3px; }
 
+    /* Availability Calendar */
+    .avail-calendar { display: flex; flex-direction: column; gap: 24px; }
+    .avail-month { }
+    .avail-month-title { font-size: 0.95rem; font-weight: 700; color: var(--charcoal); margin-bottom: 14px; }
+    .avail-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .avail-day-label { font-size: 0.72rem; font-weight: 600; color: var(--gray-light); text-align: center; padding: 4px 0; text-transform: uppercase; }
+    .avail-day {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      font-size: 0.82rem; border-radius: 8px; position: relative;
+    }
+    .avail-day.empty {}
+    .avail-day.available { color: var(--charcoal); }
+    .avail-day.available:hover { background: var(--green-tint); cursor: default; }
+    .avail-day.blocked { background: rgba(220,38,38,0.08); color: var(--gray-light); text-decoration: line-through; }
+    .avail-day.past { color: var(--gray-pale); }
+    .avail-legend { display: flex; gap: 20px; font-size: 0.78rem; color: var(--gray-mid); margin-top: 8px; align-items: center; }
+    .avail-legend-dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .avail-loading { font-size: 0.88rem; color: var(--gray-light); padding: 32px 0; text-align: center; }
+
     /* Similar properties */
     .similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 
@@ -340,6 +359,14 @@
           </div>
         </div>
 
+        <!-- Availability Calendar -->
+        <div class="detail-section" id="availability-section">
+          <h3>Availability</h3>
+          <div id="avail-calendar-wrap">
+            <div class="avail-loading">⏳ Loading availability…</div>
+          </div>
+        </div>
+
         <!-- Reviews -->
         <div class="detail-section">
           <h3>Guest reviews</h3>
@@ -474,6 +501,108 @@
     </div>
   </footer>
 
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+  // ── Availability Calendar ─────────────────────────────────────────────────
+  (async () => {
+    // Read property ID from URL param: property-detail.html?id=vineyard-house
+    const params = new URLSearchParams(location.search);
+    const propId = params.get('id') || 'vineyard-house';
+
+    // Fetch iCal URLs for this property from Supabase
+    const sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+    const { data: prop } = await sb.from('properties').select('ical_urls, airbnb_url, name').eq('id', propId).maybeSingle();
+
+    const wrap = document.getElementById('avail-calendar-wrap');
+
+    // Update airbnb button if we have a URL
+    if (prop?.airbnb_url) {
+      const btn = document.getElementById('airbnb-btn');
+      if (btn) btn.href = prop.airbnb_url;
+    }
+
+    const icalUrls = (prop?.ical_urls || []).map(u => u.url).filter(u => u.startsWith('http'));
+
+    if (!icalUrls.length) {
+      wrap.innerHTML = '<p style="font-size:0.88rem;color:var(--gray-light);">Contact us to check availability.</p>';
+      return;
+    }
+
+    // Call Netlify function proxy
+    let blocked = [];
+    try {
+      const res = await fetch(`/.netlify/functions/ical-fetch?urls=${encodeURIComponent(icalUrls.join(','))}`);
+      const json = await res.json();
+      blocked = json.blocked || [];
+    } catch (e) {
+      wrap.innerHTML = '<p style="font-size:0.88rem;color:var(--gray-light);">Availability temporarily unavailable. Contact us to check dates.</p>';
+      return;
+    }
+
+    // Build a Set of all blocked date strings "YYYY-MM-DD"
+    const blockedDates = new Set();
+    for (const { start, end } of blocked) {
+      let cur = new Date(start + 'T00:00:00');
+      const endD = new Date(end + 'T00:00:00');
+      while (cur < endD) {
+        blockedDates.add(cur.toISOString().slice(0, 10));
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+
+    // Render 3 months starting from today
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    let html = '<div class="avail-calendar">';
+    for (let m = 0; m < 3; m++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + m, 1);
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay = d.getDay(); // 0=Sun
+
+      html += `<div class="avail-month">
+        <div class="avail-month-title">${MONTHS[month]} ${year}</div>
+        <div class="avail-grid">`;
+
+      // Day headers
+      DAYS.forEach(day => { html += `<div class="avail-day-label">${day}</div>`; });
+
+      // Empty leading cells
+      for (let i = 0; i < firstDay; i++) html += `<div class="avail-day empty"></div>`;
+
+      // Days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const thisDate = new Date(dateStr + 'T00:00:00');
+        const isPast = thisDate < today;
+        const isBlocked = blockedDates.has(dateStr);
+        let cls = 'avail-day';
+        if (isPast) cls += ' past';
+        else if (isBlocked) cls += ' blocked';
+        else cls += ' available';
+        html += `<div class="${cls}">${day}</div>`;
+      }
+      html += '</div></div>';
+    }
+
+    html += `</div>
+    <div class="avail-legend" style="margin-top:16px;">
+      <span><span class="avail-legend-dot" style="background:var(--green-tint);"></span> Available</span>
+      <span><span class="avail-legend-dot" style="background:rgba(220,38,38,0.1);"></span> Booked</span>
+    </div>
+    <p style="font-size:0.78rem;color:var(--gray-light);margin-top:10px;">Calendar synced live from all booking platforms. Tap Request to Book or Book on Airbnb to reserve.</p>`;
+
+    wrap.innerHTML = html;
+  })();
+  </script>
 
   <!--Start of Tawk.to Script-->
   <script type="text/javascript">
