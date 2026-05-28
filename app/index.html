@@ -324,6 +324,32 @@
       font-size: 0.95rem; font-weight: 700; margin-top: 6px;
     }
     .invite-new-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .invite-email-btn {
+      width: 100%; padding: 14px; border-radius: 12px;
+      background: transparent; color: var(--gold);
+      border: 1.5px solid rgba(201,168,108,0.4);
+      font-size: 0.92rem; font-weight: 600; margin-top: 10px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .invite-email-btn:hover { background: rgba(201,168,108,0.08); border-color: var(--gold); }
+    .invite-email-form {
+      background: var(--green3); border-radius: 14px;
+      padding: 16px; margin-top: 12px;
+      border: 1.5px solid rgba(201,168,108,0.2);
+    }
+    .invite-email-form .invite-email-input {
+      width: 100%; background: var(--green2); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 13px 14px; color: var(--white);
+      font-size: 0.9rem; font-family: inherit; margin-bottom: 10px;
+    }
+    .invite-email-form .invite-email-input:focus { outline: none; border-color: var(--gold); }
+    .invite-email-form .invite-email-input::placeholder { color: var(--muted); }
+    .invite-email-send {
+      width: 100%; padding: 14px; border-radius: 10px;
+      background: var(--gold); color: var(--green);
+      font-size: 0.9rem; font-weight: 700;
+    }
+    .invite-email-send:disabled { opacity: 0.4; cursor: not-allowed; }
     .invite-select {
       width: 100%; background: var(--green3); border: 1.5px solid var(--border);
       border-radius: 12px; padding: 13px 14px; color: var(--white);
@@ -1095,6 +1121,15 @@
         </select>
         <div style="font-size:0.72rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">Attach a current booking to share your property info, door code, and check-in details with this guest.</div>
         <button class="invite-new-btn" id="invite-new-btn" onclick="createInvite()">Generate Invite Code</button>
+
+        <!-- Email invite -->
+        <div class="sheet-section-label" style="margin-top:20px;">Or send a direct email invite</div>
+        <button class="invite-email-btn" id="invite-email-toggle" onclick="toggleEmailForm()">✉️ Email a Friend</button>
+        <div class="invite-email-form hidden" id="invite-email-form">
+          <input class="invite-email-input" id="invite-friend-name" type="text" placeholder="Friend's name (optional)" autocomplete="off" />
+          <input class="invite-email-input" id="invite-friend-email" type="email" placeholder="Friend's email address" autocomplete="email" />
+          <button class="invite-email-send" id="invite-email-send" onclick="emailInvite()">Send Invite Email ›</button>
+        </div>
       </div>
     </div>
 
@@ -1172,7 +1207,14 @@ let _memberLoading = false;
 
 async function boot() {
   showScreen('splash');
-  const splashFallback = setTimeout(() => showScreen('login'), 5000);
+
+  // Pre-fill invite code from email link (?invite=XXXXXXXX)
+  const urlInvite = new URLSearchParams(location.search).get('invite');
+
+  const splashFallback = setTimeout(() => {
+    showScreen('login');
+    if (urlInvite) applyUrlInviteCode(urlInvite);
+  }, 5000);
   try {
     const { data: { session } } = await sb.auth.getSession();
     clearTimeout(splashFallback);
@@ -1180,11 +1222,26 @@ async function boot() {
       await loadMember(session.user);
     } else {
       showScreen('login');
+      if (urlInvite) applyUrlInviteCode(urlInvite);
     }
   } catch(e) {
     clearTimeout(splashFallback);
     showScreen('login');
+    if (urlInvite) applyUrlInviteCode(urlInvite);
   }
+}
+
+function applyUrlInviteCode(code) {
+  // Switch to sign-up mode and pre-fill the code
+  setAuthMode('signup');
+  const codeInput = document.getElementById('su-code');
+  if (codeInput) {
+    codeInput.value = code.toUpperCase();
+    codeInput.readOnly = true;
+    codeInput.style.opacity = '0.7';
+  }
+  // Clean the URL so refreshing doesn't re-apply
+  if (history.replaceState) history.replaceState({}, '', location.pathname);
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────
@@ -1959,12 +2016,95 @@ async function createInvite() {
 }
 
 function copyInviteCode(code) {
-  const msg = `You're invited to join Bon Voyage — the Bonsai Stays member app! 🌿\n\nUse code ${code} when you sign up at: ${location.origin}/app/`;
+  const link = `${location.origin}/app/?invite=${code}`;
+  const msg = `You're invited to join Bon Voyage — the Bonsai Stays member app! 🌿\n\nUse code ${code} when you sign up, or tap this link:\n${link}`;
   if (navigator.share) {
-    navigator.share({ title: 'Bon Voyage Invite', text: msg }).catch(() => {});
+    navigator.share({ title: 'Bon Voyage Invite', text: msg, url: link }).catch(() => {});
   } else {
     navigator.clipboard.writeText(msg).then(() => showToast('✓ Invite copied!'));
   }
+}
+
+function toggleEmailForm() {
+  const form = document.getElementById('invite-email-form');
+  const btn  = document.getElementById('invite-email-toggle');
+  const open = form.classList.toggle('hidden');
+  btn.textContent = open ? '✉️ Email a Friend' : '✕ Cancel';
+  if (!open) document.getElementById('invite-friend-email').focus();
+}
+
+async function emailInvite() {
+  const friendName  = document.getElementById('invite-friend-name').value.trim();
+  const friendEmail = document.getElementById('invite-friend-email').value.trim();
+  if (!friendEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(friendEmail)) {
+    showToast('Please enter a valid email address'); return;
+  }
+
+  const btn = document.getElementById('invite-email-send');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  // Check remaining invites
+  const { data: existing } = await sb.from('invite_codes')
+    .select('id').eq('created_by', _member.id).eq('type', 'member');
+  if ((existing || []).length >= MAX_INVITES) {
+    showToast('You\'ve used all 8 invites'); btn.disabled = false; btn.textContent = 'Send Invite Email ›'; return;
+  }
+
+  const bookingId = document.getElementById('invite-booking-select').value || null;
+
+  // Create the code
+  let code, insertErr;
+  for (let i = 0; i < 3; i++) {
+    code = genCode();
+    const res = await sb.from('invite_codes').insert({
+      code, type: 'member', created_by: _member.id, booking_id: bookingId || null,
+    });
+    insertErr = res.error;
+    if (!insertErr) break;
+  }
+  if (insertErr) {
+    showToast('Could not create invite — try again');
+    btn.disabled = false; btn.textContent = 'Send Invite Email ›'; return;
+  }
+
+  const senderName  = _member.name?.split(' ')[0] || 'A friend';
+  const signupLink  = `${location.origin}/app/?invite=${code}`;
+  const greeting    = friendName ? `Hi ${friendName},` : 'Hi there,';
+  const bookingLine = bookingId
+    ? `\nYou'll also have access to our stay details — check-in info, door code and everything you need for your trip.\n`
+    : '';
+
+  const subject = encodeURIComponent(`${senderName} invited you to join Bonsai Stays`);
+  const body    = encodeURIComponent(
+`${greeting}
+
+${senderName} has invited you to join Bonsai Stays' exclusive collective.
+
+As a member of Bon Voyage, you'll get access to:
+  • Curated boutique properties
+  • The Bon Voyage loyalty program
+  • Exclusive member rates and benefits
+  • Personalised stay experiences
+${bookingLine}
+Tap the link below to create your account — your invite code is already included:
+
+${signupLink}
+
+Or sign up at bonsaistays.com and enter this code manually:
+${code}
+
+See you on the inside,
+The Bonsai Stays Team`
+  );
+
+  window.open(`mailto:${friendEmail}?subject=${subject}&body=${body}`, '_self');
+
+  showToast('✓ Email app opened!');
+  btn.disabled = false; btn.textContent = 'Send Invite Email ›';
+  document.getElementById('invite-friend-name').value = '';
+  document.getElementById('invite-friend-email').value = '';
+  toggleEmailForm();
+  await refreshInviteSheet();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
