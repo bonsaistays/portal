@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>List Your Property — Bonsai Stays</title>
+  <meta name="description" content="Apply to list your short-term rental property on Bonsai Stays. Get access to our curated guest audience, Bon Voyage loyalty members, and premium management services across Ontario." />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .list-hero {
+      padding: 140px 0 80px;
+      background: var(--green-deep);
+      position: relative;
+      overflow: hidden;
+    }
+    .list-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=60&auto=format&fit=crop');
+      background-size: cover; background-position: center 30%;
+      opacity: 0.18;
+    }
+    .list-hero-content { position: relative; z-index: 2; max-width: 680px; }
+    .list-hero-content h1 { color: var(--white); margin-bottom: 16px; }
+    .list-hero-content h1 em { font-style: italic; color: var(--gold-light); }
+    .list-hero-content p { color: rgba(255,255,255,0.78); font-size: 1.05rem; line-height: 1.7; max-width: 540px; }
+
+    /* Benefits strip */
+    .benefits-strip {
+      background: var(--cream);
+      padding: 48px 0;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+    .benefit-item { text-align: center; }
+    .benefit-icon { font-size: 2rem; margin-bottom: 12px; }
+    .benefit-title { font-size: 0.95rem; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
+    .benefit-desc { font-size: 0.82rem; color: var(--gray-mid); line-height: 1.6; }
+
+    /* Form layout */
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 64px;
+      padding: 80px 0 96px;
+      align-items: start;
+    }
+
+    /* Form styles */
+    .application-form { display: flex; flex-direction: column; gap: 32px; }
+    .form-section { display: flex; flex-direction: column; gap: 20px; }
+    .form-section-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--charcoal);
+      padding-bottom: 12px; border-bottom: 2px solid var(--green-sage);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green-deep);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 13px 16px; border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm); font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; color: var(--charcoal); background: var(--white);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--green-sage);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray-light); }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-hint { font-size: 0.75rem; color: var(--gray-light); margin-top: 2px; }
+
+    /* Platform checkboxes */
+    .platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .platform-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm); cursor: pointer;
+      font-size: 0.85rem; font-weight: 500; color: var(--gray-mid);
+      transition: all 0.15s; user-select: none;
+    }
+    .platform-chip input { display: none; }
+    .platform-chip:has(input:checked) {
+      border-color: var(--green-sage); background: var(--green-tint);
+      color: var(--green-deep);
+    }
+
+    /* Submit button */
+    .submit-btn {
+      padding: 18px 40px; border-radius: var(--radius-md);
+      background: var(--green-deep); color: var(--white);
+      font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700;
+      border: none; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .submit-btn:hover { background: var(--green-mid); transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.25);
+      color: #dc2626; font-size: 0.85rem; padding: 12px 16px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Success state */
+    .success-card {
+      background: var(--green-tint); border: 1.5px solid var(--green-sage);
+      border-radius: var(--radius-lg); padding: 48px 40px; text-align: center;
+      display: none;
+    }
+    .success-card.show { display: block; }
+    .success-icon { font-size: 3rem; margin-bottom: 16px; }
+    .success-card h2 { color: var(--green-deep); margin-bottom: 12px; }
+    .success-card p { color: var(--gray-mid); font-size: 0.95rem; line-height: 1.7; }
+
+    /* Sidebar */
+    .sidebar-sticky { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 20px; }
+    .sidebar-card {
+      background: var(--white); border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-lg); padding: 28px;
+    }
+    .sidebar-card.featured {
+      background: var(--green-deep); border-color: var(--green-deep); color: var(--white);
+    }
+    .sidebar-card.featured h4 { color: var(--white); }
+    .sidebar-card.featured p { color: rgba(255,255,255,0.75); }
+    .sidebar-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--charcoal); }
+    .sidebar-card p { font-size: 0.85rem; color: var(--gray-mid); line-height: 1.65; }
+    .criteria-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+    .criteria-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: var(--gray-mid); }
+    .criteria-list li span:first-child { font-size: 1rem; flex-shrink: 0; }
+    .process-steps { display: flex; flex-direction: column; gap: 16px; margin-top: 14px; }
+    .process-step { display: flex; gap: 14px; align-items: flex-start; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold-light); color: var(--green-deep);
+      font-size: 0.78rem; font-weight: 800; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-text { font-size: 0.83rem; color: var(--gray-mid); line-height: 1.55; }
+    .step-text strong { color: var(--charcoal); display: block; margin-bottom: 2px; }
+
+    @media (max-width: 1024px) { .form-layout { grid-template-columns: 1fr; } .sidebar-sticky { position: static; } }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .benefits-grid { grid-template-columns: repeat(2, 1fr); } .platform-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+        <span class="nav-badge partner">Partners</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="list-your-property.html" style="color:var(--green-deep);font-weight:600;">List Your Property</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="quote.html" class="btn btn-primary" style="padding:10px 20px;font-size:0.82rem;">Get a Quote</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="list-hero">
+    <div class="container">
+      <div class="list-hero-content">
+        <span class="eyebrow" style="color:var(--gold-light);">List Your Property</span>
+        <h1>Reach better guests.<br /><em>Fill more nights.</em></h1>
+        <p style="margin-top:16px;">Join the Bonsai Stays platform and put your property in front of our curated guest audience — including hundreds of Bon Voyage loyalty members actively looking for their next stay.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benefits -->
+  <div class="benefits-strip">
+    <div class="container">
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">🎯</div>
+          <div class="benefit-title">Quality Guest Audience</div>
+          <div class="benefit-desc">Our Bon Voyage members are vetted, repeat travellers with above-average spend and care for the properties they stay in.</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">📅</div>
+          <div class="benefit-title">Live Calendar Sync</div>
+          <div class="benefit-desc">Your availability syncs automatically from Airbnb, VRBO, and any other platform so you never get double-booked.</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">✨</div>
+          <div class="benefit-title">Premium Positioning</div>
+          <div class="benefit-desc">Properties are showcased with professional copywriting and appear alongside our most highly-rated managed stays.</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">🤝</div>
+          <div class="benefit-title">Direct Booking Revenue</div>
+          <div class="benefit-desc">Guests who book direct through our platform save on fees. You keep more revenue with no Airbnb commission.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="form-layout">
+
+      <!-- Application Form -->
+      <div>
+        <div id="form-wrap">
+          <h2 style="margin-bottom:8px;">Apply to list your property</h2>
+          <p style="color:var(--gray-mid);margin-bottom:40px;font-size:0.95rem;line-height:1.65;">Tell us about your property and we'll be in touch within 2 business days. All listings are reviewed by our team before going live.</p>
+
+          <form class="application-form" id="application-form" onsubmit="submitApplication(event)">
+
+            <!-- Owner Info -->
+            <div class="form-section">
+              <div class="form-section-title">👤 Your Details</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First & Last Name *</label>
+                  <input type="text" id="owner-name" placeholder="Jane Smith" required />
+                </div>
+                <div class="form-group">
+                  <label>Email Address *</label>
+                  <input type="email" id="owner-email" placeholder="jane@example.com" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input type="tel" id="owner-phone" placeholder="+1 (416) 555-0100" />
+                </div>
+                <div class="form-group">
+                  <label>How did you hear about us?</label>
+                  <select id="owner-source">
+                    <option value="">Select…</option>
+                    <option>Google / Search</option>
+                    <option>Instagram / Social Media</option>
+                    <option>Referral from another owner</option>
+                    <option>Airbnb / VRBO</option>
+                    <option>Word of mouth</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Property Info -->
+            <div class="form-section">
+              <div class="form-section-title">🏠 Property Details</div>
+              <div class="form-group">
+                <label>Property Name / Nickname *</label>
+                <input type="text" id="prop-name" placeholder="The Birchwood Cottage" required />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City / Area *</label>
+                  <input type="text" id="prop-city" placeholder="Muskoka, ON" required />
+                </div>
+                <div class="form-group">
+                  <label>Region</label>
+                  <select id="prop-region">
+                    <option value="">Select region…</option>
+                    <option>Cottage Country / Muskoka</option>
+                    <option>Prince Edward County</option>
+                    <option>Blue Mountain / Collingwood</option>
+                    <option>Niagara Region</option>
+                    <option>Wasaga Beach / Georgian Bay</option>
+                    <option>Toronto / GTA</option>
+                    <option>Ottawa</option>
+                    <option>Other Ontario</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Property Type</label>
+                  <select id="prop-type">
+                    <option value="">Select…</option>
+                    <option>Cottage / Cabin</option>
+                    <option>Chalet / Ski property</option>
+                    <option>Lakehouse</option>
+                    <option>House / Bungalow</option>
+                    <option>Condo / Apartment</option>
+                    <option>Farmhouse / Estate</option>
+                    <option>Luxury Villa</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Price Per Night ($)</label>
+                  <input type="number" id="prop-price" placeholder="290" min="0" />
+                  <span class="form-hint">Approximate average nightly rate</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Bedrooms</label>
+                  <input type="number" id="prop-bedrooms" placeholder="3" min="1" max="20" />
+                </div>
+                <div class="form-group">
+                  <label>Bathrooms</label>
+                  <input type="number" id="prop-bathrooms" placeholder="2" min="1" max="20" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Max Guests</label>
+                  <input type="number" id="prop-guests" placeholder="6" min="1" max="30" />
+                </div>
+                <div class="form-group">
+                  <label>Current Average Rating</label>
+                  <select id="prop-rating">
+                    <option value="">Select…</option>
+                    <option>5.0 ★★★★★</option>
+                    <option>4.9 ★★★★★</option>
+                    <option>4.8 ★★★★★</option>
+                    <option>4.7 ★★★★½</option>
+                    <option>4.5 – 4.6</option>
+                    <option>Below 4.5</option>
+                    <option>Not yet listed</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Platforms -->
+            <div class="form-section">
+              <div class="form-section-title">🌐 Where Are You Currently Listed?</div>
+              <p style="font-size:0.85rem;color:var(--gray-mid);margin-bottom:4px;">Select all that apply</p>
+              <div class="platform-grid">
+                <label class="platform-chip"><input type="checkbox" name="platform" value="Airbnb" /> Airbnb</label>
+                <label class="platform-chip"><input type="checkbox" name="platform" value="VRBO" /> VRBO</label>
+                <label class="platform-chip"><input type="checkbox" name="platform" value="Booking.com" /> Booking.com</label>
+                <label class="platform-chip"><input type="checkbox" name="platform" value="Expedia" /> Expedia</label>
+                <label class="platform-chip"><input type="checkbox" name="platform" value="Direct website" /> Own website</label>
+                <label class="platform-chip"><input type="checkbox" name="platform" value="Not listed yet" /> Not listed yet</label>
+              </div>
+            </div>
+
+            <!-- About the Property -->
+            <div class="form-section">
+              <div class="form-section-title">✍️ Tell Us About Your Property</div>
+              <div class="form-group">
+                <label>What makes your property special?</label>
+                <textarea id="prop-description" placeholder="e.g. Lakefront cottage with private dock, stunning sunset views, recently renovated kitchen, hot tub on the deck…"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Cover Photo URL <span style="font-weight:400;text-transform:none;font-size:0.78rem;color:var(--gray-light);">(optional)</span></label>
+                <input type="url" id="prop-photo" placeholder="https://..." />
+                <span class="form-hint">Link to your best photo — we can source professional shots later.</span>
+              </div>
+              <div class="form-group">
+                <label>Airbnb or VRBO Listing Link <span style="font-weight:400;text-transform:none;font-size:0.78rem;color:var(--gray-light);">(optional)</span></label>
+                <input type="url" id="prop-listing-url" placeholder="https://www.airbnb.ca/rooms/..." />
+                <span class="form-hint">Helps us understand your current positioning.</span>
+              </div>
+              <div class="form-group">
+                <label>Anything else you'd like us to know?</label>
+                <textarea id="prop-notes" placeholder="Seasonal availability, unique features, management history, questions for us…" style="min-height:80px;"></textarea>
+              </div>
+            </div>
+
+            <div id="form-error" class="error-msg" style="display:none;"></div>
+
+            <div>
+              <button type="submit" class="submit-btn" id="submit-btn">
+                Submit Application
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+              <p style="font-size:0.78rem;color:var(--gray-light);margin-top:12px;">We review every application personally. You'll hear from us within 2 business days.</p>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Success state -->
+        <div class="success-card" id="success-card">
+          <div class="success-icon">🌿</div>
+          <h2>Application received!</h2>
+          <p>Thank you for applying to list your property with Bonsai Stays. Our team will review your application and be in touch within 2 business days.</p>
+          <p style="margin-top:16px;">In the meantime, feel free to explore our <a href="services.html" style="color:var(--green-deep);font-weight:600;">full range of services</a> or <a href="index.html" style="color:var(--green-deep);font-weight:600;">learn more about our management program</a>.</p>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <div class="sidebar-sticky">
+
+          <div class="sidebar-card featured">
+            <h4>🏅 What We Look For</h4>
+            <p>Bonsai Stays is a curated platform — we personally review every listing to ensure it meets our guest experience standards.</p>
+            <ul class="criteria-list">
+              <li><span>⭐</span><span>Properties with a 4.7+ average rating (or new builds with strong potential)</span></li>
+              <li><span>📍</span><span>Located in Ontario markets we cover — Muskoka, PEC, Blue Mountain, Niagara, Toronto and more</span></li>
+              <li><span>🛏</span><span>Well-furnished, professionally presented, and properly equipped for guests</span></li>
+              <li><span>🤝</span><span>Owners who care about guest experience and are open to feedback</span></li>
+            </ul>
+          </div>
+
+          <div class="sidebar-card">
+            <h4>How it works</h4>
+            <div class="process-steps">
+              <div class="process-step">
+                <div class="step-num">1</div>
+                <div class="step-text"><strong>Submit your application</strong>Tell us about your property using this form.</div>
+              </div>
+              <div class="process-step">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>We review & reach out</strong>Our team reviews every application within 2 business days and contacts you to discuss fit.</div>
+              </div>
+              <div class="process-step">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>Onboarding & photography</strong>We create your listing, sync your calendars, and coordinate photography if needed.</div>
+              </div>
+              <div class="process-step">
+                <div class="step-num">4</div>
+                <div class="step-text"><strong>Go live</strong>Your property appears on our site and is promoted to our Bon Voyage member audience.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-card" style="background:var(--cream);border-color:var(--cream-dark);">
+            <h4>Already manage your own operations?</h4>
+            <p>Listing with us doesn't require using our cleaning or management services. It's a standalone channel to reach more guests.</p>
+            <p style="margin-top:10px;">Of course, many owners choose to combine both — and those properties consistently rank highest on our platform.</p>
+            <a href="services.html" style="display:inline-block;margin-top:14px;font-size:0.85rem;font-weight:600;color:var(--green-deep);text-decoration:underline;text-underline-offset:3px;">Explore our services →</a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:30px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Premium short-term rental management and curated guest experiences across Ontario.</p>
+        </div>
+        <div class="footer-col"><h5>Partners</h5><ul><li><a href="index.html">Overview</a></li><li><a href="services.html">Our Services</a></li><li><a href="list-your-property.html">List Your Property</a></li><li><a href="quote.html">Get a Quote</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../guests/index.html">For Guests</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span></div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+  const sb = supabase.createClient(
+    'https://zmbhpebiiyqdfqznruwz.supabase.co',
+    'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+  );
+
+  async function submitApplication(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const errEl = document.getElementById('form-error');
+    errEl.style.display = 'none';
+
+    const name  = document.getElementById('owner-name').value.trim();
+    const email = document.getElementById('owner-email').value.trim();
+    const prop  = document.getElementById('prop-name').value.trim();
+    const city  = document.getElementById('prop-city').value.trim();
+    if (!name || !email || !prop || !city) {
+      errEl.textContent = 'Please fill in all required fields.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.textContent = 'Submitting…'; btn.disabled = true;
+
+    const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(el => el.value);
+
+    const payload = {
+      owner_name:   name,
+      owner_email:  email,
+      owner_phone:  document.getElementById('owner-phone').value.trim(),
+      source:       document.getElementById('owner-source').value,
+      prop_name:    prop,
+      prop_city:    city,
+      prop_region:  document.getElementById('prop-region').value,
+      prop_type:    document.getElementById('prop-type').value,
+      prop_price:   parseInt(document.getElementById('prop-price').value) || null,
+      prop_bedrooms: parseInt(document.getElementById('prop-bedrooms').value) || null,
+      prop_bathrooms: parseInt(document.getElementById('prop-bathrooms').value) || null,
+      prop_guests:  parseInt(document.getElementById('prop-guests').value) || null,
+      prop_rating:  document.getElementById('prop-rating').value,
+      platforms:    platforms,
+      description:  document.getElementById('prop-description').value.trim(),
+      photo_url:    document.getElementById('prop-photo').value.trim() || null,
+      listing_url:  document.getElementById('prop-listing-url').value.trim() || null,
+      notes:        document.getElementById('prop-notes').value.trim(),
+      status:       'pending',
+    };
+
+    const { error } = await sb.from('property_applications').insert(payload);
+
+    if (error) {
+      errEl.textContent = 'Something went wrong. Please try again or email us directly.';
+      errEl.style.display = 'block';
+      btn.textContent = 'Submit Application'; btn.disabled = false;
+      return;
+    }
+
+    // Track in GA4
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'property_application', { prop_name: prop, prop_city: city });
+    }
+
+    document.getElementById('form-wrap').style.display = 'none';
+    document.getElementById('success-card').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  </script>
+
+</body>
+</html>
