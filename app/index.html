@@ -618,6 +618,162 @@
     .deals-empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 0.85rem; }
     .deals-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
 
+    /* ── SMART LOCK ───────────────────────────────────── */
+    .lock-card {
+      background: var(--green2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px; text-align: center;
+    }
+    .lock-status-ring {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      border: 3px solid var(--border);
+      background: var(--green3);
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      margin-bottom: 8px;
+    }
+    .lock-status-ring.unlocked {
+      border-color: rgba(91,191,133,0.6);
+      background: rgba(91,191,133,0.1);
+      box-shadow: 0 0 0 8px rgba(91,191,133,0.08);
+    }
+    .lock-status-ring.unlocking {
+      animation: lockPulse 0.8s ease infinite;
+      border-color: rgba(201,168,108,0.5);
+    }
+    @keyframes lockPulse {
+      0%,100% { box-shadow: 0 0 0 4px rgba(201,168,108,0.1); }
+      50% { box-shadow: 0 0 0 12px rgba(201,168,108,0.08); }
+    }
+    .lock-status-text {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .lock-status-text.locked { color: var(--muted); }
+    .lock-status-text.unlocked { color: #5BBF85; }
+    .lock-status-text.unlocking { color: var(--gold); }
+    .lock-sub { font-size: 0.75rem; color: var(--muted); margin-bottom: 14px; }
+    .lock-actions { display: flex; gap: 10px; width: 100%; }
+    .btn-lock-action {
+      flex: 1; padding: 13px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-unlock {
+      background: var(--gold); color: var(--green);
+    }
+    .btn-unlock:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-lock-again {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+    }
+    .btn-lock-again:hover { border-color: var(--muted); color: var(--white); }
+    .lock-timer {
+      font-size: 0.72rem; color: var(--muted); margin-top: 6px;
+    }
+    .lock-provider-note {
+      font-size: 0.7rem; color: rgba(255,255,255,0.3);
+      margin-top: 12px; text-align: center;
+    }
+    .lock-unavailable {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+    }
+    .lock-unavailable-icon { font-size: 2rem; margin-bottom: 8px; }
+    .lock-unavailable h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+    .lock-unavailable p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── THERMOSTAT ───────────────────────────────────── */
+    .thermo-card {
+      background: var(--green2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 20px 18px;
+    }
+    .thermo-dial-wrap {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 20px;
+    }
+    .thermo-dial {
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: var(--green3);
+      border: 3px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.3);
+      transition: border-color 0.4s;
+    }
+    .thermo-dial.heat { border-color: rgba(251,146,60,0.5); box-shadow: inset 0 2px 12px rgba(0,0,0,0.3), 0 0 0 8px rgba(251,146,60,0.06); }
+    .thermo-dial.cool { border-color: rgba(96,165,250,0.5); box-shadow: inset 0 2px 12px rgba(0,0,0,0.3), 0 0 0 8px rgba(96,165,250,0.06); }
+    .thermo-current-temp {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem; font-weight: 600; color: var(--white); line-height: 1;
+    }
+    .thermo-current-label { font-size: 0.62rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.1em; text-transform: uppercase; }
+    .thermo-setpoint-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      margin-left: 24px;
+    }
+    .thermo-setpoint-label { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .thermo-setpoint-controls { display: flex; align-items: center; gap: 12px; }
+    .btn-temp-adj {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green3); border: 1px solid var(--border);
+      color: var(--white); font-size: 1.2rem; font-weight: 300;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .btn-temp-adj:hover { background: var(--gold); border-color: var(--gold); color: var(--green); }
+    .btn-temp-adj:disabled { opacity: 0.3; cursor: not-allowed; }
+    .thermo-setpoint-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 600; color: var(--gold); min-width: 52px; text-align: center;
+    }
+    .thermo-mode-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      margin-bottom: 14px;
+    }
+    .thermo-mode-btn {
+      padding: 9px 4px; border-radius: 8px;
+      background: var(--green3); border: 1px solid var(--border);
+      color: var(--muted); font-size: 0.72rem; font-weight: 600;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      transition: all 0.2s;
+    }
+    .thermo-mode-btn .mode-icon { font-size: 1.1rem; }
+    .thermo-mode-btn.active { background: rgba(201,168,108,0.15); border-color: rgba(201,168,108,0.5); color: var(--gold); }
+    .thermo-mode-btn.active.heat { background: rgba(251,146,60,0.12); border-color: rgba(251,146,60,0.4); color: #FB923C; }
+    .thermo-mode-btn.active.cool { background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.4); color: #60A5FA; }
+    .thermo-mode-btn.active.off { background: rgba(255,255,255,0.05); border-color: var(--border); color: var(--muted); }
+    .thermo-save-btn {
+      width: 100%; padding: 13px; border-radius: 10px;
+      background: var(--gold); color: var(--green);
+      font-size: 0.88rem; font-weight: 700; margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+    .thermo-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .thermo-status-row {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.72rem; color: var(--muted); margin-top: 10px;
+    }
+    .thermo-status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--muted); display: inline-block; margin-right: 5px;
+    }
+    .thermo-status-dot.on { background: #5BBF85; box-shadow: 0 0 6px rgba(91,191,133,0.5); }
+    .thermo-unavailable {
+      background: var(--green2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+    }
+    .thermo-unavailable-icon { font-size: 2rem; margin-bottom: 8px; }
+    .thermo-unavailable h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+    .thermo-unavailable p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
     /* Toast */
     .toast {
       position: fixed; bottom: calc(var(--safe-bot) + 80px); left: 50%; transform: translateX(-50%);
@@ -1028,6 +1184,81 @@
               <div class="door-countdown-label">Your door code</div>
               <div class="door-code-val" id="stay-door-code">—</div>
               <div class="door-code-note">Enter this code at the keypad to unlock your door</div>
+            </div>
+          </div>
+
+          <!-- Smart Lock Remote Control -->
+          <div class="stay-section" id="stay-lock-section" style="display:none;">
+            <div class="stay-section-title">🔐 Smart Lock</div>
+            <!-- No smart lock configured -->
+            <div class="lock-unavailable hidden" id="lock-unavailable">
+              <div class="lock-unavailable-icon">🔑</div>
+              <h4>PIN Code Access</h4>
+              <p>Your door code is shown above. Remote unlock is available on properties with a connected smart lock.</p>
+            </div>
+            <!-- Smart lock panel -->
+            <div id="lock-panel">
+              <div class="lock-card">
+                <div class="lock-status-ring" id="lock-ring">🔒</div>
+                <div class="lock-status-text locked" id="lock-status-text">Locked</div>
+                <div class="lock-sub" id="lock-sub">Property is secure</div>
+                <div class="lock-actions">
+                  <button class="btn-lock-action btn-unlock" id="btn-unlock" onclick="remoteLockAction('unlock')">🔓 Unlock Door</button>
+                  <button class="btn-lock-action btn-lock-again" id="btn-lock" onclick="remoteLockAction('lock')" style="display:none;">🔒 Lock</button>
+                </div>
+                <div class="lock-timer hidden" id="lock-timer">Auto-locking in <span id="lock-timer-val">30</span>s</div>
+                <div class="lock-provider-note" id="lock-provider-note"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Climate Control (Smart Thermostat) -->
+          <div class="stay-section" id="stay-thermo-section" style="display:none;">
+            <div class="stay-section-title">🌡️ Climate Control</div>
+            <!-- No thermostat configured -->
+            <div class="thermo-unavailable hidden" id="thermo-unavailable">
+              <div class="thermo-unavailable-icon">🌡️</div>
+              <h4>Thermostat Not Connected</h4>
+              <p>This property doesn't have a connected smart thermostat. Adjust temperature via the wall unit inside.</p>
+            </div>
+            <!-- Thermostat panel -->
+            <div id="thermo-panel">
+              <div class="thermo-card">
+                <div class="thermo-dial-wrap">
+                  <div class="thermo-dial" id="thermo-dial">
+                    <div class="thermo-current-temp" id="thermo-current">—°</div>
+                    <div class="thermo-current-label">Current</div>
+                  </div>
+                  <div class="thermo-setpoint-wrap">
+                    <div class="thermo-setpoint-label">Set to</div>
+                    <div class="thermo-setpoint-controls">
+                      <button class="btn-temp-adj" onclick="adjustTemp(-1)" id="btn-temp-down">−</button>
+                      <div class="thermo-setpoint-val" id="thermo-setpoint">—°</div>
+                      <button class="btn-temp-adj" onclick="adjustTemp(1)" id="btn-temp-up">+</button>
+                    </div>
+                    <div class="thermo-setpoint-label" id="thermo-humidity" style="margin-top:4px;">—% humidity</div>
+                  </div>
+                </div>
+                <div class="thermo-mode-row">
+                  <button class="thermo-mode-btn heat" data-mode="heat" onclick="setThermoMode('heat',this)">
+                    <span class="mode-icon">🔥</span>Heat
+                  </button>
+                  <button class="thermo-mode-btn cool" data-mode="cool" onclick="setThermoMode('cool',this)">
+                    <span class="mode-icon">❄️</span>Cool
+                  </button>
+                  <button class="thermo-mode-btn" data-mode="auto" onclick="setThermoMode('auto',this)">
+                    <span class="mode-icon">♾️</span>Auto
+                  </button>
+                  <button class="thermo-mode-btn off" data-mode="off" onclick="setThermoMode('off',this)">
+                    <span class="mode-icon">⏸️</span>Off
+                  </button>
+                </div>
+                <button class="thermo-save-btn" id="thermo-save-btn" onclick="saveThermoSettings()">Apply Changes</button>
+                <div class="thermo-status-row">
+                  <span><span class="thermo-status-dot" id="thermo-dot"></span><span id="thermo-running-status">Loading…</span></span>
+                  <span id="thermo-last-updated" style="color:rgba(255,255,255,0.25);">—</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1723,6 +1954,8 @@ let _booking = null;
 let _stayProperty = null;
 let _stayChannel = null;
 let _doorInterval = null;
+let _lockAutoTimer = null;
+let _thermoState  = { setpoint: null, mode: 'auto', dirty: false };
 
 async function loadStay() {
   if (!_member?.email) return;
@@ -1788,6 +2021,11 @@ function populateStay() {
   document.getElementById('home-booking-section').classList.remove('hidden');
   document.getElementById('home-booking-prop').textContent  = p?.name || 'Your stay';
   document.getElementById('home-booking-dates').textContent = fmt(ci) + ' – ' + fmt(co);
+
+  // Smart devices
+  const now2 = new Date();
+  const isActiveStay = now2 >= ci && now2 <= co;
+  loadSmartDevices(isActiveStay);
 }
 
 function startDoorCountdown() {
@@ -1813,6 +2051,271 @@ function startDoorCountdown() {
   }
   tick();
   _doorInterval = setInterval(tick, 1000);
+}
+
+// ── Smart Devices (Lock + Thermostat) ─────────────────────────────────────
+async function loadSmartDevices(isActiveStay) {
+  if (!_stayProperty?.id) return;
+
+  // Fetch smart devices for this property
+  const { data: devices } = await sb
+    .from('property_smart_devices')
+    .select('*')
+    .eq('property_id', _stayProperty.id);
+
+  const locks      = (devices || []).filter(d => d.device_type === 'lock');
+  const thermostats = (devices || []).filter(d => d.device_type === 'thermostat');
+
+  // ── LOCK ────────────────────────────────────────────
+  const lockSection = document.getElementById('stay-lock-section');
+  lockSection.style.display = '';
+  if (!locks.length) {
+    document.getElementById('lock-panel').classList.add('hidden');
+    document.getElementById('lock-unavailable').classList.remove('hidden');
+  } else {
+    const lock = locks[0];
+    document.getElementById('lock-provider-note').textContent =
+      lock.name ? `Lock: ${lock.name}` : `Provider: ${lock.provider || 'smart lock'}`;
+    if (isActiveStay) {
+      fetchLockStatus(lock);
+    } else {
+      setLockUI('locked');
+      document.getElementById('btn-unlock').disabled = true;
+      document.getElementById('lock-sub').textContent = 'Remote unlock available during your stay';
+    }
+  }
+
+  // ── THERMOSTAT ──────────────────────────────────────
+  const thermoSection = document.getElementById('stay-thermo-section');
+  thermoSection.style.display = '';
+  if (!thermostats.length) {
+    document.getElementById('thermo-panel').classList.add('hidden');
+    document.getElementById('thermo-unavailable').classList.remove('hidden');
+  } else {
+    const thermo = thermostats[0];
+    if (isActiveStay) {
+      fetchThermoStatus(thermo);
+    } else {
+      document.getElementById('thermo-current').textContent = '—°';
+      document.getElementById('thermo-setpoint').textContent = '—°';
+      document.getElementById('btn-temp-up').disabled = true;
+      document.getElementById('btn-temp-down').disabled = true;
+      document.getElementById('thermo-save-btn').disabled = true;
+      document.getElementById('thermo-running-status').textContent = 'Available during your stay';
+    }
+  }
+}
+
+/* ── Lock API ── */
+async function fetchLockStatus(lockDevice) {
+  try {
+    const res = await fetch('/.netlify/functions/lock-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'status', deviceId: lockDevice.device_id, provider: lockDevice.provider, propertyId: _stayProperty.id })
+    });
+    const json = await res.json();
+    setLockUI(json.locked ? 'locked' : 'unlocked');
+  } catch(e) {
+    // Can't reach API — show locked state as default safe state
+    setLockUI('locked');
+    document.getElementById('lock-sub').textContent = 'Connect smart lock in admin settings';
+  }
+}
+
+function setLockUI(state) {
+  const ring = document.getElementById('lock-ring');
+  const txt  = document.getElementById('lock-status-text');
+  const sub  = document.getElementById('lock-sub');
+  const btnUnlock = document.getElementById('btn-unlock');
+  const btnLock   = document.getElementById('btn-lock');
+  const timer = document.getElementById('lock-timer');
+
+  ring.className = 'lock-status-ring ' + state;
+  txt.className  = 'lock-status-text ' + state;
+
+  if (state === 'locked') {
+    ring.textContent = '🔒';
+    txt.textContent  = 'Locked';
+    sub.textContent  = 'Property is secure';
+    btnUnlock.style.display = '';
+    btnLock.style.display   = 'none';
+    timer.classList.add('hidden');
+    if (_lockAutoTimer) { clearInterval(_lockAutoTimer); _lockAutoTimer = null; }
+  } else if (state === 'unlocked') {
+    ring.textContent = '🔓';
+    txt.textContent  = 'Unlocked';
+    sub.textContent  = 'Door is open — will auto-lock in 30s';
+    btnUnlock.style.display = 'none';
+    btnLock.style.display   = '';
+    timer.classList.remove('hidden');
+    startLockAutoTimer();
+  } else if (state === 'unlocking') {
+    ring.textContent = '⏳';
+    txt.textContent  = 'Unlocking…';
+    sub.textContent  = 'Sending command to smart lock';
+    btnUnlock.disabled = true;
+  }
+}
+
+function startLockAutoTimer() {
+  let remaining = 30;
+  document.getElementById('lock-timer-val').textContent = remaining;
+  if (_lockAutoTimer) clearInterval(_lockAutoTimer);
+  _lockAutoTimer = setInterval(() => {
+    remaining--;
+    document.getElementById('lock-timer-val').textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(_lockAutoTimer);
+      _lockAutoTimer = null;
+      setLockUI('locked');
+      toast('Door auto-locked 🔒');
+    }
+  }, 1000);
+}
+
+async function remoteLockAction(action) {
+  const devices = await getPropertyDevices('lock');
+  if (!devices?.length) return;
+  const lock = devices[0];
+
+  setLockUI(action === 'unlock' ? 'unlocking' : 'locked');
+  gtag('event', 'smart_lock_' + action, { property_id: _stayProperty?.id });
+
+  try {
+    const res = await fetch('/.netlify/functions/lock-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, deviceId: lock.device_id, provider: lock.provider, propertyId: _stayProperty.id })
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    setLockUI(action === 'unlock' ? 'unlocked' : 'locked');
+    toast(action === 'unlock' ? '🔓 Door unlocked' : '🔒 Door locked');
+  } catch(e) {
+    setLockUI('locked');
+    toast('Could not reach lock — try again');
+  }
+}
+
+/* ── Thermostat API ── */
+async function fetchThermoStatus(thermoDevice) {
+  try {
+    const res = await fetch('/.netlify/functions/thermostat-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', deviceId: thermoDevice.device_id, provider: thermoDevice.provider, propertyId: _stayProperty.id })
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    applyThermoData(json);
+  } catch(e) {
+    document.getElementById('thermo-running-status').textContent = 'Connect thermostat in admin settings';
+    document.getElementById('thermo-current').textContent = '—°';
+    document.getElementById('thermo-setpoint').textContent = '—°';
+  }
+}
+
+function applyThermoData(data) {
+  const currentC = data.currentTemp;
+  const setpointC = data.setpoint;
+  const mode = data.mode || 'auto';
+  const humidity = data.humidity;
+  const running = data.running; // 'heating' | 'cooling' | 'idle'
+
+  _thermoState.setpoint = setpointC;
+  _thermoState.mode = mode;
+  _thermoState.dirty = false;
+
+  // Display in Celsius (or convert to F if needed)
+  document.getElementById('thermo-current').textContent = currentC != null ? Math.round(currentC) + '°' : '—°';
+  document.getElementById('thermo-setpoint').textContent = setpointC != null ? Math.round(setpointC) + '°' : '—°';
+  if (humidity != null) document.getElementById('thermo-humidity').textContent = Math.round(humidity) + '% humidity';
+
+  // Dial colour
+  const dial = document.getElementById('thermo-dial');
+  dial.className = 'thermo-dial ' + (mode === 'heat' ? 'heat' : mode === 'cool' ? 'cool' : '');
+
+  // Mode buttons
+  document.querySelectorAll('.thermo-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+
+  // Status dot
+  const dot = document.getElementById('thermo-dot');
+  const statusTxt = document.getElementById('thermo-running-status');
+  if (running === 'heating') { dot.className='thermo-status-dot on'; statusTxt.textContent='Currently heating'; }
+  else if (running === 'cooling') { dot.className='thermo-status-dot on'; statusTxt.textContent='Currently cooling'; }
+  else { dot.className='thermo-status-dot'; statusTxt.textContent='Idle'; }
+
+  const now = new Date();
+  document.getElementById('thermo-last-updated').textContent = 'Updated ' + now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit' });
+  document.getElementById('thermo-save-btn').disabled = true;
+}
+
+function adjustTemp(delta) {
+  if (_thermoState.setpoint == null) _thermoState.setpoint = 21;
+  _thermoState.setpoint = Math.min(30, Math.max(15, _thermoState.setpoint + delta));
+  _thermoState.dirty = true;
+  document.getElementById('thermo-setpoint').textContent = Math.round(_thermoState.setpoint) + '°';
+  document.getElementById('thermo-save-btn').disabled = false;
+}
+
+function setThermoMode(mode, btn) {
+  _thermoState.mode = mode;
+  _thermoState.dirty = true;
+  document.querySelectorAll('.thermo-mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+  const dial = document.getElementById('thermo-dial');
+  dial.className = 'thermo-dial ' + (mode === 'heat' ? 'heat' : mode === 'cool' ? 'cool' : '');
+  document.getElementById('thermo-save-btn').disabled = false;
+}
+
+async function saveThermoSettings() {
+  if (!_thermoState.dirty) return;
+  const devices = await getPropertyDevices('thermostat');
+  if (!devices?.length) return;
+  const thermo = devices[0];
+
+  const btn = document.getElementById('thermo-save-btn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+  gtag('event', 'thermostat_set', { mode: _thermoState.mode, setpoint: _thermoState.setpoint, property_id: _stayProperty?.id });
+
+  try {
+    const res = await fetch('/.netlify/functions/thermostat-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'set',
+        deviceId: thermo.device_id,
+        provider: thermo.provider,
+        propertyId: _stayProperty.id,
+        setpoint: _thermoState.setpoint,
+        mode: _thermoState.mode
+      })
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    _thermoState.dirty = false;
+    btn.textContent = 'Applied ✓';
+    setTimeout(() => { btn.textContent = 'Apply Changes'; }, 2500);
+    toast('🌡️ Climate updated');
+    if (json.data) applyThermoData(json.data);
+  } catch(e) {
+    btn.textContent = 'Apply Changes';
+    btn.disabled = false;
+    toast('Could not reach thermostat — try again');
+  }
+}
+
+async function getPropertyDevices(type) {
+  if (!_stayProperty?.id) return [];
+  const { data } = await sb
+    .from('property_smart_devices')
+    .select('*')
+    .eq('property_id', _stayProperty.id)
+    .eq('device_type', type);
+  return data || [];
 }
 
 async function loadStayMessages() {
