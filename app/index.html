@@ -93,16 +93,28 @@
     .login-note { text-align: center; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
     .login-error { background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3); color: #FCA5A5; font-size: 0.82rem; padding: 12px 14px; border-radius: 10px; text-align: center; }
 
-    /* OTP digit inputs */
-    .otp-row { display: flex; gap: 10px; justify-content: center; }
-    .otp-digit {
-      width: 46px; height: 56px;
-      background: var(--green2); border: 1.5px solid var(--border);
-      border-radius: 12px; color: var(--white);
-      font-size: 1.4rem; font-weight: 700; text-align: center;
-      font-family: inherit; transition: border-color 0.2s; -webkit-appearance: none;
+    /* Mode toggle (Sign in / Create account) */
+    .login-mode-toggle {
+      display: flex; background: var(--green2); border-radius: 12px;
+      padding: 4px; margin-bottom: 24px; flex-shrink: 0;
     }
-    .otp-digit:focus { outline: none; border-color: var(--gold); background: var(--green3); }
+    .mode-btn {
+      flex: 1; padding: 11px; border-radius: 9px;
+      font-size: 0.88rem; font-weight: 600; background: none;
+      color: var(--muted); transition: all 0.2s; border: none; cursor: pointer;
+    }
+    .mode-btn.active { background: var(--gold); color: var(--green); }
+
+    /* Password show/hide */
+    .pw-wrap { position: relative; }
+    .pw-wrap .login-input { padding-right: 48px; }
+    .pw-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; font-size: 1rem; opacity: 0.45; padding: 4px;
+      transition: opacity 0.15s; border: none; cursor: pointer; color: var(--white);
+      font-family: inherit;
+    }
+    .pw-toggle:hover { opacity: 0.9; }
 
     /* ── Survey / Onboarding ──────────────────────────── */
     #screen-survey {
@@ -562,28 +574,62 @@
       <div class="login-tagline">Your Bonsai member passport</div>
     </div>
 
-    <!-- Step 1: Email -->
-    <div id="login-step-email" class="login-form">
+    <!-- Mode toggle -->
+    <div class="login-mode-toggle">
+      <button class="mode-btn active" id="mode-signin" onclick="setAuthMode('signin')">Sign in</button>
+      <button class="mode-btn" id="mode-signup" onclick="setAuthMode('signup')">Create account</button>
+    </div>
+
+    <!-- Sign In -->
+    <div id="form-signin" class="login-form">
       <div>
-        <label class="login-label" for="login-email">Email address</label>
-        <input class="login-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email" />
+        <label class="login-label">Email</label>
+        <input class="login-input" id="si-email" type="email" placeholder="you@example.com" autocomplete="email" />
       </div>
-      <div id="login-email-error" class="login-error hidden"></div>
-      <button class="login-btn" id="login-email-btn" onclick="sendOtp()">Send sign-in link →</button>
-      <div class="login-note">We'll send a secure link to your email.</div>
+      <div>
+        <label class="login-label">Password</label>
+        <div class="pw-wrap">
+          <input class="login-input" id="si-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+          <button class="pw-toggle" type="button" onclick="togglePw('si-password',this)">👁</button>
+        </div>
+      </div>
+      <div id="si-error" class="login-error hidden"></div>
+      <button class="login-btn" id="si-btn" onclick="signIn()">Sign in →</button>
+      <div class="login-note">
+        <a href="#" onclick="forgotPw(event)" style="color:var(--gold);">Forgot password?</a>
+      </div>
     </div>
 
-    <!-- Step 2: Check email -->
-    <div id="login-step-otp" class="login-form hidden" style="text-align:center;align-items:center;">
-      <div style="font-size:3rem;margin-bottom:8px;">📬</div>
-      <div style="font-size:1.05rem;font-weight:600;color:var(--white);margin-bottom:8px;">Check your email</div>
-      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">We sent a sign-in link to</div>
-      <div style="font-size:0.9rem;font-weight:600;color:var(--gold);margin-bottom:20px;" id="otp-email-display"></div>
-      <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">Tap the link in the email to sign in.<br/>You can close this tab while you check.</div>
-      <div style="margin-top:24px;font-size:0.78rem;color:var(--muted);">Wrong email? <a href="#" onclick="resetLogin(event)" style="color:var(--gold);">Go back</a></div>
+    <!-- Create Account -->
+    <div id="form-signup" class="login-form hidden">
+      <div>
+        <label class="login-label">Your name</label>
+        <input class="login-input" id="su-name" type="text" placeholder="Sarah Smith" autocomplete="name" />
+      </div>
+      <div>
+        <label class="login-label">Email</label>
+        <input class="login-input" id="su-email" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div>
+        <label class="login-label">Password</label>
+        <div class="pw-wrap">
+          <input class="login-input" id="su-password" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+          <button class="pw-toggle" type="button" onclick="togglePw('su-password',this)">👁</button>
+        </div>
+      </div>
+      <div>
+        <label class="login-label">Confirm password</label>
+        <div class="pw-wrap">
+          <input class="login-input" id="su-confirm" type="password" placeholder="Repeat your password" autocomplete="new-password" />
+          <button class="pw-toggle" type="button" onclick="togglePw('su-confirm',this)">👁</button>
+        </div>
+      </div>
+      <div id="su-error" class="login-error hidden"></div>
+      <button class="login-btn" id="su-btn" onclick="signUp()">Create account →</button>
+      <div class="login-note">Join free — earn points on every stay.</div>
     </div>
 
-    <!-- Step 3: Name (new members) -->
+    <!-- Name step (edge case: member exists but has no name) -->
     <div id="login-step-name" class="login-form hidden">
       <div>
         <label class="login-label">Your name</label>
@@ -591,7 +637,7 @@
       </div>
       <div id="login-name-error" class="login-error hidden"></div>
       <button class="login-btn" id="login-name-btn" onclick="saveName()">Join Bon Voyage →</button>
-      <div class="login-note">Welcome! Let's set up your member card.</div>
+      <div class="login-note">Almost there — what should we call you?</div>
     </div>
   </div>
 
@@ -1023,33 +1069,13 @@ let _memberLoading = false;
 
 async function boot() {
   showScreen('splash');
-
-  // Fallback: if still spinning after 6 seconds, show login
-  const splashFallback = setTimeout(() => {
-    if (document.getElementById('screen-splash') && !document.getElementById('screen-splash').classList.contains('hidden')) {
-      showScreen('login');
-    }
-  }, 6000);
-
-  // Handle magic link — fires when Supabase processes the URL hash tokens
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session && !_memberLoading) {
-      clearTimeout(splashFallback);
-      _memberLoading = true;
-      await loadMember(session.user);
-      _memberLoading = false;
-    }
-  });
-
+  const splashFallback = setTimeout(() => showScreen('login'), 5000);
   try {
     const { data: { session } } = await sb.auth.getSession();
-    if (session && !_memberLoading) {
-      clearTimeout(splashFallback);
-      _memberLoading = true;
+    clearTimeout(splashFallback);
+    if (session) {
       await loadMember(session.user);
-      _memberLoading = false;
-    } else if (!session) {
-      clearTimeout(splashFallback);
+    } else {
       showScreen('login');
     }
   } catch(e) {
@@ -1068,24 +1094,82 @@ function showScreen(name) {
   if (el) { el.classList.remove('hidden'); if (name !== 'splash') el.classList.add('screen-anim'); }
 }
 
-async function sendOtp() {
-  const email = document.getElementById('login-email').value.trim();
-  const err   = document.getElementById('login-email-error');
-  const btn   = document.getElementById('login-email-btn');
-  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; err.classList.remove('hidden'); return; }
-  err.classList.add('hidden');
-  btn.textContent = 'Sending…'; btn.disabled = true;
-  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: 'https://stellar-biscotti-e0bd66.netlify.app/app/' } });
-  if (error) { err.textContent = error.message; err.classList.remove('hidden'); btn.textContent = 'Get my access code →'; btn.disabled = false; return; }
-  _loginEmail = email;
-  document.getElementById('otp-email-display').textContent = email;
-  document.getElementById('login-step-email').classList.add('hidden');
-  document.getElementById('login-step-otp').classList.remove('hidden');
-  // magic link flow — no digit inputs to focus
-  btn.textContent = 'Get my access code →'; btn.disabled = false;
+function setAuthMode(mode) {
+  document.getElementById('form-signin').classList.toggle('hidden', mode !== 'signin');
+  document.getElementById('form-signup').classList.toggle('hidden', mode !== 'signup');
+  document.getElementById('login-step-name').classList.add('hidden');
+  document.getElementById('mode-signin').classList.toggle('active', mode === 'signin');
+  document.getElementById('mode-signup').classList.toggle('active', mode === 'signup');
 }
 
-function resetLogin(e) { e.preventDefault(); document.getElementById('login-step-otp').classList.add('hidden'); document.getElementById('login-step-email').classList.remove('hidden'); }
+function togglePw(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.style.opacity = show ? '0.9' : '0.45';
+}
+
+async function signIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pw    = document.getElementById('si-password').value;
+  const err   = document.getElementById('si-error');
+  const btn   = document.getElementById('si-btn');
+  err.classList.add('hidden');
+  if (!email || !pw) { err.textContent = 'Please enter your email and password.'; err.classList.remove('hidden'); return; }
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error) {
+    err.textContent = error.message === 'Invalid login credentials'
+      ? 'Incorrect email or password. Try again or tap "Create account".'
+      : error.message;
+    err.classList.remove('hidden');
+    btn.textContent = 'Sign in →'; btn.disabled = false;
+    return;
+  }
+  await loadMember(data.user);
+  btn.textContent = 'Sign in →'; btn.disabled = false;
+}
+
+let _signupName = '';
+
+async function signUp() {
+  const name  = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pw    = document.getElementById('su-password').value;
+  const pw2   = document.getElementById('su-confirm').value;
+  const err   = document.getElementById('su-error');
+  const btn   = document.getElementById('su-btn');
+  err.classList.add('hidden');
+  if (!name)  { err.textContent = 'Please enter your name.'; err.classList.remove('hidden'); return; }
+  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; err.classList.remove('hidden'); return; }
+  if (pw.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.remove('hidden'); return; }
+  if (pw !== pw2) { err.textContent = 'Passwords do not match.'; err.classList.remove('hidden'); return; }
+  btn.textContent = 'Creating account…'; btn.disabled = true;
+  const { data, error } = await sb.auth.signUp({ email, password: pw });
+  if (error) {
+    err.textContent = error.message;
+    err.classList.remove('hidden');
+    btn.textContent = 'Create account →'; btn.disabled = false;
+    return;
+  }
+  _signupName = name;
+  await loadMember(data.user);
+  btn.textContent = 'Create account →'; btn.disabled = false;
+}
+
+async function forgotPw(e) {
+  e.preventDefault();
+  const email = document.getElementById('si-email').value.trim();
+  const err   = document.getElementById('si-error');
+  if (!email) { err.style.cssText=''; err.textContent = 'Enter your email above first, then tap Forgot password.'; err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/portal/reset-password.html' });
+  err.style.background = 'rgba(91,191,133,0.12)';
+  err.style.borderColor = 'rgba(91,191,133,0.3)';
+  err.style.color = '#5BBF85';
+  err.textContent = '📬 Reset link sent to ' + email;
+  err.classList.remove('hidden');
+}
 
 async function saveName() {
   const name = document.getElementById('login-name').value.trim();
@@ -1111,7 +1195,7 @@ async function loadMember(user) {
     if (!member) {
       const num = 'BV-' + String(Math.floor(100000 + Math.random() * 900000));
       const { data: newMember, error: insertError } = await sb.from('members')
-        .insert({ user_id: user.id, email: user.email, member_number: num, name: '' })
+        .insert({ user_id: user.id, email: user.email, member_number: num, name: _signupName || '' })
         .select().single();
       if (insertError) {
         // Member might exist with same email — try fetching by email

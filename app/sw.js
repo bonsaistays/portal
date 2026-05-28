@@ -1,5 +1,5 @@
 // Bonsai Stays — Service Worker
-const CACHE = 'bonsai-app-v6';
+const CACHE = 'bonsai-app-v7';
 const PRECACHE = [
   '/app/',
   '/app/index.html',
