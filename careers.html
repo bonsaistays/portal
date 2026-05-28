@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Careers — Join the Bonsai Stays Team</title>
+  <meta name="description" content="Build a career in premium hospitality. Join the Bonsai Stays team and help us raise the standard of short-term rental experiences across Ontario." />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Hero ── */
+    .careers-hero {
+      padding: 148px 0 100px;
+      background: var(--green-deep);
+      position: relative;
+      overflow: hidden;
+    }
+    .careers-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1600&q=80&auto=format&fit=crop') center/cover no-repeat;
+      opacity: 0.18;
+    }
+    .careers-hero-inner {
+      position: relative; z-index: 2;
+      max-width: 720px;
+    }
+    .careers-hero h1 { color: var(--white); margin-bottom: 20px; }
+    .careers-hero h1 em { color: var(--gold-light); font-style: italic; }
+    .careers-hero p { color: rgba(255,255,255,0.78); font-size: 1.1rem; line-height: 1.8; margin-bottom: 36px; max-width: 580px; }
+    .hero-cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* ── Perks strip ── */
+    .perks-strip {
+      background: var(--cream);
+      padding: 64px 0;
+    }
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      background: var(--gray-pale);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .perk-item {
+      background: var(--white);
+      padding: 36px 28px;
+      text-align: center;
+    }
+    .perk-icon { font-size: 2rem; margin-bottom: 14px; }
+    .perk-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; }
+    .perk-desc { font-size: 0.86rem; color: var(--gray-mid); line-height: 1.6; }
+
+    /* ── Mission pull-quote ── */
+    .mission-bar {
+      background: var(--green-deep);
+      padding: 72px 0;
+    }
+    .mission-bar-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .mission-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 2.8vw, 2rem);
+      font-weight: 500;
+      color: var(--white);
+      line-height: 1.45;
+    }
+    .mission-quote em { color: var(--gold-light); font-style: italic; }
+    .mission-bar-text p { color: rgba(255,255,255,0.75); font-size: 0.97rem; line-height: 1.8; margin-bottom: 14px; }
+    .mission-bar-text p:last-child { margin-bottom: 0; }
+
+    /* ── Role areas ── */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .role-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--gray-pale);
+      padding: 36px 32px;
+      transition: var(--transition);
+    }
+    .role-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); border-color: var(--green-light); }
+    .role-icon { font-size: 2rem; margin-bottom: 16px; }
+    .role-card h3 { font-size: 1.2rem; color: var(--charcoal); margin-bottom: 10px; }
+    .role-card p { font-size: 0.9rem; line-height: 1.65; margin-bottom: 18px; }
+    .role-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .role-tag {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em;
+      background: var(--green-tint); color: var(--green-mid);
+      padding: 4px 11px; border-radius: 20px;
+    }
+
+    /* ── Values ── */
+    .values-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .value-block { display: flex; gap: 18px; align-items: flex-start; }
+    .value-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 600;
+      color: var(--green-light); flex-shrink: 0;
+      line-height: 1;
+    }
+    .value-block h4 { font-size: 1rem; color: var(--charcoal); margin-bottom: 7px; }
+    .value-block p { font-size: 0.87rem; line-height: 1.65; }
+
+    /* ── Application form layout ── */
+    .apply-section { background: var(--cream); }
+    .apply-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 48px;
+      align-items: flex-start;
+    }
+
+    /* Form card */
+    .apply-form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--gray-pale);
+      padding: 44px 40px;
+    }
+    .apply-form-card h3 {
+      font-size: 1.5rem; color: var(--charcoal); margin-bottom: 6px;
+    }
+    .apply-form-card > p {
+      font-size: 0.9rem; margin-bottom: 32px; color: var(--gray-mid);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--green-deep); margin-bottom: 8px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--white);
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      padding: 13px 16px;
+      font-size: 0.93rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--charcoal);
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none; border-color: var(--green-sage);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--gray-light); }
+    .form-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A5A58' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; cursor: pointer; }
+    .form-submit-btn {
+      width: 100%; padding: 17px;
+      background: var(--green-deep); color: var(--white);
+      font-size: 0.95rem; font-weight: 700;
+      border: none; border-radius: var(--radius-sm);
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 8px;
+    }
+    .form-submit-btn:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .form-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .form-note { font-size: 0.78rem; color: var(--gray-light); text-align: center; margin-top: 12px; line-height: 1.5; }
+    .form-error {
+      background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2);
+      color: #B91C1C; font-size: 0.85rem; padding: 12px 16px;
+      border-radius: var(--radius-sm); margin-bottom: 20px;
+    }
+    .form-success {
+      text-align: center; padding: 48px 24px;
+    }
+    .form-success-icon { font-size: 3rem; margin-bottom: 20px; }
+    .form-success h3 { font-size: 1.5rem; color: var(--charcoal); margin-bottom: 10px; }
+    .form-success p { font-size: 0.95rem; max-width: 380px; margin: 0 auto; }
+
+    /* Sidebar */
+    .apply-sidebar { display: flex; flex-direction: column; gap: 24px; }
+    .sidebar-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--gray-pale);
+      padding: 30px 28px;
+    }
+    .sidebar-card h4 { font-size: 1rem; color: var(--charcoal); margin-bottom: 16px; }
+    .sidebar-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.88rem; color: var(--gray-mid); line-height: 1.5;
+    }
+    .sidebar-list li::before {
+      content: '✓';
+      color: var(--green-sage);
+      font-weight: 700; flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .sidebar-step {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--gray-pale);
+      margin-bottom: 18px;
+    }
+    .sidebar-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-tint); color: var(--green-deep);
+      font-size: 0.78rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .step-title { font-size: 0.88rem; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
+    .step-desc { font-size: 0.8rem; color: var(--gray-mid); line-height: 1.5; }
+    .sidebar-highlight {
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+      text-align: center;
+      padding: 28px;
+    }
+    .sidebar-highlight p { color: rgba(255,255,255,0.75); font-size: 0.88rem; line-height: 1.6; }
+    .sidebar-highlight strong { color: var(--white); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .apply-layout { grid-template-columns: 1fr; }
+      .apply-sidebar { order: -1; display: grid; grid-template-columns: 1fr 1fr; }
+      .perks-grid { grid-template-columns: repeat(2, 1fr); }
+      .mission-bar-inner { grid-template-columns: 1fr; gap: 36px; }
+    }
+    @media (max-width: 768px) {
+      .roles-grid { grid-template-columns: 1fr; }
+      .values-row { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .apply-form-card { padding: 28px 20px; }
+      .apply-sidebar { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 540px) {
+      .perks-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:38px;width:auto;display:block;" />
+      </a>
+      <ul class="nav-links">
+        <li><a href="guests/properties.html">Properties</a></li>
+        <li><a href="guests/experiences.html">Experiences</a></li>
+        <li><a href="guests/about.html">About</a></li>
+        <li><a href="careers.html" style="color:var(--green-deep);font-weight:600;">Careers</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="partners/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Partners</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="careers-hero">
+    <div class="container">
+      <div class="careers-hero-inner">
+        <span class="eyebrow" style="color:var(--gold-light);">We're Hiring</span>
+        <h1>Build something <em>worth staying for.</em></h1>
+        <p>We're a small, driven team raising the standard of short-term hospitality across Ontario. If you care deeply about the details — the kind that guests remember long after they check out — we'd love to meet you.</p>
+        <div class="hero-cta-row">
+          <a href="#apply" class="btn btn-primary btn-lg" style="background:var(--gold);color:var(--green-deep);border-color:var(--gold);">Apply Now</a>
+          <a href="guests/about.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.35);color:var(--white);">Our Story</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Perks strip -->
+  <section class="perks-strip">
+    <div class="container">
+      <div class="perks-grid">
+        <div class="perk-item">
+          <div class="perk-icon">🌿</div>
+          <div class="perk-title">Meaningful Work</div>
+          <div class="perk-desc">Every role directly shapes the guest experience. Your work shows up in real stays, real reviews, and real memories.</div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon">📈</div>
+          <div class="perk-title">Room to Grow</div>
+          <div class="perk-desc">We're growing fast. Early team members take on more responsibility and shape how their role evolves alongside the company.</div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon">🤝</div>
+          <div class="perk-title">Small Team, Big Trust</div>
+          <div class="perk-desc">No layers of approval. You own your area, move quickly, and hear directly from leadership. Your voice carries weight.</div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon">🏡</div>
+          <div class="perk-title">Team Stay Perks</div>
+          <div class="perk-desc">Team members enjoy discounted access to our property collection. Experience what you're building firsthand.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission bar -->
+  <section class="mission-bar">
+    <div class="container">
+      <div class="mission-bar-inner">
+        <div class="mission-quote">
+          "We hire people who care about the <em>experience</em> — not just the transaction."
+        </div>
+        <div class="mission-bar-text">
+          <span class="eyebrow" style="color:var(--green-light);">Why Bonsai Stays</span>
+          <p>Bonsai Stays is Ontario's premium short-term rental brand — managing a curated collection of properties across cottage country, Collingwood, Toronto and beyond. We don't just list homes; we manage every detail of the guest experience from first click to check-out.</p>
+          <p>Behind that experience is a team that cares — about quality, about people, and about building something they're genuinely proud to work on.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roles -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Where You Fit In</span>
+        <h2>Areas we're <em>building.</em></h2>
+        <p>We're growing across every part of the business. Here's where we're looking for talent right now.</p>
+      </div>
+      <div class="roles-grid">
+        <div class="role-card">
+          <div class="role-icon">🏠</div>
+          <h3>Property Operations</h3>
+          <p>The backbone of the Bonsai standard. From turnover coordination to maintenance, inspection to supplier relationships — this team makes sure every property is guest-ready, every time.</p>
+          <div class="role-tags">
+            <span class="role-tag">Turnover Coordination</span>
+            <span class="role-tag">Property Inspection</span>
+            <span class="role-tag">Maintenance Liaison</span>
+            <span class="role-tag">Inventory Management</span>
+          </div>
+        </div>
+        <div class="role-card">
+          <div class="role-icon">🌟</div>
+          <h3>Guest Experience</h3>
+          <p>The voice of Bonsai Stays. Our guest experience team handles everything from pre-arrival communication to in-stay support — turning good guests into loyal members of Bon Voyage.</p>
+          <div class="role-tags">
+            <span class="role-tag">Guest Communications</span>
+            <span class="role-tag">Concierge Services</span>
+            <span class="role-tag">Review Management</span>
+            <span class="role-tag">Loyalty Program</span>
+          </div>
+        </div>
+        <div class="role-card">
+          <div class="role-icon">📣</div>
+          <h3>Marketing & Brand</h3>
+          <p>We have a strong visual identity and a compelling story to tell. Marketing at Bonsai covers content creation, social media, email, photography direction, and partnerships with local experience providers.</p>
+          <div class="role-tags">
+            <span class="role-tag">Content & Copywriting</span>
+            <span class="role-tag">Social Media</span>
+            <span class="role-tag">Photography Direction</span>
+            <span class="role-tag">Email Marketing</span>
+          </div>
+        </div>
+        <div class="role-card">
+          <div class="role-icon">🤝</div>
+          <h3>Owner Relations & Growth</h3>
+          <p>Bonsai Stays grows by onboarding great properties. This team builds relationships with property owners, manages the onboarding experience, and ensures our partners see real results on our platform.</p>
+          <div class="role-tags">
+            <span class="role-tag">Owner Onboarding</span>
+            <span class="role-tag">Revenue Reporting</span>
+            <span class="role-tag">Partner Success</span>
+            <span class="role-tag">Market Expansion</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What we look for -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Who Thrives Here</span>
+        <h2>What we <em>look for.</em></h2>
+        <p>We don't have a rigid checklist. We hire people who embody these qualities — then trust them to grow.</p>
+      </div>
+      <div class="values-row">
+        <div class="value-block">
+          <div class="value-num">01</div>
+          <div>
+            <h4>High Ownership</h4>
+            <p>You treat every task like it has your name on it. No detail is someone else's problem, and you follow through without being reminded.</p>
+          </div>
+        </div>
+        <div class="value-block">
+          <div class="value-num">02</div>
+          <div>
+            <h4>Genuine Warmth</h4>
+            <p>You understand that hospitality is a feeling, not a checklist. Every interaction — guest, owner or colleague — gets your full attention and care.</p>
+          </div>
+        </div>
+        <div class="value-block">
+          <div class="value-num">03</div>
+          <div>
+            <h4>Curiosity</h4>
+            <p>You ask why things work the way they do, look for better ways of doing them, and aren't afraid to suggest ideas — even when they push back on the status quo.</p>
+          </div>
+        </div>
+        <div class="value-block">
+          <div class="value-num">04</div>
+          <div>
+            <h4>Calm Under Pressure</h4>
+            <p>Hospitality moves fast. When things go sideways, you stay even-keeled, problem-solve calmly, and keep the guest experience at the centre.</p>
+          </div>
+        </div>
+        <div class="value-block">
+          <div class="value-num">05</div>
+          <div>
+            <h4>Attention to Detail</h4>
+            <p>You notice things others miss — the wrong pillow arrangement, a typo in a listing, the one line in a guest message that changes the entire tone. That eye matters here.</p>
+          </div>
+        </div>
+        <div class="value-block">
+          <div class="value-num">06</div>
+          <div>
+            <h4>Team First</h4>
+            <p>We're building this together. You share knowledge freely, celebrate the team's wins as much as your own, and make the people around you better at what they do.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Application form -->
+  <section class="section apply-section" id="apply">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Join the Team</span>
+        <h2>Apply to <em>Bonsai Stays.</em></h2>
+        <p>Tell us a little about yourself and what you're looking for. We read every application personally.</p>
+      </div>
+      <div class="apply-layout">
+
+        <!-- Form -->
+        <div class="apply-form-card">
+          <h3>Your Application</h3>
+          <p>Fill in the details below and we'll be in touch within a few business days.</p>
+
+          <div id="apply-error" class="form-error" style="display:none;"></div>
+
+          <div id="apply-form-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name *</label>
+                <input class="form-input" id="ca-name" type="text" placeholder="Daniel Laport" autocomplete="name" />
+              </div>
+              <div class="form-group">
+                <label>Email Address *</label>
+                <input class="form-input" id="ca-email" type="email" placeholder="you@email.com" autocomplete="email" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input class="form-input" id="ca-phone" type="tel" placeholder="+1 (416) 555-0100" autocomplete="tel" />
+              </div>
+              <div class="form-group">
+                <label>City / Location *</label>
+                <input class="form-input" id="ca-location" type="text" placeholder="Toronto, ON" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Area of Interest *</label>
+              <select class="form-select" id="ca-role">
+                <option value="">Select a department…</option>
+                <option value="Property Operations">Property Operations</option>
+                <option value="Guest Experience">Guest Experience</option>
+                <option value="Marketing & Brand">Marketing &amp; Brand</option>
+                <option value="Owner Relations & Growth">Owner Relations &amp; Growth</option>
+                <option value="Other">Other / Open to Anything</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Relevant Experience</label>
+              <textarea class="form-textarea" id="ca-experience" placeholder="Tell us about your background — hospitality, customer service, property management, marketing, or anything else that feels relevant…" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Why Bonsai Stays? *</label>
+              <textarea class="form-textarea" id="ca-why" placeholder="What draws you to Bonsai Stays specifically? What do you hope to contribute or grow into?" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+              <label>LinkedIn / Portfolio / Website</label>
+              <input class="form-input" id="ca-portfolio" type="url" placeholder="https://linkedin.com/in/yourprofile" />
+            </div>
+
+            <button class="form-submit-btn" id="ca-submit" onclick="submitApplication()">Submit Application →</button>
+            <p class="form-note">We respect your privacy. Your details are only used to evaluate your application and will never be shared with third parties.</p>
+          </div>
+
+          <!-- Success state -->
+          <div class="form-success hidden" id="apply-success">
+            <div class="form-success-icon">🌿</div>
+            <h3>Application received.</h3>
+            <p style="color:var(--gray-mid);">Thank you for your interest in joining the Bonsai Stays team. We read every application personally and will be in touch within a few business days.</p>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="apply-sidebar">
+
+          <div class="sidebar-card sidebar-highlight">
+            <strong style="font-family:'Playfair Display',serif;font-size:1.1rem;display:block;margin-bottom:10px;">A note from the team.</strong>
+            <p>We're a small team that takes hiring seriously. We'd rather take a little longer to find the right person than rush and get it wrong. If we think you're a fit, expect a real conversation — not a conveyor-belt process.</p>
+          </div>
+
+          <div class="sidebar-card">
+            <h4>What to expect</h4>
+            <div>
+              <div class="sidebar-step">
+                <div class="step-num">1</div>
+                <div>
+                  <div class="step-title">Application Review</div>
+                  <div class="step-desc">We read every application personally, usually within 2–3 business days.</div>
+                </div>
+              </div>
+              <div class="sidebar-step">
+                <div class="step-num">2</div>
+                <div>
+                  <div class="step-title">Intro Call</div>
+                  <div class="step-desc">A relaxed 20-minute chat to get to know each other and answer any questions you have about the role.</div>
+                </div>
+              </div>
+              <div class="sidebar-step">
+                <div class="step-num">3</div>
+                <div>
+                  <div class="step-title">Practical Round</div>
+                  <div class="step-desc">A short, relevant task or conversation that gives us a real sense of how you think and work.</div>
+                </div>
+              </div>
+              <div class="sidebar-step">
+                <div class="step-num">4</div>
+                <div>
+                  <div class="step-title">Meet the Team</div>
+                  <div class="step-desc">Meet a couple of teammates before we move forward — we want you to know who you'd be working with.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-card">
+            <h4>Good to know</h4>
+            <ul class="sidebar-list">
+              <li>We operate across Ontario — some roles are in-market, some are remote-flexible</li>
+              <li>We're an equal opportunity team and welcome applicants from all backgrounds</li>
+              <li>You don't need hospitality experience — we care more about character and drive</li>
+              <li>Team members get discounted stays at Bonsai properties</li>
+              <li>Questions? Reach us at <a href="mailto:team@bonsaistays.com" style="color:var(--green-sage);font-weight:500;">team@bonsaistays.com</a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:30px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
+          <div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">P</a></div>
+        </div>
+        <div class="footer-col"><h5>Explore</h5><ul><li><a href="guests/properties.html">All Properties</a></li><li><a href="guests/experiences.html">Experiences</a></li><li><a href="guests/about.html">About Us</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="guests/about.html">About</a></li><li><a href="partners/index.html">For Partners</a></li><li><a href="careers.html" style="color:var(--green-sage);font-weight:500;">Careers</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+
+    async function submitApplication() {
+      const name      = document.getElementById('ca-name').value.trim();
+      const email     = document.getElementById('ca-email').value.trim();
+      const phone     = document.getElementById('ca-phone').value.trim();
+      const location  = document.getElementById('ca-location').value.trim();
+      const role      = document.getElementById('ca-role').value;
+      const experience= document.getElementById('ca-experience').value.trim();
+      const why       = document.getElementById('ca-why').value.trim();
+      const portfolio = document.getElementById('ca-portfolio').value.trim();
+
+      const errEl = document.getElementById('apply-error');
+      errEl.style.display = 'none';
+
+      if (!name)     { showErr('Please enter your full name.'); return; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('Please enter a valid email address.'); return; }
+      if (!location) { showErr('Please enter your city or location.'); return; }
+      if (!role)     { showErr('Please select an area of interest.'); return; }
+      if (!why)      { showErr('Please tell us why you\'re interested in Bonsai Stays.'); return; }
+
+      const btn = document.getElementById('ca-submit');
+      btn.disabled = true; btn.textContent = 'Submitting…';
+
+      const { error } = await sb.from('team_applications').insert({
+        name, email, phone: phone || null,
+        location, role_interest: role,
+        experience: experience || null,
+        why_bonsai: why,
+        portfolio_url: portfolio || null,
+      });
+
+      if (error) {
+        showErr('Something went wrong. Please try again or email us directly at team@bonsaistays.com');
+        btn.disabled = false; btn.textContent = 'Submit Application →';
+        return;
+      }
+
+      gtag('event', 'team_application', { role_interest: role });
+
+      document.getElementById('apply-form-body').classList.add('hidden');
+      document.getElementById('apply-success').classList.remove('hidden');
+      window.scrollTo({ top: document.getElementById('apply').offsetTop - 80, behavior: 'smooth' });
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('apply-error');
+      el.textContent = msg; el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  </script>
+
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6a15e4a761875d1c37232646/1jpioabv2';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!--End of Tawk.to Script-->
+
+</body>
+</html>
