@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Applications</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    /* ── Tabs ── */
+    .app-tabs {
+      display: flex; gap: 4px;
+      background: var(--a-gray-pale);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 24px;
+    }
+    .app-tab {
+      padding: 9px 20px; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--a-gray); background: none;
+      transition: var(--transition); cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .app-tab.active { background: var(--a-white); color: var(--a-green); box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+    .tab-badge {
+      background: var(--a-green); color: #fff;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px; min-width: 20px; text-align: center;
+    }
+    .app-tab.active .tab-badge { background: var(--a-green); }
+    .tab-badge.zero { background: var(--a-gray-pale); color: var(--a-gray); }
+
+    /* ── Table ── */
+    .app-table-wrap {
+      background: var(--a-white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .app-filters {
+      padding: 16px 20px;
+      display: flex; gap: 8px; align-items: center;
+      border-bottom: 1px solid var(--a-gray-pale);
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 6px 14px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 600;
+      background: none; color: var(--a-gray);
+      border: 1.5px solid var(--a-gray-pale);
+      cursor: pointer; transition: var(--transition);
+    }
+    .filter-chip.active, .filter-chip:hover {
+      background: var(--a-green); color: #fff; border-color: var(--a-green);
+    }
+    .app-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .app-table th {
+      padding: 11px 16px; text-align: left;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--a-gray); border-bottom: 1px solid var(--a-gray-pale);
+      background: #FAFAF9;
+    }
+    .app-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--a-gray-pale);
+      vertical-align: middle;
+      color: var(--a-charcoal);
+    }
+    .app-table tbody tr:last-child td { border-bottom: none; }
+    .app-table tbody tr {
+      cursor: pointer; transition: background 0.15s;
+    }
+    .app-table tbody tr:hover { background: #F9F8F6; }
+    .app-table tbody tr.selected { background: #EBF5EE; }
+    .app-name { font-weight: 600; color: var(--a-charcoal); }
+    .app-sub  { font-size: 0.75rem; color: var(--a-gray); margin-top: 2px; }
+    .app-date { font-size: 0.8rem; color: var(--a-gray); white-space: nowrap; }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 4px 10px; border-radius: 20px;
+      white-space: nowrap;
+    }
+    .status-pending  { background: rgba(99,102,241,0.12); color: #4338CA; }
+    .status-reviewing{ background: rgba(245,158,11,0.12); color: #B45309; }
+    .status-approved { background: rgba(16,185,129,0.12); color: #065F46; }
+    .status-declined { background: rgba(239,68,68,0.12);  color: #B91C1C; }
+
+    /* Empty state */
+    .table-empty {
+      padding: 64px 24px; text-align: center;
+    }
+    .table-empty-icon { font-size: 2.4rem; margin-bottom: 12px; }
+    .table-empty h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--a-charcoal); margin-bottom: 6px; }
+    .table-empty p { font-size: 0.85rem; color: var(--a-gray); }
+
+    /* ── Detail drawer ── */
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 200; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .detail-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(540px, 100vw);
+      background: var(--a-white);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: flex; flex-direction: column;
+      box-shadow: -4px 0 32px rgba(0,0,0,0.14);
+    }
+    .detail-drawer.open { transform: translateX(0); }
+    .drawer-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--a-gray-pale);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      flex-shrink: 0;
+    }
+    .drawer-header-left h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; color: var(--a-charcoal); margin-bottom: 4px;
+    }
+    .drawer-header-left p { font-size: 0.82rem; color: var(--a-gray); }
+    .btn-drawer-close {
+      background: var(--a-gray-pale); border: none; color: var(--a-gray);
+      width: 32px; height: 32px; border-radius: 50%;
+      font-size: 1rem; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+    .btn-drawer-close:hover { background: var(--a-gray); color: #fff; }
+    .drawer-body {
+      padding: 24px; overflow-y: auto; flex: 1;
+    }
+    .drawer-body::-webkit-scrollbar { width: 5px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: var(--a-gray-pale); border-radius: 3px; }
+
+    /* Drawer sections */
+    .drawer-section { margin-bottom: 28px; }
+    .drawer-section-title {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--a-gray); margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--a-gray-pale);
+    }
+    .drawer-field { margin-bottom: 14px; }
+    .drawer-field-label {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--a-gray); margin-bottom: 4px;
+    }
+    .drawer-field-val {
+      font-size: 0.88rem; color: var(--a-charcoal); line-height: 1.6;
+    }
+    .drawer-field-val a { color: var(--a-sage); text-decoration: underline; }
+    .drawer-fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .platform-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .platform-tag {
+      font-size: 0.72rem; font-weight: 600;
+      background: var(--a-green-tint); color: var(--a-green);
+      padding: 3px 10px; border-radius: 12px;
+    }
+
+    /* Drawer actions */
+    .drawer-actions {
+      padding: 18px 24px;
+      border-top: 1px solid var(--a-gray-pale);
+      background: #FAFAF9;
+      flex-shrink: 0;
+    }
+    .status-select-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .status-select-row label {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--a-gray); flex-shrink: 0;
+    }
+    .status-select {
+      flex: 1; background: var(--a-white);
+      border: 1.5px solid var(--a-gray-pale);
+      border-radius: var(--radius-sm); padding: 9px 12px;
+      font-size: 0.85rem; font-family: inherit;
+      color: var(--a-charcoal); cursor: pointer;
+    }
+    .status-select:focus { outline: none; border-color: var(--a-sage); }
+    .drawer-btn-row { display: flex; gap: 10px; }
+    .btn-drawer-action {
+      flex: 1; padding: 11px 16px; border-radius: var(--radius-sm);
+      font-size: 0.83rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: var(--transition);
+    }
+    .btn-save { background: var(--a-green); color: #fff; }
+    .btn-save:hover { background: #0d3527; }
+    .btn-email { background: var(--a-white); color: var(--a-green); border: 1.5px solid var(--a-gray-pale); }
+    .btn-email:hover { border-color: var(--a-green); }
+
+    /* Nav badge */
+    .nav-app-badge {
+      background: #EF4444; color: #fff;
+      font-size: 0.6rem; font-weight: 700;
+      padding: 1px 5px; border-radius: 8px;
+      margin-left: 4px; vertical-align: middle;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:28px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="members.html">Members</a>
+    <a href="businesses.html">Businesses</a>
+    <a href="applications.html" class="active">Applications <span class="nav-app-badge hidden" id="nav-new-badge">0</span></a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">A</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <!-- Stats -->
+  <div class="admin-stats" id="stats-row">
+    <div class="stat-card"><div class="stat-icon">📬</div><div><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total applications</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🆕</div><div><div class="stat-num" id="stat-new">—</div><div class="stat-label">New (unreviewed)</div></div></div>
+    <div class="stat-card"><div class="stat-icon">👁️</div><div><div class="stat-num" id="stat-reviewing">—</div><div class="stat-label">Under review</div></div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div><div class="stat-num" id="stat-approved">—</div><div class="stat-label">Approved</div></div></div>
+  </div>
+
+  <!-- Header -->
+  <div class="admin-page-header">
+    <div>
+      <h1>Applications</h1>
+      <p id="page-subtitle">Reviewing all incoming applications</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="app-tabs">
+    <button class="app-tab active" id="tab-prop" onclick="switchTab('property')">
+      🏠 Property Owners <span class="tab-badge zero" id="badge-prop">0</span>
+    </button>
+    <button class="app-tab" id="tab-team" onclick="switchTab('team')">
+      👥 Team <span class="tab-badge zero" id="badge-team">0</span>
+    </button>
+  </div>
+
+  <!-- Property applications -->
+  <div id="pane-property">
+    <div class="app-table-wrap">
+      <div class="app-filters">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('prop','all',this)">All</button>
+        <button class="filter-chip" data-filter="pending"   onclick="setFilter('prop','pending',this)">New</button>
+        <button class="filter-chip" data-filter="reviewing" onclick="setFilter('prop','reviewing',this)">Reviewing</button>
+        <button class="filter-chip" data-filter="approved"  onclick="setFilter('prop','approved',this)">Approved</button>
+        <button class="filter-chip" data-filter="declined"  onclick="setFilter('prop','declined',this)">Declined</button>
+      </div>
+      <div id="prop-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Owner</th>
+              <th>Property</th>
+              <th>Location</th>
+              <th>Platforms</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="prop-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="prop-empty">
+          <div class="table-empty-icon">🏠</div>
+          <h3>No applications yet</h3>
+          <p>Property owner applications from the "List Your Property" page will appear here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team applications -->
+  <div id="pane-team" class="hidden">
+    <div class="app-table-wrap">
+      <div class="app-filters">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('team','all',this)">All</button>
+        <button class="filter-chip" data-filter="pending"   onclick="setFilter('team','pending',this)">New</button>
+        <button class="filter-chip" data-filter="reviewing" onclick="setFilter('team','reviewing',this)">Reviewing</button>
+        <button class="filter-chip" data-filter="approved"  onclick="setFilter('team','approved',this)">Approved</button>
+        <button class="filter-chip" data-filter="declined"  onclick="setFilter('team','declined',this)">Declined</button>
+      </div>
+      <div id="team-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>Role Interest</th>
+              <th>Location</th>
+              <th>Portfolio</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="team-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="team-empty">
+          <div class="table-empty-icon">👥</div>
+          <h3>No applications yet</h3>
+          <p>Team applications from the Careers page will appear here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Drawer overlay -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- Detail drawer -->
+<div class="detail-drawer" id="detail-drawer">
+  <div class="drawer-header">
+    <div class="drawer-header-left">
+      <h3 id="drawer-name">—</h3>
+      <p id="drawer-meta">—</p>
+    </div>
+    <button class="btn-drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body">
+    <!-- Filled dynamically -->
+  </div>
+  <div class="drawer-actions">
+    <div class="status-select-row">
+      <label>Status</label>
+      <select class="status-select" id="drawer-status-select">
+        <option value="pending">🔵 New</option>
+        <option value="reviewing">🟡 Reviewing</option>
+        <option value="approved">🟢 Approved</option>
+        <option value="declined">🔴 Declined</option>
+      </select>
+    </div>
+    <div class="drawer-btn-row">
+      <button class="btn-drawer-action btn-save" onclick="saveDrawerStatus()">Save Status</button>
+      <button class="btn-drawer-action btn-email" id="drawer-email-btn" onclick="replyByEmail()">✉️ Reply by Email</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── Auth guard ────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  const email = session.user.email || '';
+  document.getElementById('admin-avatar').textContent = email[0]?.toUpperCase() || 'A';
+  await loadAll();
+})();
+
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ── State ─────────────────────────────────────────────────────────────────
+let _propApps = [];
+let _teamApps = [];
+let _propFilter = 'all';
+let _teamFilter = 'all';
+let _activeTab  = 'property';
+let _openApp    = null;
+let _openType   = null;
+
+// ── Load data ─────────────────────────────────────────────────────────────
+async function loadAll() {
+  const [propRes, teamRes] = await Promise.all([
+    sb.from('property_applications').select('*').order('created_at', { ascending: false }),
+    sb.from('team_applications').select('*').order('created_at', { ascending: false }),
+  ]);
+
+  _propApps = propRes.data || [];
+  _teamApps = teamRes.data || [];
+
+  updateStats();
+  renderPropTable();
+  renderTeamTable();
+}
+
+function updateStats() {
+  const all  = [..._propApps, ..._teamApps];
+  const newCount      = all.filter(a => !a.status || a.status === 'pending').length;
+  const reviewingCount= all.filter(a => a.status === 'reviewing').length;
+  const approvedCount = all.filter(a => a.status === 'approved').length;
+
+  document.getElementById('stat-total').textContent     = all.length;
+  document.getElementById('stat-new').textContent       = newCount;
+  document.getElementById('stat-reviewing').textContent = reviewingCount;
+  document.getElementById('stat-approved').textContent  = approvedCount;
+
+  const propNew = _propApps.filter(a => !a.status || a.status === 'pending').length;
+  const teamNew = _teamApps.filter(a => !a.status || a.status === 'pending').length;
+
+  setBadge('badge-prop', _propApps.length, propNew);
+  setBadge('badge-team', _teamApps.length, teamNew);
+
+  // Nav badge
+  const totalNew = propNew + teamNew;
+  const nb = document.getElementById('nav-new-badge');
+  if (totalNew > 0) {
+    nb.textContent = totalNew;
+    nb.classList.remove('hidden');
+  } else {
+    nb.classList.add('hidden');
+  }
+}
+
+function setBadge(id, total, newCount) {
+  const el = document.getElementById(id);
+  el.textContent = total;
+  el.className = 'tab-badge' + (newCount > 0 ? '' : ' zero');
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(tab) {
+  _activeTab = tab;
+  document.getElementById('pane-property').classList.toggle('hidden', tab !== 'property');
+  document.getElementById('pane-team').classList.toggle('hidden', tab !== 'team');
+  document.getElementById('tab-prop').classList.toggle('active', tab === 'property');
+  document.getElementById('tab-team').classList.toggle('active', tab === 'team');
+  closeDrawer();
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────
+function setFilter(type, filter, btn) {
+  if (type === 'prop') {
+    _propFilter = filter;
+    document.querySelectorAll('#pane-property .filter-chip').forEach(b => b.classList.remove('active'));
+    renderPropTable();
+  } else {
+    _teamFilter = filter;
+    document.querySelectorAll('#pane-team .filter-chip').forEach(b => b.classList.remove('active'));
+    renderTeamTable();
+  }
+  btn.classList.add('active');
+}
+
+// ── Render property table ─────────────────────────────────────────────────
+function renderPropTable() {
+  const filtered = _propFilter === 'all'
+    ? _propApps
+    : _propApps.filter(a => (a.status || 'pending') === _propFilter);
+
+  const tbody = document.getElementById('prop-tbody');
+  const empty = document.getElementById('prop-empty');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map(a => {
+    const status  = a.status || 'pending';
+    const plat    = (a.platforms || []).slice(0, 2).join(', ') + ((a.platforms||[]).length > 2 ? ` +${a.platforms.length-2}` : '');
+    const date    = new Date(a.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `
+      <tr onclick="openDrawer('property','${a.id}')" ${_openApp?.id === a.id ? 'class="selected"' : ''}>
+        <td>
+          <div class="app-name">${esc(a.owner_name || '—')}</div>
+          <div class="app-sub">${esc(a.owner_email || '')}</div>
+        </td>
+        <td>
+          <div class="app-name">${esc(a.prop_name || '—')}</div>
+          <div class="app-sub">${esc(a.prop_type || '')}${a.prop_bedrooms ? ' · ' + a.prop_bedrooms + ' bed' : ''}</div>
+        </td>
+        <td>${esc(a.prop_city || '—')}</td>
+        <td style="font-size:0.8rem;color:var(--a-gray);">${plat || '—'}</td>
+        <td class="app-date">${date}</td>
+        <td>${statusBadge(status)}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ── Render team table ─────────────────────────────────────────────────────
+function renderTeamTable() {
+  const filtered = _teamFilter === 'all'
+    ? _teamApps
+    : _teamApps.filter(a => (a.status || 'pending') === _teamFilter);
+
+  const tbody = document.getElementById('team-tbody');
+  const empty = document.getElementById('team-empty');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map(a => {
+    const status = a.status || 'pending';
+    const date   = new Date(a.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+    const portfolioHTML = a.portfolio_url
+      ? `<a href="${esc(a.portfolio_url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--a-sage);font-size:0.8rem;">View ↗</a>`
+      : '<span style="color:var(--a-gray);font-size:0.8rem;">—</span>';
+    return `
+      <tr onclick="openDrawer('team','${a.id}')" ${_openApp?.id === a.id ? 'class="selected"' : ''}>
+        <td>
+          <div class="app-name">${esc(a.name || '—')}</div>
+          <div class="app-sub">${esc(a.email || '')}</div>
+        </td>
+        <td>${esc(a.role_interest || '—')}</td>
+        <td>${esc(a.location || '—')}</td>
+        <td>${portfolioHTML}</td>
+        <td class="app-date">${date}</td>
+        <td>${statusBadge(status)}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ── Drawer ────────────────────────────────────────────────────────────────
+function openDrawer(type, id) {
+  const app = type === 'property'
+    ? _propApps.find(a => a.id === id)
+    : _teamApps.find(a => a.id === id);
+  if (!app) return;
+
+  _openApp  = app;
+  _openType = type;
+
+  // Header
+  const name = type === 'property' ? app.owner_name : app.name;
+  const meta = type === 'property'
+    ? `${app.prop_name || 'Property application'} · ${app.prop_city || ''}`
+    : `${app.role_interest || 'Team application'} · ${app.location || ''}`;
+  document.getElementById('drawer-name').textContent = name || '—';
+  document.getElementById('drawer-meta').textContent = meta;
+  document.getElementById('drawer-status-select').value = app.status || 'pending';
+
+  // Body
+  document.getElementById('drawer-body').innerHTML = type === 'property'
+    ? buildPropDrawer(app)
+    : buildTeamDrawer(app);
+
+  // Highlight row
+  document.querySelectorAll('.app-table tbody tr').forEach(r => r.classList.remove('selected'));
+  event.currentTarget?.classList.add('selected');
+
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('detail-drawer').classList.add('open');
+
+  // Auto-mark as reviewing if still pending
+  if (!app.status || app.status === 'pending') {
+    updateStatus(type, id, 'reviewing', false);
+  }
+}
+
+function buildPropDrawer(a) {
+  const platforms = (a.platforms || []);
+  return `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Owner Details</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Name</div><div class="drawer-field-val">${esc(a.owner_name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Email</div><div class="drawer-field-val"><a href="mailto:${esc(a.owner_email)}">${esc(a.owner_email||'—')}</a></div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Phone</div><div class="drawer-field-val">${esc(a.owner_phone||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">How they heard</div><div class="drawer-field-val">${esc(a.source||'—')}</div></div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Property Details</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Property Name</div><div class="drawer-field-val">${esc(a.prop_name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">City</div><div class="drawer-field-val">${esc(a.prop_city||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Region</div><div class="drawer-field-val">${esc(a.prop_region||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Type</div><div class="drawer-field-val">${esc(a.prop_type||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Bedrooms / Baths</div><div class="drawer-field-val">${a.prop_bedrooms||'—'} bed · ${a.prop_bathrooms||'—'} bath</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Max Guests</div><div class="drawer-field-val">${a.prop_guests||'—'}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Est. Nightly Rate</div><div class="drawer-field-val">${a.prop_price ? '$' + a.prop_price : '—'}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Platform Rating</div><div class="drawer-field-val">${esc(a.prop_rating||'—')}</div></div>
+      </div>
+      ${platforms.length > 0 ? `
+      <div class="drawer-field">
+        <div class="drawer-field-label">Current Platforms</div>
+        <div class="platform-tags">${platforms.map(p => `<span class="platform-tag">${esc(p)}</span>`).join('')}</div>
+      </div>` : ''}
+      ${a.listing_url ? `<div class="drawer-field"><div class="drawer-field-label">Existing Listing URL</div><div class="drawer-field-val"><a href="${esc(a.listing_url)}" target="_blank">${esc(a.listing_url)}</a></div></div>` : ''}
+      ${a.photo_url ? `<div class="drawer-field"><div class="drawer-field-label">Photo URL</div><div class="drawer-field-val"><a href="${esc(a.photo_url)}" target="_blank">View Photo ↗</a></div></div>` : ''}
+    </div>
+    ${a.description ? `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Property Description</div>
+      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.description)}</div>
+    </div>` : ''}
+    ${a.notes ? `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Additional Notes</div>
+      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.notes)}</div>
+    </div>` : ''}
+    <div class="drawer-section">
+      <div class="drawer-section-title">Submitted</div>
+      <div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA', { dateStyle:'medium', timeStyle:'short' })}</div>
+    </div>`;
+}
+
+function buildTeamDrawer(a) {
+  return `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Applicant Details</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Name</div><div class="drawer-field-val">${esc(a.name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Email</div><div class="drawer-field-val"><a href="mailto:${esc(a.email)}">${esc(a.email||'—')}</a></div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Phone</div><div class="drawer-field-val">${esc(a.phone||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Location</div><div class="drawer-field-val">${esc(a.location||'—')}</div></div>
+      </div>
+      <div class="drawer-field"><div class="drawer-field-label">Area of Interest</div><div class="drawer-field-val">${esc(a.role_interest||'—')}</div></div>
+      ${a.portfolio_url ? `<div class="drawer-field"><div class="drawer-field-label">Portfolio / LinkedIn</div><div class="drawer-field-val"><a href="${esc(a.portfolio_url)}" target="_blank">${esc(a.portfolio_url)}</a></div></div>` : ''}
+    </div>
+    ${a.experience ? `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Relevant Experience</div>
+      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.experience)}</div>
+    </div>` : ''}
+    ${a.why_bonsai ? `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Why Bonsai Stays?</div>
+      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.why_bonsai)}</div>
+    </div>` : ''}
+    <div class="drawer-section">
+      <div class="drawer-section-title">Submitted</div>
+      <div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA', { dateStyle:'medium', timeStyle:'short' })}</div>
+    </div>`;
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('detail-drawer').classList.remove('open');
+  _openApp  = null;
+  _openType = null;
+  document.querySelectorAll('.app-table tbody tr').forEach(r => r.classList.remove('selected'));
+}
+
+// ── Status management ─────────────────────────────────────────────────────
+async function saveDrawerStatus() {
+  if (!_openApp) return;
+  const newStatus = document.getElementById('drawer-status-select').value;
+  await updateStatus(_openType, _openApp.id, newStatus, true);
+}
+
+async function updateStatus(type, id, status, showFeedback) {
+  const table = type === 'property' ? 'property_applications' : 'team_applications';
+  const { error } = await sb.from(table).update({ status }).eq('id', id);
+  if (error) { if (showFeedback) alert('Error saving status'); return; }
+
+  // Update local state
+  const arr = type === 'property' ? _propApps : _teamApps;
+  const app = arr.find(a => a.id === id);
+  if (app) app.status = status;
+  if (_openApp?.id === id) _openApp.status = status;
+
+  updateStats();
+  if (type === 'property') renderPropTable(); else renderTeamTable();
+  if (showFeedback) showToast('✓ Status updated');
+}
+
+// ── Reply by email ────────────────────────────────────────────────────────
+function replyByEmail() {
+  if (!_openApp) return;
+  const email = _openType === 'property' ? _openApp.owner_email : _openApp.email;
+  const name  = _openType === 'property' ? _openApp.owner_name  : _openApp.name;
+  const subject = _openType === 'property'
+    ? encodeURIComponent(`Re: Your Bonsai Stays property application — ${_openApp.prop_name || ''}`)
+    : encodeURIComponent(`Re: Your Bonsai Stays application — ${_openApp.role_interest || 'Team'}`);
+  const body = encodeURIComponent(`Hi ${name?.split(' ')[0] || 'there'},\n\nThank you for your application to Bonsai Stays.\n\n`);
+  window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function statusBadge(status) {
+  const map = {
+    pending:   ['🔵', 'New'],
+    reviewing: ['🟡', 'Reviewing'],
+    approved:  ['🟢', 'Approved'],
+    declined:  ['🔴', 'Declined'],
+  };
+  const [dot, label] = map[status] || map.pending;
+  return `<span class="status-badge status-${status}">${dot} ${label}</span>`;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0B2218;color:#fff;padding:11px 22px;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:999;animation:fadeUp 0.2s ease;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+</script>
+</body>
+</html>
