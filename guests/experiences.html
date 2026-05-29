@@ -367,26 +367,43 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
+    const sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
+
     async function loadExperiences() {
       try {
-        const res = await fetch('../data/experiences.json?v=' + Date.now());
-        const data = await res.json();
-        const available = data.experiences.filter(e => e.available !== false);
+        const { data, error } = await sb
+          .from('experiences')
+          .select('*')
+          .eq('available', true)
+          .order('sort_order', { ascending: true })
+          .order('name');
+
+        if (error) throw error;
+        const available = data || [];
+
+        if (!available.length) {
+          document.getElementById('expGrid').innerHTML = '<p style="text-align:center;color:var(--gray-mid);padding:40px;grid-column:1/-1;">No experiences available right now — check back soon.</p>';
+          return;
+        }
 
         document.getElementById('expGrid').innerHTML = available.map(exp => `
           <div class="exp-card">
-            <div class="exp-card-img"><img src="${exp.image}" alt="${exp.name}" loading="lazy" /></div>
+            <div class="exp-card-img"><img src="${exp.image_url || 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&q=75&auto=format&fit=crop'}" alt="${exp.name}" loading="lazy" /></div>
             <div class="exp-card-body">
-              <div class="exp-card-icon">${exp.icon}</div>
+              <div class="exp-card-icon">${exp.icon || '🎭'}</div>
               <div class="exp-card-title">${exp.name}</div>
-              <p class="exp-card-desc">${exp.description}</p>
+              <p class="exp-card-desc">${exp.description || ''}</p>
               <div class="exp-card-includes">
                 <h6>Includes</h6>
-                <ul>${exp.includes.map(i => `<li>${i}</li>`).join('')}</ul>
+                <ul>${(exp.includes || []).map(i => `<li>${i}</li>`).join('')}</ul>
               </div>
               <div class="exp-card-footer">
-                <div><div class="exp-from">Starting from</div><div class="exp-price">$${exp.price} / ${exp.price_unit}</div></div>
+                <div><div class="exp-from">Starting from</div><div class="exp-price">$${exp.price} / ${exp.price_unit || 'session'}</div></div>
                 <a href="#inquire" class="btn btn-primary" style="padding:10px 20px;font-size:0.85rem;">Inquire</a>
               </div>
             </div>
@@ -406,7 +423,7 @@
         select.appendChild(multiOpt);
 
       } catch(e) {
-        document.getElementById('expGrid').innerHTML = '<p style="text-align:center;color:var(--gray-mid);padding:40px;">Unable to load experiences. Please try again.</p>';
+        document.getElementById('expGrid').innerHTML = '<p style="text-align:center;color:var(--gray-mid);padding:40px;grid-column:1/-1;">Unable to load experiences. Please try again.</p>';
       }
     }
 

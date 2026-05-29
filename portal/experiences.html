@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Experiences</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    .exp-card-admin {
+      background: var(--a-white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .exp-card-admin-img {
+      height: 150px;
+      overflow: hidden;
+      position: relative;
+      background: var(--a-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .exp-card-admin-img img { width: 100%; height: 100%; object-fit: cover; }
+    .exp-card-admin-icon-fallback { font-size: 3rem; }
+    .exp-card-admin-body { padding: 16px 18px 14px; flex: 1; display: flex; flex-direction: column; }
+    .exp-card-admin-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+    .exp-card-admin-meta { font-size: 0.75rem; color: var(--a-gray); margin-bottom: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .exp-card-admin-desc { font-size: 0.81rem; color: var(--a-gray); line-height: 1.55; flex: 1; margin-bottom: 14px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .exp-card-admin-actions { display: flex; gap: 8px; }
+    .exp-avail-badge { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+    .exp-avail-badge.yes { background: #F0FDF4; color: #16A34A; }
+    .exp-avail-badge.no  { background: #F9FAFB; color: #6B7280; }
+    /* includes repeater */
+    .include-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
+    .include-row input { flex: 1; }
+    .btn-rm-include { width: 32px; height: 36px; border-radius: 7px; background: #fef2f2; color: var(--a-red); border: 1px solid rgba(220,38,38,0.2); cursor: pointer; font-size: 0.9rem; flex-shrink: 0; }
+  </style>
+</head>
+<body class="admin-body">
+
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:28px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="experiences.html" class="active">Experiences</a>
+    <a href="members.html">Members</a>
+    <a href="businesses.html">Businesses</a>
+    <a href="applications.html">Applications</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <div class="admin-page-header">
+    <div>
+      <h1>Experiences</h1>
+      <p id="exp-subtitle">In-stay services offered to guests</p>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Add Experience</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;align-items:center;">
+    <span style="font-size:0.78rem;font-weight:600;color:var(--a-gray);">Category:</span>
+    <button class="filter-chip active" data-cat="" onclick="setCat('',this)">All</button>
+    <button class="filter-chip" data-cat="Wellness" onclick="setCat('Wellness',this)">Wellness</button>
+    <button class="filter-chip" data-cat="Fitness" onclick="setCat('Fitness',this)">Fitness</button>
+    <button class="filter-chip" data-cat="Food & Drink" onclick="setCat('Food & Drink',this)">Food &amp; Drink</button>
+    <button class="filter-chip" data-cat="Activities" onclick="setCat('Activities',this)">Activities</button>
+    <button class="filter-chip" data-cat="Arrangements" onclick="setCat('Arrangements',this)">Arrangements</button>
+  </div>
+
+  <div id="exp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;"></div>
+
+  <div class="table-empty hidden" id="exp-empty">
+    <div class="table-empty-icon">🎭</div>
+    <h3>No experiences yet</h3>
+    <p>Add your first experience to start offering in-stay services to guests</p>
+  </div>
+
+</main>
+
+
+<!-- ═══ Modal: Add / Edit Experience ═════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-exp">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <h3 id="exp-modal-title">Add Experience</h3>
+      <button class="btn-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <div class="admin-form-row">
+          <div>
+            <label class="admin-label">Experience name *</label>
+            <input class="admin-input" id="e-name" type="text" placeholder="Massage Therapy" />
+          </div>
+          <div style="flex:0 0 110px;">
+            <label class="admin-label">Icon (emoji)</label>
+            <input class="admin-input" id="e-icon" type="text" placeholder="💆" style="font-size:1.3rem;text-align:center;" maxlength="4" />
+          </div>
+        </div>
+
+        <div>
+          <label class="admin-label">Category</label>
+          <select class="admin-select" id="e-category">
+            <option value="">Select…</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Fitness">Fitness</option>
+            <option value="Food & Drink">Food &amp; Drink</option>
+            <option value="Activities">Activities</option>
+            <option value="Arrangements">Arrangements</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="admin-label">Description *</label>
+          <textarea class="admin-textarea" id="e-description" style="min-height:90px;" placeholder="Describe the experience for guests…"></textarea>
+        </div>
+
+        <div>
+          <label class="admin-label" style="margin-bottom:8px;">What's included <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">(shown as bullet points)</span></label>
+          <div id="includes-rows"></div>
+          <button type="button" onclick="addIncludeRow()" style="width:100%;padding:9px;border:1.5px dashed rgba(61,139,98,0.35);border-radius:9px;background:none;color:var(--a-sage);font-size:0.81rem;font-weight:600;cursor:pointer;font-family:inherit;">+ Add item</button>
+        </div>
+
+        <div class="admin-form-row">
+          <div>
+            <label class="admin-label">Starting price ($) *</label>
+            <input class="admin-input" id="e-price" type="number" min="0" step="5" placeholder="120" />
+          </div>
+          <div>
+            <label class="admin-label">Per unit</label>
+            <input class="admin-input" id="e-price-unit" type="text" placeholder="session" />
+            <div style="font-size:0.71rem;color:var(--a-gray);margin-top:4px;">e.g. session, meal, board, arrangement</div>
+          </div>
+        </div>
+
+        <div>
+          <label class="admin-label">Photo URL</label>
+          <input class="admin-input" id="e-image" type="url" placeholder="https://images.unsplash.com/photo-…" />
+          <div style="font-size:0.71rem;color:var(--a-gray);margin-top:4px;">Paste any image URL — shown on the experiences page card.</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="e-available" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
+          <label for="e-available" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Available to guests</label>
+        </div>
+
+        <div id="e-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--a-red);font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="e-save-btn" onclick="saveExperience()">Save Experience</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ Modal: Delete confirm ════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-delete">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>Delete experience?</h3>
+      <button class="btn-modal-close" onclick="document.getElementById('modal-delete').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.88rem;color:var(--a-gray);line-height:1.6;">This will permanently delete <strong id="delete-exp-name"></strong> and remove it from the guest-facing experiences page.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="document.getElementById('modal-delete').classList.add('hidden')">Cancel</button>
+      <button class="btn-danger" style="padding:11px 22px;" id="confirm-delete-btn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let _editingId  = null;
+let _deletingId = null;
+let _all        = [];
+let _activeCat  = '';
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  document.getElementById('admin-avatar').textContent = session.user.email[0].toUpperCase();
+  await loadExperiences();
+}
+
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
+
+// ── Load & render ─────────────────────────────────────────────────────────
+async function loadExperiences() {
+  const { data } = await sb.from('experiences').select('*').order('sort_order', { ascending: true }).order('name');
+  _all = data || [];
+  document.getElementById('exp-subtitle').textContent = _all.length + ' experience' + (_all.length === 1 ? '' : 's');
+  render();
+}
+
+function setCat(cat, btn) {
+  _activeCat = cat;
+  document.querySelectorAll('.filter-chip[data-cat]').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+}
+
+function render() {
+  const grid  = document.getElementById('exp-grid');
+  const empty = document.getElementById('exp-empty');
+  const list  = _activeCat ? _all.filter(e => e.category === _activeCat) : _all;
+
+  if (!list.length) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = list.map(e => `
+    <div class="exp-card-admin">
+      <div class="exp-card-admin-img">
+        ${e.image_url
+          ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" />`
+          : `<div class="exp-card-admin-icon-fallback">${esc(e.icon || '🎭')}</div>`}
+        <div style="position:absolute;top:10px;right:10px;">
+          <span class="exp-avail-badge ${e.available ? 'yes' : 'no'}">${e.available ? '✓ Available' : 'Hidden'}</span>
+        </div>
+      </div>
+      <div class="exp-card-admin-body">
+        <div class="exp-card-admin-name">${esc(e.icon || '')} ${esc(e.name)}</div>
+        <div class="exp-card-admin-meta">
+          <span>${esc(e.category || 'Uncategorised')}</span>
+          <span>$${esc(String(e.price || '—'))} / ${esc(e.price_unit || 'session')}</span>
+        </div>
+        <div class="exp-card-admin-desc">${esc(e.description || '')}</div>
+        <div class="exp-card-admin-actions">
+          <button onclick="openModal('${e.id}')" class="btn-primary" style="flex:1;justify-content:center;">Edit</button>
+          <button onclick="openDeleteModal('${e.id}','${esc(e.name)}')" class="btn-danger" style="padding:11px 16px;">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Modal open / close ────────────────────────────────────────────────────
+function openModal(expId) {
+  _editingId = expId || null;
+  document.getElementById('exp-modal-title').textContent = expId ? 'Edit Experience' : 'Add Experience';
+  document.getElementById('e-save-btn').textContent      = expId ? 'Save Changes'    : 'Save Experience';
+  document.getElementById('e-error').classList.add('hidden');
+  document.getElementById('includes-rows').innerHTML = '';
+
+  if (expId) {
+    const e = _all.find(x => x.id === expId);
+    if (!e) return;
+    document.getElementById('e-name').value        = e.name || '';
+    document.getElementById('e-icon').value        = e.icon || '';
+    document.getElementById('e-category').value    = e.category || '';
+    document.getElementById('e-description').value = e.description || '';
+    document.getElementById('e-price').value       = e.price || '';
+    document.getElementById('e-price-unit').value  = e.price_unit || '';
+    document.getElementById('e-image').value       = e.image_url || '';
+    document.getElementById('e-available').checked = e.available !== false;
+    (e.includes || []).forEach(i => addIncludeRow(i));
+  } else {
+    document.getElementById('e-name').value        = '';
+    document.getElementById('e-icon').value        = '';
+    document.getElementById('e-category').value    = '';
+    document.getElementById('e-description').value = '';
+    document.getElementById('e-price').value       = '';
+    document.getElementById('e-price-unit').value  = 'session';
+    document.getElementById('e-image').value       = '';
+    document.getElementById('e-available').checked = true;
+    addIncludeRow(); // start with one blank row
+  }
+
+  document.getElementById('modal-exp').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('modal-exp').classList.add('hidden'); }
+
+// ── Includes repeater ─────────────────────────────────────────────────────
+function addIncludeRow(value = '') {
+  const row = document.createElement('div');
+  row.className = 'include-row';
+  row.innerHTML = `
+    <input class="admin-input include-input" type="text" placeholder="e.g. Registered, insured therapist" value="${esc(value)}" />
+    <button type="button" class="btn-rm-include" onclick="this.closest('.include-row').remove()">✕</button>
+  `;
+  document.getElementById('includes-rows').appendChild(row);
+}
+
+function collectIncludes() {
+  return Array.from(document.querySelectorAll('.include-input'))
+    .map(i => i.value.trim())
+    .filter(Boolean);
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────
+async function saveExperience() {
+  const btn = document.getElementById('e-save-btn');
+  const err = document.getElementById('e-error');
+  err.classList.add('hidden');
+
+  const name  = document.getElementById('e-name').value.trim();
+  const price = parseFloat(document.getElementById('e-price').value);
+  const desc  = document.getElementById('e-description').value.trim();
+
+  if (!name) { showErr('Experience name is required.'); return; }
+  if (!desc)  { showErr('Please add a description.'); return; }
+  if (isNaN(price) || price < 0) { showErr('Please enter a valid price.'); return; }
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+
+  const payload = {
+    name,
+    icon:        document.getElementById('e-icon').value.trim() || null,
+    category:    document.getElementById('e-category').value || null,
+    description: desc,
+    includes:    collectIncludes(),
+    price,
+    price_unit:  document.getElementById('e-price-unit').value.trim() || 'session',
+    image_url:   document.getElementById('e-image').value.trim() || null,
+    available:   document.getElementById('e-available').checked,
+  };
+
+  let error;
+  if (_editingId) {
+    ({ error } = await sb.from('experiences').update(payload).eq('id', _editingId));
+  } else {
+    ({ error } = await sb.from('experiences').insert(payload));
+  }
+
+  if (error) {
+    showErr('Error saving: ' + error.message);
+    btn.textContent = _editingId ? 'Save Changes' : 'Save Experience';
+    btn.disabled = false;
+    return;
+  }
+
+  closeModal();
+  await loadExperiences();
+  showToast(_editingId ? '✓ Experience updated' : '✓ Experience added');
+  btn.textContent = _editingId ? 'Save Changes' : 'Save Experience';
+  btn.disabled = false;
+
+  function showErr(msg) { err.textContent = msg; err.classList.remove('hidden'); btn.textContent = _editingId ? 'Save Changes' : 'Save Experience'; btn.disabled = false; }
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────
+function openDeleteModal(id, name) {
+  _deletingId = id;
+  document.getElementById('delete-exp-name').textContent = name;
+  document.getElementById('modal-delete').classList.remove('hidden');
+}
+async function confirmDelete() {
+  await sb.from('experiences').delete().eq('id', _deletingId);
+  document.getElementById('modal-delete').classList.add('hidden');
+  await loadExperiences();
+  showToast('Experience deleted');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+init();
+</script>
+
+</body>
+</html>
