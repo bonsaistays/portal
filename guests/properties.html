@@ -273,7 +273,7 @@
     <div class="container">
       <!-- Date row -->
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-        <span style="font-size:0.8rem;font-weight:600;color:var(--gray-mid);white-space:nowrap;">📅 Check availability:</span>
+        <span style="font-size:0.8rem;font-weight:600;color:var(--gray-mid);white-space:nowrap;">Check availability:</span>
         <input type="date" id="dateCheckin" class="filter-select" style="font-size:0.85rem;cursor:pointer;"
           placeholder="Check-in" onchange="document.getElementById('dateCheckout').min=this.value;" />
         <span style="color:var(--gray-light);font-size:0.85rem;">→</span>
@@ -447,7 +447,7 @@
       if (!checkin || !checkout || checkin >= checkout) return;
 
       const banner = document.getElementById('avail-banner');
-      banner.textContent = '⏳ Checking availability across all properties…';
+      banner.textContent = 'Checking availability across all properties…';
       banner.style.display = 'block';
 
       availabilityCache = {};
@@ -502,7 +502,7 @@
         <button class="prop-slide-btn prop-slide-prev" onclick="slideAdj('${sid}',-1,event)">&#8249;</button>
         <button class="prop-slide-btn prop-slide-next" onclick="slideAdj('${sid}',1,event)">&#8250;</button>
         <div class="prop-slide-dots">${dots}</div>
-        <div class="prop-photo-count">📷 ${photos.length} photos</div>` : '';
+        <div class="prop-photo-count">${photos.length} photos</div>` : '';
       return `<a href="property.html?id=${p.id}" class="card property-card" style="text-decoration:none;color:inherit;${unavailable ? 'opacity:0.6;' : ''}" id="${sid}-card">
         <div class="property-img" style="position:relative;" data-photos='${JSON.stringify(photos).replace(/'/g,"&#39;")}' data-idx="0" id="${sid}">
           <img src="${photos[0]}" alt="${p.name}" loading="lazy" id="${sid}-img" />
@@ -510,9 +510,9 @@
           ${badge}${unavailBadge}${arrows}
         </div>
         <div class="property-body">
-          <div class="property-location">📍 ${p.location || p.city || ''}</div>
+          <div class="property-location">${p.location || p.city || ''}</div>
           <div class="property-name">${p.name}</div>
-          <div class="property-meta"><span>🛏 ${p.bedrooms} bed${p.bedrooms!==1?'s':''}</span><span>🛁 ${p.bathrooms} bath${p.bathrooms!==1?'s':''}</span><span>👥 ${p.guests} guests</span></div>
+          <div class="property-meta"><span>${p.bedrooms} bed${p.bedrooms!==1?'s':''}</span><span>${p.bathrooms} bath${p.bathrooms!==1?'s':''}</span><span>${p.guests} guests</span></div>
           <div class="property-footer">
             <div class="property-price">$${p.price} <span>/ night</span></div>
             <div class="property-rating">${STAR}${p.rating} <span style="color:var(--gray-light);font-weight:400;">(${p.review_count})</span></div>

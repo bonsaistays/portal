@@ -176,7 +176,7 @@
       font-size: 0.88rem; color: var(--charcoal);
     }
     .amenity-icon {
-      font-size: 1.1rem; flex-shrink: 0; width: 24px; text-align: center;
+      flex-shrink: 0; width: 20px; display: flex; align-items: center;
     }
     .amenities-more-btn {
       margin-top: 18px;
@@ -250,15 +250,13 @@
       display: flex; flex-direction: column; gap: 10px;
     }
     .truth-card {
-      display: flex; align-items: flex-start; gap: 14px;
+      display: flex; align-items: flex-start;
       background: #FFFCF5;
       border: 1px solid #EFE0B8;
+      border-left: 3px solid #C9A86C;
       border-radius: var(--radius-sm);
-      padding: 14px 16px;
+      padding: 14px 18px;
       font-size: 0.9rem; line-height: 1.6; color: var(--charcoal);
-    }
-    .truth-leaf {
-      font-size: 1rem; flex-shrink: 0; margin-top: 1px;
     }
 
     /* ── Beds / Baths ──────────────────────────────── */
@@ -464,7 +462,8 @@
             <div class="prop-badge-row" id="prop-badge-row"></div>
             <h1 class="prop-name" id="prop-name">—</h1>
             <div class="prop-location" id="prop-location">
-              <span>📍</span><span id="prop-location-text">—</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gray-light);flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span id="prop-location-text">—</span>
             </div>
             <div class="prop-specs" id="prop-specs"></div>
           </div>
@@ -525,7 +524,9 @@
             <div class="book-links" id="book-links-sidebar"></div>
           </div>
           <div class="contact-card">
-            <div class="contact-card-icon">💬</div>
+            <div class="contact-card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
             <div>
               <div class="contact-card-title">Ask us anything</div>
               <div class="contact-card-sub">Have a question about this property or the local area?<br>
@@ -574,24 +575,10 @@
   const { createClient } = window.supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── Amenity icons map ──────────────────────────────────────────────────
-  const AMENITY_ICONS = {
-    'Wi-Fi': '📶', 'Air Conditioning': '❄️', 'Heating': '🔥',
-    'Washer & Dryer': '🫧', 'TV': '📺', 'Free Parking': '🚗',
-    'Full Kitchen': '🍳', 'Coffee Maker': '☕', 'Espresso Machine': '☕',
-    'Microwave': '📦', 'Dishwasher': '🍽', 'BBQ Grill': '🍖', 'Wine Fridge': '🍷',
-    'Hot Tub': '♨️', 'Private Pool': '🏊', 'Sauna': '🧖',
-    'Fire Pit': '🪵', 'Outdoor Shower': '🚿', 'Private Deck / Patio': '🏡',
-    'Outdoor Furniture': '🪑', 'Hammock': '🌿',
-    'Private Dock': '⛵', 'Lake Access': '🌊', 'Beach Access': '🏖️',
-    'Kayaks': '🛶', 'Canoe': '🛶', 'Paddleboard': '🏄',
-    'Fishing Gear': '🎣', 'Rowboat': '🚣', 'Life Jackets': '🦺',
-    'Fireplace': '🔥', 'Board Games': '🎲', 'Books': '📚',
-    'Ping Pong Table': '🏓', 'Game Room': '🎮', 'Movie Projector': '🎬', 'Pool Table': '🎱',
-    'High Chair': '👶', "Pack n' Play / Crib": '🛏', 'Baby Bath': '🛁', 'Baby Gate': '🚧',
-    'Pets Allowed': '🐾',
-  };
-  function amenityIcon(name) { return AMENITY_ICONS[name] || '✓'; }
+  // Clean SVG check for amenities
+  function amenityCheck() {
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-deep);flex-shrink:0;"><path d="M5 13l4 4L19 7"/></svg>`;
+  }
 
   // ── State ──────────────────────────────────────────────────────────────
   let _photos    = [];
@@ -654,9 +641,9 @@
     // Specs
     const specs = document.getElementById('prop-specs');
     specs.innerHTML = [
-      p.bedrooms  ? `<div class="prop-spec">🛏 <strong>${p.bedrooms}</strong> bedroom${p.bedrooms!==1?'s':''}</div>` : '',
-      p.bathrooms ? `<div class="prop-spec">🛁 <strong>${p.bathrooms}</strong> bathroom${p.bathrooms!==1?'s':''}</div>` : '',
-      p.guests    ? `<div class="prop-spec">👥 Up to <strong>${p.guests}</strong> guests</div>` : '',
+      p.bedrooms  ? `<div class="prop-spec"><strong>${p.bedrooms}</strong> bedroom${p.bedrooms!==1?'s':''}</div>` : '',
+      p.bathrooms ? `<div class="prop-spec"><strong>${p.bathrooms}</strong> bathroom${p.bathrooms!==1?'s':''}</div>` : '',
+      p.guests    ? `<div class="prop-spec">Up to <strong>${p.guests}</strong> guests</div>` : '',
     ].join('');
 
     // Description
@@ -685,7 +672,7 @@
       document.getElementById('section-owner').style.display = '';
       const photoHtml = p.owner_photo_url
         ? `<img src="${esc(p.owner_photo_url)}" alt="${esc(p.owner_name || 'Owner')}" class="owner-photo" />`
-        : `<div class="owner-photo-placeholder">🌿</div>`;
+        : `<div class="owner-photo-placeholder"></div>`;
       const favoriteHtml = p.owner_favorite
         ? `<div class="owner-favorite-block">
              <span class="owner-favorite-label">Favourite part</span>
@@ -707,18 +694,17 @@
     if (truths.length) {
       document.getElementById('section-truths').style.display = '';
       document.getElementById('truths-grid').innerHTML = truths.map(t =>
-        `<div class="truth-card"><span class="truth-leaf">🌿</span><span>${esc(t.trim())}</span></div>`
+        `<div class="truth-card"><span>${esc(t.trim())}</span></div>`
       ).join('');
     }
 
     // Beds/Baths/Guests
     document.getElementById('bedbath-grid').innerHTML = [
-      { icon: '🛏', val: p.bedrooms  || '—', label: 'Bedrooms'  },
-      { icon: '🛁', val: p.bathrooms || '—', label: 'Bathrooms' },
-      { icon: '👥', val: p.guests    || '—', label: 'Max guests'},
+      { val: p.bedrooms  || '—', label: 'Bedrooms'  },
+      { val: p.bathrooms || '—', label: 'Bathrooms' },
+      { val: p.guests    || '—', label: 'Max guests'},
     ].map(x => `
       <div class="bedbath-card">
-        <div class="bedbath-icon">${x.icon}</div>
         <div class="bedbath-value">${x.val}</div>
         <div class="bedbath-label">${x.label}</div>
       </div>`).join('');
@@ -751,7 +737,7 @@
     const visible = showAll ? _allAmenities : _allAmenities.slice(0, 8);
     document.getElementById('amenities-grid').innerHTML = visible.map(a =>
       `<div class="amenity-item">
-         <span class="amenity-icon">${amenityIcon(a.trim())}</span>
+         <span class="amenity-icon">${amenityCheck()}</span>
          <span>${esc(a.trim())}</span>
        </div>`
     ).join('');
@@ -823,9 +809,9 @@
         Book on VRBO</a>`;
     }
     if (!p.airbnb_url && !p.vrbo_url) {
-      html += `<a href="../contact.html" class="book-link book-link-contact">✉ Inquire about this property</a>`;
+      html += `<a href="../contact.html" class="book-link book-link-contact">Inquire about this property</a>`;
     } else {
-      html += `<a href="../contact.html" class="book-link book-link-contact">✉ Inquire directly</a>`;
+      html += `<a href="../contact.html" class="book-link book-link-contact">Inquire directly</a>`;
     }
     return html;
   }
@@ -848,7 +834,7 @@
       <div class="gallery-thumb" onclick="openLightbox(4)" style="position:relative;">
         <img src="${show[4]}" alt="" />
         ${_photos.length > 5 ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:0.9rem;font-weight:700;">+${_photos.length-5} more</span></div>` : ''}
-        <button class="gallery-btn" onclick="openLightbox(0);event.stopPropagation();">🖼 Show all ${_photos.length} photo${_photos.length!==1?'s':''}</button>
+        <button class="gallery-btn" onclick="openLightbox(0);event.stopPropagation();">Show all ${_photos.length} photo${_photos.length!==1?'s':''}</button>
       </div>`;
 
     document.getElementById('gm-img').src = _photos[0];

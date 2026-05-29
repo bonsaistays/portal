@@ -64,9 +64,9 @@
         <button class="modal-tab"        data-mtab="access"    onclick="switchMTab('access',this)"    style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Access &amp; Door</button>
         <button class="modal-tab"        data-mtab="guest"     onclick="switchMTab('guest',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Guest Info</button>
         <button class="modal-tab"        data-mtab="rules"     onclick="switchMTab('rules',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">House Rules</button>
-        <button class="modal-tab"        data-mtab="amenities" onclick="switchMTab('amenities',this)" style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">✓ Amenities</button>
-        <button class="modal-tab"        data-mtab="owner"     onclick="switchMTab('owner',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">🌿 Owner's Story</button>
-        <button class="modal-tab"        data-mtab="listing"   onclick="switchMTab('listing',this)"   style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">📅 Listing</button>
+        <button class="modal-tab"        data-mtab="amenities" onclick="switchMTab('amenities',this)" style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Amenities</button>
+        <button class="modal-tab"        data-mtab="owner"     onclick="switchMTab('owner',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Owner's Story</button>
+        <button class="modal-tab"        data-mtab="listing"   onclick="switchMTab('listing',this)"   style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Listing</button>
       </div>
 
       <!-- Tab: Basic Info -->
@@ -413,13 +413,13 @@ function renderProperties() {
 
 // ── Amenities checklist ───────────────────────────────────────────────────
 const AMENITY_GROUPS = [
-  { group: '🏠 Essentials',          items: ['Wi-Fi', 'Air Conditioning', 'Heating', 'Washer & Dryer', 'TV', 'Free Parking'] },
-  { group: '🍳 Kitchen',             items: ['Full Kitchen', 'Coffee Maker', 'Espresso Machine', 'Microwave', 'Dishwasher', 'BBQ Grill', 'Wine Fridge'] },
-  { group: '🌿 Outdoor',             items: ['Hot Tub', 'Private Pool', 'Sauna', 'Fire Pit', 'Outdoor Shower', 'Private Deck / Patio', 'Outdoor Furniture', 'Hammock'] },
-  { group: '🛶 Water & Recreation',  items: ['Private Dock', 'Lake Access', 'Beach Access', 'Kayaks', 'Canoe', 'Paddleboard', 'Fishing Gear', 'Rowboat', 'Life Jackets'] },
-  { group: '🎲 Indoor Recreation',   items: ['Fireplace', 'Board Games', 'Books', 'Ping Pong Table', 'Game Room', 'Movie Projector', 'Pool Table'] },
-  { group: '👶 Family',              items: ['High Chair', "Pack n' Play / Crib", 'Baby Bath', 'Baby Gate'] },
-  { group: '🐾 Pets',               items: ['Pets Allowed'] },
+  { group: 'Essentials',         items: ['Wi-Fi', 'Air Conditioning', 'Heating', 'Washer & Dryer', 'TV', 'Free Parking'] },
+  { group: 'Kitchen',            items: ['Full Kitchen', 'Coffee Maker', 'Espresso Machine', 'Microwave', 'Dishwasher', 'BBQ Grill', 'Wine Fridge'] },
+  { group: 'Outdoor',            items: ['Hot Tub', 'Private Pool', 'Sauna', 'Fire Pit', 'Outdoor Shower', 'Private Deck / Patio', 'Outdoor Furniture', 'Hammock'] },
+  { group: 'Water & Recreation', items: ['Private Dock', 'Lake Access', 'Beach Access', 'Kayaks', 'Canoe', 'Paddleboard', 'Fishing Gear', 'Rowboat', 'Life Jackets'] },
+  { group: 'Indoor Recreation',  items: ['Fireplace', 'Board Games', 'Books', 'Ping Pong Table', 'Game Room', 'Movie Projector', 'Pool Table'] },
+  { group: 'Family',             items: ['High Chair', "Pack n' Play / Crib", 'Baby Bath', 'Baby Gate'] },
+  { group: 'Pets',               items: ['Pets Allowed'] },
 ];
 
 function renderAmenitiesChecklist() {
