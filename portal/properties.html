@@ -131,12 +131,19 @@
             </div>
             <div>
               <label class="admin-label">Lock type</label>
-              <select class="admin-select" id="p-lock-type">
+              <select class="admin-select" id="p-lock-type" onchange="toggleSeamField()">
                 <option value="code">PIN code (manual entry)</option>
-                <option value="august">August / Yale smart lock</option>
-                <option value="schlage">Schlage smart lock</option>
+                <option value="august">August / Yale (via Seam)</option>
+                <option value="schlage">Schlage (via Seam)</option>
+                <option value="seam">Other smart lock (via Seam)</option>
               </select>
             </div>
+          </div>
+          <!-- Seam device ID — shown when a smart lock type is selected -->
+          <div id="seam-device-row" style="display:none;">
+            <label class="admin-label">Seam Device ID <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">— from console.seam.co → Devices</span></label>
+            <input class="admin-input" id="p-seam-device-id" type="text" placeholder="e.g. d1234abc-56ef-7890-abcd-ef1234567890" />
+            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Paste the Device ID from your Seam Console. The guest app will use this to unlock the door remotely.</div>
           </div>
           <div>
             <label class="admin-label">Arrival instructions <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">(shown to guests on arrival tab)</span></label>
@@ -466,6 +473,8 @@ function openModal(propId) {
     document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
     document.getElementById('p-door-code').value     = p.door_code || '';
     document.getElementById('p-lock-type').value     = p.lock_type || 'code';
+    document.getElementById('p-seam-device-id').value = p.seam_device_id || '';
+    toggleSeamField();
     document.getElementById('p-checkin-inst').value  = p.check_in_instructions || '';
     // Guest info
     document.getElementById('p-checkout-inst').value = p.checkout_instructions || '';
@@ -516,6 +525,8 @@ function openModal(propId) {
     document.getElementById('p-wifi-pass').value     = '';
     document.getElementById('p-door-code').value     = '';
     document.getElementById('p-lock-type').value     = 'code';
+    document.getElementById('p-seam-device-id').value = '';
+    toggleSeamField();
     document.getElementById('p-checkin-inst').value  = '';
     document.getElementById('p-checkout-inst').value = '';
     document.getElementById('p-host-phone').value    = '';
@@ -553,6 +564,14 @@ function openModal(propId) {
 
 function closeModal() { document.getElementById('modal-property').classList.add('hidden'); }
 
+function toggleSeamField() {
+  const lockType = document.getElementById('p-lock-type').value;
+  const seamRow  = document.getElementById('seam-device-row');
+  if (!seamRow) return;
+  const isSmartLock = ['august', 'yale', 'schlage', 'seam'].includes(lockType);
+  seamRow.style.display = isSmartLock ? 'block' : 'none';
+}
+
 function switchMTab(name, btn) {
   document.querySelectorAll('.modal-tab').forEach(b => {
     b.style.color       = 'var(--a-gray)';
@@ -588,6 +607,7 @@ async function saveProperty() {
     wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
     door_code:              document.getElementById('p-door-code').value.trim(),
     lock_type:              document.getElementById('p-lock-type').value,
+    seam_device_id:         document.getElementById('p-seam-device-id').value.trim() || null,
     check_in_instructions:  document.getElementById('p-checkin-inst').value.trim(),
     checkout_instructions:  document.getElementById('p-checkout-inst').value.trim(),
     host_phone:             document.getElementById('p-host-phone').value.trim(),

@@ -1,12 +1,12 @@
 /**
  * Smart Lock Control — Bonsai Stays
- * Supports: TTLock, August, RemoteLock, igloohome
+ * Supports: Seam (unified — August, Yale, Schlage, etc.), TTLock, RemoteLock, igloohome
  *
  * Required environment variables (set in Netlify UI → Site Settings → Environment):
+ *   SEAM_API_KEY          — Seam API key (from console.seam.co) ← primary integration
  *   TTLOCK_CLIENT_ID      — TTLock OAuth client ID
  *   TTLOCK_CLIENT_SECRET  — TTLock OAuth client secret
  *   TTLOCK_ACCESS_TOKEN   — TTLock access token (from your TTLock account)
- *   AUGUST_API_KEY        — August Connect API key
  *   REMOTELOCK_TOKEN      — RemoteLock API token
  *   IGLOOHOME_CLIENT_ID   — igloohome client ID
  *   IGLOOHOME_CLIENT_SECRET — igloohome client secret
@@ -56,8 +56,11 @@ exports.handler = async (event) => {
       case 'ttlock':
         result = await controlTTLock(action, deviceId);
         break;
+      case 'seam':
       case 'august':
-        result = await controlAugust(action, deviceId);
+      case 'yale':
+      case 'schlage':
+        result = await controlSeam(action, deviceId);
         break;
       case 'remotelock':
         result = await controlRemoteLock(action, deviceId);
@@ -119,37 +122,46 @@ async function controlTTLock(action, lockId) {
   throw new Error('Unknown action: ' + action);
 }
 
-/* ── August Smart Lock ── */
-async function controlAugust(action, lockId) {
-  const apiKey = process.env.AUGUST_API_KEY;
-  if (!apiKey) throw new Error('August API key not configured');
+/* ── Seam (unified API — August, Yale, Schlage, and 50+ brands) ── */
+async function controlSeam(action, deviceId) {
+  const apiKey = process.env.SEAM_API_KEY;
+  if (!apiKey) throw new Error('Seam API key not configured. Add SEAM_API_KEY in Netlify environment variables.');
 
   const headers = {
-    'x-august-api-key': apiKey,
-    'x-kease-api-key': apiKey,
+    Authorization: `Bearer ${apiKey}`,
     'Content-Type': 'application/json',
   };
+  const base = 'https://connect.getseam.com';
 
   if (action === 'status') {
-    const res = await fetch(`https://api-production.august.com/locks/${lockId}/status`, { headers });
+    const res  = await fetch(`${base}/locks/get`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ device_id: deviceId }),
+    });
     const data = await res.json();
-    return { locked: data.status === 'kAugLockState_Locked', raw: data };
+    if (!res.ok) throw new Error(data.error?.message || `Seam status error ${res.status}`);
+    const locked = data.lock?.locked_status === 'locked';
+    return { locked };
   }
 
   if (action === 'unlock') {
-    const res = await fetch(`https://api-production.august.com/remoteoperate/${lockId}/unlock`, {
-      method: 'PUT', headers, body: JSON.stringify({})
+    const res  = await fetch(`${base}/locks/unlock_door`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ device_id: deviceId }),
     });
     const data = await res.json();
-    return { locked: false, raw: data };
+    if (!res.ok) throw new Error(data.error?.message || `Seam unlock error ${res.status}`);
+    return { locked: false };
   }
 
   if (action === 'lock') {
-    const res = await fetch(`https://api-production.august.com/remoteoperate/${lockId}/lock`, {
-      method: 'PUT', headers, body: JSON.stringify({})
+    const res  = await fetch(`${base}/locks/lock_door`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ device_id: deviceId }),
     });
     const data = await res.json();
-    return { locked: true, raw: data };
+    if (!res.ok) throw new Error(data.error?.message || `Seam lock error ${res.status}`);
+    return { locked: true };
   }
 
   throw new Error('Unknown action: ' + action);

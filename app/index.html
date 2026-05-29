@@ -2315,7 +2315,12 @@ async function getPropertyDevices(type) {
     .select('*')
     .eq('property_id', _stayProperty.id)
     .eq('device_type', type);
-  return data || [];
+  if (data?.length) return data;
+  // Fallback: use seam_device_id stored directly on the property record
+  if (type === 'lock' && _stayProperty.seam_device_id) {
+    return [{ device_id: _stayProperty.seam_device_id, provider: 'seam', device_type: 'lock' }];
+  }
+  return [];
 }
 
 async function loadStayMessages() {
