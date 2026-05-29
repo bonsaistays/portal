@@ -368,7 +368,7 @@ function genInviteCode() {
 
 function copyInvite() {
   const code = document.getElementById('nb-invite-code').textContent.trim();
-  const msg  = `You're invited to join Bon Voyage — the Bonsai Stays member app! 🌿\n\nUse code ${code} when you sign up at:\nhttps://stellar-biscotti-e0bd66.netlify.app/app/\n\nYou'll get access to your property info, door code, and start earning points on every stay.`;
+  const msg  = `You're invited to join Bon Voyage — the Bonsai Stays member app! 🌿\n\nUse code ${code} when you sign up at:\nhttps://bonsaistays.com/app/\n\nYou'll get access to your property info, door code, and start earning points on every stay.`;
   navigator.clipboard.writeText(msg).then(() => showToast('✓ Invite message copied!'));
 }
 
