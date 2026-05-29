@@ -232,11 +232,12 @@
       display: block;
     }
     .partner-logo-item .partner-text-logo {
-      font-size: 1.1rem;
-      font-weight: 800;
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--charcoal);
       white-space: nowrap;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
+      font-family: 'Playfair Display', serif;
     }
     .partner-divider {
       width: 1px;
@@ -485,38 +486,51 @@
     .testimonials-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      gap: 28px;
     }
     .testimonial-card {
-      background: rgba(255,255,255,0.13);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: var(--white);
       border-radius: var(--radius-lg);
       padding: 32px;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
     }
-    .testimonial-stars { color: var(--gold-light); font-size: 0.9rem; margin-bottom: 16px; }
+    .testimonial-card::before {
+      content: '\201C';
+      position: absolute;
+      top: 14px;
+      left: 24px;
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--green-light);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .testimonial-stars { color: var(--gold); font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
     .testimonial-text {
       font-size: 0.95rem;
-      color: rgba(255,255,255,0.85);
-      line-height: 1.7;
+      color: var(--charcoal);
+      line-height: 1.75;
       margin-bottom: 24px;
       font-style: italic;
     }
-    .testimonial-author { display: flex; align-items: center; gap: 14px; }
+    .testimonial-author { display: flex; align-items: center; gap: 14px; border-top: 1px solid var(--gray-pale); padding-top: 18px; }
     .testimonial-avatar {
       width: 44px; height: 44px;
       border-radius: 50%;
-      background: var(--green-sage);
+      background: var(--green-deep);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Playfair Display', serif;
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--white);
       flex-shrink: 0;
     }
-    .testimonial-author-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
-    .testimonial-author-meta { font-size: 0.8rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
+    .testimonial-author-name { font-size: 0.9rem; font-weight: 600; color: var(--charcoal); }
+    .testimonial-author-meta { font-size: 0.78rem; color: var(--gray-mid); margin-top: 3px; }
 
     /* CTA Band */
     .cta-band { background: var(--cream); }
@@ -605,6 +619,7 @@
       <ul class="nav-links">
         <li><a href="properties.html">Properties</a></li>
         <li><a href="experiences.html">Experiences</a></li>
+        <li><a href="shop.html">Shop</a></li>
         <li><a href="#regions">Regions</a></li>
         <li><a href="loyalty.html">Bon Voyage</a></li>
         <li><a href="about.html">About</a></li>
@@ -684,58 +699,34 @@
 
   <!-- PARTNER LOGO BANNER -->
   <div class="partner-banner">
-    <div class="partner-banner-label">Trusted integrations &amp; channel partners</div>
+    <div class="partner-banner-label">Trusted property management partners</div>
     <div class="partner-marquee-wrap">
       <div class="partner-marquee-track" id="partnerTrack">
         <!-- Set 1 -->
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/airbnb.com" alt="Airbnb" loading="lazy" onerror="this.parentNode.querySelector('.partner-text-logo')||this.parentNode.insertAdjacentHTML('beforeend','<span class=partner-text-logo>Airbnb</span>');this.remove()" /><span class="partner-text-logo" style="display:none">Airbnb</span></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Sora Stays</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/vrbo.com" alt="VRBO" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">VRBO</span></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Capstone Retreats</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/booking.com" alt="Booking.com" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Booking.com</span></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Cottage Host</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/expedia.com" alt="Expedia" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Expedia</span></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">OCR</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/stripe.com" alt="Stripe" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Stripe</span></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">CottageLink Rental Management</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/guesty.com" alt="Guesty" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Guesty</span></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/august.com" alt="August Smart Locks" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">August</span></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/ecobee.com" alt="ecobee" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">ecobee</span></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/superhog.com" alt="Superhog" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Superhog</span></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/safely.com" alt="Safely" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Safely</span></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/hostaway.com" alt="Hostaway" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">Hostaway</span></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/pricelabs.co" alt="PriceLabs" loading="lazy" onerror="this.remove();this.parentNode.querySelector('span').style.display=''" /><span class="partner-text-logo" style="display:none">PriceLabs</span></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Limberlost</span></div>
         <div class="partner-divider"></div>
         <!-- Set 2 — duplicate for seamless loop -->
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/airbnb.com" alt="Airbnb" loading="lazy" /></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Sora Stays</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/vrbo.com" alt="VRBO" loading="lazy" /></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Capstone Retreats</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/booking.com" alt="Booking.com" loading="lazy" /></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Cottage Host</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/expedia.com" alt="Expedia" loading="lazy" /></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">OCR</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/stripe.com" alt="Stripe" loading="lazy" /></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">CottageLink Rental Management</span></div>
         <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/guesty.com" alt="Guesty" loading="lazy" /></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/august.com" alt="August Smart Locks" loading="lazy" /></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/ecobee.com" alt="ecobee" loading="lazy" /></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/superhog.com" alt="Superhog" loading="lazy" /></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/safely.com" alt="Safely" loading="lazy" /></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/hostaway.com" alt="Hostaway" loading="lazy" /></div>
-        <div class="partner-divider"></div>
-        <div class="partner-logo-item"><img src="https://logo.clearbit.com/pricelabs.co" alt="PriceLabs" loading="lazy" /></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Limberlost</span></div>
         <div class="partner-divider"></div>
       </div>
     </div>
@@ -1058,6 +1049,7 @@
           <ul>
             <li><a href="about.html">About Us</a></li>
             <li><a href="../partners/index.html">For Partners</a></li>
+            <li><a href="../careers.html">Careers</a></li>
             <li><a href="../contact.html">Contact</a></li>
             <li><a href="#">Privacy Policy</a></li>
             <li><a href="#">Terms of Service</a></li>
@@ -1075,6 +1067,7 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     // Nav scroll effect
     const nav = document.getElementById('mainNav');
@@ -1084,33 +1077,44 @@
       if (logo) logo.style.filter = window.scrollY > 40 ? 'brightness(0)' : 'brightness(0) invert(1)';
     });
 
-    // Load homepage properties dynamically
+    // Load homepage properties from Supabase
     const STAR = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    const _sb = supabase.createClient(
+      'https://zmbhpebiiyqdfqznruwz.supabase.co',
+      'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+    );
     async function loadHomepageProperties() {
+      const grid = document.getElementById('homepagePropertyGrid');
       try {
-        const res = await fetch('../data/properties.json?v=' + Date.now());
-        const data = await res.json();
-        const grid = document.getElementById('homepagePropertyGrid');
-        const props = data.properties.slice(0, 6);
-        grid.innerHTML = props.map(p => {
-          const badge = p.badge ? `<div class="property-badge"><span class="tag tag-${p.badge_type}">${p.badge}</span></div>` : '';
-          return `<a href="${p.direct_url || 'property-detail.html'}" class="card property-card" style="text-decoration:none;color:inherit;">
+        const { data, error } = await _sb
+          .from('properties')
+          .select('id, name, city, region, thumbnail_url, price, bedrooms, bathrooms, guests, badge, airbnb_url, active')
+          .eq('active', true)
+          .order('sort_order', { ascending: true, nullsFirst: false })
+          .limit(6);
+        if (error) throw error;
+        if (!data || data.length === 0) { grid.innerHTML = '<p style="color:var(--gray-light);grid-column:1/-1;text-align:center;padding:40px 0;">Properties coming soon.</p>'; return; }
+        grid.innerHTML = data.map(p => {
+          const badge = p.badge ? `<div class="property-badge"><span class="tag tag-featured">${p.badge}</span></div>` : '';
+          const img   = p.thumbnail_url || 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=70';
+          const loc   = [p.city, p.region].filter(Boolean).join(', ') || 'Ontario';
+          const link  = p.airbnb_url || 'properties.html';
+          return `<a href="${link}" class="card property-card" style="text-decoration:none;color:inherit;" target="${p.airbnb_url ? '_blank' : '_self'}" rel="noopener">
             <div class="property-img">
-              <img src="${p.image}" alt="${p.name}" loading="lazy" />
+              <img src="${img}" alt="${p.name}" loading="lazy" />
               <div class="property-fav">&#9825;</div>
               ${badge}
             </div>
             <div class="property-body">
-              <div class="property-location">&#128205; ${p.location}</div>
+              <div class="property-location">&#128205; ${loc}</div>
               <div class="property-name">${p.name}</div>
               <div class="property-meta">
-                <span>&#128716; ${p.bedrooms} beds</span>
-                <span>&#128716; ${p.bathrooms} baths</span>
-                <span>&#128101; ${p.guests} guests</span>
+                <span>&#127760; ${p.bedrooms || '—'} beds</span>
+                <span>&#127760; ${p.bathrooms || '—'} baths</span>
+                <span>&#128101; ${p.guests || '—'} guests</span>
               </div>
               <div class="property-footer">
-                <div class="property-price">$${p.price} <span>/ night</span></div>
-                <div class="property-rating">${STAR}${p.rating} <span style="color:var(--gray-light);font-weight:400;">(${p.review_count})</span></div>
+                <div class="property-price">${p.price ? '$' + p.price : 'Contact us'} <span>/ night</span></div>
               </div>
             </div>
           </a>`;
@@ -1122,7 +1126,10 @@
             btn.style.color = btn.textContent === '♥' ? '#e53e3e' : '';
           });
         });
-      } catch(e) { console.error('Failed to load properties', e); }
+      } catch(e) {
+        console.error('Failed to load properties', e);
+        grid.innerHTML = '<p style="color:var(--gray-light);grid-column:1/-1;text-align:center;padding:40px 0;">Unable to load properties. Please try again shortly.</p>';
+      }
     }
     loadHomepageProperties();
 

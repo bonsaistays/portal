@@ -15,6 +15,7 @@
     <a href="dashboard.html">Bookings</a>
     <a href="properties.html">Properties</a>
     <a href="experiences.html">Experiences</a>
+    <a href="products.html">Shop</a>
     <a href="members.html">Members</a>
     <a href="businesses.html" class="active">Businesses</a>
     <a href="applications.html">Applications</a>
@@ -128,8 +129,14 @@
         </div>
 
         <div style="grid-column:1/-1;">
-          <label class="form-label">Photo URL</label>
-          <input class="form-input" id="f-photo" type="url" placeholder="https://... (direct image link)" />
+          <label class="form-label">Photo</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+            <input class="form-input" id="f-photo" type="url" placeholder="Paste URL or upload below…" style="flex:1;" />
+            <label class="btn-upload" for="f-photo-file" title="Upload from device">📷 Upload</label>
+            <input type="file" id="f-photo-file" accept="image/*" style="display:none;" onchange="uploadPhoto(this,'f-photo','f-photo-preview','f-photo-status')" />
+          </div>
+          <div id="f-photo-status" class="upload-status"></div>
+          <div id="f-photo-preview" class="upload-preview"></div>
         </div>
 
         <div style="grid-column:1/-1;border-top:1px solid var(--a-gray-pale);padding-top:14px;margin-top:4px;">
@@ -280,6 +287,7 @@ function openModal() {
   document.getElementById('f-deal-desc').value = '';
   document.getElementById('f-deal-code').value = '';
   document.getElementById('f-active').checked = true;
+  _clearUploadUI();
   document.getElementById('modal-biz').classList.remove('hidden');
 }
 
@@ -299,7 +307,14 @@ function openEdit(id) {
   document.getElementById('f-deal-desc').value = b.deal_description || '';
   document.getElementById('f-deal-code').value = b.deal_code || '';
   document.getElementById('f-active').checked = b.active;
+  _clearUploadUI();
   document.getElementById('modal-biz').classList.remove('hidden');
+}
+
+function _clearUploadUI() {
+  document.getElementById('f-photo-status').textContent = '';
+  document.getElementById('f-photo-status').className = 'upload-status';
+  document.getElementById('f-photo-preview').innerHTML = '';
 }
 
 function closeModal() {
@@ -349,6 +364,33 @@ async function deleteBusiness(id, name) {
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast('Business deleted');
   loadBusinesses();
+}
+
+// ── Photo upload ──────────────────────────────────────────────────────────
+async function uploadPhoto(input, urlFieldId, previewId, statusId) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById(statusId);
+  const preview = document.getElementById(previewId);
+  status.textContent = 'Uploading…';
+  status.className = 'upload-status uploading';
+  preview.innerHTML = '';
+
+  const ext = file.name.split('.').pop();
+  const path = `photos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await sb.storage.from('portal-uploads').upload(path, file, { upsert: true });
+  if (error) {
+    status.textContent = 'Upload failed: ' + error.message;
+    status.className = 'upload-status error';
+    return;
+  }
+  const { data } = sb.storage.from('portal-uploads').getPublicUrl(path);
+  document.getElementById(urlFieldId).value = data.publicUrl;
+  status.textContent = '✓ Uploaded';
+  status.className = 'upload-status';
+  preview.className = 'upload-preview';
+  preview.innerHTML = `<img src="${data.publicUrl}" alt="preview" />`;
+  input.value = '';
 }
 
 // ── Toast ─────────────────────────────────────────────────

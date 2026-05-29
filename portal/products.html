@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Shop Products</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    .prod-card {
+      background: var(--a-white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .prod-card-img {
+      height: 160px;
+      background: var(--a-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .prod-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .prod-card-icon { font-size: 3rem; }
+    .prod-card-body { padding: 14px 16px 12px; flex: 1; display: flex; flex-direction: column; }
+    .prod-card-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; margin-bottom: 3px; }
+    .prod-card-meta { font-size: 0.74rem; color: var(--a-gray); margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .prod-card-desc { font-size: 0.8rem; color: var(--a-gray); line-height: 1.55; flex: 1; margin-bottom: 12px; }
+    .prod-card-actions { display: flex; gap: 6px; }
+    .badge-out { background: rgba(220,38,38,0.12); color: #DC2626; font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+    .badge-in  { background: rgba(22,163,74,0.12); color: #16A34A; font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+    .price-tag { font-weight: 700; color: var(--a-green); font-size: 0.95rem; }
+  </style>
+</head>
+<body class="admin-body">
+
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:42px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="products.html" class="active">Shop</a>
+    <a href="members.html">Members</a>
+    <a href="businesses.html">Businesses</a>
+    <a href="applications.html">Applications</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <!-- Page header -->
+  <div class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">Shop Products</h1>
+      <p class="admin-page-sub">Manage products available in the guest shop.</p>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Add Product</button>
+  </div>
+
+  <!-- Category filter -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
+    <button class="filter-chip active" onclick="setCat('all',this)">All</button>
+    <button class="filter-chip" onclick="setCat('Linens & Towels',this)">🛏 Linens & Towels</button>
+    <button class="filter-chip" onclick="setCat('Branded Merch',this)">🧢 Branded Merch</button>
+    <button class="filter-chip" onclick="setCat('Local Goods',this)">🍁 Local Goods</button>
+    <button class="filter-chip" onclick="setCat('Gift Cards',this)">🎁 Gift Cards</button>
+  </div>
+
+  <!-- Grid -->
+  <div class="admin-grid" id="productGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
+    <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--a-gray);">Loading…</div>
+  </div>
+
+</main>
+
+<!-- ── Add / Edit Modal ───────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal-product">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 class="modal-title" id="prod-modal-title">Add Product</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="admin-error hidden" id="p-error"></p>
+
+      <label class="admin-label">Product name *</label>
+      <input class="admin-input" id="p-name" type="text" placeholder="e.g. Bamboo Bath Towel Set" />
+
+      <label class="admin-label" style="margin-top:14px;">Category *</label>
+      <select class="admin-input" id="p-category">
+        <option value="">— Select category —</option>
+        <option value="Linens & Towels">🛏 Linens & Towels</option>
+        <option value="Branded Merch">🧢 Branded Merch</option>
+        <option value="Local Goods">🍁 Local Goods</option>
+        <option value="Gift Cards">🎁 Gift Cards</option>
+      </select>
+
+      <label class="admin-label" style="margin-top:14px;">Price (CAD) *</label>
+      <input class="admin-input" id="p-price" type="number" min="0" step="0.01" placeholder="0.00" style="max-width:160px;" />
+
+      <label class="admin-label" style="margin-top:14px;">Description</label>
+      <textarea class="admin-input" id="p-description" rows="3" placeholder="Short product description shown on the shop page…"></textarea>
+
+      <label class="admin-label" style="margin-top:14px;">Product photo</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">
+        <input class="admin-input" id="p-image" type="url" placeholder="Paste URL or upload…" style="flex:1;" />
+        <label class="btn-upload" for="p-image-file" title="Upload from device">📷 Upload</label>
+        <input type="file" id="p-image-file" accept="image/*" style="display:none;"
+               onchange="uploadPhoto(this,'p-image','p-image-preview','p-image-status')" />
+      </div>
+      <div id="p-image-status" class="upload-status"></div>
+      <div id="p-image-preview" class="upload-preview"></div>
+
+      <label class="admin-label" style="margin-top:14px;">Stripe Price ID</label>
+      <input class="admin-input" id="p-stripe-price-id" type="text" placeholder="price_xxxxxxxxxxxxxxxx (from Stripe dashboard)" />
+      <p style="font-size:0.72rem;color:var(--a-gray);margin-top:4px;">Create a Price in your Stripe dashboard and paste the ID here. Needed for checkout.</p>
+
+      <label class="admin-label" style="margin-top:14px;">Sort order</label>
+      <input class="admin-input" id="p-sort-order" type="number" min="0" step="1" placeholder="0" style="max-width:100px;" />
+
+      <div style="display:flex;align-items:center;gap:10px;margin-top:18px;">
+        <input type="checkbox" id="p-in-stock" checked style="width:16px;height:16px;accent-color:var(--a-green);" />
+        <label for="p-in-stock" style="font-size:0.88rem;font-weight:500;cursor:pointer;">In stock</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="p-save-btn" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Modal ───────────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal-delete">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Product</h2>
+      <button class="modal-close" onclick="document.getElementById('modal-delete').classList.add('hidden')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete <strong id="delete-prod-name"></strong>? This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="document.getElementById('modal-delete').classList.add('hidden')">Cancel</button>
+      <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const sb = supabase.createClient(
+    'https://zmbhpebiiyqdfqznruwz.supabase.co',
+    'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
+  );
+
+  let _all = [], _activeCat = 'all', _editingId = null, _deletingId = null;
+
+  // ── Auth guard ────────────────────────────────────────────
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+    const email = session.user.email || '';
+    const initials = email.slice(0,2).toUpperCase();
+    const av = document.getElementById('admin-avatar');
+    if (av) av.textContent = initials;
+    loadProducts();
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    window.location.href = 'index.html';
+  }
+
+  // ── Load & render ─────────────────────────────────────────
+  async function loadProducts() {
+    const { data } = await sb.from('products').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('name');
+    _all = data || [];
+    render();
+  }
+
+  function setCat(cat, btn) {
+    _activeCat = cat;
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    render();
+  }
+
+  function render() {
+    const grid = document.getElementById('productGrid');
+    const list = _activeCat === 'all' ? _all : _all.filter(p => p.category === _activeCat);
+    if (list.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--a-gray);">
+        <div style="font-size:2.5rem;margin-bottom:12px;">🛍️</div>
+        <h3>No products yet</h3>
+        <p style="margin-top:8px;">Click "+ Add Product" to create your first one.</p>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = list.map(p => `
+      <div class="prod-card">
+        <div class="prod-card-img">
+          ${p.image_url ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" />` : `<div class="prod-card-icon">🛍️</div>`}
+        </div>
+        <div class="prod-card-body">
+          <div class="prod-card-name">${esc(p.name)}</div>
+          <div class="prod-card-meta">
+            <span>${esc(p.category || '—')}</span>
+            <span class="price-tag">$${Number(p.price || 0).toFixed(2)}</span>
+            <span class="${p.in_stock ? 'badge-in' : 'badge-out'}">${p.in_stock ? 'In stock' : 'Out of stock'}</span>
+          </div>
+          <div class="prod-card-desc">${esc(p.description || '')}</div>
+          <div class="prod-card-actions">
+            <button class="btn-secondary" style="flex:1;" onclick="openModal('${p.id}')">Edit</button>
+            <button class="btn-danger" onclick="openDeleteModal('${p.id}','${esc(p.name)}')">Delete</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Modal ─────────────────────────────────────────────────
+  function openModal(productId) {
+    _editingId = productId || null;
+    document.getElementById('prod-modal-title').textContent = productId ? 'Edit Product' : 'Add Product';
+    document.getElementById('p-save-btn').textContent       = productId ? 'Save Changes' : 'Save Product';
+    document.getElementById('p-error').classList.add('hidden');
+
+    if (productId) {
+      const p = _all.find(x => x.id === productId);
+      if (!p) return;
+      document.getElementById('p-name').value            = p.name || '';
+      document.getElementById('p-category').value        = p.category || '';
+      document.getElementById('p-price').value           = p.price || '';
+      document.getElementById('p-description').value     = p.description || '';
+      document.getElementById('p-image').value           = p.image_url || '';
+      document.getElementById('p-stripe-price-id').value = p.stripe_price_id || '';
+      document.getElementById('p-sort-order').value      = p.sort_order ?? 0;
+      document.getElementById('p-in-stock').checked      = p.in_stock !== false;
+    } else {
+      document.getElementById('p-name').value            = '';
+      document.getElementById('p-category').value        = '';
+      document.getElementById('p-price').value           = '';
+      document.getElementById('p-description').value     = '';
+      document.getElementById('p-image').value           = '';
+      document.getElementById('p-stripe-price-id').value = '';
+      document.getElementById('p-sort-order').value      = 0;
+      document.getElementById('p-in-stock').checked      = true;
+    }
+
+    // Clear upload UI
+    document.getElementById('p-image-status').textContent = '';
+    document.getElementById('p-image-status').className = 'upload-status';
+    document.getElementById('p-image-preview').innerHTML = '';
+
+    document.getElementById('modal-product').classList.remove('hidden');
+  }
+
+  function closeModal() { document.getElementById('modal-product').classList.add('hidden'); }
+
+  // ── Save ──────────────────────────────────────────────────
+  async function saveProduct() {
+    const btn = document.getElementById('p-save-btn');
+    const err = document.getElementById('p-error');
+    err.classList.add('hidden');
+
+    const name  = document.getElementById('p-name').value.trim();
+    const price = parseFloat(document.getElementById('p-price').value);
+    const cat   = document.getElementById('p-category').value;
+    if (!name)         { return showErr('Product name is required.'); }
+    if (!cat)          { return showErr('Please select a category.'); }
+    if (isNaN(price))  { return showErr('Please enter a valid price.'); }
+
+    btn.textContent = 'Saving…'; btn.disabled = true;
+
+    const payload = {
+      name,
+      category:        cat,
+      price,
+      description:     document.getElementById('p-description').value.trim() || null,
+      image_url:       document.getElementById('p-image').value.trim() || null,
+      stripe_price_id: document.getElementById('p-stripe-price-id').value.trim() || null,
+      sort_order:      parseInt(document.getElementById('p-sort-order').value) || 0,
+      in_stock:        document.getElementById('p-in-stock').checked,
+    };
+
+    let error;
+    if (_editingId) {
+      ({ error } = await sb.from('products').update(payload).eq('id', _editingId));
+    } else {
+      ({ error } = await sb.from('products').insert(payload));
+    }
+
+    if (error) { showErr('Save failed: ' + error.message); btn.textContent = _editingId ? 'Save Changes' : 'Save Product'; btn.disabled = false; return; }
+
+    closeModal();
+    await loadProducts();
+    showToast(_editingId ? '✓ Product updated' : '✓ Product added');
+    btn.textContent = _editingId ? 'Save Changes' : 'Save Product';
+    btn.disabled = false;
+
+    function showErr(msg) { err.textContent = msg; err.classList.remove('hidden'); btn.textContent = _editingId ? 'Save Changes' : 'Save Product'; btn.disabled = false; }
+  }
+
+  // ── Delete ────────────────────────────────────────────────
+  function openDeleteModal(id, name) {
+    _deletingId = id;
+    document.getElementById('delete-prod-name').textContent = name;
+    document.getElementById('modal-delete').classList.remove('hidden');
+  }
+  async function confirmDelete() {
+    await sb.from('products').delete().eq('id', _deletingId);
+    document.getElementById('modal-delete').classList.add('hidden');
+    await loadProducts();
+    showToast('Product deleted');
+  }
+
+  // ── Photo upload ──────────────────────────────────────────
+  async function uploadPhoto(input, urlFieldId, previewId, statusId) {
+    const file = input.files[0];
+    if (!file) return;
+    const status  = document.getElementById(statusId);
+    const preview = document.getElementById(previewId);
+    status.textContent = 'Uploading…'; status.className = 'upload-status uploading';
+    preview.innerHTML  = '';
+    const ext  = file.name.split('.').pop();
+    const path = `photos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await sb.storage.from('portal-uploads').upload(path, file, { upsert: true });
+    if (error) { status.textContent = 'Upload failed: ' + error.message; status.className = 'upload-status error'; return; }
+    const { data } = sb.storage.from('portal-uploads').getPublicUrl(path);
+    document.getElementById(urlFieldId).value = data.publicUrl;
+    status.textContent = '✓ Uploaded'; status.className = 'upload-status';
+    preview.className  = 'upload-preview';
+    preview.innerHTML  = `<img src="${data.publicUrl}" alt="preview" />`;
+    input.value = '';
+  }
+
+  // ── Helpers ───────────────────────────────────────────────
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+
+  document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+  init();
+</script>
+
+</body>
+</html>

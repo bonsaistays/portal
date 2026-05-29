@@ -14,6 +14,8 @@
   <div class="admin-nav-links">
     <a href="dashboard.html">Bookings</a>
     <a href="properties.html" class="active">Properties</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="products.html">Shop</a>
     <a href="members.html">Members</a>
     <a href="businesses.html">Businesses</a>
     <a href="applications.html">Applications</a>
@@ -83,9 +85,14 @@
             <input class="admin-input" id="p-address" type="text" placeholder="123 Lake Rd, Port Carling, ON P0C 1H0" />
           </div>
           <div>
-            <label class="admin-label">Property photo URL</label>
-            <input class="admin-input" id="p-photo" type="url" placeholder="https://images.unsplash.com/..." />
-            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Paste any image URL — shown on guest boarding pass. Leave blank for default photo.</div>
+            <label class="admin-label">Property photo</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+              <input class="admin-input" id="p-photo" type="url" placeholder="Paste URL or upload below…" style="flex:1;" />
+              <label class="btn-upload" for="p-photo-file" title="Upload from device">📷 Upload</label>
+              <input type="file" id="p-photo-file" accept="image/*" style="display:none;" onchange="uploadPhoto(this,'p-photo','p-photo-preview','p-photo-status')" />
+            </div>
+            <div id="p-photo-status" class="upload-status"></div>
+            <div id="p-photo-preview" class="upload-preview"></div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <input type="checkbox" id="p-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
@@ -405,6 +412,11 @@ function openModal(propId) {
     document.getElementById('ical-rows').innerHTML   = '';
   }
 
+  // Clear upload UI
+  document.getElementById('p-photo-status').textContent = '';
+  document.getElementById('p-photo-status').className = 'upload-status';
+  document.getElementById('p-photo-preview').innerHTML = '';
+
   document.getElementById('modal-property').classList.remove('hidden');
 }
 
@@ -519,6 +531,33 @@ function collectIcalUrls() {
     platform: row.querySelector('select').value,
     url: row.querySelector('input').value.trim(),
   })).filter(u => u.url.startsWith('http'));
+}
+
+// ── Photo upload ──────────────────────────────────────────────────────────
+async function uploadPhoto(input, urlFieldId, previewId, statusId) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById(statusId);
+  const preview = document.getElementById(previewId);
+  status.textContent = 'Uploading…';
+  status.className = 'upload-status uploading';
+  preview.innerHTML = '';
+
+  const ext = file.name.split('.').pop();
+  const path = `photos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await sb.storage.from('portal-uploads').upload(path, file, { upsert: true });
+  if (error) {
+    status.textContent = 'Upload failed: ' + error.message;
+    status.className = 'upload-status error';
+    return;
+  }
+  const { data } = sb.storage.from('portal-uploads').getPublicUrl(path);
+  document.getElementById(urlFieldId).value = data.publicUrl;
+  status.textContent = '✓ Uploaded';
+  status.className = 'upload-status';
+  preview.className = 'upload-preview';
+  preview.innerHTML = `<img src="${data.publicUrl}" alt="preview" />`;
+  input.value = '';
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
