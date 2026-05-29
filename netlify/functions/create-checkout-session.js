@@ -18,25 +18,28 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const { items, success_url, cancel_url } = body;
+  const { items, success_url, cancel_url, discount_percent } = body;
 
   if (!items || items.length === 0) {
     return { statusCode: 400, body: JSON.stringify({ error: 'No items provided' }) };
   }
 
-  // Build line items — prefer Stripe Price IDs if set, otherwise use price_data
+  // Apply partner discount if provided (0-100 percent)
+  const discountMultiplier = (discount_percent > 0 && discount_percent <= 100)
+    ? (1 - discount_percent / 100)
+    : 1;
+
+  // Build line items — always use price_data so we can apply discounts
   const line_items = items.map(item => {
-    if (item.price_id) {
-      // Pre-configured Stripe Price (recommended for recurring / managed pricing)
-      return { price: item.price_id, quantity: item.qty };
-    }
-    // Fallback: dynamic price data (good for ad-hoc / custom prices)
+    const basePrice = Math.round(Number(item.price) * 100); // cents
+    const finalPrice = Math.round(basePrice * discountMultiplier);
+    const nameSuffix = discount_percent > 0 ? ` (${discount_percent}% partner discount)` : '';
     return {
       quantity: item.qty,
       price_data: {
         currency: 'cad',
-        unit_amount: Math.round(Number(item.price) * 100), // cents
-        product_data: { name: item.name },
+        unit_amount: finalPrice,
+        product_data: { name: item.name + nameSuffix },
       },
     };
   });

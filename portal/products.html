@@ -56,30 +56,87 @@
 
 <main class="admin-main">
 
-  <!-- Page header -->
-  <div class="admin-page-header">
-    <div>
-      <h1 class="admin-page-title">Shop Products</h1>
-      <p class="admin-page-sub">Manage products available in the guest shop.</p>
+  <!-- Tabs: Products / Discount Codes -->
+  <div style="display:flex;gap:4px;border-bottom:2px solid var(--a-gray-pale);margin-bottom:28px;">
+    <button id="tab-products" onclick="switchTab('products')" style="padding:10px 20px;font-size:0.85rem;font-weight:600;background:none;border:none;border-bottom:2px solid var(--a-green);color:var(--a-green);margin-bottom:-2px;cursor:pointer;font-family:inherit;">Products</button>
+    <button id="tab-codes" onclick="switchTab('codes')" style="padding:10px 20px;font-size:0.85rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;color:var(--a-gray);margin-bottom:-2px;cursor:pointer;font-family:inherit;">🏷️ Discount Codes</button>
+  </div>
+
+  <!-- ── PRODUCTS PANEL ── -->
+  <div id="panel-products">
+    <div class="admin-page-header" style="margin-bottom:20px;">
+      <div>
+        <h1 class="admin-page-title">Shop Products</h1>
+        <p class="admin-page-sub">Manage products available in the guest &amp; partner shop.</p>
+      </div>
+      <button class="btn-primary" onclick="openModal()">+ Add Product</button>
     </div>
-    <button class="btn-primary" onclick="openModal()">+ Add Product</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
+      <button class="filter-chip active" onclick="setCat('all',this)">All</button>
+      <button class="filter-chip" onclick="setCat('Linens & Towels',this)">🛏 Linens & Towels</button>
+      <button class="filter-chip" onclick="setCat('Branded Merch',this)">🧢 Branded Merch</button>
+      <button class="filter-chip" onclick="setCat('Local Goods',this)">🍁 Local Goods</button>
+      <button class="filter-chip" onclick="setCat('Gift Cards',this)">🎁 Gift Cards</button>
+    </div>
+    <div class="admin-grid" id="productGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
+      <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--a-gray);">Loading…</div>
+    </div>
   </div>
 
-  <!-- Category filter -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
-    <button class="filter-chip active" onclick="setCat('all',this)">All</button>
-    <button class="filter-chip" onclick="setCat('Linens & Towels',this)">🛏 Linens & Towels</button>
-    <button class="filter-chip" onclick="setCat('Branded Merch',this)">🧢 Branded Merch</button>
-    <button class="filter-chip" onclick="setCat('Local Goods',this)">🍁 Local Goods</button>
-    <button class="filter-chip" onclick="setCat('Gift Cards',this)">🎁 Gift Cards</button>
-  </div>
-
-  <!-- Grid -->
-  <div class="admin-grid" id="productGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
-    <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--a-gray);">Loading…</div>
+  <!-- ── DISCOUNT CODES PANEL ── -->
+  <div id="panel-codes" style="display:none;">
+    <div class="admin-page-header" style="margin-bottom:20px;">
+      <div>
+        <h1 class="admin-page-title">Partner Discount Codes</h1>
+        <p class="admin-page-sub">Create % off codes for property owners and partners.</p>
+      </div>
+      <button class="btn-primary" onclick="openCodeModal()">+ New Code</button>
+    </div>
+    <div id="codesTable" style="background:var(--a-white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+      <div style="text-align:center;padding:60px 0;color:var(--a-gray);">Loading…</div>
+    </div>
   </div>
 
 </main>
+
+<!-- ── Discount Code Modal ──────────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal-code">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3 id="code-modal-title">New Discount Code</h3>
+      <button class="btn-modal-close" onclick="closeCodeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <label class="admin-label">Code *</label>
+          <input class="admin-input" id="c-code" type="text" placeholder="PARTNER20" maxlength="20"
+            style="text-transform:uppercase;letter-spacing:0.08em;"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+          <div style="font-size:0.72rem;color:var(--a-gray);margin-top:4px;">Letters and numbers only. This is what your partners type in.</div>
+        </div>
+        <div>
+          <label class="admin-label">Discount %  *</label>
+          <input class="admin-input" id="c-pct" type="number" min="1" max="100" placeholder="20" />
+          <div style="font-size:0.72rem;color:var(--a-gray);margin-top:4px;">e.g. 20 = 20% off all products at checkout.</div>
+        </div>
+        <div>
+          <label class="admin-label">Description <span style="font-weight:400;color:var(--a-gray);">(internal note)</span></label>
+          <input class="admin-input" id="c-desc" type="text" placeholder="Sora Stays owner code — 20% off" />
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="c-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
+          <label for="c-active" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Code is active</label>
+        </div>
+        <div id="c-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--a-red);font-size:0.82rem;padding:10px 14px;border-radius:8px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeCodeModal()">Cancel</button>
+      <button class="btn-primary" id="c-save-btn" onclick="saveCode()">Save Code</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Add / Edit Modal ───────────────────────────────────────── -->
 <div class="modal-overlay hidden" id="modal-product">
@@ -347,6 +404,112 @@
   function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
 
   document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+  // ── Tab switcher ────────────────────────────────────────────────
+  function switchTab(tab) {
+    document.getElementById('panel-products').style.display = tab === 'products' ? '' : 'none';
+    document.getElementById('panel-codes').style.display    = tab === 'codes'    ? '' : 'none';
+    document.getElementById('tab-products').style.borderBottomColor = tab === 'products' ? 'var(--a-green)' : 'transparent';
+    document.getElementById('tab-products').style.color              = tab === 'products' ? 'var(--a-green)' : 'var(--a-gray)';
+    document.getElementById('tab-codes').style.borderBottomColor    = tab === 'codes'    ? 'var(--a-green)' : 'transparent';
+    document.getElementById('tab-codes').style.color                = tab === 'codes'    ? 'var(--a-green)' : 'var(--a-gray)';
+    if (tab === 'codes') loadCodes();
+  }
+
+  // ── Discount codes ──────────────────────────────────────────────
+  let _codes = [];
+  let _editCodeId = null;
+
+  async function loadCodes() {
+    const { data } = await sb.from('discount_codes').select('*').order('created_at', { ascending: false });
+    _codes = data || [];
+    renderCodes();
+  }
+
+  function renderCodes() {
+    const el = document.getElementById('codesTable');
+    if (!_codes.length) {
+      el.innerHTML = '<div style="text-align:center;padding:60px 0;color:var(--a-gray);">No discount codes yet. Click + New Code to create one.</div>';
+      return;
+    }
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+      <thead><tr style="border-bottom:2px solid var(--a-gray-pale);">
+        <th style="padding:12px 20px;text-align:left;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);">Code</th>
+        <th style="padding:12px 16px;text-align:left;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);">Discount</th>
+        <th style="padding:12px 16px;text-align:left;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);">Description</th>
+        <th style="padding:12px 16px;text-align:left;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--a-gray);">Status</th>
+        <th style="padding:12px 16px;"></th>
+      </tr></thead>
+      <tbody>${_codes.map(c => `<tr style="border-bottom:1px solid var(--a-gray-pale);">
+        <td style="padding:14px 20px;font-family:monospace;font-size:0.95rem;font-weight:700;letter-spacing:0.08em;color:var(--a-green);">${esc(c.code)}</td>
+        <td style="padding:14px 16px;"><span style="background:var(--a-green-tint);color:var(--a-green);font-weight:700;font-size:0.82rem;padding:3px 10px;border-radius:20px;">${c.discount_percent}% off</span></td>
+        <td style="padding:14px 16px;color:var(--a-gray);font-size:0.82rem;">${esc(c.description || '—')}</td>
+        <td style="padding:14px 16px;">${c.active ? '<span style="color:#16A34A;font-size:0.78rem;font-weight:700;">● Active</span>' : '<span style="color:var(--a-gray);font-size:0.78rem;font-weight:700;">○ Inactive</span>'}</td>
+        <td style="padding:14px 16px;display:flex;gap:6px;">
+          <button onclick="editCode('${c.id}')" class="btn-secondary" style="padding:6px 14px;font-size:0.78rem;">Edit</button>
+          <button onclick="deleteCode('${c.id}')" class="btn-danger" style="padding:6px 12px;font-size:0.78rem;">Delete</button>
+        </td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  function openCodeModal(id) {
+    _editCodeId = id || null;
+    document.getElementById('code-modal-title').textContent = id ? 'Edit Code' : 'New Discount Code';
+    document.getElementById('c-save-btn').textContent = id ? 'Save Changes' : 'Save Code';
+    document.getElementById('c-error').classList.add('hidden');
+    if (id) {
+      const c = _codes.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('c-code').value   = c.code;
+      document.getElementById('c-pct').value    = c.discount_percent;
+      document.getElementById('c-desc').value   = c.description || '';
+      document.getElementById('c-active').checked = c.active;
+      document.getElementById('c-code').disabled = true; // Don't allow code rename
+    } else {
+      document.getElementById('c-code').value   = '';
+      document.getElementById('c-pct').value    = '';
+      document.getElementById('c-desc').value   = '';
+      document.getElementById('c-active').checked = true;
+      document.getElementById('c-code').disabled = false;
+    }
+    document.getElementById('modal-code').classList.remove('hidden');
+  }
+
+  function editCode(id) { openCodeModal(id); }
+  function closeCodeModal() { document.getElementById('modal-code').classList.add('hidden'); document.getElementById('c-code').disabled = false; }
+
+  async function saveCode() {
+    const btn = document.getElementById('c-save-btn');
+    const err = document.getElementById('c-error');
+    err.classList.add('hidden');
+    const code = document.getElementById('c-code').value.trim().toUpperCase();
+    const pct  = parseInt(document.getElementById('c-pct').value);
+    if (!code) { err.textContent = 'Code is required.'; err.classList.remove('hidden'); return; }
+    if (!pct || pct < 1 || pct > 100) { err.textContent = 'Enter a discount between 1 and 100%.'; err.classList.remove('hidden'); return; }
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    const payload = { code, discount_percent: pct, description: document.getElementById('c-desc').value.trim(), active: document.getElementById('c-active').checked };
+    let error;
+    if (_editCodeId) {
+      ({ error } = await sb.from('discount_codes').update(payload).eq('id', _editCodeId));
+    } else {
+      ({ error } = await sb.from('discount_codes').insert(payload));
+    }
+    if (error) { err.textContent = error.message; err.classList.remove('hidden'); btn.textContent = _editCodeId ? 'Save Changes' : 'Save Code'; btn.disabled = false; return; }
+    closeCodeModal();
+    await loadCodes();
+    showToast(_editCodeId ? '✓ Code updated' : '✓ Code created');
+    btn.textContent = _editCodeId ? 'Save Changes' : 'Save Code'; btn.disabled = false;
+  }
+
+  async function deleteCode(id) {
+    if (!confirm('Delete this discount code?')) return;
+    await sb.from('discount_codes').delete().eq('id', id);
+    await loadCodes();
+    showToast('Code deleted');
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
   init();
 </script>
