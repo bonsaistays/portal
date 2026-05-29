@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Property — Bonsai Stays</title>
+  <meta name="description" id="page-desc" content="A professionally managed Bonsai Stays property." />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Gallery ─────────────────────────────────── */
+    .gallery-section { margin-top: 72px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 280px 280px;
+      gap: 6px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .gallery-main {
+      grid-row: 1 / 3;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .gallery-thumb {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .gallery-main img,
+    .gallery-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .gallery-main:hover img,
+    .gallery-thumb:hover img { transform: scale(1.04); }
+    .gallery-btn {
+      position: absolute; bottom: 20px; right: 20px;
+      background: var(--white); color: var(--charcoal);
+      border: none; border-radius: 8px;
+      padding: 10px 18px; font-family: 'Inter', sans-serif;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.14);
+      transition: box-shadow 0.2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .gallery-btn:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+
+    /* Mobile single-image slideshow */
+    .gallery-mobile {
+      display: none;
+      position: relative;
+      height: 300px;
+      overflow: hidden;
+      margin-top: 72px;
+    }
+    .gallery-mobile img { width: 100%; height: 100%; object-fit: cover; }
+    .gm-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index:5;
+    }
+    .gm-prev { left: 12px; }
+    .gm-next { right: 12px; }
+    .gm-count {
+      position: absolute; bottom: 12px; right: 14px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      font-size: 0.75rem; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── Lightbox ──────────────────────────────────── */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.92);
+      align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lb-inner {
+      position: relative; max-width: 90vw; max-height: 90vh;
+    }
+    .lb-inner img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; }
+    .lb-close {
+      position: absolute; top: -14px; right: -14px;
+      width: 34px; height: 34px; background: var(--white); border: none;
+      border-radius: 50%; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lb-prev, .lb-next {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      width: 48px; height: 48px; background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
+      color: #fff; font-size: 1.4rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,0.25); }
+    .lb-prev { left: 20px; } .lb-next { right: 20px; }
+    .lb-dots {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px;
+    }
+    .lb-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.45); border: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .lb-dot.active { background: #fff; }
+
+    /* ── Breadcrumb ────────────────────────────────── */
+    .breadcrumb {
+      font-size: 0.82rem; color: var(--gray-light);
+      padding: 20px 0 0;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .breadcrumb a { color: var(--gray-light); transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--green-deep); }
+
+    /* ── Layout ────────────────────────────────────── */
+    .prop-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 60px;
+      padding: 32px 0 96px;
+      align-items: start;
+    }
+    .prop-main {}
+    .prop-sidebar { position: sticky; top: 100px; }
+
+    /* ── Header block ──────────────────────────────── */
+    .prop-header { margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--gray-pale); }
+    .prop-badge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .prop-name { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 600; color: var(--charcoal); line-height: 1.2; margin-bottom: 8px; }
+    .prop-location { font-size: 0.88rem; color: var(--gray-mid); display: flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+    .prop-specs { display: flex; flex-wrap: wrap; gap: 20px; }
+    .prop-spec { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--gray-mid); }
+    .prop-spec strong { color: var(--charcoal); }
+
+    /* ── Section divider ───────────────────────────── */
+    .prop-section { padding: 32px 0; border-bottom: 1px solid var(--gray-pale); }
+    .prop-section:last-child { border-bottom: none; }
+    .prop-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem; font-weight: 500;
+      color: var(--charcoal); margin-bottom: 20px;
+    }
+    .prop-desc { font-size: 1rem; line-height: 1.75; color: var(--gray-mid); }
+    .prop-desc-more {
+      background: none; border: none; padding: 0;
+      color: var(--green-deep); font-size: 1rem; font-weight: 600;
+      text-decoration: underline; cursor: pointer; margin-top: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Amenities ─────────────────────────────────── */
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 24px;
+    }
+    .amenity-item {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 0.92rem; color: var(--charcoal);
+    }
+    .amenity-check {
+      width: 24px; height: 24px; flex-shrink: 0;
+      background: var(--green-tint);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--green-deep); font-size: 0.65rem; font-weight: 700;
+    }
+
+    /* ── Beds / Baths ──────────────────────────────── */
+    .bedbath-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .bedbath-card {
+      background: var(--cream); border-radius: var(--radius-sm);
+      padding: 20px 18px; text-align: center;
+    }
+    .bedbath-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .bedbath-value { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--charcoal); }
+    .bedbath-label { font-size: 0.78rem; color: var(--gray-light); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
+
+    /* ── Rules ─────────────────────────────────────── */
+    .rules-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .rules-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 0.92rem; line-height: 1.55; color: var(--charcoal);
+    }
+    .rules-list li::before {
+      content: '•'; color: var(--green-sage); font-size: 1rem;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ── Booking links ──────────────────────────────── */
+    .book-links { display: flex; flex-direction: column; gap: 10px; }
+    .book-link {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 20px; border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
+      text-decoration: none; transition: var(--transition);
+      border: none; cursor: pointer; width: 100%;
+    }
+    .book-link-airbnb { background: #FF385C; color: #fff; }
+    .book-link-airbnb:hover { background: #E0002A; }
+    .book-link-vrbo { background: #1A5276; color: #fff; }
+    .book-link-vrbo:hover { background: #154360; }
+    .book-link-contact {
+      background: var(--green-tint); color: var(--green-deep);
+      border: 1.5px solid rgba(44,74,30,0.2);
+    }
+    .book-link-contact:hover { background: #DCE9D4; }
+
+    /* ── Sidebar cards ──────────────────────────────── */
+    .booking-card {
+      background: var(--white);
+      border: 1px solid var(--gray-pale);
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 20px;
+    }
+    .booking-card-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem; font-weight: 600; color: var(--charcoal);
+    }
+    .booking-card-price span { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 400; color: var(--gray-light); }
+    .booking-card-note { font-size: 0.8rem; color: var(--gray-light); margin: 8px 0 20px; }
+    .contact-card {
+      background: var(--cream);
+      border-radius: var(--radius-md);
+      padding: 22px 20px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .contact-card-icon {
+      width: 42px; height: 42px; background: var(--green-tint);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;
+    }
+    .contact-card-title { font-weight: 600; color: var(--charcoal); font-size: 0.92rem; margin-bottom: 3px; }
+    .contact-card-sub { font-size: 0.82rem; color: var(--gray-mid); line-height: 1.5; }
+    .contact-card-link { color: var(--green-deep); font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+    /* ── Loading / Error ───────────────────────────── */
+    .prop-loading {
+      min-height: 60vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+      color: var(--gray-mid);
+    }
+    .prop-spinner {
+      width: 40px; height: 40px; border: 3px solid var(--gray-pale);
+      border-top-color: var(--green-deep); border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Tag ──────────────────────────────────────── */
+    .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+    .tag-green  { background: var(--green-tint); color: var(--green-deep); }
+    .tag-gold   { background: #FDF8EE; color: #8A6020; }
+    .tag-sage   { background: var(--cream); color: var(--green-sage); }
+
+    /* ── Responsive ─────────────────────────────────── */
+    @media (max-width: 960px) {
+      .prop-layout { grid-template-columns: 1fr; gap: 40px; }
+      .prop-sidebar { position: static; }
+      .gallery-grid { display: none; }
+      .gallery-mobile { display: block; }
+    }
+    @media (max-width: 640px) {
+      .bedbath-grid { grid-template-columns: repeat(3, 1fr); }
+      .amenities-grid { grid-template-columns: 1fr; }
+      .gallery-mobile { height: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;filter:brightness(0);" />
+        <span class="nav-badge guest">Guests</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="properties.html" style="color:var(--green-deep);font-weight:600;">Properties</a></li>
+        <li><a href="experiences.html">Experiences</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="loyalty.html">Bon Voyage</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta" style="display:flex;gap:8px;align-items:center;">
+        <a href="../partners/list-your-property.html" class="btn btn-primary" style="padding:10px 18px;font-size:0.82rem;">List My Property</a>
+        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 18px;font-size:0.82rem;">For Partners</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Loading state -->
+  <div id="prop-loading" class="prop-loading" style="padding-top:80px;">
+    <div class="prop-spinner"></div>
+    <p>Loading property…</p>
+  </div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="prop-content" style="display:none;">
+
+    <!-- Mobile gallery -->
+    <div class="gallery-mobile" id="gallery-mobile">
+      <img id="gm-img" src="" alt="" />
+      <button class="gm-btn gm-prev" onclick="gmAdj(-1)">&#8249;</button>
+      <button class="gm-btn gm-next" onclick="gmAdj(1)">&#8250;</button>
+      <div class="gm-count" id="gm-count">1 / 1</div>
+    </div>
+
+    <div class="container">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="properties.html">Properties</a>
+        <span>›</span>
+        <span id="bc-name" style="color:var(--charcoal);">Loading…</span>
+      </div>
+
+      <!-- Desktop gallery -->
+      <div class="gallery-section">
+        <div class="gallery-grid" id="gallery-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="prop-layout">
+
+        <!-- Main column -->
+        <div class="prop-main">
+
+          <!-- Header -->
+          <div class="prop-header">
+            <div class="prop-badge-row" id="prop-badge-row"></div>
+            <h1 class="prop-name" id="prop-name">—</h1>
+            <div class="prop-location" id="prop-location">
+              <span>📍</span><span id="prop-location-text">—</span>
+            </div>
+            <div class="prop-specs" id="prop-specs"></div>
+          </div>
+
+          <!-- Description -->
+          <div class="prop-section" id="section-desc" style="display:none;">
+            <h2 class="prop-section-title">About this property</h2>
+            <div class="prop-desc" id="prop-desc-text"></div>
+          </div>
+
+          <!-- Amenities -->
+          <div class="prop-section" id="section-amenities" style="display:none;">
+            <h2 class="prop-section-title">Amenities</h2>
+            <div class="amenities-grid" id="amenities-grid"></div>
+          </div>
+
+          <!-- Beds & Baths -->
+          <div class="prop-section">
+            <h2 class="prop-section-title">Bedrooms &amp; bathrooms</h2>
+            <div class="bedbath-grid" id="bedbath-grid"></div>
+          </div>
+
+          <!-- House Rules -->
+          <div class="prop-section" id="section-rules" style="display:none;">
+            <h2 class="prop-section-title">House rules</h2>
+            <ul class="rules-list" id="rules-list"></ul>
+          </div>
+
+          <!-- Cancellation -->
+          <div class="prop-section" id="section-cancel" style="display:none;">
+            <h2 class="prop-section-title">Cancellation policy</h2>
+            <p class="prop-desc" id="cancel-text"></p>
+          </div>
+
+          <!-- Book on platforms (mobile only — also in sidebar on desktop) -->
+          <div class="prop-section" id="section-book-mobile" style="display:none;">
+            <h2 class="prop-section-title">Book this stay</h2>
+            <div class="book-links" id="book-links-mobile"></div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="prop-sidebar">
+          <div class="booking-card">
+            <div class="booking-card-price" id="sidebar-price">—</div>
+            <div class="booking-card-note">per night · taxes &amp; fees at checkout</div>
+            <div class="book-links" id="book-links-sidebar"></div>
+          </div>
+          <div class="contact-card">
+            <div class="contact-card-icon">💬</div>
+            <div>
+              <div class="contact-card-title">Ask us anything</div>
+              <div class="contact-card-sub">Have a question about this property or the local area?<br>
+                <span class="contact-card-link" onclick="openChat()">Message our team</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" onclick="lbClose(event)">
+    <button class="lb-prev" onclick="lbAdj(-1,event)">&#8249;</button>
+    <div class="lb-inner">
+      <button class="lb-close" onclick="closeLightbox()">✕</button>
+      <img id="lb-img" src="" alt="" />
+    </div>
+    <button class="lb-next" onclick="lbAdj(1,event)">&#8250;</button>
+    <div class="lb-dots" id="lb-dots"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
+          <div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">P</a></div>
+        </div>
+        <div class="footer-col"><h5>Explore</h5><ul><li><a href="properties.html">All Properties</a></li><li><a href="experiences.html">Experiences</a></li><li><a href="shop.html">Shop</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../partners/index.html">For Partners</a></li><li><a href="../careers.html">Careers</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+  const { createClient } = window.supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── State ──────────────────────────────────────────────────────────
+  let _photos = [];
+  let _gmIdx  = 0;
+  let _lbIdx  = 0;
+
+  // ── Load ───────────────────────────────────────────────────────────
+  async function loadProperty() {
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) { showError('No property ID specified.'); return; }
+
+    const { data: p, error } = await sb
+      .from('properties')
+      .select('*')
+      .eq('id', id)
+      .eq('active', true)
+      .single();
+
+    if (error || !p) { showError('Property not found.'); return; }
+
+    renderProperty(p);
+  }
+
+  function showError(msg) {
+    document.getElementById('prop-loading').innerHTML =
+      `<div style="text-align:center;padding:40px;color:var(--gray-mid);">
+        <p style="font-size:1.1rem;margin-bottom:12px;">${msg}</p>
+        <a href="properties.html" class="btn btn-primary">← Back to Properties</a>
+       </div>`;
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────
+  function renderProperty(p) {
+    // Photos
+    _photos = (p.photos && p.photos.length) ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
+    if (!_photos.length) _photos = ['https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=70&auto=format&fit=crop'];
+
+    // Page meta
+    document.getElementById('page-title').textContent = p.name + ' — Bonsai Stays';
+    document.getElementById('page-desc').content = p.description || ('A beautiful Bonsai Stays property in ' + (p.city || 'Ontario'));
+
+    // Breadcrumb
+    document.getElementById('bc-name').textContent = p.name;
+
+    // Gallery
+    buildGallery();
+
+    // Badge
+    const badgeRow = document.getElementById('prop-badge-row');
+    if (p.badge) badgeRow.innerHTML = `<span class="tag tag-${p.badge_type||'green'}">${esc(p.badge)}</span>`;
+
+    // Name & location
+    document.getElementById('prop-name').textContent = p.name;
+    document.getElementById('prop-location-text').textContent =
+      [p.city, p.region].filter(Boolean).join(' · ');
+
+    // Specs
+    const specs = document.getElementById('prop-specs');
+    specs.innerHTML = [
+      p.bedrooms ? `<div class="prop-spec">🛏 <strong>${p.bedrooms}</strong> bedroom${p.bedrooms!==1?'s':''}</div>` : '',
+      p.bathrooms ? `<div class="prop-spec">🛁 <strong>${p.bathrooms}</strong> bathroom${p.bathrooms!==1?'s':''}</div>` : '',
+      p.guests ? `<div class="prop-spec">👥 Up to <strong>${p.guests}</strong> guests</div>` : '',
+    ].join('');
+
+    // Description
+    if (p.description) {
+      const desc = p.description;
+      const sec = document.getElementById('section-desc');
+      sec.style.display = '';
+      const el = document.getElementById('prop-desc-text');
+      if (desc.length > 350) {
+        el.innerHTML = `<span id="desc-short">${esc(desc.slice(0,350))}…</span><span id="desc-full" style="display:none;">${esc(desc)}</span>
+          <br><button class="prop-desc-more" onclick="toggleDesc()">Read more ↓</button>`;
+      } else {
+        el.textContent = desc;
+      }
+    }
+
+    // Amenities
+    const amArr = Array.isArray(p.amenities) ? p.amenities : (p.amenities ? p.amenities.split('\n').filter(Boolean) : []);
+    if (amArr.length) {
+      document.getElementById('section-amenities').style.display = '';
+      document.getElementById('amenities-grid').innerHTML = amArr.map(a =>
+        `<div class="amenity-item"><div class="amenity-check">✓</div><span>${esc(a.trim())}</span></div>`
+      ).join('');
+    }
+
+    // Beds/Baths/Guests
+    document.getElementById('bedbath-grid').innerHTML = [
+      { icon: '🛏', val: p.bedrooms || '—', label: 'Bedrooms' },
+      { icon: '🛁', val: p.bathrooms || '—', label: 'Bathrooms' },
+      { icon: '👥', val: p.guests || '—', label: 'Max guests' },
+    ].map(x => `
+      <div class="bedbath-card">
+        <div class="bedbath-icon">${x.icon}</div>
+        <div class="bedbath-value">${x.val}</div>
+        <div class="bedbath-label">${x.label}</div>
+      </div>`).join('');
+
+    // House rules
+    if (p.house_rules) {
+      document.getElementById('section-rules').style.display = '';
+      const lines = p.house_rules.split('\n').map(l => l.replace(/^•\s*/, '').trim()).filter(Boolean);
+      document.getElementById('rules-list').innerHTML = lines.map(l => `<li>${esc(l)}</li>`).join('');
+    }
+
+    // Cancellation
+    if (p.cancellation_policy) {
+      document.getElementById('section-cancel').style.display = '';
+      document.getElementById('cancel-text').textContent = p.cancellation_policy;
+    }
+
+    // Booking links (sidebar + mobile)
+    const bookHTML = buildBookLinks(p);
+    document.getElementById('book-links-sidebar').innerHTML = bookHTML;
+    if (bookHTML) {
+      document.getElementById('section-book-mobile').style.display = '';
+      document.getElementById('book-links-mobile').innerHTML = bookHTML;
+    }
+
+    // Sidebar price
+    const priceEl = document.getElementById('sidebar-price');
+    if (p.price) {
+      priceEl.innerHTML = `$${p.price} <span>/ night</span>`;
+    } else {
+      priceEl.innerHTML = `Contact for pricing`;
+      document.getElementById('sidebar-price').style.fontSize = '1.2rem';
+    }
+
+    // Show content
+    document.getElementById('prop-loading').style.display = 'none';
+    document.getElementById('prop-content').style.display = '';
+  }
+
+  function buildBookLinks(p) {
+    let html = '';
+    if (p.airbnb_url) {
+      html += `<a href="${p.airbnb_url}" target="_blank" rel="noopener" class="book-link book-link-airbnb">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/></svg>
+        Book on Airbnb</a>`;
+    }
+    if (p.vrbo_url) {
+      html += `<a href="${p.vrbo_url}" target="_blank" rel="noopener" class="book-link book-link-vrbo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Book on VRBO</a>`;
+    }
+    if (!p.airbnb_url && !p.vrbo_url) {
+      html += `<a href="../contact.html" class="book-link book-link-contact">✉ Inquire about this property</a>`;
+    } else {
+      html += `<a href="../contact.html" class="book-link book-link-contact">✉ Inquire directly</a>`;
+    }
+    return html;
+  }
+
+  // ── Gallery ────────────────────────────────────────────────────────
+  function buildGallery() {
+    const grid = document.getElementById('gallery-grid');
+    // Show up to 5 photos (1 main + 4 thumbs)
+    const show = _photos.slice(0, 5);
+    while (show.length < 5) show.push(show[0]); // pad if < 5 photos
+
+    grid.innerHTML = `
+      <div class="gallery-main" onclick="openLightbox(0)">
+        <img src="${show[0]}" alt="Main photo" />
+      </div>
+      <div class="gallery-thumb" onclick="openLightbox(1)"><img src="${show[1]}" alt="" /></div>
+      <div class="gallery-thumb" onclick="openLightbox(2)"><img src="${show[2]}" alt="" /></div>
+      <div class="gallery-thumb" onclick="openLightbox(3)" style="position:relative;">
+        <img src="${show[3]}" alt="" />
+      </div>
+      <div class="gallery-thumb" onclick="openLightbox(4)" style="position:relative;">
+        <img src="${show[4]}" alt="" />
+        ${_photos.length > 5 ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:0.9rem;font-weight:700;">+${_photos.length-5} more</span></div>` : ''}
+        <button class="gallery-btn" onclick="openLightbox(0);event.stopPropagation();">🖼 Show all ${_photos.length} photo${_photos.length!==1?'s':''}</button>
+      </div>`;
+
+    // Mobile gallery
+    document.getElementById('gm-img').src = _photos[0];
+    updateGmCount();
+  }
+
+  // ── Mobile gallery ─────────────────────────────────────────────────
+  function gmAdj(delta) {
+    _gmIdx = ((_gmIdx + delta) + _photos.length) % _photos.length;
+    document.getElementById('gm-img').src = _photos[_gmIdx];
+    updateGmCount();
+  }
+  function updateGmCount() {
+    document.getElementById('gm-count').textContent = (_gmIdx + 1) + ' / ' + _photos.length;
+  }
+
+  // ── Lightbox ───────────────────────────────────────────────────────
+  function openLightbox(idx) {
+    _lbIdx = idx % _photos.length;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    lbRender();
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function lbClose(e) { if (e.target === e.currentTarget) closeLightbox(); }
+  function lbAdj(delta, e) {
+    e.stopPropagation();
+    _lbIdx = ((_lbIdx + delta) + _photos.length) % _photos.length;
+    lbRender();
+  }
+  function lbRender() {
+    document.getElementById('lb-img').src = _photos[_lbIdx];
+    document.getElementById('lb-dots').innerHTML = _photos.map((_,i) =>
+      `<button class="lb-dot${i===_lbIdx?' active':''}" onclick="lbGo(${i},event)"></button>`).join('');
+  }
+  function lbGo(idx, e) { e.stopPropagation(); _lbIdx = idx; lbRender(); }
+
+  // Keyboard navigation for lightbox
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowLeft')  { _lbIdx = ((_lbIdx-1)+_photos.length)%_photos.length; lbRender(); }
+    if (e.key === 'ArrowRight') { _lbIdx = ((_lbIdx+1)+_photos.length)%_photos.length; lbRender(); }
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  // ── Description toggle ─────────────────────────────────────────────
+  function toggleDesc() {
+    const s = document.getElementById('desc-short');
+    const f = document.getElementById('desc-full');
+    const btn = document.querySelector('.prop-desc-more');
+    if (f.style.display === 'none') {
+      s.style.display = 'none'; f.style.display = ''; btn.textContent = 'Show less ↑';
+    } else {
+      s.style.display = ''; f.style.display = 'none'; btn.textContent = 'Read more ↓';
+    }
+  }
+
+  // ── Chat ───────────────────────────────────────────────────────────
+  function openChat() {
+    if (typeof Tawk_API !== 'undefined') Tawk_API.toggle();
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadProperty();
+  </script>
+
+  <script src="../assets/nav.js"></script>
+
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6a15e4a761875d1c37232646/1jpioabv2';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!--End of Tawk.to Script-->
+
+</body>
+</html>

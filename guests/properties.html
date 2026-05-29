@@ -510,7 +510,7 @@
         <button class="prop-slide-btn prop-slide-next" onclick="slideAdj('${sid}',1,event)">&#8250;</button>
         <div class="prop-slide-dots">${dots}</div>
         <div class="prop-photo-count">📷 ${photos.length} photos</div>` : '';
-      return `<a href="${p.direct_url || '#'}" class="card property-card" style="text-decoration:none;color:inherit;${unavailable ? 'opacity:0.6;' : ''}" id="${sid}-card">
+      return `<a href="property.html?id=${p.id}" class="card property-card" style="text-decoration:none;color:inherit;${unavailable ? 'opacity:0.6;' : ''}" id="${sid}-card">
         <div class="property-img" style="position:relative;" data-photos='${JSON.stringify(photos).replace(/'/g,"&#39;")}' data-idx="0" id="${sid}">
           <img src="${photos[0]}" alt="${p.name}" loading="lazy" id="${sid}-img" />
           <div class="property-fav">♡</div>

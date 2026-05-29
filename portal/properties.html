@@ -94,6 +94,14 @@
             <div id="p-photos-grid" style="display:flex;flex-wrap:wrap;gap:8px;min-height:0;"></div>
             <input type="hidden" id="p-photo" />
           </div>
+          <div>
+            <label class="admin-label">Description <span style="font-weight:400;color:var(--a-gray);">(shown on the property page)</span></label>
+            <textarea class="admin-textarea" id="p-description" style="min-height:110px;" placeholder="Describe the property — its character, setting, what makes it special…"></textarea>
+          </div>
+          <div>
+            <label class="admin-label">Amenities <span style="font-weight:400;color:var(--a-gray);">(one per line, e.g. Wi-Fi, Hot Tub, Kayaks)</span></label>
+            <textarea class="admin-textarea" id="p-amenities" style="min-height:110px;" placeholder="Wi-Fi&#10;Hot Tub&#10;Kayaks &amp; Canoe&#10;Private Dock&#10;BBQ Grill&#10;Washer &amp; Dryer&#10;Fireplace&#10;Parking"></textarea>
+          </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <input type="checkbox" id="p-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
             <label for="p-active" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Property is active</label>
@@ -362,6 +370,8 @@ function openModal(propId) {
     document.getElementById('p-city').value          = p.city || '';
     document.getElementById('p-address').value       = p.address || '';
     _propertyPhotos = Array.isArray(p.photos) && p.photos.length ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
+    document.getElementById('p-description').value   = p.description || '';
+    document.getElementById('p-amenities').value     = Array.isArray(p.amenities) ? p.amenities.join('\n') : (p.amenities || '');
     document.getElementById('p-active').checked      = p.active !== false;
     document.getElementById('p-wifi-name').value     = p.wifi_name || '';
     document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
@@ -389,6 +399,8 @@ function openModal(propId) {
     document.getElementById('p-city').value          = '';
     document.getElementById('p-address').value       = '';
     _propertyPhotos = [];
+    document.getElementById('p-description').value   = '';
+    document.getElementById('p-amenities').value     = '';
     document.getElementById('p-active').checked      = true;
     document.getElementById('p-wifi-name').value     = '';
     document.getElementById('p-wifi-pass').value     = '';
@@ -451,6 +463,8 @@ async function saveProperty() {
     address:                document.getElementById('p-address').value.trim(),
     thumbnail_url:          _propertyPhotos[0] || null,
     photos:                 _propertyPhotos.length ? _propertyPhotos : null,
+    description:            document.getElementById('p-description').value.trim(),
+    amenities:              document.getElementById('p-amenities').value.trim().split('\n').map(l=>l.trim()).filter(Boolean),
     active:                 document.getElementById('p-active').checked,
     wifi_name:              document.getElementById('p-wifi-name').value.trim(),
     wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
