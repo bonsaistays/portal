@@ -355,6 +355,66 @@
     .contact-perk h5 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
     .contact-perk p { font-size: 0.85rem; color: var(--gray-mid); }
 
+    /* Partner marquee banner */
+    .partner-banner {
+      background: var(--white);
+      border-top: 1px solid var(--gray-pale);
+      border-bottom: 1px solid var(--gray-pale);
+      padding: 0;
+      overflow: hidden;
+    }
+    .partner-banner-label {
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      padding: 22px 0 0;
+    }
+    .partner-marquee-wrap {
+      position: relative;
+      padding: 18px 0 22px;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+    .partner-marquee-track {
+      display: flex;
+      align-items: center;
+      width: max-content;
+      animation: marqueeScroll 32s linear infinite;
+    }
+    .partner-marquee-track:hover { animation-play-state: paused; }
+    @keyframes marqueeScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .partner-logo-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 44px;
+      flex-shrink: 0;
+      opacity: 0.55;
+      transition: opacity 0.2s;
+    }
+    .partner-logo-item:hover { opacity: 1; }
+    .partner-logo-item .partner-text-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      font-family: 'Playfair Display', serif;
+    }
+    .partner-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--gray-pale);
+      flex-shrink: 0;
+    }
+
     @media (max-width: 1024px) {
       .services-grid { grid-template-columns: repeat(2, 1fr); }
       .packages-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
@@ -439,6 +499,49 @@
           <span class="stat-num">4.95★</span>
           <span class="stat-label">Average Property Rating</span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTNER MARQUEE BANNER -->
+  <div class="partner-banner">
+    <div class="partner-banner-label">Trusted property management partners</div>
+    <div class="partner-marquee-wrap">
+      <div class="partner-marquee-track">
+        <!-- Set 1 -->
+        <div class="partner-logo-item"><span class="partner-text-logo">Sora Stays</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Capstone Retreats</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Cottage Host</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">OCR</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">CottageLink Rental Management</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Limberlost</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Blue Haven Cottages</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Northshore Retreats</span></div>
+        <div class="partner-divider"></div>
+        <!-- Set 2 — duplicate for seamless loop -->
+        <div class="partner-logo-item"><span class="partner-text-logo">Sora Stays</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Capstone Retreats</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Cottage Host</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">OCR</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">CottageLink Rental Management</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Limberlost</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Blue Haven Cottages</span></div>
+        <div class="partner-divider"></div>
+        <div class="partner-logo-item"><span class="partner-text-logo">Northshore Retreats</span></div>
+        <div class="partner-divider"></div>
       </div>
     </div>
   </div>
