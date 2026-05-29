@@ -238,7 +238,7 @@
   <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
     <div class="nav-inner">
       <a href="../index.html" class="nav-logo">
-        <img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;filter:brightness(0);" />
+        <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;filter:brightness(0);" />
         <span class="nav-badge guest">Guests</span>
       </a>
       <ul class="nav-links">
@@ -387,7 +387,7 @@
     <div class="container">
       <div class="footer-grid">
         <div>
-          <div class="footer-logo"><img src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <div class="footer-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
           <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
           <div class="footer-social"><a href="#" aria-label="Instagram">in</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Pinterest">P</a></div>
         </div>
@@ -419,30 +419,23 @@
           .from('properties')
           .select('id,name,city,thumbnail_url,photos,region,price,bedrooms,bathrooms,guests,badge,badge_type,featured,rating,review_count,ical_urls,airbnb_url')
           .eq('active', true)
-          .order('sort_order', { ascending: true });
+          .order('name', { ascending: true });
 
-        if (error || !data?.length) throw new Error('empty');
+        if (error) throw error;
 
         // Normalise to match legacy JSON shape
-        allProperties = data.map(p => ({
+        allProperties = (data || []).map(p => ({
           ...p,
           location: p.city || '',
           image: p.thumbnail_url || '',
-          direct_url: `property-detail.html?id=${p.id}`,
           rating: p.rating || 4.9,
           review_count: p.review_count || 0,
         }));
       } catch(e) {
-        // Fallback: load from static JSON
-        try {
-          const res = await fetch('../data/properties.json?v=' + Date.now());
-          const data = await res.json();
-          allProperties = data.properties;
-        } catch(e2) {
-          document.getElementById('propertiesGrid').innerHTML =
-            '<div class="no-results"><h3>Unable to load properties</h3><p>Please try again later.</p></div>';
-          return;
-        }
+        console.error('Properties load error:', e);
+        document.getElementById('propertiesGrid').innerHTML =
+          '<div class="no-results"><h3>Unable to load properties</h3><p>Please try again later.</p></div>';
+        return;
       }
       filterProperties();
     }
