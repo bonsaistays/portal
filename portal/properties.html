@@ -537,22 +537,61 @@ function collectIcalUrls() {
 // ── Multi-photo upload ────────────────────────────────────────────────────
 let _propertyPhotos = []; // array of URLs for current modal
 
+let _dragSrcIdx = null;
+
 function renderPhotoGrid() {
   const grid = document.getElementById('p-photos-grid');
   if (!grid) return;
   if (_propertyPhotos.length === 0) {
-    grid.innerHTML = '<p style="font-size:0.78rem;color:var(--a-gray);padding:4px 0;">No photos yet — click Add Photos to upload.</p>';
+    grid.innerHTML = '<p style="font-size:0.78rem;color:var(--a-gray);padding:4px 0;">No photos yet — click "Add Photos" to upload.</p>';
     document.getElementById('p-photo').value = '';
     return;
   }
   grid.innerHTML = _propertyPhotos.map((url, i) => `
-    <div style="position:relative;width:100px;height:80px;border-radius:8px;overflow:hidden;border:2px solid ${i===0?'var(--a-green)':'var(--a-border)'};" title="${i===0?'Main thumbnail':''}">
-      <img src="${url}" style="width:100%;height:100%;object-fit:cover;" />
-      ${i===0 ? '<div style="position:absolute;bottom:0;left:0;right:0;background:var(--a-green);color:#fff;font-size:0.6rem;font-weight:700;text-align:center;padding:2px;">MAIN</div>' : ''}
-      <button onclick="removePhoto(${i})" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:0.7rem;line-height:1;display:flex;align-items:center;justify-content:center;">✕</button>
-      ${i>0 ? `<button onclick="makeMainPhoto(${i})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:4px;font-size:0.58rem;padding:2px 4px;cursor:pointer;">Set main</button>` : ''}
+    <div class="photo-thumb${i===0?' photo-thumb-main':''}"
+         draggable="true"
+         data-idx="${i}"
+         ondragstart="photoDragStart(event,${i})"
+         ondragover="photoDragOver(event)"
+         ondragleave="photoDragLeave(event)"
+         ondrop="photoDrop(event,${i})"
+         ondragend="photoDragEnd(event)">
+      <img src="${url}" alt="photo ${i+1}" />
+      ${i===0 ? '<div class="photo-thumb-badge">★ Main</div>' : ''}
+      <div class="photo-thumb-actions">
+        ${i>0 ? `<button class="photo-thumb-btn" onclick="makeMainPhoto(${i})" title="Set as main">★</button>` : ''}
+        <button class="photo-thumb-btn photo-thumb-remove" onclick="removePhoto(${i})" title="Remove">✕</button>
+      </div>
+      <div class="photo-drag-hint">⠿</div>
     </div>`).join('');
   document.getElementById('p-photo').value = _propertyPhotos[0] || '';
+}
+
+function photoDragStart(e, idx) {
+  _dragSrcIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.style.opacity = '0.4';
+}
+function photoDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('photo-thumb-over');
+}
+function photoDragLeave(e) {
+  e.currentTarget.classList.remove('photo-thumb-over');
+}
+function photoDrop(e, toIdx) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('photo-thumb-over');
+  if (_dragSrcIdx === null || _dragSrcIdx === toIdx) return;
+  const moved = _propertyPhotos.splice(_dragSrcIdx, 1)[0];
+  _propertyPhotos.splice(toIdx, 0, moved);
+  renderPhotoGrid();
+}
+function photoDragEnd(e) {
+  _dragSrcIdx = null;
+  e.currentTarget.style.opacity = '';
+  document.querySelectorAll('.photo-thumb-over').forEach(el => el.classList.remove('photo-thumb-over'));
 }
 
 function removePhoto(index) {

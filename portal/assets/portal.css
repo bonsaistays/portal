@@ -801,6 +801,93 @@ img { display: block; max-width: 100%; }
 .upload-status.uploading { color: var(--a-green); }
 .upload-status.error { color: #DC2626; }
 
+/* ── Photo Grid (multi-upload + drag-and-drop) ───────────── */
+.photo-thumb {
+  position: relative;
+  width: 110px;
+  height: 90px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 2px solid var(--a-gray-pale);
+  cursor: grab;
+  flex-shrink: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: var(--a-bg);
+}
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.photo-thumb-main {
+  border-color: var(--a-sage);
+  box-shadow: 0 0 0 3px rgba(61,139,98,0.18);
+}
+.photo-thumb-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: var(--a-sage);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 20px;
+  pointer-events: none;
+  user-select: none;
+}
+.photo-thumb-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 4px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.photo-thumb:hover .photo-thumb-actions { opacity: 1; }
+.photo-thumb-btn {
+  background: rgba(255,255,255,0.88);
+  border: none;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  cursor: pointer;
+  color: var(--a-charcoal);
+  font-weight: 700;
+  line-height: 1.4;
+  transition: background 0.1s;
+}
+.photo-thumb-btn:hover { background: #fff; }
+.photo-thumb-remove { color: var(--a-red); }
+.photo-thumb-remove:hover { background: #fee2e2; }
+.photo-drag-hint {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.75);
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.photo-thumb:hover .photo-drag-hint { opacity: 1; }
+.photo-thumb-over {
+  border-color: var(--a-gold) !important;
+  box-shadow: 0 0 0 3px rgba(201,168,108,0.3) !important;
+  transform: scale(1.04);
+}
+
 /* Responsive */
 @media (max-width: 960px) {
   .admin-stats { grid-template-columns: repeat(2, 1fr); }
