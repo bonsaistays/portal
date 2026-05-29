@@ -59,13 +59,27 @@
       width: 220px; height: 220px; border-radius: 50%;
       background: radial-gradient(circle, rgba(201,164,90,0.15) 0%, transparent 70%);
     }
-    .card-mock-logo { height: 32px; filter: brightness(0) invert(1); margin-bottom: 40px; }
+    .card-mock-logo { height: 64px; filter: brightness(0) invert(1); margin-bottom: 32px; display: block; }
     .card-mock-name { font-size: 1.1rem; font-weight: 700; color: var(--white); letter-spacing: 0.08em; margin-bottom: 6px; }
     .card-mock-program { font-size: 0.7rem; color: rgba(201,164,90,0.7); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 32px; }
     .card-mock-points { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
     .card-mock-pts-num { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 600; color: var(--gold-light); line-height: 1; }
     .card-mock-pts-label { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
-    .card-mock-tier { display: inline-flex; align-items: center; gap: 6px; background: rgba(201,164,90,0.15); color: var(--gold-light); border: 1px solid rgba(201,164,90,0.3); padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .card-mock-tier { display: inline-flex; align-items: center; gap: 6px; background: rgba(201,164,90,0.15); color: var(--gold-light); border: 1px solid rgba(201,164,90,0.3); padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin-top: 16px; }
+
+    /* ── Access Banner ── */
+    .access-banner {
+      background: rgba(201,164,90,0.08);
+      border: 1px solid rgba(201,164,90,0.25);
+      border-radius: var(--radius-md);
+      padding: 20px 28px;
+      display: flex; align-items: center; gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 0;
+    }
+    .access-banner-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .access-banner-text strong { display: block; color: var(--white); font-size: 0.95rem; margin-bottom: 4px; }
+    .access-banner-text span { color: rgba(255,255,255,0.65); font-size: 0.85rem; line-height: 1.6; }
 
     /* ── How it works ── */
     .steps-grid {
@@ -105,33 +119,63 @@
       transition: var(--transition);
     }
     .tier-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
-    .tier-card.classic  { background: var(--white); }
-    .tier-card.gold     { background: linear-gradient(145deg, #FFF9EE 0%, #FFF3D4 100%); border-color: rgba(201,164,90,0.4); }
-    .tier-card.platinum { background: linear-gradient(145deg, #0B2218 0%, #122C1A 100%); border-color: rgba(201,164,90,0.5); }
+
+    /* Black tier */
+    .tier-card.black {
+      background: linear-gradient(145deg, #111111 0%, #1E1E1E 100%);
+      border-color: rgba(255,255,255,0.12);
+    }
+    .tier-card.black .tier-badge-pill {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .tier-card.black h3 { color: var(--white); }
+    .tier-card.black .tier-pts { color: rgba(255,255,255,0.45); }
+    .tier-card.black .tier-perks li { color: rgba(255,255,255,0.8); }
+    .tier-card.black .perk-check { color: #90C878; }
+
+    /* Gold tier */
+    .tier-card.gold { background: linear-gradient(145deg, #FFF9EE 0%, #FFF3D4 100%); border-color: rgba(201,164,90,0.4); }
+    .tier-card.gold .tier-badge-pill { background: rgba(201,164,90,0.2); color: #8B6914; }
+    .tier-card.gold h3 { color: #8B6914; }
+    .tier-card.gold .tier-pts { color: #A07820; }
+    .tier-card.gold .tier-perks li { color: #5A3E00; }
+    .tier-card.gold .perk-check { color: var(--green-sage); }
+
+    /* Platinum tier — silver metallic */
+    .tier-card.platinum {
+      background: linear-gradient(145deg, #D8D8E8 0%, #C0C0D4 40%, #D0D0E4 100%);
+      border-color: rgba(140,140,180,0.55);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 2px 12px rgba(100,100,140,0.15);
+    }
+    .tier-card.platinum .tier-badge-pill {
+      background: linear-gradient(135deg, #8888AA, #6666AA);
+      color: #fff;
+      border: none;
+    }
+    .tier-card.platinum h3 { color: #1E1E30; }
+    .tier-card.platinum .tier-pts { color: #4A4A6A; }
+    .tier-card.platinum .tier-perks li { color: #2E2E48; }
+    .tier-card.platinum .perk-check { color: #5555AA; }
+    .tier-card.platinum::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+    }
+
     .tier-badge-pill {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 5px 14px; border-radius: 20px;
       font-size: 0.8rem; font-weight: 700;
       margin-bottom: 20px;
     }
-    .tier-card.classic  .tier-badge-pill { background: var(--cream); color: var(--charcoal); }
-    .tier-card.gold     .tier-badge-pill { background: rgba(201,164,90,0.2); color: #8B6914; }
-    .tier-card.platinum .tier-badge-pill { background: rgba(201,164,90,0.2); color: var(--gold-light); }
     .tier-card h3 { font-size: 1.4rem; margin-bottom: 6px; }
-    .tier-card.classic  h3 { color: var(--charcoal); }
-    .tier-card.gold     h3 { color: #8B6914; }
-    .tier-card.platinum h3 { color: var(--gold-light); }
     .tier-pts { font-size: 0.82rem; margin-bottom: 28px; }
-    .tier-card.classic  .tier-pts { color: var(--gray-mid); }
-    .tier-card.gold     .tier-pts { color: #A07820; }
-    .tier-card.platinum .tier-pts { color: rgba(255,255,255,0.55); }
     .tier-perks { list-style: none; display: flex; flex-direction: column; gap: 10px; }
     .tier-perks li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; line-height: 1.5; }
-    .tier-card.classic  .tier-perks li { color: var(--charcoal); }
-    .tier-card.gold     .tier-perks li { color: #5A3E00; }
-    .tier-card.platinum .tier-perks li { color: rgba(255,255,255,0.85); }
-    .perk-check { color: var(--green-sage); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-    .tier-card.platinum .perk-check { color: var(--gold-light); }
+    .perk-check { font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
     /* ── App section ── */
     .app-section { background: var(--green-deep); }
@@ -222,7 +266,7 @@
           <span class="eyebrow" style="color:var(--gold-light);">Bon Voyage · Member Program</span>
           <h1>Stay more.<br /><em>Earn more.</em><br />Live better.</h1>
           <p>Bon Voyage is the Bonsai Stays loyalty program — designed to reward guests who know the difference between a property and an experience. Every night earns points. Every milestone unlocks better stays.</p>
-          <div class="hero-app-btns">
+          <div class="hero-app-btns" style="margin-bottom:32px;">
             <a href="/app/" class="btn-app">
               <span class="btn-app-icon">🌿</span>
               <span class="btn-app-text">
@@ -232,10 +276,19 @@
             </a>
             <a href="properties.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.85);">Browse Properties</a>
           </div>
+          <!-- Access callout -->
+          <div class="access-banner">
+            <div class="access-banner-icon">🔑</div>
+            <div class="access-banner-text">
+              <strong>How to get access</strong>
+              <span>Book any Bonsai Stays property and your invite code arrives with your confirmation — or ask an existing Bon Voyage member to invite you directly through the app.</span>
+            </div>
+          </div>
         </div>
+        <!-- Member card mock -->
         <div class="loyalty-card-mock">
           <img class="card-mock-logo" src="../PhotosLogos/Bonsa Stays.png" alt="Bonsai Stays" />
-          <div class="card-mock-name">MEMBER NAME</div>
+          <div class="card-mock-name">SOPHIE TREMBLAY</div>
           <div class="card-mock-program">BON VOYAGE · BONSAI STAYS</div>
           <div class="card-mock-points">
             <span class="card-mock-pts-num">2,450</span>
@@ -258,21 +311,21 @@
       <div class="steps-grid">
         <div class="step-card">
           <div class="step-num">1</div>
-          <div class="step-icon">📱</div>
-          <h3>Download the App</h3>
-          <p>Join Bon Voyage through the Bonsai Stays app — you'll need an invite code from a member or a booking confirmation to sign up (our way of keeping the community quality high).</p>
+          <div class="step-icon">🏡</div>
+          <h3>Book a Stay or Get Invited</h3>
+          <p>Every Bonsai Stays booking includes a Bon Voyage invite code in the confirmation — or an existing member can send you an invite directly. Membership stays exclusive so the community stays exceptional.</p>
         </div>
         <div class="step-card">
           <div class="step-num">2</div>
-          <div class="step-icon">🏡</div>
-          <h3>Stay & Earn</h3>
-          <p>Every night at a Bonsai Stays property earns you Bon Voyage points. Book direct for bonus points on top. Points also stack for experiences, reviews, and referrals.</p>
+          <div class="step-icon">📱</div>
+          <h3>Join the App & Start Earning</h3>
+          <p>Use your code to create your account in the Bon Voyage app. Every night at a Bonsai Stays property earns you points — more points for booking direct, leaving reviews, and inviting friends.</p>
         </div>
         <div class="step-card">
           <div class="step-num">3</div>
           <div class="step-icon">✨</div>
           <h3>Unlock Better Stays</h3>
-          <p>Climb from Classic to Gold to Platinum. Each tier brings exclusive rates, priority booking, complimentary add-ons, and partner perks unavailable anywhere else.</p>
+          <p>Climb from Black to Gold to Platinum. Each tier brings better earning rates, exclusive rates, priority booking, complimentary add-ons, and partner perks unavailable anywhere else.</p>
         </div>
       </div>
     </div>
@@ -284,27 +337,27 @@
       <div class="section-header text-center">
         <span class="eyebrow">Earning Points</span>
         <h2>Points for <em>everything</em> you love.</h2>
-        <p>Earn on stays, experiences, referrals — even just leaving a review.</p>
+        <p>Earn on stays, experiences, referrals — even just leaving a review. Higher tiers earn faster.</p>
       </div>
       <div class="earn-grid">
         <div class="earn-item">
           <div class="earn-icon">🏡</div>
           <div class="earn-pts">100 pts</div>
-          <div class="earn-label">Per night at any<br />Bonsai Stays property</div>
+          <div class="earn-label">Per night stayed<br /><em style="color:var(--green-sage);font-style:normal;font-size:0.75rem;">More at Gold & Platinum</em></div>
         </div>
         <div class="earn-item">
           <div class="earn-icon">⭐</div>
-          <div class="earn-pts">2× pts</div>
+          <div class="earn-pts">1.5× pts</div>
           <div class="earn-label">Bonus multiplier<br />when you book direct</div>
         </div>
         <div class="earn-item">
           <div class="earn-icon">🌿</div>
-          <div class="earn-pts">500 pts</div>
-          <div class="earn-label">For each friend<br />you invite who books</div>
+          <div class="earn-pts">200 pts</div>
+          <div class="earn-label">For each friend<br />you invite who joins</div>
         </div>
         <div class="earn-item">
           <div class="earn-icon">✍️</div>
-          <div class="earn-pts">50 pts</div>
+          <div class="earn-pts">100 pts</div>
           <div class="earn-label">When you leave<br />a verified review</div>
         </div>
       </div>
@@ -321,43 +374,48 @@
       </div>
       <div class="tiers-grid">
 
-        <div class="tier-card classic">
-          <div class="tier-badge-pill">🌱 Classic</div>
-          <h3>Classic</h3>
-          <p class="tier-pts">0 – 1,999 points</p>
+        <!-- Black -->
+        <div class="tier-card black">
+          <div class="tier-badge-pill">⬛ Black</div>
+          <h3>Black</h3>
+          <p class="tier-pts">0 – 1,999 points · getting started</p>
           <ul class="tier-perks">
             <li><span class="perk-check">✓</span> Digital member card in-app</li>
             <li><span class="perk-check">✓</span> 100 points per night</li>
-            <li><span class="perk-check">✓</span> Access to member rates</li>
-            <li><span class="perk-check">✓</span> Invite up to 8 friends</li>
-            <li><span class="perk-check">✓</span> Stay access sharing with guests</li>
-            <li><span class="perk-check">✓</span> In-app door code & check-in info</li>
+            <li><span class="perk-check">✓</span> 1.5× bonus when booking direct</li>
+            <li><span class="perk-check">✓</span> Access to member-only rates</li>
+            <li><span class="perk-check">✓</span> Invite friends & earn 200 pts each</li>
+            <li><span class="perk-check">✓</span> In-app door code &amp; check-in info</li>
           </ul>
         </div>
 
+        <!-- Gold -->
         <div class="tier-card gold">
           <div class="tier-badge-pill">🌿 Gold</div>
           <h3>Gold</h3>
           <p class="tier-pts">2,000 – 9,999 points · ~20 nights</p>
           <ul class="tier-perks">
-            <li><span class="perk-check">✓</span> Everything in Classic</li>
-            <li><span class="perk-check">✓</span> 1.25× point multiplier on stays</li>
+            <li><span class="perk-check">✓</span> Everything in Black</li>
+            <li><span class="perk-check">✓</span> 125 points per night (1.25× rate)</li>
+            <li><span class="perk-check">✓</span> 1.5× direct booking still applies</li>
             <li><span class="perk-check">✓</span> Early access to new properties</li>
-            <li><span class="perk-check">✓</span> Complimentary welcome gift</li>
+            <li><span class="perk-check">✓</span> Complimentary welcome gift on arrival</li>
             <li><span class="perk-check">✓</span> Priority guest support line</li>
             <li><span class="perk-check">✓</span> Partner experience discounts</li>
           </ul>
         </div>
 
+        <!-- Platinum -->
         <div class="tier-card platinum">
           <div class="tier-badge-pill">✦ Platinum</div>
           <h3>Platinum</h3>
           <p class="tier-pts">10,000+ points · ~100 nights</p>
           <ul class="tier-perks">
             <li><span class="perk-check">✓</span> Everything in Gold</li>
-            <li><span class="perk-check">✓</span> 1.5× point multiplier on stays</li>
+            <li><span class="perk-check">✓</span> 150 points per night (1.5× rate)</li>
+            <li><span class="perk-check">✓</span> 1.5× direct booking still applies</li>
             <li><span class="perk-check">✓</span> Complimentary experience credit each stay</li>
-            <li><span class="perk-check">✓</span> Annual free night (any property)</li>
+            <li><span class="perk-check">✓</span> Annual free night at any property</li>
             <li><span class="perk-check">✓</span> Dedicated concierge line</li>
             <li><span class="perk-check">✓</span> Exclusive Platinum-only properties</li>
           </ul>
@@ -394,7 +452,7 @@
               <span class="app-feature-icon">🌿</span>
               <div class="app-feature-text">
                 <strong>Invite Friends</strong>
-                <span>Share invite codes directly from the app — your guests get access too</span>
+                <span>Share invite codes directly from the app — earn 200 points for every friend who joins</span>
               </div>
             </div>
             <div class="app-feature">
@@ -439,7 +497,11 @@
       <div style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px;">
         <div style="background:var(--cream);border-radius:var(--radius-md);padding:24px 28px;">
           <h4 style="font-size:0.95rem;color:var(--charcoal);margin-bottom:8px;">How do I join Bon Voyage?</h4>
-          <p style="font-size:0.88rem;line-height:1.65;">Membership is invite-only — you'll receive an invite code with any Bonsai Stays booking confirmation, or an existing member can invite you directly through the app. This keeps the community quality high.</p>
+          <p style="font-size:0.88rem;line-height:1.65;">There are two ways in: book any Bonsai Stays property and your invite code arrives automatically with your booking confirmation, or ask an existing Bon Voyage member to invite you through the app. This keeps the community quality high.</p>
+        </div>
+        <div style="background:var(--cream);border-radius:var(--radius-md);padding:24px 28px;">
+          <h4 style="font-size:0.95rem;color:var(--charcoal);margin-bottom:8px;">How do tiers work — and how do I move up?</h4>
+          <p style="font-size:0.88rem;line-height:1.65;">You start at Black (0–1,999 pts), move to Gold at 2,000 pts (~20 nights), and reach Platinum at 10,000 pts (~100 nights). Your tier upgrades automatically as your points accumulate — no need to do anything.</p>
         </div>
         <div style="background:var(--cream);border-radius:var(--radius-md);padding:24px 28px;">
           <h4 style="font-size:0.95rem;color:var(--charcoal);margin-bottom:8px;">Do points expire?</h4>
@@ -447,7 +509,7 @@
         </div>
         <div style="background:var(--cream);border-radius:var(--radius-md);padding:24px 28px;">
           <h4 style="font-size:0.95rem;color:var(--charcoal);margin-bottom:8px;">Can I share my membership with family?</h4>
-          <p style="font-size:0.88rem;line-height:1.65;">Each account is individual, but you can invite family members to join as their own members — and if they're staying with you at a booking, you can share property access directly through the app.</p>
+          <p style="font-size:0.88rem;line-height:1.65;">Each account is individual, but you can invite family members to join — and if they're staying with you on a booking, you can share property access directly through the app.</p>
         </div>
         <div style="background:var(--cream);border-radius:var(--radius-md);padding:24px 28px;">
           <h4 style="font-size:0.95rem;color:var(--charcoal);margin-bottom:8px;">How do I redeem my points?</h4>
@@ -455,7 +517,7 @@
         </div>
         <div style="background:var(--cream);border-radius:var(--radius-md);padding:24px 28px;">
           <h4 style="font-size:0.95rem;color:var(--charcoal);margin-bottom:8px;">Is there a fee to join?</h4>
-          <p style="font-size:0.88rem;line-height:1.65;">Bon Voyage membership is completely free. You just need an invite code and a Bonsai Stays booking to get started.</p>
+          <p style="font-size:0.88rem;line-height:1.65;">Bon Voyage membership is completely free. You just need an invite code — which comes automatically with any Bonsai Stays booking — to get started.</p>
         </div>
       </div>
     </div>
@@ -467,7 +529,7 @@
       <div class="loyalty-cta-inner">
         <span class="eyebrow">Ready to join?</span>
         <h2>Start your <em>journey.</em></h2>
-        <p>Book your first stay and your invite code will arrive with your confirmation. Or reach out and we'll point you in the right direction.</p>
+        <p>Book your first Bonsai Stays property and your invite code will arrive with your confirmation. Already been invited? Open the app and get started.</p>
         <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
           <a href="properties.html" class="btn btn-primary btn-lg">Browse Properties</a>
           <a href="/app/" class="btn btn-outline btn-lg">Open the App</a>
@@ -485,7 +547,7 @@
           <div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">P</a></div>
         </div>
         <div class="footer-col"><h5>Explore</h5><ul><li><a href="properties.html">All Properties</a></li><li><a href="experiences.html">Experiences</a></li><li><a href="loyalty.html">Bon Voyage</a></li></ul></div>
-        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../partners/index.html">For Partners</a></li><li><a href="../careers.html">Careers</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../partners/index.html">For Partners</a></li><li><a href="../partners/list-your-property.html">List My Property</a></li></ul></div>
         <div class="footer-col"><h5>Legal</h5><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li></ul></div>
       </div>
       <div class="footer-bottom"><span>© 2026 Bonsai Stays Inc. All rights reserved.</span><div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a></div></div>
