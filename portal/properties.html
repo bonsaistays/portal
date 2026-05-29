@@ -145,6 +145,54 @@
             <input class="admin-input" id="p-seam-device-id" type="text" placeholder="e.g. d1234abc-56ef-7890-abcd-ef1234567890" />
             <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Paste the Device ID from your Seam Console. The guest app will use this to unlock the door remotely.</div>
           </div>
+
+          <!-- Smart Devices Manager -->
+          <div id="smart-devices-section" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <label class="admin-label" style="margin:0;">Smart Devices</label>
+              <button type="button" onclick="toggleAddDeviceForm()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.76rem;font-weight:700;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;">+ Add Device</button>
+            </div>
+
+            <!-- Registered devices list -->
+            <div id="smart-devices-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+
+            <!-- Add device form -->
+            <div id="add-device-form" style="display:none;background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px;display:none;flex-direction:column;gap:10px;">
+              <div class="admin-form-row">
+                <div>
+                  <label class="admin-label">Device name</label>
+                  <input class="admin-input" id="nd-name" type="text" placeholder="e.g. Main Floor Thermostat" />
+                </div>
+                <div>
+                  <label class="admin-label">Device type</label>
+                  <select class="admin-select" id="nd-type" onchange="updateProviderOptions()">
+                    <option value="thermostat">Thermostat</option>
+                    <option value="lock">Lock</option>
+                  </select>
+                </div>
+              </div>
+              <div class="admin-form-row">
+                <div>
+                  <label class="admin-label">Provider</label>
+                  <select class="admin-select" id="nd-provider">
+                    <option value="ecobee">ecobee</option>
+                    <option value="nest">Google Nest</option>
+                    <option value="honeywell">Honeywell / Resideo</option>
+                    <option value="sensibo">Sensibo</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="admin-label">Device ID</label>
+                  <input class="admin-input" id="nd-device-id" type="text" placeholder="Provider device ID" />
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" onclick="toggleAddDeviceForm()" style="background:none;border:1px solid var(--a-border);color:var(--a-gray);font-size:0.8rem;font-weight:600;padding:7px 16px;border-radius:var(--radius-sm);cursor:pointer;">Cancel</button>
+                <button type="button" onclick="saveNewDevice()" style="background:var(--a-charcoal);color:#fff;font-size:0.8rem;font-weight:700;padding:7px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;">Save Device</button>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label class="admin-label">Arrival instructions <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">(shown to guests on arrival tab)</span></label>
             <textarea class="admin-textarea" id="p-checkin-inst" style="min-height:130px;" placeholder="e.g. Park in the right side of the driveway. The lockbox is to the right of the front door — use your 4-digit door code. Firewood is stacked on the side deck. The key fob for the gate is on the kitchen counter."></textarea>
@@ -475,6 +523,7 @@ function openModal(propId) {
     document.getElementById('p-lock-type').value     = p.lock_type || 'code';
     document.getElementById('p-seam-device-id').value = p.seam_device_id || '';
     toggleSeamField();
+    loadSmartDevices(p.id);
     document.getElementById('p-checkin-inst').value  = p.check_in_instructions || '';
     // Guest info
     document.getElementById('p-checkout-inst').value = p.checkout_instructions || '';
@@ -527,6 +576,7 @@ function openModal(propId) {
     document.getElementById('p-lock-type').value     = 'code';
     document.getElementById('p-seam-device-id').value = '';
     toggleSeamField();
+    loadSmartDevices(null); // hide smart devices section for new property
     document.getElementById('p-checkin-inst').value  = '';
     document.getElementById('p-checkout-inst').value = '';
     document.getElementById('p-host-phone').value    = '';
@@ -571,6 +621,106 @@ function toggleSeamField() {
   const isSmartLock = ['august', 'yale', 'schlage', 'seam'].includes(lockType);
   seamRow.style.display = isSmartLock ? 'block' : 'none';
 }
+
+// ── Smart Devices Manager ──────────────────────────────────────────────────
+let _editingPropertyId = null;
+
+async function loadSmartDevices(propertyId) {
+  _editingPropertyId = propertyId;
+  const section = document.getElementById('smart-devices-section');
+  if (!section) return;
+  section.style.display = propertyId ? 'block' : 'none';
+  if (!propertyId) return;
+
+  const { data } = await sb.from('property_smart_devices')
+    .select('*').eq('property_id', propertyId).order('created_at');
+
+  renderDeviceList(data || []);
+}
+
+function renderDeviceList(devices) {
+  const list = document.getElementById('smart-devices-list');
+  if (!devices.length) {
+    list.innerHTML = '<div style="font-size:0.8rem;color:var(--a-gray);padding:8px 0;">No smart devices added yet.</div>';
+    return;
+  }
+  list.innerHTML = devices.map(d => `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--a-bg);border:1px solid var(--a-border);border-radius:8px;padding:10px 14px;">
+      <div>
+        <div style="font-size:0.84rem;font-weight:700;color:var(--a-charcoal);">${esc(d.name || (d.device_type === 'thermostat' ? 'Thermostat' : 'Lock'))}</div>
+        <div style="font-size:0.74rem;color:var(--a-gray);margin-top:2px;">${capitalize(d.device_type)} &middot; ${esc(d.provider)} &middot; <span style="font-family:monospace;">${esc(d.device_id)}</span></div>
+      </div>
+      <button type="button" onclick="deleteSmartDevice('${d.id}')" style="background:none;border:none;color:#c0392b;font-size:0.78rem;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:6px;" onmouseover="this.style.background='#fdf0ee'" onmouseout="this.style.background='none'">Remove</button>
+    </div>
+  `).join('');
+}
+
+function toggleAddDeviceForm() {
+  const form = document.getElementById('add-device-form');
+  const isHidden = form.style.display === 'none' || !form.style.display;
+  form.style.display = isHidden ? 'flex' : 'none';
+  if (isHidden) {
+    document.getElementById('nd-name').value = '';
+    document.getElementById('nd-device-id').value = '';
+    updateProviderOptions();
+  }
+}
+
+function updateProviderOptions() {
+  const type = document.getElementById('nd-type').value;
+  const sel  = document.getElementById('nd-provider');
+  if (type === 'thermostat') {
+    sel.innerHTML = `
+      <option value="ecobee">ecobee</option>
+      <option value="nest">Google Nest</option>
+      <option value="honeywell">Honeywell / Resideo</option>
+      <option value="sensibo">Sensibo</option>
+    `;
+  } else {
+    sel.innerHTML = `
+      <option value="seam">Seam (August / Yale / Schlage)</option>
+      <option value="ttlock">TTLock</option>
+      <option value="remotelock">RemoteLock</option>
+      <option value="igloohome">igloohome</option>
+    `;
+  }
+}
+
+async function saveNewDevice() {
+  if (!_editingPropertyId) return alert('Save the property first before adding devices.');
+  const name     = document.getElementById('nd-name').value.trim();
+  const type     = document.getElementById('nd-type').value;
+  const provider = document.getElementById('nd-provider').value;
+  const deviceId = document.getElementById('nd-device-id').value.trim();
+  if (!deviceId) return alert('Device ID is required.');
+
+  const btn = document.querySelector('#add-device-form button[onclick="saveNewDevice()"]');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  const { error } = await sb.from('property_smart_devices').insert({
+    property_id: _editingPropertyId,
+    device_type: type,
+    provider,
+    device_id: deviceId,
+    name: name || null,
+  });
+
+  btn.textContent = 'Save Device';
+  btn.disabled = false;
+
+  if (error) return alert('Error saving device: ' + error.message);
+  toggleAddDeviceForm();
+  await loadSmartDevices(_editingPropertyId);
+}
+
+async function deleteSmartDevice(id) {
+  if (!confirm('Remove this device?')) return;
+  await sb.from('property_smart_devices').delete().eq('id', id);
+  await loadSmartDevices(_editingPropertyId);
+}
+
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
 function switchMTab(name, btn) {
   document.querySelectorAll('.modal-tab').forEach(b => {
