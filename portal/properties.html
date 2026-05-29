@@ -85,14 +85,14 @@
             <input class="admin-input" id="p-address" type="text" placeholder="123 Lake Rd, Port Carling, ON P0C 1H0" />
           </div>
           <div>
-            <label class="admin-label">Property photo</label>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
-              <input class="admin-input" id="p-photo" type="url" placeholder="Paste URL or upload below…" style="flex:1;" />
-              <label class="btn-upload" for="p-photo-file" title="Upload from device">📷 Upload</label>
-              <input type="file" id="p-photo-file" accept="image/*" style="display:none;" onchange="uploadPhoto(this,'p-photo','p-photo-preview','p-photo-status')" />
+            <label class="admin-label">Property photos <span style="font-weight:400;color:var(--a-gray);">(first photo = main thumbnail)</span></label>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+              <label class="btn-upload" for="p-photos-file">📷 Add Photos</label>
+              <input type="file" id="p-photos-file" accept="image/*" multiple style="display:none;" onchange="uploadMultiplePhotos(this)" />
+              <span id="p-photos-status" class="upload-status"></span>
             </div>
-            <div id="p-photo-status" class="upload-status"></div>
-            <div id="p-photo-preview" class="upload-preview"></div>
+            <div id="p-photos-grid" style="display:flex;flex-wrap:wrap;gap:8px;min-height:0;"></div>
+            <input type="hidden" id="p-photo" />
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <input type="checkbox" id="p-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
@@ -361,7 +361,7 @@ function openModal(propId) {
     document.getElementById('p-name').value          = p.name || '';
     document.getElementById('p-city').value          = p.city || '';
     document.getElementById('p-address').value       = p.address || '';
-    document.getElementById('p-photo').value         = p.thumbnail_url || '';
+    _propertyPhotos = Array.isArray(p.photos) && p.photos.length ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
     document.getElementById('p-active').checked      = p.active !== false;
     document.getElementById('p-wifi-name').value     = p.wifi_name || '';
     document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
@@ -388,7 +388,7 @@ function openModal(propId) {
     document.getElementById('p-name').value          = '';
     document.getElementById('p-city').value          = '';
     document.getElementById('p-address').value       = '';
-    document.getElementById('p-photo').value         = '';
+    _propertyPhotos = [];
     document.getElementById('p-active').checked      = true;
     document.getElementById('p-wifi-name').value     = '';
     document.getElementById('p-wifi-pass').value     = '';
@@ -412,10 +412,10 @@ function openModal(propId) {
     document.getElementById('ical-rows').innerHTML   = '';
   }
 
-  // Clear upload UI
-  document.getElementById('p-photo-status').textContent = '';
-  document.getElementById('p-photo-status').className = 'upload-status';
-  document.getElementById('p-photo-preview').innerHTML = '';
+  // Reset upload UI
+  document.getElementById('p-photos-status').textContent = '';
+  document.getElementById('p-photos-status').className = 'upload-status';
+  renderPhotoGrid();
 
   document.getElementById('modal-property').classList.remove('hidden');
 }
@@ -449,7 +449,8 @@ async function saveProperty() {
     name,
     city,
     address:                document.getElementById('p-address').value.trim(),
-    thumbnail_url:          document.getElementById('p-photo').value.trim() || null,
+    thumbnail_url:          _propertyPhotos[0] || null,
+    photos:                 _propertyPhotos.length ? _propertyPhotos : null,
     active:                 document.getElementById('p-active').checked,
     wifi_name:              document.getElementById('p-wifi-name').value.trim(),
     wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
@@ -533,7 +534,62 @@ function collectIcalUrls() {
   })).filter(u => u.url.startsWith('http'));
 }
 
-// ── Photo upload ──────────────────────────────────────────────────────────
+// ── Multi-photo upload ────────────────────────────────────────────────────
+let _propertyPhotos = []; // array of URLs for current modal
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('p-photos-grid');
+  if (!grid) return;
+  if (_propertyPhotos.length === 0) {
+    grid.innerHTML = '<p style="font-size:0.78rem;color:var(--a-gray);padding:4px 0;">No photos yet — click Add Photos to upload.</p>';
+    document.getElementById('p-photo').value = '';
+    return;
+  }
+  grid.innerHTML = _propertyPhotos.map((url, i) => `
+    <div style="position:relative;width:100px;height:80px;border-radius:8px;overflow:hidden;border:2px solid ${i===0?'var(--a-green)':'var(--a-border)'};" title="${i===0?'Main thumbnail':''}">
+      <img src="${url}" style="width:100%;height:100%;object-fit:cover;" />
+      ${i===0 ? '<div style="position:absolute;bottom:0;left:0;right:0;background:var(--a-green);color:#fff;font-size:0.6rem;font-weight:700;text-align:center;padding:2px;">MAIN</div>' : ''}
+      <button onclick="removePhoto(${i})" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:0.7rem;line-height:1;display:flex;align-items:center;justify-content:center;">✕</button>
+      ${i>0 ? `<button onclick="makeMainPhoto(${i})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:4px;font-size:0.58rem;padding:2px 4px;cursor:pointer;">Set main</button>` : ''}
+    </div>`).join('');
+  document.getElementById('p-photo').value = _propertyPhotos[0] || '';
+}
+
+function removePhoto(index) {
+  _propertyPhotos.splice(index, 1);
+  renderPhotoGrid();
+}
+
+function makeMainPhoto(index) {
+  const [photo] = _propertyPhotos.splice(index, 1);
+  _propertyPhotos.unshift(photo);
+  renderPhotoGrid();
+}
+
+async function uploadMultiplePhotos(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const status = document.getElementById('p-photos-status');
+  status.textContent = `Uploading ${files.length} photo${files.length>1?'s':''}…`;
+  status.className = 'upload-status uploading';
+  let uploaded = 0;
+  for (const file of files) {
+    const ext = file.name.split('.').pop();
+    const path = `photos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await sb.storage.from('portal-uploads').upload(path, file, { upsert: true });
+    if (error) { status.textContent = 'Upload failed: ' + error.message; status.className = 'upload-status error'; return; }
+    const { data } = sb.storage.from('portal-uploads').getPublicUrl(path);
+    _propertyPhotos.push(data.publicUrl);
+    uploaded++;
+    status.textContent = `Uploaded ${uploaded} of ${files.length}…`;
+  }
+  status.textContent = `✓ ${uploaded} photo${uploaded>1?'s':''} uploaded`;
+  status.className = 'upload-status';
+  input.value = '';
+  renderPhotoGrid();
+}
+
+// ── Single photo upload (used by experiences/businesses) ──────────────────
 async function uploadPhoto(input, urlFieldId, previewId, statusId) {
   const file = input.files[0];
   if (!file) return;

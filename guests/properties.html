@@ -157,8 +157,37 @@
       overflow: hidden;
       border-radius: var(--radius-md) var(--radius-md) 0 0;
     }
-    .property-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-    .property-card:hover .property-img img { transform: scale(1.06); }
+    .property-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .property-card:hover .property-img img { transform: scale(1.04); }
+
+    /* Slideshow */
+    .prop-slide-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.92); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      opacity: 0; transition: opacity 0.2s; z-index: 10;
+    }
+    .property-img:hover .prop-slide-btn { opacity: 1; }
+    .prop-slide-prev { left: 10px; }
+    .prop-slide-next { right: 10px; }
+    .prop-slide-dots {
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 4px; z-index: 10;
+    }
+    .prop-slide-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,0.6); border: none; padding: 0; cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .prop-slide-dot.active { background: var(--white); transform: scale(1.25); }
+    .prop-photo-count {
+      position: absolute; bottom: 10px; right: 12px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      font-size: 0.7rem; font-weight: 600; padding: 4px 9px;
+      border-radius: 999px; z-index: 10; backdrop-filter: blur(4px);
+    }
     .property-fav {
       position: absolute; top: 12px; right: 12px;
       width: 32px; height: 32px; background: rgba(255,255,255,0.92);
@@ -388,7 +417,7 @@
       try {
         const { data, error } = await sb
           .from('properties')
-          .select('id,name,city,thumbnail_url,region,price,bedrooms,bathrooms,guests,badge,badge_type,featured,rating,review_count,ical_urls,airbnb_url')
+          .select('id,name,city,thumbnail_url,photos,region,price,bedrooms,bathrooms,guests,badge,badge_type,featured,rating,review_count,ical_urls,airbnb_url')
           .eq('active', true)
           .order('sort_order', { ascending: true });
 
@@ -473,11 +502,19 @@
       const unavailBadge = unavailable
         ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;border-radius:inherit;"><span style="background:#fff;color:#333;font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:20px;">Not available</span></div>`
         : '';
-      return `<a href="${p.direct_url || 'property-detail.html'}" class="card property-card" style="text-decoration:none;color:inherit;${unavailable ? 'opacity:0.6;' : ''}">
-        <div class="property-img" style="position:relative;">
-          <img src="${p.image || p.thumbnail_url || ''}" alt="${p.name}" loading="lazy" />
+      const photos = (p.photos && p.photos.length) ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : ['']);
+      const sid = 'slide-' + p.id;
+      const dots = photos.length > 1 ? photos.map((_,i) => `<button class="prop-slide-dot${i===0?' active':''}" onclick="slideTo('${sid}',${i},event)"></button>`).join('') : '';
+      const arrows = photos.length > 1 ? `
+        <button class="prop-slide-btn prop-slide-prev" onclick="slideAdj('${sid}',-1,event)">&#8249;</button>
+        <button class="prop-slide-btn prop-slide-next" onclick="slideAdj('${sid}',1,event)">&#8250;</button>
+        <div class="prop-slide-dots">${dots}</div>
+        <div class="prop-photo-count">📷 ${photos.length} photos</div>` : '';
+      return `<a href="${p.direct_url || '#'}" class="card property-card" style="text-decoration:none;color:inherit;${unavailable ? 'opacity:0.6;' : ''}" id="${sid}-card">
+        <div class="property-img" style="position:relative;" data-photos='${JSON.stringify(photos).replace(/'/g,"&#39;")}' data-idx="0" id="${sid}">
+          <img src="${photos[0]}" alt="${p.name}" loading="lazy" id="${sid}-img" />
           <div class="property-fav">♡</div>
-          ${badge}${unavailBadge}
+          ${badge}${unavailBadge}${arrows}
         </div>
         <div class="property-body">
           <div class="property-location">📍 ${p.location || p.city || ''}</div>
@@ -576,6 +613,25 @@
     })();
 
     loadProperties();
+
+    // ── Slideshow ──────────────────────────────────────────────────────────
+    function slideAdj(sid, delta, e) {
+      e.preventDefault(); e.stopPropagation();
+      const el = document.getElementById(sid);
+      if (!el) return;
+      const photos = JSON.parse(el.dataset.photos);
+      const idx = ((parseInt(el.dataset.idx) + delta) + photos.length) % photos.length;
+      slideTo(sid, idx, e);
+    }
+    function slideTo(sid, idx, e) {
+      e.preventDefault(); e.stopPropagation();
+      const el = document.getElementById(sid);
+      if (!el) return;
+      const photos = JSON.parse(el.dataset.photos);
+      el.dataset.idx = idx;
+      document.getElementById(sid + '-img').src = photos[idx];
+      el.querySelectorAll('.prop-slide-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+    }
   </script>
 
   <script src="../assets/nav.js"></script>
