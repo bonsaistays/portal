@@ -388,10 +388,11 @@
             <p class="prop-desc" id="cancel-text"></p>
           </div>
 
-          <!-- Book on platforms (mobile only — also in sidebar on desktop) -->
-          <div class="prop-section" id="section-book-mobile" style="display:none;">
+          <!-- Book CTA — always visible in main column -->
+          <div class="prop-section" id="section-book-cta" style="display:none;">
             <h2 class="prop-section-title">Book this stay</h2>
-            <div class="book-links" id="book-links-mobile"></div>
+            <p class="prop-desc" style="margin-bottom:20px;">Reserve through your preferred platform — we manage this property on Airbnb and VRBO so you're covered either way.</p>
+            <div class="book-links" id="book-links-main"></div>
           </div>
 
         </div>
@@ -564,12 +565,12 @@
       document.getElementById('cancel-text').textContent = p.cancellation_policy;
     }
 
-    // Booking links (sidebar + mobile)
+    // Booking links — sidebar + main content CTA
     const bookHTML = buildBookLinks(p);
     document.getElementById('book-links-sidebar').innerHTML = bookHTML;
     if (bookHTML) {
-      document.getElementById('section-book-mobile').style.display = '';
-      document.getElementById('book-links-mobile').innerHTML = bookHTML;
+      document.getElementById('section-book-cta').style.display = '';
+      document.getElementById('book-links-main').innerHTML = bookHTML;
     }
 
     // Sidebar price

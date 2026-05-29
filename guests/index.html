@@ -1090,7 +1090,7 @@
           .from('properties')
           .select('id, name, city, region, thumbnail_url, price, bedrooms, bathrooms, guests, badge, airbnb_url, active')
           .eq('active', true)
-          .order('sort_order', { ascending: true, nullsFirst: false })
+          .order('name', { ascending: true })
           .limit(6);
         if (error) throw error;
         if (!data || data.length === 0) { grid.innerHTML = '<p style="color:var(--gray-light);grid-column:1/-1;text-align:center;padding:40px 0;">Properties coming soon.</p>'; return; }
@@ -1098,8 +1098,7 @@
           const badge = p.badge ? `<div class="property-badge"><span class="tag tag-featured">${p.badge}</span></div>` : '';
           const img   = p.thumbnail_url || 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=70';
           const loc   = [p.city, p.region].filter(Boolean).join(', ') || 'Ontario';
-          const link  = p.airbnb_url || 'properties.html';
-          return `<a href="${link}" class="card property-card" style="text-decoration:none;color:inherit;" target="${p.airbnb_url ? '_blank' : '_self'}" rel="noopener">
+          return `<a href="guests/property.html?id=${p.id}" class="card property-card" style="text-decoration:none;color:inherit;">
             <div class="property-img">
               <img src="${img}" alt="${p.name}" loading="lazy" />
               <div class="property-fav">&#9825;</div>
