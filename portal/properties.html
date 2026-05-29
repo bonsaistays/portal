@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -58,13 +58,15 @@
     </div>
     <div class="modal-body">
 
-      <!-- Tabs inside modal -->
-      <div style="display:flex;gap:4px;border-bottom:1px solid var(--a-gray-pale);margin:-8px 0 16px;">
-        <button class="modal-tab active" data-mtab="basic"    onclick="switchMTab('basic',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Basic Info</button>
-        <button class="modal-tab"        data-mtab="access"   onclick="switchMTab('access',this)"  style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Access & Door</button>
-        <button class="modal-tab"        data-mtab="guest"    onclick="switchMTab('guest',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">Guest Info</button>
-        <button class="modal-tab"        data-mtab="rules"    onclick="switchMTab('rules',this)"   style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">House Rules</button>
-        <button class="modal-tab"        data-mtab="listing"  onclick="switchMTab('listing',this)"  style="padding:10px 16px;font-size:0.78rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);">📅 Listing &amp; Calendar</button>
+      <!-- Tabs inside modal (scrollable row) -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--a-gray-pale);margin:-8px 0 16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+        <button class="modal-tab active" data-mtab="basic"     onclick="switchMTab('basic',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Basic Info</button>
+        <button class="modal-tab"        data-mtab="access"    onclick="switchMTab('access',this)"    style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Access &amp; Door</button>
+        <button class="modal-tab"        data-mtab="guest"     onclick="switchMTab('guest',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Guest Info</button>
+        <button class="modal-tab"        data-mtab="rules"     onclick="switchMTab('rules',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">House Rules</button>
+        <button class="modal-tab"        data-mtab="amenities" onclick="switchMTab('amenities',this)" style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">✓ Amenities</button>
+        <button class="modal-tab"        data-mtab="owner"     onclick="switchMTab('owner',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">🌿 Owner's Story</button>
+        <button class="modal-tab"        data-mtab="listing"   onclick="switchMTab('listing',this)"   style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">📅 Listing</button>
       </div>
 
       <!-- Tab: Basic Info -->
@@ -96,11 +98,7 @@
           </div>
           <div>
             <label class="admin-label">Description <span style="font-weight:400;color:var(--a-gray);">(shown on the property page)</span></label>
-            <textarea class="admin-textarea" id="p-description" style="min-height:110px;" placeholder="Describe the property — its character, setting, what makes it special…"></textarea>
-          </div>
-          <div>
-            <label class="admin-label">Amenities <span style="font-weight:400;color:var(--a-gray);">(one per line, e.g. Wi-Fi, Hot Tub, Kayaks)</span></label>
-            <textarea class="admin-textarea" id="p-amenities" style="min-height:110px;" placeholder="Wi-Fi&#10;Hot Tub&#10;Kayaks &amp; Canoe&#10;Private Dock&#10;BBQ Grill&#10;Washer &amp; Dryer&#10;Fireplace&#10;Parking"></textarea>
+            <textarea class="admin-textarea" id="p-description" style="min-height:120px;" placeholder="Describe the property — its character, setting, what makes it special…"></textarea>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <input type="checkbox" id="p-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
@@ -182,6 +180,62 @@
         </div>
       </div>
 
+      <!-- Tab: Amenities -->
+      <div id="mtab-amenities" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:14px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;margin-bottom:8px;">
+            ✓ Check off everything this property offers. These appear on the property page as a checklist.
+          </div>
+          <div id="amenities-checklist">
+            <!-- Populated by renderAmenitiesChecklist() -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Owner's Story -->
+      <div id="mtab-owner" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:14px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;">
+            🌿 The owner's story adds a personal touch to the property page. Guests love hearing from the people behind the property.
+          </div>
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Owner / Host name</label>
+              <input class="admin-input" id="p-owner-name" type="text" placeholder="e.g. Sarah &amp; Tom" />
+            </div>
+            <div>
+              <label class="admin-label">Owner photo</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <label class="btn-upload" for="p-owner-photo-file">📷 Upload</label>
+                <input type="file" id="p-owner-photo-file" accept="image/*" style="display:none;"
+                  onchange="uploadPhoto(this,'p-owner-photo','p-owner-photo-preview','p-owner-photo-status')" />
+                <span id="p-owner-photo-status" class="upload-status"></span>
+              </div>
+              <div id="p-owner-photo-preview" style="margin-top:8px;"></div>
+              <input type="hidden" id="p-owner-photo" />
+            </div>
+          </div>
+          <div>
+            <label class="admin-label">Their story about this property</label>
+            <textarea class="admin-textarea" id="p-owner-story" style="min-height:130px;" placeholder="e.g. We discovered this lake in 2018 on a weekend trip and fell in love with the stillness of the water in early mornings…"></textarea>
+          </div>
+          <div>
+            <label class="admin-label">Their favourite part of the cottage</label>
+            <textarea class="admin-textarea" id="p-owner-favorite" style="min-height:80px;" placeholder="e.g. Sipping coffee on the dock at sunrise while watching the loons."></textarea>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--a-gray-pale);margin:4px 0;" />
+
+          <div>
+            <label class="admin-label">Bonsai Truths <span style="font-weight:400;color:var(--a-gray);">(honest things guests should know — one per line)</span></label>
+            <div style="background:#FFFBF0;border:1px solid #E8D5A3;border-radius:10px;padding:12px 14px;font-size:0.82rem;color:#7A5900;line-height:1.6;margin-bottom:10px;">
+              🌿 Bonsai Truths are candid notes about quirks or limitations. Guests trust properties that are upfront.
+            </div>
+            <textarea class="admin-textarea" id="p-bonsai-truths" style="min-height:110px;" placeholder="The driveway can be tricky in heavy rain&#10;Cell service is limited — Wi-Fi works great though&#10;The kayaks are for calm days only&#10;Boat launch is a short 5-min drive away"></textarea>
+          </div>
+        </div>
+      </div>
+
       <!-- Tab: Listing & Calendar -->
       <div id="mtab-listing" class="mtab-content hidden">
         <div style="display:flex;flex-direction:column;gap:16px;">
@@ -196,9 +250,11 @@
               <label class="admin-label">Region</label>
               <select class="admin-select" id="p-region">
                 <option value="">Select…</option>
+                <option>Muskoka</option>
                 <option>Cottage Country</option>
                 <option>Prince Edward County</option>
                 <option>Blue Mountain</option>
+                <option>Collingwood</option>
                 <option>Niagara Region</option>
                 <option>Wasaga Beach</option>
                 <option>Toronto</option>
@@ -355,6 +411,35 @@ function renderProperties() {
   `).join('');
 }
 
+// ── Amenities checklist ───────────────────────────────────────────────────
+const AMENITY_GROUPS = [
+  { group: '🏠 Essentials',          items: ['Wi-Fi', 'Air Conditioning', 'Heating', 'Washer & Dryer', 'TV', 'Free Parking'] },
+  { group: '🍳 Kitchen',             items: ['Full Kitchen', 'Coffee Maker', 'Espresso Machine', 'Microwave', 'Dishwasher', 'BBQ Grill', 'Wine Fridge'] },
+  { group: '🌿 Outdoor',             items: ['Hot Tub', 'Private Pool', 'Sauna', 'Fire Pit', 'Outdoor Shower', 'Private Deck / Patio', 'Outdoor Furniture', 'Hammock'] },
+  { group: '🛶 Water & Recreation',  items: ['Private Dock', 'Lake Access', 'Beach Access', 'Kayaks', 'Canoe', 'Paddleboard', 'Fishing Gear', 'Rowboat', 'Life Jackets'] },
+  { group: '🎲 Indoor Recreation',   items: ['Fireplace', 'Board Games', 'Books', 'Ping Pong Table', 'Game Room', 'Movie Projector', 'Pool Table'] },
+  { group: '👶 Family',              items: ['High Chair', "Pack n' Play / Crib", 'Baby Bath', 'Baby Gate'] },
+  { group: '🐾 Pets',               items: ['Pets Allowed'] },
+];
+
+function renderAmenitiesChecklist() {
+  const container = document.getElementById('amenities-checklist');
+  if (!container) return;
+  container.innerHTML = AMENITY_GROUPS.map(g => `
+    <div style="margin-bottom:18px;">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--a-gray);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--a-gray-pale);">${g.group}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        ${g.items.map(item => `
+          <label style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--a-charcoal);cursor:pointer;padding:7px 10px;border-radius:8px;border:1px solid var(--a-gray-pale);transition:background 0.15s,border-color 0.15s;" class="amenity-label">
+            <input type="checkbox" class="amenity-cb" value="${esc(item)}" style="width:14px;height:14px;accent-color:var(--a-sage);cursor:pointer;flex-shrink:0;" />
+            ${esc(item)}
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
 // ── Modal open / close ────────────────────────────────────────────────────
 function openModal(propId) {
   _editingId = propId || null;
@@ -363,25 +448,50 @@ function openModal(propId) {
   document.getElementById('p-error').classList.add('hidden');
   switchMTab('basic', document.querySelector('.modal-tab[data-mtab="basic"]'));
 
+  // Always render amenities checklist fresh
+  renderAmenitiesChecklist();
+
   if (propId) {
     const p = _properties.find(x => x.id === propId);
     if (!p) return;
+    // Basic
     document.getElementById('p-name').value          = p.name || '';
     document.getElementById('p-city').value          = p.city || '';
     document.getElementById('p-address').value       = p.address || '';
     _propertyPhotos = Array.isArray(p.photos) && p.photos.length ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
     document.getElementById('p-description').value   = p.description || '';
-    document.getElementById('p-amenities').value     = Array.isArray(p.amenities) ? p.amenities.join('\n') : (p.amenities || '');
     document.getElementById('p-active').checked      = p.active !== false;
+    // Access
     document.getElementById('p-wifi-name').value     = p.wifi_name || '';
     document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
     document.getElementById('p-door-code').value     = p.door_code || '';
     document.getElementById('p-lock-type').value     = p.lock_type || 'code';
     document.getElementById('p-checkin-inst').value  = p.check_in_instructions || '';
+    // Guest info
     document.getElementById('p-checkout-inst').value = p.checkout_instructions || '';
     document.getElementById('p-host-phone').value    = p.host_phone || '';
+    // Rules
     document.getElementById('p-rules').value         = p.house_rules || '';
     document.getElementById('p-cancellation').value  = p.cancellation_policy || '';
+    // Amenities — check off existing
+    const currentAmenities = Array.isArray(p.amenities) ? p.amenities : [];
+    document.querySelectorAll('.amenity-cb').forEach(cb => {
+      cb.checked = currentAmenities.includes(cb.value);
+    });
+    // Owner's Story
+    document.getElementById('p-owner-name').value    = p.owner_name || '';
+    document.getElementById('p-owner-photo').value   = p.owner_photo_url || '';
+    const ownerPrev = document.getElementById('p-owner-photo-preview');
+    if (p.owner_photo_url) {
+      ownerPrev.className = 'upload-preview';
+      ownerPrev.innerHTML = `<img src="${esc(p.owner_photo_url)}" alt="Owner" />`;
+    } else {
+      ownerPrev.className = '';
+      ownerPrev.innerHTML = '';
+    }
+    document.getElementById('p-owner-story').value   = p.owner_story || '';
+    document.getElementById('p-owner-favorite').value = p.owner_favorite || '';
+    document.getElementById('p-bonsai-truths').value = Array.isArray(p.bonsai_truths) ? p.bonsai_truths.join('\n') : (p.bonsai_truths || '');
     // Listing & calendar tab
     document.getElementById('p-region').value        = p.region || '';
     document.getElementById('p-price').value         = p.price || '';
@@ -395,12 +505,12 @@ function openModal(propId) {
     document.getElementById('ical-rows').innerHTML   = '';
     (p.ical_urls || []).forEach(u => addIcalRow(u.platform, u.url));
   } else {
+    // New property defaults
     document.getElementById('p-name').value          = '';
     document.getElementById('p-city').value          = '';
     document.getElementById('p-address').value       = '';
     _propertyPhotos = [];
     document.getElementById('p-description').value   = '';
-    document.getElementById('p-amenities').value     = '';
     document.getElementById('p-active').checked      = true;
     document.getElementById('p-wifi-name').value     = '';
     document.getElementById('p-wifi-pass').value     = '';
@@ -411,7 +521,14 @@ function openModal(propId) {
     document.getElementById('p-host-phone').value    = '';
     document.getElementById('p-rules').value         = '';
     document.getElementById('p-cancellation').value  = '';
-    // Listing & calendar tab
+    document.querySelectorAll('.amenity-cb').forEach(cb => { cb.checked = false; });
+    document.getElementById('p-owner-name').value    = '';
+    document.getElementById('p-owner-photo').value   = '';
+    document.getElementById('p-owner-photo-preview').className = '';
+    document.getElementById('p-owner-photo-preview').innerHTML = '';
+    document.getElementById('p-owner-story').value   = '';
+    document.getElementById('p-owner-favorite').value = '';
+    document.getElementById('p-bonsai-truths').value = '';
     document.getElementById('p-region').value        = '';
     document.getElementById('p-price').value         = '';
     document.getElementById('p-bedrooms').value      = 3;
@@ -427,6 +544,8 @@ function openModal(propId) {
   // Reset upload UI
   document.getElementById('p-photos-status').textContent = '';
   document.getElementById('p-photos-status').className = 'upload-status';
+  document.getElementById('p-owner-photo-status').textContent = '';
+  document.getElementById('p-owner-photo-status').className = 'upload-status';
   renderPhotoGrid();
 
   document.getElementById('modal-property').classList.remove('hidden');
@@ -464,7 +583,6 @@ async function saveProperty() {
     thumbnail_url:          _propertyPhotos[0] || null,
     photos:                 _propertyPhotos.length ? _propertyPhotos : null,
     description:            document.getElementById('p-description').value.trim(),
-    amenities:              document.getElementById('p-amenities').value.trim().split('\n').map(l=>l.trim()).filter(Boolean),
     active:                 document.getElementById('p-active').checked,
     wifi_name:              document.getElementById('p-wifi-name').value.trim(),
     wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
@@ -475,6 +593,14 @@ async function saveProperty() {
     host_phone:             document.getElementById('p-host-phone').value.trim(),
     house_rules:            document.getElementById('p-rules').value.trim(),
     cancellation_policy:    document.getElementById('p-cancellation').value.trim(),
+    // Amenities from checklist
+    amenities:              Array.from(document.querySelectorAll('.amenity-cb:checked')).map(cb => cb.value),
+    // Owner's Story
+    owner_name:             document.getElementById('p-owner-name').value.trim(),
+    owner_photo_url:        document.getElementById('p-owner-photo').value.trim() || null,
+    owner_story:            document.getElementById('p-owner-story').value.trim(),
+    owner_favorite:         document.getElementById('p-owner-favorite').value.trim(),
+    bonsai_truths:          document.getElementById('p-bonsai-truths').value.trim().split('\n').map(l=>l.trim()).filter(Boolean),
     // Listing & calendar fields
     region:      document.getElementById('p-region').value,
     price:       parseInt(document.getElementById('p-price').value) || 0,
@@ -550,7 +676,6 @@ function collectIcalUrls() {
 
 // ── Multi-photo upload ────────────────────────────────────────────────────
 let _propertyPhotos = []; // array of URLs for current modal
-
 let _dragSrcIdx = null;
 
 function renderPhotoGrid() {
@@ -642,7 +767,7 @@ async function uploadMultiplePhotos(input) {
   renderPhotoGrid();
 }
 
-// ── Single photo upload (used by experiences/businesses) ──────────────────
+// ── Single photo upload (used by owner photo, experiences, businesses) ────
 async function uploadPhoto(input, urlFieldId, previewId, statusId) {
   const file = input.files[0];
   if (!file) return;

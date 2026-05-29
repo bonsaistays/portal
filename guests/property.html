@@ -165,22 +165,100 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* ── Amenities ─────────────────────────────────── */
+    /* ── Amenities checklist ───────────────────────── */
     .amenities-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px 24px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px 16px;
     }
     .amenity-item {
-      display: flex; align-items: center; gap: 12px;
-      font-size: 0.92rem; color: var(--charcoal);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.88rem; color: var(--charcoal);
     }
-    .amenity-check {
-      width: 24px; height: 24px; flex-shrink: 0;
-      background: var(--green-tint);
+    .amenity-icon {
+      font-size: 1.1rem; flex-shrink: 0; width: 24px; text-align: center;
+    }
+    .amenities-more-btn {
+      margin-top: 18px;
+      background: none;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: 8px;
+      padding: 11px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      color: var(--charcoal); cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .amenities-more-btn:hover { border-color: var(--green-sage); background: var(--green-tint); }
+
+    /* ── Owner's Story ─────────────────────────────── */
+    .owner-story-block {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      background: var(--cream);
+      border-radius: var(--radius-md);
+      padding: 28px;
+    }
+    .owner-photo {
+      width: 80px; height: 80px;
       border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 3px solid var(--white);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    }
+    .owner-photo-placeholder {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--green-tint);
+      flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      color: var(--green-deep); font-size: 0.65rem; font-weight: 700;
+      font-size: 1.6rem;
+    }
+    .owner-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 600;
+      color: var(--charcoal); margin-bottom: 8px;
+    }
+    .owner-story-text {
+      font-size: 0.95rem; line-height: 1.75;
+      color: var(--gray-mid); font-style: italic;
+      margin-bottom: 12px;
+    }
+    .owner-favorite-block {
+      display: flex; align-items: flex-start; gap: 8px;
+      background: var(--white); border-radius: var(--radius-sm);
+      padding: 12px 16px; margin-top: 8px;
+    }
+    .owner-favorite-label {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--green-deep); white-space: nowrap;
+      padding-top: 1px;
+    }
+    .owner-favorite-text {
+      font-size: 0.88rem; color: var(--charcoal); line-height: 1.6;
+    }
+
+    /* ── Bonsai Truths ─────────────────────────────── */
+    .truths-intro {
+      font-size: 0.9rem; color: var(--gray-mid);
+      line-height: 1.6; margin-bottom: 20px;
+    }
+    .truths-grid {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .truth-card {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: #FFFCF5;
+      border: 1px solid #EFE0B8;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 0.9rem; line-height: 1.6; color: var(--charcoal);
+    }
+    .truth-leaf {
+      font-size: 1rem; flex-shrink: 0; margin-top: 1px;
     }
 
     /* ── Beds / Baths ──────────────────────────────── */
@@ -193,15 +271,44 @@
     .bedbath-value { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--charcoal); }
     .bedbath-label { font-size: 0.78rem; color: var(--gray-light); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 3px; }
 
-    /* ── Rules ─────────────────────────────────────── */
-    .rules-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .rules-list li {
-      display: flex; align-items: flex-start; gap: 12px;
-      font-size: 0.92rem; line-height: 1.55; color: var(--charcoal);
+    /* ── Local Guide ───────────────────────────────── */
+    .local-intro {
+      font-size: 0.9rem; color: var(--gray-mid);
+      line-height: 1.6; margin-bottom: 20px;
     }
-    .rules-list li::before {
-      content: '•'; color: var(--green-sage); font-size: 1rem;
-      flex-shrink: 0; margin-top: 1px;
+    .local-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .local-card {
+      border: 1px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--white);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .local-card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
+    .local-card-img {
+      height: 110px; overflow: hidden;
+    }
+    .local-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .local-card-body {
+      padding: 12px 14px;
+    }
+    .local-card-cat {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--green-deep); margin-bottom: 4px;
+    }
+    .local-card-name {
+      font-size: 0.88rem; font-weight: 600;
+      color: var(--charcoal); line-height: 1.3; margin-bottom: 4px;
+    }
+    .local-card-addr {
+      font-size: 0.75rem; color: var(--gray-light); line-height: 1.4;
     }
 
     /* ── Booking links ──────────────────────────────── */
@@ -278,11 +385,15 @@
       .prop-sidebar { position: static; }
       .gallery-grid { display: none; }
       .gallery-mobile { display: block; }
+      .local-grid { grid-template-columns: 1fr 1fr; }
+      .amenities-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 640px) {
       .bedbath-grid { grid-template-columns: repeat(3, 1fr); }
-      .amenities-grid { grid-template-columns: 1fr; }
+      .amenities-grid { grid-template-columns: 1fr 1fr; }
       .gallery-mobile { height: 240px; }
+      .local-grid { grid-template-columns: 1fr; }
+      .owner-story-block { flex-direction: column; gap: 16px; }
     }
   </style>
 </head>
@@ -292,7 +403,7 @@
   <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
     <div class="nav-inner">
       <a href="../index.html" class="nav-logo">
-        <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;filter:brightness(0);" />
+        <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;" />
         <span class="nav-badge guest">Guests</span>
       </a>
       <ul class="nav-links">
@@ -366,8 +477,22 @@
 
           <!-- Amenities -->
           <div class="prop-section" id="section-amenities" style="display:none;">
-            <h2 class="prop-section-title">Amenities</h2>
+            <h2 class="prop-section-title">What this place offers</h2>
             <div class="amenities-grid" id="amenities-grid"></div>
+            <button class="amenities-more-btn" id="amenities-more-btn" style="display:none;" onclick="showAllAmenities()"></button>
+          </div>
+
+          <!-- Owner's Story -->
+          <div class="prop-section" id="section-owner" style="display:none;">
+            <h2 class="prop-section-title">Owner's story</h2>
+            <div id="owner-story-content"></div>
+          </div>
+
+          <!-- Bonsai Truths -->
+          <div class="prop-section" id="section-truths" style="display:none;">
+            <h2 class="prop-section-title">Bonsai Truths</h2>
+            <p class="truths-intro">We believe in honesty. Here are a few things worth knowing before you arrive.</p>
+            <div class="truths-grid" id="truths-grid"></div>
           </div>
 
           <!-- Beds & Baths -->
@@ -376,19 +501,14 @@
             <div class="bedbath-grid" id="bedbath-grid"></div>
           </div>
 
-          <!-- House Rules -->
-          <div class="prop-section" id="section-rules" style="display:none;">
-            <h2 class="prop-section-title">House rules</h2>
-            <ul class="rules-list" id="rules-list"></ul>
+          <!-- Local Guide -->
+          <div class="prop-section" id="section-local" style="display:none;">
+            <h2 class="prop-section-title">Local favourites</h2>
+            <p class="local-intro" id="local-intro">Our favourite spots near this property.</p>
+            <div class="local-grid" id="local-grid"></div>
           </div>
 
-          <!-- Cancellation -->
-          <div class="prop-section" id="section-cancel" style="display:none;">
-            <h2 class="prop-section-title">Cancellation policy</h2>
-            <p class="prop-desc" id="cancel-text"></p>
-          </div>
-
-          <!-- Book CTA — always visible in main column -->
+          <!-- Book CTA — bottom of main column -->
           <div class="prop-section" id="section-book-cta" style="display:none;">
             <h2 class="prop-section-title">Book this stay</h2>
             <p class="prop-desc" style="margin-bottom:20px;">Reserve through your preferred platform — we manage this property on Airbnb and VRBO so you're covered either way.</p>
@@ -454,12 +574,33 @@
   const { createClient } = window.supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── State ──────────────────────────────────────────────────────────
-  let _photos = [];
-  let _gmIdx  = 0;
-  let _lbIdx  = 0;
+  // ── Amenity icons map ──────────────────────────────────────────────────
+  const AMENITY_ICONS = {
+    'Wi-Fi': '📶', 'Air Conditioning': '❄️', 'Heating': '🔥',
+    'Washer & Dryer': '🫧', 'TV': '📺', 'Free Parking': '🚗',
+    'Full Kitchen': '🍳', 'Coffee Maker': '☕', 'Espresso Machine': '☕',
+    'Microwave': '📦', 'Dishwasher': '🍽', 'BBQ Grill': '🍖', 'Wine Fridge': '🍷',
+    'Hot Tub': '♨️', 'Private Pool': '🏊', 'Sauna': '🧖',
+    'Fire Pit': '🪵', 'Outdoor Shower': '🚿', 'Private Deck / Patio': '🏡',
+    'Outdoor Furniture': '🪑', 'Hammock': '🌿',
+    'Private Dock': '⛵', 'Lake Access': '🌊', 'Beach Access': '🏖️',
+    'Kayaks': '🛶', 'Canoe': '🛶', 'Paddleboard': '🏄',
+    'Fishing Gear': '🎣', 'Rowboat': '🚣', 'Life Jackets': '🦺',
+    'Fireplace': '🔥', 'Board Games': '🎲', 'Books': '📚',
+    'Ping Pong Table': '🏓', 'Game Room': '🎮', 'Movie Projector': '🎬', 'Pool Table': '🎱',
+    'High Chair': '👶', "Pack n' Play / Crib": '🛏', 'Baby Bath': '🛁', 'Baby Gate': '🚧',
+    'Pets Allowed': '🐾',
+  };
+  function amenityIcon(name) { return AMENITY_ICONS[name] || '✓'; }
 
-  // ── Load ───────────────────────────────────────────────────────────
+  // ── State ──────────────────────────────────────────────────────────────
+  let _photos    = [];
+  let _gmIdx     = 0;
+  let _lbIdx     = 0;
+  let _allAmenities = [];
+  let _showAllAmenities = false;
+
+  // ── Load ───────────────────────────────────────────────────────────────
   async function loadProperty() {
     const id = new URLSearchParams(location.search).get('id');
     if (!id) { showError('No property ID specified.'); return; }
@@ -474,6 +615,7 @@
     if (error || !p) { showError('Property not found.'); return; }
 
     renderProperty(p);
+    if (p.region) loadLocalGuide(p.region, p.city);
   }
 
   function showError(msg) {
@@ -484,7 +626,7 @@
        </div>`;
   }
 
-  // ── Render ─────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────
   function renderProperty(p) {
     // Photos
     _photos = (p.photos && p.photos.length) ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
@@ -512,9 +654,9 @@
     // Specs
     const specs = document.getElementById('prop-specs');
     specs.innerHTML = [
-      p.bedrooms ? `<div class="prop-spec">🛏 <strong>${p.bedrooms}</strong> bedroom${p.bedrooms!==1?'s':''}</div>` : '',
+      p.bedrooms  ? `<div class="prop-spec">🛏 <strong>${p.bedrooms}</strong> bedroom${p.bedrooms!==1?'s':''}</div>` : '',
       p.bathrooms ? `<div class="prop-spec">🛁 <strong>${p.bathrooms}</strong> bathroom${p.bathrooms!==1?'s':''}</div>` : '',
-      p.guests ? `<div class="prop-spec">👥 Up to <strong>${p.guests}</strong> guests</div>` : '',
+      p.guests    ? `<div class="prop-spec">👥 Up to <strong>${p.guests}</strong> guests</div>` : '',
     ].join('');
 
     // Description
@@ -531,39 +673,55 @@
       }
     }
 
-    // Amenities
-    const amArr = Array.isArray(p.amenities) ? p.amenities : (p.amenities ? p.amenities.split('\n').filter(Boolean) : []);
-    if (amArr.length) {
+    // Amenities — show first 8, show-all button for the rest
+    _allAmenities = Array.isArray(p.amenities) ? p.amenities : (p.amenities ? p.amenities.split('\n').filter(Boolean) : []);
+    if (_allAmenities.length) {
       document.getElementById('section-amenities').style.display = '';
-      document.getElementById('amenities-grid').innerHTML = amArr.map(a =>
-        `<div class="amenity-item"><div class="amenity-check">✓</div><span>${esc(a.trim())}</span></div>`
+      renderAmenitiesGrid(false);
+    }
+
+    // Owner's Story
+    if (p.owner_name || p.owner_story) {
+      document.getElementById('section-owner').style.display = '';
+      const photoHtml = p.owner_photo_url
+        ? `<img src="${esc(p.owner_photo_url)}" alt="${esc(p.owner_name || 'Owner')}" class="owner-photo" />`
+        : `<div class="owner-photo-placeholder">🌿</div>`;
+      const favoriteHtml = p.owner_favorite
+        ? `<div class="owner-favorite-block">
+             <span class="owner-favorite-label">Favourite part</span>
+             <span class="owner-favorite-text">${esc(p.owner_favorite)}</span>
+           </div>` : '';
+      document.getElementById('owner-story-content').innerHTML = `
+        <div class="owner-story-block">
+          ${photoHtml}
+          <div style="flex:1;min-width:0;">
+            ${p.owner_name ? `<div class="owner-name">${esc(p.owner_name)}</div>` : ''}
+            ${p.owner_story ? `<p class="owner-story-text">"${esc(p.owner_story)}"</p>` : ''}
+            ${favoriteHtml}
+          </div>
+        </div>`;
+    }
+
+    // Bonsai Truths
+    const truths = Array.isArray(p.bonsai_truths) ? p.bonsai_truths : (p.bonsai_truths ? p.bonsai_truths.split('\n').filter(Boolean) : []);
+    if (truths.length) {
+      document.getElementById('section-truths').style.display = '';
+      document.getElementById('truths-grid').innerHTML = truths.map(t =>
+        `<div class="truth-card"><span class="truth-leaf">🌿</span><span>${esc(t.trim())}</span></div>`
       ).join('');
     }
 
     // Beds/Baths/Guests
     document.getElementById('bedbath-grid').innerHTML = [
-      { icon: '🛏', val: p.bedrooms || '—', label: 'Bedrooms' },
+      { icon: '🛏', val: p.bedrooms  || '—', label: 'Bedrooms'  },
       { icon: '🛁', val: p.bathrooms || '—', label: 'Bathrooms' },
-      { icon: '👥', val: p.guests || '—', label: 'Max guests' },
+      { icon: '👥', val: p.guests    || '—', label: 'Max guests'},
     ].map(x => `
       <div class="bedbath-card">
         <div class="bedbath-icon">${x.icon}</div>
         <div class="bedbath-value">${x.val}</div>
         <div class="bedbath-label">${x.label}</div>
       </div>`).join('');
-
-    // House rules
-    if (p.house_rules) {
-      document.getElementById('section-rules').style.display = '';
-      const lines = p.house_rules.split('\n').map(l => l.replace(/^•\s*/, '').trim()).filter(Boolean);
-      document.getElementById('rules-list').innerHTML = lines.map(l => `<li>${esc(l)}</li>`).join('');
-    }
-
-    // Cancellation
-    if (p.cancellation_policy) {
-      document.getElementById('section-cancel').style.display = '';
-      document.getElementById('cancel-text').textContent = p.cancellation_policy;
-    }
 
     // Booking links — sidebar + main content CTA
     const bookHTML = buildBookLinks(p);
@@ -579,7 +737,7 @@
       priceEl.innerHTML = `$${p.price} <span>/ night</span>`;
     } else {
       priceEl.innerHTML = `Contact for pricing`;
-      document.getElementById('sidebar-price').style.fontSize = '1.2rem';
+      priceEl.style.fontSize = '1.2rem';
     }
 
     // Show content
@@ -587,6 +745,71 @@
     document.getElementById('prop-content').style.display = '';
   }
 
+  // ── Amenities grid rendering ────────────────────────────────────────────
+  function renderAmenitiesGrid(showAll) {
+    _showAllAmenities = showAll;
+    const visible = showAll ? _allAmenities : _allAmenities.slice(0, 8);
+    document.getElementById('amenities-grid').innerHTML = visible.map(a =>
+      `<div class="amenity-item">
+         <span class="amenity-icon">${amenityIcon(a.trim())}</span>
+         <span>${esc(a.trim())}</span>
+       </div>`
+    ).join('');
+    const moreBtn = document.getElementById('amenities-more-btn');
+    if (_allAmenities.length > 8) {
+      moreBtn.style.display = '';
+      if (showAll) {
+        moreBtn.textContent = 'Show fewer amenities ↑';
+      } else {
+        moreBtn.textContent = `Show all ${_allAmenities.length} amenities →`;
+      }
+    } else {
+      moreBtn.style.display = 'none';
+    }
+  }
+
+  function showAllAmenities() {
+    renderAmenitiesGrid(!_showAllAmenities);
+  }
+
+  // ── Local Guide ────────────────────────────────────────────────────────
+  function getBusinessRegion(propRegion, propCity) {
+    const r = ((propRegion || '') + ' ' + (propCity || '')).toLowerCase();
+    if (r.includes('muskoka') || r.includes('cottage') || r.includes('parry sound') || r.includes('gravenhurst') || r.includes('bracebridge')) return 'Muskoka';
+    if (r.includes('collingwood') || r.includes('blue mountain') || r.includes('thornbury')) return 'Collingwood';
+    if (r.includes('toronto')) return 'Toronto';
+    return null;
+  }
+
+  async function loadLocalGuide(region, city) {
+    const bizRegion = getBusinessRegion(region, city);
+    if (!bizRegion) return;
+
+    const { data: businesses, error } = await sb
+      .from('businesses')
+      .select('id, name, category, address, image_url')
+      .eq('region', bizRegion)
+      .limit(6);
+
+    if (error || !businesses || !businesses.length) return;
+
+    document.getElementById('section-local').style.display = '';
+    document.getElementById('local-intro').textContent =
+      `Our hand-picked favourites around ${bizRegion}. Explore what makes this area special.`;
+
+    document.getElementById('local-grid').innerHTML = businesses.map(b => `
+      <div class="local-card">
+        ${b.image_url ? `<div class="local-card-img"><img src="${esc(b.image_url)}" alt="${esc(b.name)}" loading="lazy" /></div>` : ''}
+        <div class="local-card-body">
+          ${b.category ? `<div class="local-card-cat">${esc(b.category)}</div>` : ''}
+          <div class="local-card-name">${esc(b.name)}</div>
+          ${b.address ? `<div class="local-card-addr">📍 ${esc(b.address)}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Book links ─────────────────────────────────────────────────────────
   function buildBookLinks(p) {
     let html = '';
     if (p.airbnb_url) {
@@ -607,12 +830,11 @@
     return html;
   }
 
-  // ── Gallery ────────────────────────────────────────────────────────
+  // ── Gallery ────────────────────────────────────────────────────────────
   function buildGallery() {
     const grid = document.getElementById('gallery-grid');
-    // Show up to 5 photos (1 main + 4 thumbs)
     const show = _photos.slice(0, 5);
-    while (show.length < 5) show.push(show[0]); // pad if < 5 photos
+    while (show.length < 5) show.push(show[0]);
 
     grid.innerHTML = `
       <div class="gallery-main" onclick="openLightbox(0)">
@@ -620,7 +842,7 @@
       </div>
       <div class="gallery-thumb" onclick="openLightbox(1)"><img src="${show[1]}" alt="" /></div>
       <div class="gallery-thumb" onclick="openLightbox(2)"><img src="${show[2]}" alt="" /></div>
-      <div class="gallery-thumb" onclick="openLightbox(3)" style="position:relative;">
+      <div class="gallery-thumb" onclick="openLightbox(3)">
         <img src="${show[3]}" alt="" />
       </div>
       <div class="gallery-thumb" onclick="openLightbox(4)" style="position:relative;">
@@ -629,12 +851,11 @@
         <button class="gallery-btn" onclick="openLightbox(0);event.stopPropagation();">🖼 Show all ${_photos.length} photo${_photos.length!==1?'s':''}</button>
       </div>`;
 
-    // Mobile gallery
     document.getElementById('gm-img').src = _photos[0];
     updateGmCount();
   }
 
-  // ── Mobile gallery ─────────────────────────────────────────────────
+  // ── Mobile gallery ─────────────────────────────────────────────────────
   function gmAdj(delta) {
     _gmIdx = ((_gmIdx + delta) + _photos.length) % _photos.length;
     document.getElementById('gm-img').src = _photos[_gmIdx];
@@ -644,7 +865,7 @@
     document.getElementById('gm-count').textContent = (_gmIdx + 1) + ' / ' + _photos.length;
   }
 
-  // ── Lightbox ───────────────────────────────────────────────────────
+  // ── Lightbox ───────────────────────────────────────────────────────────
   function openLightbox(idx) {
     _lbIdx = idx % _photos.length;
     document.getElementById('lightbox').classList.add('open');
@@ -668,7 +889,6 @@
   }
   function lbGo(idx, e) { e.stopPropagation(); _lbIdx = idx; lbRender(); }
 
-  // Keyboard navigation for lightbox
   document.addEventListener('keydown', e => {
     if (!document.getElementById('lightbox').classList.contains('open')) return;
     if (e.key === 'ArrowLeft')  { _lbIdx = ((_lbIdx-1)+_photos.length)%_photos.length; lbRender(); }
@@ -676,7 +896,7 @@
     if (e.key === 'Escape') closeLightbox();
   });
 
-  // ── Description toggle ─────────────────────────────────────────────
+  // ── Description toggle ─────────────────────────────────────────────────
   function toggleDesc() {
     const s = document.getElementById('desc-short');
     const f = document.getElementById('desc-full');
@@ -688,12 +908,12 @@
     }
   }
 
-  // ── Chat ───────────────────────────────────────────────────────────
+  // ── Chat ───────────────────────────────────────────────────────────────
   function openChat() {
     if (typeof Tawk_API !== 'undefined') Tawk_API.toggle();
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────
   function esc(s) {
     if (!s) return '';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
