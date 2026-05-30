@@ -364,6 +364,17 @@
             <input class="admin-input" id="p-vrbo-url" type="url" placeholder="https://www.vrbo.com/..." />
           </div>
 
+          <!-- Guesty -->
+          <div style="background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+            <label class="admin-label" style="margin-bottom:4px;">Guesty Listing ID</label>
+            <div style="font-size:0.74rem;color:var(--a-gray);margin-bottom:8px;">Found in Guesty → Listings → click the property → copy the ID from the URL.</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="admin-input" id="p-guesty-id" type="text" placeholder="e.g. 64a1b2c3d4e5f6a7b8c9d0e1" style="flex:1;" />
+              <button type="button" id="guesty-sync-btn" onclick="syncFromGuesty()" style="background:var(--a-green);color:#fff;font-size:0.78rem;font-weight:700;padding:0 16px;height:42px;border-radius:var(--radius-sm);border:none;cursor:pointer;white-space:nowrap;">Sync Now</button>
+            </div>
+            <div id="guesty-sync-status" style="font-size:0.75rem;color:var(--a-gray);margin-top:6px;display:none;"></div>
+          </div>
+
           <!-- iCal URLs -->
           <div>
             <label class="admin-label" style="margin-bottom:8px;">iCal Calendar URLs</label>
@@ -570,6 +581,7 @@ function openModal(propId) {
     document.getElementById('p-badge').value         = p.badge || '';
     document.getElementById('p-airbnb-url').value    = p.airbnb_url || '';
     document.getElementById('p-vrbo-url').value      = p.vrbo_url || '';
+    document.getElementById('p-guesty-id').value     = p.guesty_listing_id || '';
     document.getElementById('p-featured').checked    = p.featured || false;
     document.getElementById('ical-rows').innerHTML   = '';
     (p.ical_urls || []).forEach(u => addIcalRow(u.platform, u.url));
@@ -609,6 +621,7 @@ function openModal(propId) {
     document.getElementById('p-badge').value         = '';
     document.getElementById('p-airbnb-url').value    = '';
     document.getElementById('p-vrbo-url').value      = '';
+    document.getElementById('p-guesty-id').value     = '';
     document.getElementById('p-featured').checked    = false;
     document.getElementById('ical-rows').innerHTML   = '';
   }
@@ -813,8 +826,9 @@ async function saveProperty() {
     bathrooms:   parseInt(document.getElementById('p-bathrooms').value) || 1,
     guests:      parseInt(document.getElementById('p-guests').value) || 2,
     badge:       document.getElementById('p-badge').value.trim(),
-    airbnb_url:  document.getElementById('p-airbnb-url').value.trim(),
-    vrbo_url:    document.getElementById('p-vrbo-url').value.trim(),
+    airbnb_url:       document.getElementById('p-airbnb-url').value.trim(),
+    vrbo_url:         document.getElementById('p-vrbo-url').value.trim(),
+    guesty_listing_id: document.getElementById('p-guesty-id').value.trim() || null,
     featured:    document.getElementById('p-featured').checked,
     ical_urls:   collectIcalUrls(),
   };
@@ -997,6 +1011,110 @@ async function uploadPhoto(input, urlFieldId, previewId, statusId) {
   preview.className = 'upload-preview';
   preview.innerHTML = `<img src="${data.publicUrl}" alt="preview" />`;
   input.value = '';
+}
+
+// ── Guesty Sync ───────────────────────────────────────────────────────────
+async function syncFromGuesty() {
+  const listingId = document.getElementById('p-guesty-id').value.trim();
+  if (!listingId) {
+    alert('Please enter a Guesty Listing ID first.');
+    return;
+  }
+
+  const btn    = document.getElementById('guesty-sync-btn');
+  const status = document.getElementById('guesty-sync-status');
+
+  btn.disabled    = true;
+  btn.textContent = 'Syncing…';
+  status.style.display = 'block';
+  status.style.color   = 'var(--a-gray)';
+  status.textContent   = 'Connecting to Guesty…';
+
+  try {
+    const res = await fetch('/.netlify/functions/guesty-sync', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'full',
+        listingId,
+        propertyId: _editingId || null,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const updates = [];
+
+    // ── Listing details ──────────────────────────────────────────────────
+    if (data.listing) {
+      const l = data.listing;
+
+      if (l.title && !document.getElementById('p-name').value.trim()) {
+        document.getElementById('p-name').value = l.title;
+        updates.push('name');
+      }
+      if (l.description && !document.getElementById('p-description').value.trim()) {
+        document.getElementById('p-description').value = l.description;
+        updates.push('description');
+      }
+      if (l.bedrooms != null) {
+        document.getElementById('p-bedrooms').value = l.bedrooms;
+        updates.push('bedrooms');
+      }
+      if (l.bathrooms != null) {
+        document.getElementById('p-bathrooms').value = l.bathrooms;
+        updates.push('bathrooms');
+      }
+      if (l.guests != null) {
+        document.getElementById('p-guests').value = l.guests;
+        updates.push('guests');
+      }
+      if (l.price != null) {
+        document.getElementById('p-price').value = Math.round(l.price);
+        updates.push('price');
+      }
+    }
+
+    // ── Availability (store for calendar) ───────────────────────────────
+    if (data.availability) {
+      const { blockedDates } = data.availability;
+      window._guestyBlockedDates = new Set(blockedDates);
+    }
+
+    // ── Pricing summary ─────────────────────────────────────────────────
+    if (data.pricing) {
+      const vals = Object.values(data.pricing.prices || {});
+      if (vals.length) {
+        const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+        if (!document.getElementById('p-price').value || !updates.includes('price')) {
+          document.getElementById('p-price').value = avg;
+          updates.push('avg price');
+        }
+      }
+    }
+
+    // ── Reservations ────────────────────────────────────────────────────
+    const resMsg = data.reservations
+      ? `, ${data.reservations.upserted} booking${data.reservations.upserted !== 1 ? 's' : ''} synced`
+      : '';
+
+    const summary = updates.length
+      ? `✓ Synced: ${updates.join(', ')}${resMsg}`
+      : `✓ Connected${resMsg} — no empty fields to auto-fill`;
+
+    status.style.color  = '#16a34a';
+    status.textContent  = summary;
+    showToast('✓ Guesty sync complete');
+
+  } catch (e) {
+    status.style.color  = 'var(--a-red)';
+    status.textContent  = '✗ ' + e.message;
+    console.error('Guesty sync error:', e);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Sync Now';
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
