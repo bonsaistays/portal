@@ -157,6 +157,47 @@
           <div id="e-image-preview" class="upload-preview"></div>
         </div>
 
+        <!-- Provider Availability Calendar -->
+        <div style="background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+          <label class="admin-label" style="margin-bottom:4px;">Provider Calendar (iCal)</label>
+          <div style="font-size:0.74rem;color:var(--a-gray);margin-bottom:8px;line-height:1.5;">Paste the provider's Google Calendar or iCal URL — guests will see real-time availability when booking. Leave blank to show all slots as open.</div>
+          <input class="admin-input" id="e-ical-url" type="url" placeholder="https://calendar.google.com/calendar/ical/…" />
+
+          <div class="admin-form-row" style="margin-top:12px;gap:10px;">
+            <div style="flex:1;">
+              <label class="admin-label" style="font-size:0.72rem;">Session length</label>
+              <select class="admin-select" id="e-duration" style="padding:9px 10px;">
+                <option value="30">30 min</option>
+                <option value="60" selected>60 min</option>
+                <option value="90">90 min</option>
+                <option value="120">2 hours</option>
+                <option value="180">3 hours</option>
+                <option value="240">4 hours</option>
+              </select>
+            </div>
+            <div style="flex:1;">
+              <label class="admin-label" style="font-size:0.72rem;">Min. notice</label>
+              <select class="admin-select" id="e-advance" style="padding:9px 10px;">
+                <option value="2">2 hours</option>
+                <option value="12">12 hours</option>
+                <option value="24" selected>24 hours</option>
+                <option value="48">48 hours</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-form-row" style="margin-top:10px;gap:10px;">
+            <div style="flex:1;">
+              <label class="admin-label" style="font-size:0.72rem;">Available from</label>
+              <input class="admin-input" id="e-working-start" type="time" value="09:00" />
+            </div>
+            <div style="flex:1;">
+              <label class="admin-label" style="font-size:0.72rem;">Available until</label>
+              <input class="admin-input" id="e-working-end" type="time" value="18:00" />
+            </div>
+          </div>
+        </div>
+
         <div style="display:flex;align-items:center;gap:10px;">
           <input type="checkbox" id="e-available" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
           <label for="e-available" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Available to guests</label>
@@ -282,8 +323,13 @@ function openModal(expId) {
     document.getElementById('e-description').value = e.description || '';
     document.getElementById('e-price').value       = e.price || '';
     document.getElementById('e-price-unit').value  = e.price_unit || '';
-    document.getElementById('e-image').value       = e.image_url || '';
-    document.getElementById('e-available').checked = e.available !== false;
+    document.getElementById('e-image').value        = e.image_url || '';
+    document.getElementById('e-available').checked  = e.available !== false;
+    document.getElementById('e-ical-url').value      = e.ical_url || '';
+    document.getElementById('e-duration').value      = String(e.duration_minutes || 60);
+    document.getElementById('e-advance').value       = String(e.advance_hours || 24);
+    document.getElementById('e-working-start').value = e.working_start || '09:00';
+    document.getElementById('e-working-end').value   = e.working_end || '18:00';
     (e.includes || []).forEach(i => addIncludeRow(i));
   } else {
     document.getElementById('e-name').value        = '';
@@ -292,8 +338,13 @@ function openModal(expId) {
     document.getElementById('e-description').value = '';
     document.getElementById('e-price').value       = '';
     document.getElementById('e-price-unit').value  = 'session';
-    document.getElementById('e-image').value       = '';
-    document.getElementById('e-available').checked = true;
+    document.getElementById('e-image').value        = '';
+    document.getElementById('e-available').checked  = true;
+    document.getElementById('e-ical-url').value      = '';
+    document.getElementById('e-duration').value      = '60';
+    document.getElementById('e-advance').value       = '24';
+    document.getElementById('e-working-start').value = '09:00';
+    document.getElementById('e-working-end').value   = '18:00';
     addIncludeRow(); // start with one blank row
   }
 
@@ -347,9 +398,14 @@ async function saveExperience() {
     description: desc,
     includes:    collectIncludes(),
     price,
-    price_unit:  document.getElementById('e-price-unit').value.trim() || 'session',
-    image_url:   document.getElementById('e-image').value.trim() || null,
-    available:   document.getElementById('e-available').checked,
+    price_unit:      document.getElementById('e-price-unit').value.trim() || 'session',
+    image_url:       document.getElementById('e-image').value.trim() || null,
+    available:       document.getElementById('e-available').checked,
+    ical_url:        document.getElementById('e-ical-url').value.trim() || null,
+    duration_minutes: parseInt(document.getElementById('e-duration').value) || 60,
+    advance_hours:   parseInt(document.getElementById('e-advance').value) || 24,
+    working_start:   document.getElementById('e-working-start').value || '09:00',
+    working_end:     document.getElementById('e-working-end').value || '18:00',
   };
 
   let error;

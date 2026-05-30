@@ -436,6 +436,41 @@
     /* Instructions */
     .stay-instructions-text { font-size: 0.85rem; color: rgba(255,255,255,0.8); line-height: 1.7; white-space: pre-wrap; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
 
+    /* Service cards */
+    .svc-card { display: flex; align-items: center; gap: 14px; background: var(--green2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.2s; }
+    .svc-card:hover { border-color: var(--gold); }
+    .svc-card-img { width: 54px; height: 54px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+    .svc-card-img img { width: 100%; height: 100%; border-radius: 10px; object-fit: cover; }
+    .svc-card-name { font-size: 0.92rem; font-weight: 700; color: var(--white); }
+    .svc-card-meta { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
+    .svc-card-price { margin-left: auto; font-weight: 700; color: var(--gold); font-size: 0.9rem; flex-shrink: 0; }
+    .svc-card-arrow { color: var(--muted); font-size: 0.8rem; margin-left: 6px; flex-shrink: 0; }
+    /* Service booking sheet */
+    .svc-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .svc-header-icon { width: 56px; height: 56px; border-radius: 12px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; overflow: hidden; }
+    .svc-header-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+    .svc-header-name { font-size: 1.05rem; font-weight: 700; color: var(--white); }
+    .svc-header-price { font-size: 0.8rem; color: var(--gold); margin-top: 3px; }
+    .svc-step-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
+    .svc-date-input { width: 100%; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; color: var(--white); padding: 12px 14px; font-size: 0.9rem; font-family: inherit; appearance: none; -webkit-appearance: none; margin-bottom: 16px; }
+    .svc-date-input:focus { outline: none; border-color: var(--sage); }
+    .svc-slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .svc-slot { padding: 11px 8px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--green2); color: var(--white); font-size: 0.84rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .svc-slot.available:hover, .svc-slot.selected { background: var(--sage); border-color: var(--sage); color: #fff; }
+    .svc-slot.busy { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+    .svc-notes { width: 100%; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; color: var(--white); padding: 12px 14px; font-size: 0.88rem; font-family: inherit; resize: none; min-height: 80px; margin-bottom: 16px; box-sizing: border-box; }
+    .svc-notes::placeholder { color: var(--muted); }
+    .svc-notes:focus { outline: none; border-color: var(--sage); }
+    .svc-confirm-btn { width: 100%; padding: 14px; background: var(--sage); color: #fff; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; font-family: inherit; cursor: pointer; margin-bottom: 10px; }
+    .svc-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .svc-request-btn { width: 100%; padding: 13px; background: transparent; color: var(--muted); border: 1.5px solid var(--border); border-radius: 12px; font-size: 0.88rem; font-weight: 600; font-family: inherit; cursor: pointer; }
+    .svc-request-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .svc-no-slots { text-align: center; padding: 24px 0; color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+    .svc-success { text-align: center; padding: 32px 0 16px; }
+    .svc-success-icon { font-size: 3rem; margin-bottom: 12px; }
+    .svc-success-title { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+    .svc-success-text { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+
     /* Extras */
     .extra-item { display: flex; align-items: center; gap: 14px; background: var(--green2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.2s; }
     .extra-item:hover { border-color: var(--gold); }
@@ -1281,6 +1316,12 @@
             <div class="stay-instructions-text" id="stay-instructions">—</div>
           </div>
 
+          <!-- Book a Service -->
+          <div class="stay-section" id="stay-services-section" style="display:none;">
+            <div class="stay-section-title">🛎️ Book a Service</div>
+            <div id="stay-services-list"></div>
+          </div>
+
           <!-- Extras -->
           <div class="stay-section">
             <div class="stay-section-title">✨ Request Extras</div>
@@ -1330,6 +1371,13 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- Service booking overlay + sheet -->
+    <div class="sheet-overlay" id="svc-overlay" onclick="closeSvcSheet()"></div>
+    <div class="invite-sheet" id="svc-sheet" style="max-height:92vh;overflow-y:auto;">
+      <div class="sheet-handle"></div>
+      <div id="svc-sheet-content"><!-- populated by JS --></div>
     </div>
 
     <!-- Invite sheet overlay -->
@@ -1981,6 +2029,7 @@ async function loadStay() {
   startDoorCountdown();
   loadStayMessages();
   subscribeStayChat();
+  loadServices();
 }
 
 function populateStay() {
@@ -2356,6 +2405,327 @@ async function sendStayMessage() {
   if (!content || !_booking) return;
   input.value = '';
   await sb.from('messages').insert({ booking_id: _booking.id, sender: 'guest', content, read: false });
+}
+
+// ── Services booking ──────────────────────────────────────────────────────
+
+let _services       = [];   // all available experiences
+let _activeSvc      = null; // currently open experience
+let _selectedDate   = null;
+let _selectedSlot   = null;
+let _svcSlots       = [];
+
+async function loadServices() {
+  const { data } = await sb.from('experiences')
+    .select('*')
+    .eq('available', true)
+    .order('sort_order', { ascending: true });
+  _services = data || [];
+
+  const section = document.getElementById('stay-services-section');
+  const list    = document.getElementById('stay-services-list');
+  if (!_services.length) { section.style.display = 'none'; return; }
+
+  section.style.display = '';
+  list.innerHTML = _services.map(s => `
+    <div class="svc-card" onclick="openSvcSheet('${s.id}')">
+      <div class="svc-card-img">
+        ${s.image_url
+          ? `<img src="${escApp(s.image_url)}" alt="${escApp(s.name)}" />`
+          : escApp(s.icon || '🎭')}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="svc-card-name">${escApp(s.name)}</div>
+        <div class="svc-card-meta">${escApp(s.category || '')}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}</div>
+      </div>
+      <div class="svc-card-price">$${s.price || '—'}</div>
+      <div class="svc-card-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function openSvcSheet(svcId) {
+  _activeSvc    = _services.find(s => s.id === svcId);
+  _selectedDate = null;
+  _selectedSlot = null;
+  _svcSlots     = [];
+  if (!_activeSvc) return;
+
+  renderSvcSheet();
+
+  document.getElementById('svc-overlay').classList.add('active');
+  document.getElementById('svc-sheet').classList.add('open');
+}
+
+function closeSvcSheet() {
+  document.getElementById('svc-overlay').classList.remove('active');
+  document.getElementById('svc-sheet').classList.remove('open');
+  _activeSvc = null;
+}
+
+function renderSvcSheet() {
+  const s = _activeSvc;
+  if (!s) return;
+
+  // Date limits: within stay, at least advance_hours from now
+  const minDate  = getMinBookingDate(s.advance_hours || 24);
+  const maxDate  = _booking?.check_out?.split('T')[0] || '';
+  const hasDate  = !!_selectedDate;
+  const hasSlot  = !!_selectedSlot;
+
+  const iconHtml = s.image_url
+    ? `<img src="${escApp(s.image_url)}" alt="" />`
+    : escApp(s.icon || '🎭');
+
+  const slotsHtml = hasDate ? renderSlotsHtml() : '';
+
+  document.getElementById('svc-sheet-content').innerHTML = `
+    <div style="padding:0 20px 24px;">
+      <div class="svc-header">
+        <div class="svc-header-icon">${iconHtml}</div>
+        <div>
+          <div class="svc-header-name">${escApp(s.name)}</div>
+          <div class="svc-header-price">From $${s.price || '—'} / ${escApp(s.price_unit || 'session')}</div>
+        </div>
+      </div>
+
+      ${s.description ? `<p style="font-size:0.85rem;color:var(--muted);line-height:1.6;margin-bottom:20px;">${escApp(s.description)}</p>` : ''}
+
+      <div class="svc-step-label">Pick a date</div>
+      <input class="svc-date-input" type="date"
+        id="svc-date-picker"
+        min="${minDate}" max="${maxDate}"
+        value="${_selectedDate || ''}"
+        onchange="onSvcDateChange(this.value)" />
+
+      ${hasDate ? `
+        <div class="svc-step-label">Available times</div>
+        ${slotsHtml}
+      ` : ''}
+
+      ${hasSlot ? `
+        <div class="svc-step-label">Any notes for the provider?</div>
+        <textarea class="svc-notes" id="svc-notes" placeholder="Allergies, preferences, number of people…"></textarea>
+        <button class="svc-confirm-btn" onclick="confirmSvcBooking()">Confirm Booking — ${escApp(_selectedSlot)}</button>
+      ` : ''}
+
+      <button class="svc-request-btn" onclick="openSvcRequest()">
+        Don't see a time that works? Send a request →
+      </button>
+    </div>
+  `;
+}
+
+function renderSlotsHtml() {
+  if (!_svcSlots.length) {
+    return `<div class="svc-no-slots">Loading availability…</div>`;
+  }
+  const available = _svcSlots.filter(s => s.available);
+  if (!available.length) {
+    return `<div class="svc-no-slots">No available times on this date.<br>Try another date or send a request below.</div>`;
+  }
+  return `<div class="svc-slots-grid">
+    ${_svcSlots.map(sl => `
+      <div class="svc-slot ${sl.available ? 'available' : 'busy'} ${_selectedSlot === sl.time ? 'selected' : ''}"
+           onclick="${sl.available ? `selectSvcSlot('${sl.time}')` : ''}">
+        ${escApp(sl.time)}
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+async function onSvcDateChange(date) {
+  _selectedDate = date;
+  _selectedSlot = null;
+  _svcSlots     = [];
+  renderSvcSheet();
+
+  const s = _activeSvc;
+  try {
+    const res  = await fetch('/.netlify/functions/service-availability', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        icalUrl:         s.ical_url || null,
+        date,
+        durationMinutes: s.duration_minutes || 60,
+        workingStart:    s.working_start || '09:00',
+        workingEnd:      s.working_end || '18:00',
+      }),
+    });
+    const json = await res.json();
+    _svcSlots = json.slots || [];
+  } catch(e) {
+    console.warn('Availability fetch failed', e);
+    _svcSlots = [];
+  }
+  renderSvcSheet();
+}
+
+function selectSvcSlot(time) {
+  _selectedSlot = time;
+  renderSvcSheet();
+  // Scroll to confirm button
+  setTimeout(() => {
+    document.getElementById('svc-sheet').scrollTop = 9999;
+  }, 50);
+}
+
+async function confirmSvcBooking() {
+  const s = _activeSvc;
+  if (!s || !_selectedDate || !_selectedSlot) return;
+
+  const btn = document.querySelector('.svc-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Booking…'; }
+
+  const notes = document.getElementById('svc-notes')?.value?.trim() || '';
+
+  const { error } = await sb.from('service_bookings').insert({
+    experience_id:   s.id,
+    experience_name: s.name,
+    property_id:     _stayProperty?.id || null,
+    property_name:   _stayProperty?.name || null,
+    guest_id:        (await sb.auth.getUser()).data.user?.id || null,
+    guest_name:      _profile?.name || null,
+    guest_email:     (await sb.auth.getUser()).data.user?.email || null,
+    date:            _selectedDate,
+    time:            _selectedSlot,
+    duration_minutes: s.duration_minutes || 60,
+    notes:           notes || null,
+    status:          'pending',
+    is_request:      false,
+  });
+
+  if (error) {
+    showToastMsg('Something went wrong. Please try again.');
+    if (btn) { btn.disabled = false; btn.textContent = `Confirm Booking — ${_selectedSlot}`; }
+    return;
+  }
+
+  // Show success
+  document.getElementById('svc-sheet-content').innerHTML = `
+    <div style="padding:0 20px 32px;">
+      <div class="svc-success">
+        <div class="svc-success-icon">✅</div>
+        <div class="svc-success-title">You're booked!</div>
+        <div class="svc-success-text">
+          ${escApp(s.name)} on ${formatDateReadable(_selectedDate)} at ${escApp(_selectedSlot)}.<br><br>
+          We'll confirm with you shortly via message.
+        </div>
+      </div>
+      <button class="svc-confirm-btn" onclick="closeSvcSheet()">Done</button>
+    </div>
+  `;
+
+  // Notify via host message
+  if (_booking?.id) {
+    await sb.from('messages').insert({
+      booking_id: _booking.id,
+      sender: 'guest',
+      content: `Service booking request: ${s.name} on ${_selectedDate} at ${_selectedSlot}${notes ? ` — "${notes}"` : ''}`,
+      read: false,
+    });
+  }
+}
+
+function openSvcRequest() {
+  const s = _activeSvc;
+  if (!s) return;
+
+  document.getElementById('svc-sheet-content').innerHTML = `
+    <div style="padding:0 20px 24px;">
+      <div class="svc-header" style="margin-bottom:16px;">
+        <div class="svc-header-icon">${s.image_url ? `<img src="${escApp(s.image_url)}" alt="" />` : escApp(s.icon || '🎭')}</div>
+        <div>
+          <div class="svc-header-name">Request: ${escApp(s.name)}</div>
+          <div class="svc-header-price" style="color:var(--muted);">Tell us your preferred time</div>
+        </div>
+      </div>
+
+      <div class="svc-step-label">Preferred date & time</div>
+      <input class="svc-date-input" type="date" id="req-date"
+        min="${getMinBookingDate(s.advance_hours || 24)}"
+        max="${_booking?.check_out?.split('T')[0] || ''}" />
+
+      <div class="svc-step-label" style="margin-top:4px;">Preferred time (approximate)</div>
+      <input class="svc-date-input" type="time" id="req-time" value="10:00" style="margin-bottom:16px;" />
+
+      <div class="svc-step-label">Notes / special requests</div>
+      <textarea class="svc-notes" id="req-notes" placeholder="Number of people, preferences, flexibility…"></textarea>
+
+      <button class="svc-confirm-btn" onclick="submitSvcRequest()">Send Request</button>
+      <button class="svc-request-btn" onclick="renderSvcSheet()">← Back</button>
+    </div>
+  `;
+}
+
+async function submitSvcRequest() {
+  const s = _activeSvc;
+  const date  = document.getElementById('req-date')?.value;
+  const time  = document.getElementById('req-time')?.value;
+  const notes = document.getElementById('req-notes')?.value?.trim() || '';
+
+  const btn = document.querySelector('.svc-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+  const { error } = await sb.from('service_bookings').insert({
+    experience_id:   s.id,
+    experience_name: s.name,
+    property_id:     _stayProperty?.id || null,
+    property_name:   _stayProperty?.name || null,
+    guest_id:        (await sb.auth.getUser()).data.user?.id || null,
+    guest_name:      _profile?.name || null,
+    guest_email:     (await sb.auth.getUser()).data.user?.email || null,
+    date:            date || null,
+    time:            time || null,
+    duration_minutes: s.duration_minutes || 60,
+    notes:           notes || null,
+    status:          'pending',
+    is_request:      true,
+  });
+
+  if (error) {
+    showToastMsg('Something went wrong. Please try again.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Request'; }
+    return;
+  }
+
+  document.getElementById('svc-sheet-content').innerHTML = `
+    <div style="padding:0 20px 32px;">
+      <div class="svc-success">
+        <div class="svc-success-icon">📩</div>
+        <div class="svc-success-title">Request sent!</div>
+        <div class="svc-success-text">
+          We'll check availability with ${escApp(s.name)} and get back to you via message to confirm.
+        </div>
+      </div>
+      <button class="svc-confirm-btn" onclick="closeSvcSheet()">Done</button>
+    </div>
+  `;
+
+  if (_booking?.id) {
+    await sb.from('messages').insert({
+      booking_id: _booking.id,
+      sender: 'guest',
+      content: `Service request: ${s.name}${date ? ` on ${date}` : ''}${time ? ` around ${time}` : ''}${notes ? ` — "${notes}"` : ''}`,
+      read: false,
+    });
+  }
+}
+
+function getMinBookingDate(advanceHours) {
+  const d = new Date(Date.now() + advanceHours * 3_600_000);
+  return d.toISOString().split('T')[0];
+}
+
+function formatDateReadable(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-CA', { weekday: 'short', month: 'long', day: 'numeric' });
+}
+
+function escApp(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 async function requestExtra(type, name, amount) {
