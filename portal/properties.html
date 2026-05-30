@@ -349,8 +349,15 @@
               <input class="admin-input" id="p-guests" type="number" min="1" max="30" value="6" />
             </div>
             <div>
-              <label class="admin-label">Badge</label>
-              <input class="admin-input" id="p-badge" type="text" placeholder="Bonsai Select" />
+              <label class="admin-label">Collection</label>
+              <select class="admin-select" id="p-collection">
+                <option value="">Select collection…</option>
+                <option value="Bonsai Reserve">Bonsai Reserve — Luxury</option>
+                <option value="Bonsai Green">Bonsai Green — Eco-Friendly</option>
+                <option value="Bonsai Originals">Bonsai Originals — Unique Stays</option>
+                <option value="Bonsai Essential">Bonsai Essential — Standard</option>
+                <option value="Bonsai Private Collection">Bonsai Private Collection — Ultra-Premium</option>
+              </select>
             </div>
           </div>
 
@@ -578,6 +585,7 @@ function openModal(propId) {
     document.getElementById('p-bedrooms').value      = p.bedrooms ?? 3;
     document.getElementById('p-bathrooms').value     = p.bathrooms ?? 2;
     document.getElementById('p-guests').value        = p.guests ?? 6;
+    document.getElementById('p-collection').value    = p.collection || '';
     document.getElementById('p-badge').value         = p.badge || '';
     document.getElementById('p-airbnb-url').value    = p.airbnb_url || '';
     document.getElementById('p-vrbo-url').value      = p.vrbo_url || '';
@@ -618,6 +626,7 @@ function openModal(propId) {
     document.getElementById('p-bedrooms').value      = 3;
     document.getElementById('p-bathrooms').value     = 2;
     document.getElementById('p-guests').value        = 6;
+    document.getElementById('p-collection').value    = '';
     document.getElementById('p-badge').value         = '';
     document.getElementById('p-airbnb-url').value    = '';
     document.getElementById('p-vrbo-url').value      = '';
@@ -825,6 +834,7 @@ async function saveProperty() {
     bedrooms:    parseInt(document.getElementById('p-bedrooms').value) || 1,
     bathrooms:   parseInt(document.getElementById('p-bathrooms').value) || 1,
     guests:      parseInt(document.getElementById('p-guests').value) || 2,
+    collection:  document.getElementById('p-collection').value || null,
     badge:       document.getElementById('p-badge').value.trim(),
     airbnb_url:       document.getElementById('p-airbnb-url').value.trim(),
     vrbo_url:         document.getElementById('p-vrbo-url').value.trim(),

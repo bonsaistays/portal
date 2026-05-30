@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Collections — Bonsai Stays</title>
+  <meta name="description" content="Five distinct property collections — from Bonsai Essential to our ultra-premium Private Collection. Every stay is professionally managed to our standard." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .coll-hero {
+      padding: 130px 0 80px;
+      background: var(--green-deep);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .coll-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(161,195,130,0.12) 0%, transparent 70%);
+    }
+    .coll-hero-inner { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; }
+    .coll-hero .eyebrow { color: var(--green-light); }
+    .coll-hero h1 { color: var(--white); margin-bottom: 20px; }
+    .coll-hero h1 em { font-style: italic; color: var(--green-light); }
+    .coll-hero p { color: rgba(255,255,255,0.72); font-size: 1.1rem; line-height: 1.75; max-width: 580px; margin: 0 auto; }
+
+    /* Collection cards */
+    .collections-section { background: var(--cream); padding: 100px 0; }
+    .coll-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--gray-pale);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 40px;
+      transition: var(--transition);
+    }
+    .coll-card:last-child { margin-bottom: 0; }
+    .coll-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+    .coll-card.reverse { direction: rtl; }
+    .coll-card.reverse > * { direction: ltr; }
+
+    .coll-card-img {
+      position: relative;
+      min-height: 380px;
+      overflow: hidden;
+    }
+    .coll-card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+      display: block;
+    }
+    .coll-card:hover .coll-card-img img { transform: scale(1.04); }
+    .coll-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(18,33,12,0.45) 0%, transparent 50%);
+    }
+
+    .coll-badge {
+      position: absolute;
+      top: 20px; left: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      color: var(--white);
+    }
+    .coll-card.reverse .coll-badge { left: auto; right: 20px; }
+
+    .coll-card-body {
+      padding: 48px 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .coll-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 16px;
+      opacity: 0.08;
+      color: var(--green-deep);
+    }
+    .coll-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .coll-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+      font-weight: 600;
+      color: var(--green-deep);
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .coll-tagline {
+      font-size: 0.92rem;
+      color: var(--gray-mid);
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+    .coll-desc {
+      font-size: 0.93rem;
+      line-height: 1.75;
+      color: var(--charcoal);
+      margin-bottom: 28px;
+    }
+    .coll-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .coll-feature-tag {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--gray-pale);
+      color: var(--charcoal);
+      background: var(--cream);
+    }
+    .coll-browse-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--green-deep);
+      text-decoration: none;
+      border-bottom: 1.5px solid currentColor;
+      padding-bottom: 2px;
+      width: fit-content;
+      transition: opacity 0.2s;
+    }
+    .coll-browse-btn:hover { opacity: 0.65; }
+
+    /* Standard line */
+    .standard-bar {
+      background: var(--green-deep);
+      padding: 64px 0;
+      text-align: center;
+    }
+    .standard-bar h2 { color: var(--white); margin-bottom: 16px; }
+    .standard-bar p { color: rgba(255,255,255,0.7); font-size: 1rem; max-width: 580px; margin: 0 auto 36px; line-height: 1.75; }
+    .standard-pillars {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      max-width: 860px;
+      margin: 0 auto;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .standard-pillar {
+      flex: 1;
+      min-width: 160px;
+      padding: 32px 20px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      text-align: center;
+    }
+    .standard-pillar:last-child { border-right: none; }
+    .standard-pillar-icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .standard-pillar-name { font-size: 0.82rem; font-weight: 600; color: var(--white); }
+    .standard-pillar-desc { font-size: 0.74rem; color: rgba(255,255,255,0.5); margin-top: 4px; line-height: 1.5; }
+
+    /* Comparison table */
+    .compare-section { background: var(--white); padding: 100px 0; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .compare-table th {
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--gray-pale);
+      color: var(--charcoal);
+    }
+    .compare-table th:first-child { text-align: left; }
+    .compare-table td {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--gray-pale);
+      color: var(--charcoal);
+    }
+    .compare-table td:first-child { text-align: left; font-weight: 500; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: var(--cream); }
+    .check { color: var(--green-sage); font-weight: 700; }
+    .dash  { color: var(--gray-light); }
+    .compare-col-header { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .compare-col-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* CTA */
+    .coll-cta { background: var(--cream); padding: 96px 0; text-align: center; }
+    .coll-cta h2 { margin-bottom: 16px; }
+    .coll-cta h2 em { font-style: italic; color: var(--green-sage); }
+    .coll-cta p { font-size: 1rem; color: var(--gray-mid); max-width: 480px; margin: 0 auto 36px; line-height: 1.75; }
+    .coll-cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    @media (max-width: 860px) {
+      .coll-card { grid-template-columns: 1fr; }
+      .coll-card.reverse { direction: ltr; }
+      .coll-card-img { min-height: 260px; }
+      .coll-card-body { padding: 32px 28px; }
+      .compare-section { overflow-x: auto; }
+      .standard-pillar { min-width: 130px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:40px;width:auto;" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="properties.html">Properties</a></li>
+      <li><a href="experiences.html">Experiences</a></li>
+      <li><a href="collections.html" style="color:var(--green-sage);font-weight:600;">Collections</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/app/index.html" class="btn btn-primary btn-sm">Guest App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="coll-hero">
+  <div class="coll-hero-inner container">
+    <p class="eyebrow">Our Collections</p>
+    <h1>Five ways to <em>stay</em> with us</h1>
+    <p>Every Bonsai property is professionally managed to our standard. Collections are how we group them — by character, by comfort level, and by the kind of experience you're after.</p>
+  </div>
+</section>
+
+<!-- Collections -->
+<section class="collections-section">
+  <div class="container">
+
+    <!-- 01 — Bonsai Reserve -->
+    <div class="coll-card">
+      <div class="coll-card-img">
+        <img src="https://images.unsplash.com/photo-1600607688969-a5bfcd646154?w=900&q=80&auto=format&fit=crop" alt="Bonsai Reserve" loading="lazy" />
+        <div class="coll-card-overlay"></div>
+        <div class="coll-badge" style="background:rgba(161,130,64,0.9);">Reserve</div>
+      </div>
+      <div class="coll-card-body">
+        <div class="coll-number">01</div>
+        <div class="coll-label" style="color:#a18240;">Luxury</div>
+        <div class="coll-name">Bonsai Reserve</div>
+        <div class="coll-tagline">"Where luxury becomes your norm."</div>
+        <p class="coll-desc">Reserve properties are our flagship luxury tier — thoughtfully designed spaces with premium finishes, designer interiors, and curated amenities that make every stay feel like a special occasion. Expect hotel-grade linens, high-end appliances, and that unmistakable feeling of arriving somewhere exceptional.</p>
+        <div class="coll-features">
+          <span class="coll-feature-tag">Designer interiors</span>
+          <span class="coll-feature-tag">Premium linens</span>
+          <span class="coll-feature-tag">High-end appliances</span>
+          <span class="coll-feature-tag">3+ bedrooms</span>
+          <span class="coll-feature-tag">Concierge support</span>
+        </div>
+        <a href="properties.html" class="coll-browse-btn">Browse Reserve properties →</a>
+      </div>
+    </div>
+
+    <!-- 02 — Bonsai Green -->
+    <div class="coll-card reverse">
+      <div class="coll-card-img">
+        <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80&auto=format&fit=crop" alt="Bonsai Green" loading="lazy" />
+        <div class="coll-card-overlay"></div>
+        <div class="coll-badge" style="background:rgba(61,139,98,0.88);">Green</div>
+      </div>
+      <div class="coll-card-body">
+        <div class="coll-number">02</div>
+        <div class="coll-label" style="color:var(--green-sage);">Eco-Friendly</div>
+        <div class="coll-name">Bonsai Green</div>
+        <div class="coll-tagline">"Luxurious living, lighter footprint."</div>
+        <p class="coll-desc">Green properties are built and operated with the environment in mind. Sustainable materials, energy-conscious design, and deep immersion in the natural landscape. You don't sacrifice comfort — you gain a different kind of richness. These are spaces that make you feel connected to something bigger.</p>
+        <div class="coll-features">
+          <span class="coll-feature-tag">Eco-certified</span>
+          <span class="coll-feature-tag">Nature-immersed</span>
+          <span class="coll-feature-tag">Sustainable materials</span>
+          <span class="coll-feature-tag">Low-impact design</span>
+          <span class="coll-feature-tag">Local sourcing</span>
+        </div>
+        <a href="properties.html" class="coll-browse-btn">Browse Green properties →</a>
+      </div>
+    </div>
+
+    <!-- 03 — Bonsai Originals -->
+    <div class="coll-card">
+      <div class="coll-card-img">
+        <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=900&q=80&auto=format&fit=crop" alt="Bonsai Originals" loading="lazy" />
+        <div class="coll-card-overlay"></div>
+        <div class="coll-badge" style="background:rgba(180,88,48,0.88);">Originals</div>
+      </div>
+      <div class="coll-card-body">
+        <div class="coll-number">03</div>
+        <div class="coll-label" style="color:#b45830;">Unique Stays</div>
+        <div class="coll-name">Bonsai Originals</div>
+        <div class="coll-tagline">"Stays worth writing home about."</div>
+        <p class="coll-desc">Originals are the properties that stop you mid-scroll. Converted heritage barns, bold architectural statements, properties with stories. Each one is genuinely one-of-a-kind — you won't find anything quite like it anywhere else. If you're booking for the experience as much as the destination, this is your collection.</p>
+        <div class="coll-features">
+          <span class="coll-feature-tag">Unique architecture</span>
+          <span class="coll-feature-tag">Heritage character</span>
+          <span class="coll-feature-tag">Memorable design</span>
+          <span class="coll-feature-tag">Instagrammable</span>
+          <span class="coll-feature-tag">One-of-a-kind</span>
+        </div>
+        <a href="properties.html" class="coll-browse-btn">Browse Originals →</a>
+      </div>
+    </div>
+
+    <!-- 04 — Bonsai Essential -->
+    <div class="coll-card reverse">
+      <div class="coll-card-img">
+        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&q=80&auto=format&fit=crop" alt="Bonsai Essential" loading="lazy" />
+        <div class="coll-card-overlay"></div>
+        <div class="coll-badge" style="background:rgba(80,100,120,0.88);">Essential</div>
+      </div>
+      <div class="coll-card-body">
+        <div class="coll-number">04</div>
+        <div class="coll-label" style="color:#506478;">Standard</div>
+        <div class="coll-name">Bonsai Essential</div>
+        <div class="coll-tagline">"Comfort, without compromise."</div>
+        <p class="coll-desc">Essential properties give you everything you actually need — and nothing unnecessary. Well-maintained, professionally cleaned, reliable WiFi, quality beds, fully stocked kitchens. These are honest, comfortable properties managed to the same Bonsai standard, at a price point that makes a great trip accessible.</p>
+        <div class="coll-features">
+          <span class="coll-feature-tag">Great value</span>
+          <span class="coll-feature-tag">Quality linens</span>
+          <span class="coll-feature-tag">Full kitchen</span>
+          <span class="coll-feature-tag">Fast WiFi</span>
+          <span class="coll-feature-tag">Professional cleaning</span>
+        </div>
+        <a href="properties.html" class="coll-browse-btn">Browse Essential properties →</a>
+      </div>
+    </div>
+
+    <!-- 05 — Bonsai Private Collection -->
+    <div class="coll-card" style="border-color:rgba(18,33,12,0.15);box-shadow:0 8px 48px rgba(18,33,12,0.12);">
+      <div class="coll-card-img">
+        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80&auto=format&fit=crop" alt="Bonsai Private Collection" loading="lazy" />
+        <div class="coll-card-overlay" style="background:linear-gradient(to top, rgba(18,33,12,0.65) 0%, transparent 55%);"></div>
+        <div class="coll-badge" style="background:rgba(18,33,12,0.92);">Private Collection</div>
+      </div>
+      <div class="coll-card-body" style="background:var(--green-deep);">
+        <div class="coll-number" style="color:rgba(255,255,255,0.1);opacity:1;">05</div>
+        <div class="coll-label" style="color:var(--green-light);">Ultra-Premium</div>
+        <div class="coll-name" style="color:var(--white);">Bonsai Private Collection</div>
+        <div class="coll-tagline" style="color:rgba(255,255,255,0.55);">"Exceptional, by any measure."</div>
+        <p class="coll-desc" style="color:rgba(255,255,255,0.75);">Our most extraordinary properties. These are estates, compounds, and architectural landmarks that define what a stay can be — private pools, guest houses, full concierge services, and grounds that demand to be explored. Reserved for guests who expect the very best.</p>
+        <div class="coll-features" style="margin-bottom:32px;">
+          <span class="coll-feature-tag" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);">5+ bedrooms</span>
+          <span class="coll-feature-tag" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);">Private pool or hot tub</span>
+          <span class="coll-feature-tag" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);">Full concierge</span>
+          <span class="coll-feature-tag" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);">Estate grounds</span>
+          <span class="coll-feature-tag" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);">Bespoke services</span>
+        </div>
+        <a href="properties.html" class="coll-browse-btn" style="color:var(--green-light);border-color:var(--green-light);">Enquire about Private Collection →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- The Bonsai Standard -->
+<section class="standard-bar">
+  <div class="container">
+    <h2>One standard. Five expressions.</h2>
+    <p>Every property in every collection is held to the same Bonsai standard. The collection tells you the character — the standard tells you what to expect regardless.</p>
+    <div class="standard-pillars">
+      <div class="standard-pillar">
+        <div class="standard-pillar-icon">🧹</div>
+        <div class="standard-pillar-name">Hotel-grade cleaning</div>
+        <div class="standard-pillar-desc">Every stay, every time</div>
+      </div>
+      <div class="standard-pillar">
+        <div class="standard-pillar-icon">🛏️</div>
+        <div class="standard-pillar-name">Quality linens</div>
+        <div class="standard-pillar-desc">Fresh, pressed, restocked</div>
+      </div>
+      <div class="standard-pillar">
+        <div class="standard-pillar-icon">📱</div>
+        <div class="standard-pillar-name">Guest app</div>
+        <div class="standard-pillar-desc">Door access, WiFi, chat</div>
+      </div>
+      <div class="standard-pillar">
+        <div class="standard-pillar-icon">💬</div>
+        <div class="standard-pillar-name">Host support</div>
+        <div class="standard-pillar-desc">Always reachable</div>
+      </div>
+      <div class="standard-pillar">
+        <div class="standard-pillar-icon">✅</div>
+        <div class="standard-pillar-name">Verified quality</div>
+        <div class="standard-pillar-desc">In-person inspected</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison table -->
+<section class="compare-section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:56px;">
+      <p class="eyebrow">At a Glance</p>
+      <h2>Compare collections</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width:220px;">Feature</th>
+            <th>
+              <div class="compare-col-header">
+                <div class="compare-col-dot" style="background:#a18240;"></div>
+                Reserve
+              </div>
+            </th>
+            <th>
+              <div class="compare-col-header">
+                <div class="compare-col-dot" style="background:#3d8b62;"></div>
+                Green
+              </div>
+            </th>
+            <th>
+              <div class="compare-col-header">
+                <div class="compare-col-dot" style="background:#b45830;"></div>
+                Originals
+              </div>
+            </th>
+            <th>
+              <div class="compare-col-header">
+                <div class="compare-col-dot" style="background:#506478;"></div>
+                Essential
+              </div>
+            </th>
+            <th>
+              <div class="compare-col-header">
+                <div class="compare-col-dot" style="background:#121f0c;"></div>
+                Private
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Professional cleaning</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Quality linens &amp; toiletries</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Guest app access</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+          <tr><td>Smart home features</td><td class="check">✓</td><td class="check">✓</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+          <tr><td>Designer interiors</td><td class="check">✓</td><td class="dash">–</td><td class="check">✓</td><td class="dash">–</td><td class="check">✓</td></tr>
+          <tr><td>Eco-certified materials</td><td class="dash">–</td><td class="check">✓</td><td class="dash">–</td><td class="dash">–</td><td class="dash">–</td></tr>
+          <tr><td>Hot tub or pool</td><td class="dash">–</td><td class="dash">–</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+          <tr><td>Concierge services</td><td class="dash">–</td><td class="dash">–</td><td class="dash">–</td><td class="dash">–</td><td class="check">✓</td></tr>
+          <tr><td>Bookable in-stay services</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="coll-cta">
+  <div class="container">
+    <p class="eyebrow">Find Your Stay</p>
+    <h2>Ready to <em>book</em>?</h2>
+    <p>Browse all available properties across our five collections — filter by region, dates, and collection to find your perfect match.</p>
+    <div class="coll-cta-btns">
+      <a href="properties.html" class="btn btn-primary btn-lg">Browse All Properties</a>
+      <a href="about.html" class="btn btn-outline btn-lg">Our Story</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+        <p class="footer-desc">Curated properties and premium guest experiences across Ontario.</p>
+        <div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">P</a></div>
+      </div>
+      <div class="footer-col"><h5>Explore</h5><ul>
+        <li><a href="properties.html">All Properties</a></li>
+        <li><a href="collections.html">Collections</a></li>
+        <li><a href="experiences.html">Experiences</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Company</h5><ul>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="../partners/index.html">For Partners</a></li>
+        <li><a href="../careers.html">Careers</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Guests</h5><ul>
+        <li><a href="/app/index.html">Guest App</a></li>
+        <li><a href="loyalty.html">Loyalty Program</a></li>
+        <li><a href="experiences.html">Book a Service</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Bonsai Stays Inc. All rights reserved.</span>
+      <div style="display:flex;gap:20px;"><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.querySelector('.nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+</script>
+
+</body>
+</html>
