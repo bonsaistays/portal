@@ -33,7 +33,7 @@ async function getGuestyToken() {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept':        'application/json',
       },
-      body: `grant_type=client_credentials&scope=open-api&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
+      body: `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
     });
   } catch (networkErr) {
     throw new Error(`Cannot reach Guesty auth server (${GUESTY_TOKEN_URL}): ${networkErr.message}`);
