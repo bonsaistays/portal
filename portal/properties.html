@@ -586,7 +586,6 @@ function openModal(propId) {
     document.getElementById('p-bathrooms').value     = p.bathrooms ?? 2;
     document.getElementById('p-guests').value        = p.guests ?? 6;
     document.getElementById('p-collection').value    = p.collection || '';
-    document.getElementById('p-badge').value         = p.badge || '';
     document.getElementById('p-airbnb-url').value    = p.airbnb_url || '';
     document.getElementById('p-vrbo-url').value      = p.vrbo_url || '';
     document.getElementById('p-guesty-id').value     = p.guesty_listing_id || '';
@@ -627,7 +626,6 @@ function openModal(propId) {
     document.getElementById('p-bathrooms').value     = 2;
     document.getElementById('p-guests').value        = 6;
     document.getElementById('p-collection').value    = '';
-    document.getElementById('p-badge').value         = '';
     document.getElementById('p-airbnb-url').value    = '';
     document.getElementById('p-vrbo-url').value      = '';
     document.getElementById('p-guesty-id').value     = '';
@@ -835,7 +833,6 @@ async function saveProperty() {
     bathrooms:   parseInt(document.getElementById('p-bathrooms').value) || 1,
     guests:      parseInt(document.getElementById('p-guests').value) || 2,
     collection:  document.getElementById('p-collection').value || null,
-    badge:       document.getElementById('p-badge').value.trim(),
     airbnb_url:       document.getElementById('p-airbnb-url').value.trim(),
     vrbo_url:         document.getElementById('p-vrbo-url').value.trim(),
     guesty_listing_id: document.getElementById('p-guesty-id').value.trim() || null,
