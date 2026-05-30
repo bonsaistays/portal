@@ -152,9 +152,12 @@
           </div>
           <!-- Seam device ID — shown when a smart lock type is selected -->
           <div id="seam-device-row" style="display:none;">
-            <label class="admin-label">Seam Device ID <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">— from console.seam.co → Devices</span></label>
-            <input class="admin-input" id="p-seam-device-id" type="text" placeholder="e.g. d1234abc-56ef-7890-abcd-ef1234567890" />
-            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Paste the Device ID from your Seam Console. The guest app will use this to unlock the door remotely.</div>
+            <label class="admin-label">Smart Lock Device</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="admin-input" id="p-seam-device-id" type="text" placeholder="Device ID — or click Browse to pick" style="flex:1;font-family:monospace;font-size:0.82rem;" />
+              <button type="button" onclick="openDevicePicker('lock')" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 14px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">🔌 Browse</button>
+            </div>
+            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Click <strong>Browse</strong> to pick a connected lock from your Seam account, or paste the device ID manually.</div>
           </div>
 
           <!-- Smart Devices Manager -->
@@ -194,7 +197,10 @@
                 </div>
                 <div>
                   <label class="admin-label">Device ID</label>
-                  <input class="admin-input" id="nd-device-id" type="text" placeholder="Provider device ID" />
+                  <div style="display:flex;gap:8px;">
+                    <input class="admin-input" id="nd-device-id" type="text" placeholder="Device ID — or click Browse" style="flex:1;font-family:monospace;font-size:0.82rem;" />
+                    <button type="button" onclick="openDevicePicker('any', 'nd-device-id')" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 12px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">🔌 Browse</button>
+                  </div>
                 </div>
               </div>
               <div style="display:flex;gap:8px;justify-content:flex-end;">
@@ -420,6 +426,30 @@
     <div class="modal-footer">
       <button class="btn-secondary" onclick="document.getElementById('modal-delete').classList.add('hidden')">Cancel</button>
       <button class="btn-danger" style="padding:11px 22px;" id="confirm-delete-btn" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ Modal: Seam Device Picker ════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-device-picker">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3>Pick a Connected Device</h3>
+      <button class="btn-modal-close" onclick="closeDevicePicker()">✕</button>
+    </div>
+    <div class="modal-body" style="padding-bottom:8px;">
+      <div style="font-size:0.82rem;color:var(--a-gray);margin-bottom:14px;">
+        These are all devices connected to your Seam account. Click one to assign it to this property.
+      </div>
+      <div id="device-picker-list" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;">
+        <div style="text-align:center;padding:24px;font-size:0.85rem;color:var(--a-gray);">Loading devices…</div>
+      </div>
+      <div id="device-picker-error" style="display:none;color:#e05252;font-size:0.82rem;margin-top:10px;"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--a-gray-pale);font-size:0.75rem;color:var(--a-gray);">
+        Don't see your device? Connect it first at
+        <a href="https://console.seam.co" target="_blank" style="color:var(--a-green);">console.seam.co</a> → Connect a Device.
+      </div>
     </div>
   </div>
 </div>
@@ -774,6 +804,77 @@ async function deleteSmartDevice(id) {
   await sb.from('property_smart_devices').delete().eq('id', id);
   await loadSmartDevices(_editingPropertyId);
 }
+
+// ── Seam Device Picker ────────────────────────────────────────────────────
+// targetFieldId: which input to fill when user selects a device
+// filterType: 'lock' | 'thermostat' | 'any'
+let _pickerTargetField = 'p-seam-device-id';
+let _pickerFilterType  = 'lock';
+
+async function openDevicePicker(filterType = 'lock', targetFieldId = 'p-seam-device-id') {
+  _pickerTargetField = targetFieldId;
+  _pickerFilterType  = filterType;
+
+  const modal    = document.getElementById('modal-device-picker');
+  const list     = document.getElementById('device-picker-list');
+  const errEl    = document.getElementById('device-picker-error');
+  modal.classList.remove('hidden');
+  errEl.style.display = 'none';
+  list.innerHTML = '<div style="text-align:center;padding:24px;font-size:0.85rem;color:var(--a-gray);">⏳ Loading devices from Seam…</div>';
+
+  try {
+    const url = '/.netlify/functions/seam-devices' + (filterType !== 'any' ? '?type=' + filterType : '');
+    const res  = await fetch(url);
+    const json = await res.json();
+
+    if (!res.ok || !json.ok) {
+      list.innerHTML = '';
+      errEl.style.display  = 'block';
+      errEl.textContent    = '✗ ' + (json.error || 'Could not load devices');
+      return;
+    }
+
+    if (!json.devices.length) {
+      list.innerHTML = '<div style="text-align:center;padding:24px;font-size:0.85rem;color:var(--a-gray);">No devices found. Connect one at console.seam.co first.</div>';
+      return;
+    }
+
+    list.innerHTML = json.devices.map(d => {
+      const typeIcon = d.device_type?.includes('lock') ? '🔒'
+                     : d.device_type?.includes('thermostat') ? '🌡️'
+                     : '📡';
+      const statusDot = d.online === true ? '<span style="color:#16A34A;">●</span>' : d.online === false ? '<span style="color:#e05252;">●</span>' : '';
+      const meta = [d.manufacturer, d.model].filter(Boolean).join(' · ');
+      return `
+        <div onclick="selectSeamDevice('${d.device_id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--a-border);border-radius:10px;cursor:pointer;background:#fff;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--a-green)'" onmouseout="this.style.borderColor='var(--a-border)'">
+          <div style="font-size:1.4rem;">${typeIcon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.88rem;font-weight:700;color:var(--a-charcoal);">${statusDot} ${escP(d.display_name)}</div>
+            ${meta ? `<div style="font-size:0.74rem;color:var(--a-gray);margin-top:2px;">${escP(meta)}</div>` : ''}
+            <div style="font-size:0.72rem;color:var(--a-gray);font-family:monospace;margin-top:3px;">${d.device_id}</div>
+          </div>
+          <div style="font-size:0.72rem;font-weight:700;color:var(--a-green);background:var(--a-green-tint);padding:4px 10px;border-radius:20px;white-space:nowrap;">Select</div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    list.innerHTML = '';
+    errEl.style.display = 'block';
+    errEl.textContent   = '✗ ' + err.message;
+  }
+}
+
+function selectSeamDevice(deviceId) {
+  const field = document.getElementById(_pickerTargetField);
+  if (field) field.value = deviceId;
+  closeDevicePicker();
+  showToast('✓ Device ID filled in');
+}
+
+function closeDevicePicker() {
+  document.getElementById('modal-device-picker').classList.add('hidden');
+}
+
+function escP(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
