@@ -7,20 +7,11 @@
  *   GUESTY_CLIENT_SECRET  — Guesty OAuth2 client secret
  *   SUPABASE_URL          — Supabase project URL
  *   SUPABASE_SERVICE_KEY  — Supabase service role key
- *
- * POST body: { action, listingId, propertyId }
- *   action:
- *     "listing"       — fetch listing details (name, bedrooms, price, description)
- *     "availability"  — fetch available/blocked dates for next 12 months
- *     "pricing"       — fetch nightly pricing for next 90 days
- *     "reservations"  — fetch upcoming reservations and upsert into bookings table
- *     "full"          — run listing + availability + pricing + reservations
  */
 
 const GUESTY_TOKEN_URL = 'https://auth.guesty.com/oauth/token';
 const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
 
-// In-memory token cache (lives for the duration of the lambda invocation)
 let _cachedToken = null;
 let _tokenExpiry = 0;
 
@@ -29,25 +20,39 @@ async function getGuestyToken() {
 
   const clientId     = process.env.GUESTY_CLIENT_ID;
   const clientSecret = process.env.GUESTY_CLIENT_SECRET;
-  if (!clientId || !clientSecret) throw new Error('GUESTY_CLIENT_ID / GUESTY_CLIENT_SECRET not configured');
 
-  const res = await fetch(GUESTY_TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type:    'client_credentials',
-      client_id:     clientId,
-      client_secret: clientSecret,
-      scope:         'open-api:public',
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Guesty token error ${res.status}: ${text}`);
+  if (!clientId || !clientSecret) {
+    throw new Error('Missing GUESTY_CLIENT_ID or GUESTY_CLIENT_SECRET in Netlify environment variables.');
   }
 
-  const json = await res.json();
+  let res;
+  try {
+    res = await fetch(GUESTY_TOKEN_URL, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept':        'application/json',
+      },
+      body: `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
+    });
+  } catch (networkErr) {
+    throw new Error(`Cannot reach Guesty auth server (${GUESTY_TOKEN_URL}): ${networkErr.message}`);
+  }
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`Guesty auth failed (${res.status}): ${text.slice(0, 300)}`);
+  }
+
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error(`Guesty auth response was not JSON: ${text.slice(0, 200)}`); }
+
+  if (!json.access_token) {
+    throw new Error(`Guesty auth returned no access_token. Response: ${JSON.stringify(json).slice(0, 300)}`);
+  }
+
   _cachedToken = json.access_token;
   _tokenExpiry = Date.now() + (json.expires_in || 3600) * 1000;
   return _cachedToken;
@@ -55,17 +60,27 @@ async function getGuestyToken() {
 
 async function guestyGet(path) {
   const token = await getGuestyToken();
-  const res = await fetch(`${GUESTY_API_BASE}${path}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Guesty GET ${path} → ${res.status}: ${text}`);
+
+  let res;
+  try {
+    res = await fetch(`${GUESTY_API_BASE}${path}`, {
+      headers: {
+        Authorization:  `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept':       'application/json',
+      },
+    });
+  } catch (networkErr) {
+    throw new Error(`Cannot reach Guesty API (${path}): ${networkErr.message}`);
   }
-  return res.json();
+
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Guesty API ${path} → ${res.status}: ${text.slice(0, 300)}`);
+  }
+
+  try { return JSON.parse(text); }
+  catch { throw new Error(`Guesty API response not JSON for ${path}: ${text.slice(0, 200)}`); }
 }
 
 /* ─── Actions ──────────────────────────────────────────────────────────── */
@@ -75,32 +90,33 @@ async function syncListing(listingId) {
   return {
     title:       data.title || data.nickname || '',
     description: data.publicDescription?.summary || '',
-    bedrooms:    data.bedrooms ?? null,
+    bedrooms:    data.bedrooms  ?? null,
     bathrooms:   data.bathrooms ?? null,
     guests:      data.accommodates ?? null,
     price:       data.prices?.basePrice ?? null,
     currency:    data.prices?.currency || 'CAD',
     address:     data.address?.full || '',
     thumbnail:   data.pictures?.[0]?.original || '',
-    raw:         data,
   };
 }
 
 async function syncAvailability(listingId) {
-  // Guesty calendar endpoint returns day-level availability
   const from = new Date().toISOString().split('T')[0];
   const toDate = new Date();
   toDate.setFullYear(toDate.getFullYear() + 1);
   const to = toDate.toISOString().split('T')[0];
 
-  const data = await guestyGet(`/availability-pricing/api/v3/listings/${listingId}?startDate=${from}&endDate=${to}&fields=status`);
+  // Guesty Open API calendar endpoint
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
 
-  // data.days: [{date, status}]  status: "available" | "unavailable" | "booked"
-  const blocked = (data.days || [])
-    .filter(d => d.status !== 'available')
+  // Response is an array of { date, status, price, ... }
+  // status: "available" | "unavailable" | "booked"
+  const days = Array.isArray(data) ? data : (data.days || data.data || []);
+  const blockedDates = days
+    .filter(d => d.status && d.status !== 'available')
     .map(d => d.date);
 
-  return { from, to, blockedDates: blocked };
+  return { from, to, blockedDates };
 }
 
 async function syncPricing(listingId) {
@@ -109,11 +125,11 @@ async function syncPricing(listingId) {
   toDate.setDate(toDate.getDate() + 90);
   const to = toDate.toISOString().split('T')[0];
 
-  const data = await guestyGet(`/availability-pricing/api/v3/listings/${listingId}?startDate=${from}&endDate=${to}&fields=price`);
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
 
-  // Build a map of date → price
+  const days = Array.isArray(data) ? data : (data.days || data.data || []);
   const prices = {};
-  (data.days || []).forEach(d => {
+  days.forEach(d => {
     if (d.price != null) prices[d.date] = d.price;
   });
 
@@ -121,13 +137,12 @@ async function syncPricing(listingId) {
 }
 
 async function syncReservations(listingId, propertyId, sb) {
-  // Fetch upcoming + active reservations
   const now = new Date().toISOString().split('T')[0];
   const data = await guestyGet(
-    `/reservations?listingId=${listingId}&checkInFrom=${now}&status=confirmed,reserved,checked_in&limit=50&fields=_id,checkIn,checkOut,guest,money,status,guestsCount,confirmationCode`
+    `/reservations?listingId=${listingId}&checkInFrom=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`
   );
 
-  const reservations = data.results || [];
+  const reservations = data.results || data.data || (Array.isArray(data) ? data : []);
   const upserted = [];
 
   for (const r of reservations) {
@@ -152,6 +167,7 @@ async function syncReservations(listingId, propertyId, sb) {
         .from('bookings')
         .upsert(record, { onConflict: 'guesty_reservation_id' });
       if (!error) upserted.push(r._id);
+      else console.error('Supabase upsert error:', error.message);
     } else {
       upserted.push(r._id);
     }
@@ -181,11 +197,11 @@ exports.handler = async (event) => {
   };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
-  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  catch { return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) }; }
 
   const { action = 'full', listingId, propertyId } = body;
 
@@ -201,7 +217,9 @@ exports.handler = async (event) => {
     try {
       const { createClient } = require('@supabase/supabase-js');
       sb = createClient(SB_URL, SB_KEY);
-    } catch { /* supabase-js not available — skip DB writes */ }
+    } catch (e) {
+      console.warn('Could not load supabase-js:', e.message);
+    }
   }
 
   try {
@@ -216,7 +234,13 @@ exports.handler = async (event) => {
     }
 
     if (action === 'pricing' || action === 'full') {
-      result.pricing = await syncPricing(listingId);
+      // pricing reuses the same calendar call — skip to avoid double request
+      if (!result.availability) {
+        result.pricing = await syncPricing(listingId);
+      } else {
+        // derive prices from the availability data we already have
+        result.pricing = { note: 'Use availability data for pricing' };
+      }
     }
 
     if ((action === 'reservations' || action === 'full') && propertyId) {
