@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partner With Us — Bonsai Stays</title>
+  <meta name="description" content="Are you a local experience provider or business in Muskoka, Collingwood, or Toronto? Partner with Bonsai Stays to reach premium cottage guests." />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    .nav { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Hero */
+    .biz-hero {
+      padding: 148px 0 100px;
+      background: var(--green-deep);
+      position: relative; overflow: hidden;
+    }
+    .biz-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=70&auto=format&fit=crop') center/cover no-repeat;
+      opacity: 0.15;
+    }
+    .biz-hero-inner { position: relative; z-index: 2; max-width: 680px; }
+    .biz-hero h1 { color: var(--white); margin-bottom: 20px; }
+    .biz-hero h1 em { color: var(--gold-light); font-style: italic; }
+    .biz-hero p { color: rgba(255,255,255,0.78); font-size: 1.08rem; line-height: 1.8; margin-bottom: 36px; max-width: 560px; }
+
+    /* Who we work with */
+    .partner-types {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 64px;
+    }
+    .partner-type-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--gray-pale);
+      padding: 36px 28px;
+      transition: var(--transition);
+    }
+    .partner-type-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); border-color: var(--green-light); }
+    .partner-type-icon { font-size: 2rem; margin-bottom: 16px; }
+    .partner-type-card h3 { font-size: 1.1rem; color: var(--charcoal); margin-bottom: 10px; }
+    .partner-type-card p { font-size: 0.88rem; line-height: 1.65; color: var(--gray-mid); }
+    .partner-type-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .partner-type-tag {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em;
+      background: var(--green-tint); color: var(--green-mid);
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    /* Benefits */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+    .benefit-item {
+      display: flex; gap: 18px; align-items: flex-start;
+    }
+    .benefit-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 600;
+      color: var(--green-light); flex-shrink: 0; line-height: 1;
+    }
+    .benefit-item h4 { font-size: 1rem; color: var(--charcoal); margin-bottom: 7px; }
+    .benefit-item p { font-size: 0.87rem; line-height: 1.65; }
+
+    /* Apply form layout */
+    .apply-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 48px;
+      align-items: flex-start;
+    }
+    .apply-form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--gray-pale);
+      padding: 44px 40px;
+    }
+    .apply-form-card h3 { font-size: 1.5rem; color: var(--charcoal); margin-bottom: 6px; }
+    .apply-form-card > p { font-size: 0.9rem; margin-bottom: 32px; color: var(--gray-mid); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--green-deep); margin-bottom: 8px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--white);
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      padding: 13px 16px;
+      font-size: 0.93rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--charcoal);
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--green-sage); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--gray-light); }
+    .form-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A5A58' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; cursor: pointer; }
+    .form-submit-btn {
+      width: 100%; padding: 17px;
+      background: var(--green-deep); color: var(--white);
+      font-size: 0.95rem; font-weight: 700;
+      border: none; border-radius: var(--radius-sm);
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 8px;
+    }
+    .form-submit-btn:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .form-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .form-note { font-size: 0.78rem; color: var(--gray-light); text-align: center; margin-top: 12px; line-height: 1.5; }
+    .form-error {
+      background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2);
+      color: #B91C1C; font-size: 0.85rem; padding: 12px 16px;
+      border-radius: var(--radius-sm); margin-bottom: 20px;
+    }
+    .form-success { text-align: center; padding: 48px 24px; }
+    .form-success-icon { font-size: 3rem; margin-bottom: 20px; }
+    .form-success h3 { font-size: 1.5rem; color: var(--charcoal); margin-bottom: 10px; }
+    .form-success p { font-size: 0.95rem; max-width: 380px; margin: 0 auto; }
+
+    /* Sidebar */
+    .apply-sidebar { display: flex; flex-direction: column; gap: 24px; }
+    .sidebar-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--gray-pale);
+      padding: 30px 28px;
+    }
+    .sidebar-card h4 { font-size: 1rem; color: var(--charcoal); margin-bottom: 16px; }
+    .sidebar-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.88rem; color: var(--gray-mid); line-height: 1.5;
+    }
+    .sidebar-list li::before { content: '✓'; color: var(--green-sage); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .sidebar-step {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding-bottom: 18px; border-bottom: 1px solid var(--gray-pale); margin-bottom: 18px;
+    }
+    .sidebar-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-tint); color: var(--green-deep);
+      font-size: 0.78rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .step-text h5 { font-size: 0.88rem; color: var(--charcoal); margin-bottom: 3px; }
+    .step-text p { font-size: 0.8rem; color: var(--gray-mid); line-height: 1.5; }
+
+    @media (max-width: 960px) {
+      .partner-types { grid-template-columns: 1fr 1fr; }
+      .apply-layout { grid-template-columns: 1fr; }
+      .apply-sidebar { order: -1; }
+    }
+    @media (max-width: 640px) {
+      .partner-types { grid-template-columns: 1fr; }
+      .benefits-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .apply-form-card { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;" />
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">For Partners</a></li>
+        <li><a href="../guests/experiences.html">Experiences</a></li>
+        <li><a href="../guests/properties.html">Properties</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../guests/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Guests</a>
+      </div>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="biz-hero">
+    <div class="container">
+      <div class="biz-hero-inner">
+        <span class="eyebrow" style="color:var(--gold-light);">Work With Us</span>
+        <h1>Reach guests who are <em>ready to spend.</em></h1>
+        <p>Bonsai Stays guests are premium cottage travellers looking for curated, memorable experiences. If you're a local business, experience provider, or service that fits that world — we'd love to feature you.</p>
+        <a href="#apply" class="btn btn-gold btn-lg">Apply to Partner</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who we work with -->
+  <section class="section" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Who We Work With</span>
+        <h2>Two ways to <em>partner with us.</em></h2>
+        <p class="section-subtitle">Whether you offer in-stay experiences or you're a local spot guests should know about, there's a place for you in the Bonsai network.</p>
+      </div>
+      <div class="partner-types">
+        <div class="partner-type-card">
+          <div class="partner-type-icon">✨</div>
+          <h3>Experience Providers</h3>
+          <p>You offer in-person services that guests can book before or during their stay — delivered right to the property.</p>
+          <div class="partner-type-tags">
+            <span class="partner-type-tag">Private Chef</span>
+            <span class="partner-type-tag">Massage Therapy</span>
+            <span class="partner-type-tag">Yoga & Fitness</span>
+            <span class="partner-type-tag">Wine & Charcuterie</span>
+            <span class="partner-type-tag">Sound Bath</span>
+            <span class="partner-type-tag">Photography</span>
+            <span class="partner-type-tag">Guided Hikes</span>
+          </div>
+        </div>
+        <div class="partner-type-card">
+          <div class="partner-type-icon">🏡</div>
+          <h3>Local Businesses</h3>
+          <p>You run a shop, restaurant, attraction, or service that guests in your region should discover during their stay.</p>
+          <div class="partner-type-tags">
+            <span class="partner-type-tag">Restaurants & Cafés</span>
+            <span class="partner-type-tag">Farmers Markets</span>
+            <span class="partner-type-tag">Boutique Shops</span>
+            <span class="partner-type-tag">Wineries & Breweries</span>
+            <span class="partner-type-tag">Outdoor Activities</span>
+            <span class="partner-type-tag">Spas & Wellness</span>
+          </div>
+        </div>
+        <div class="partner-type-card">
+          <div class="partner-type-icon">🛒</div>
+          <h3>Product & Pantry</h3>
+          <p>You make or supply local products — food, beverages, artisan goods — that could be stocked or sold through the Bonsai guest shop.</p>
+          <div class="partner-type-tags">
+            <span class="partner-type-tag">Local Producers</span>
+            <span class="partner-type-tag">Artisan Goods</span>
+            <span class="partner-type-tag">Specialty Foods</span>
+            <span class="partner-type-tag">Beverages</span>
+            <span class="partner-type-tag">Pantry Staples</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section class="section">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+        <div>
+          <span class="eyebrow">Why Partner With Us</span>
+          <h2>Built-in access to <em>the right guests.</em></h2>
+          <div class="divider divider-left"></div>
+          <p style="margin-bottom:40px;">Bonsai Stays guests are high-intent travellers with disposable income, actively looking for premium local experiences. Being featured in our app and local guides puts you in front of them at exactly the right moment.</p>
+          <div class="benefits-grid">
+            <div class="benefit-item">
+              <div class="benefit-num">01</div>
+              <div>
+                <h4>Featured in the guest app</h4>
+                <p>Every Bonsai guest sees your listing in the Explore tab of our app during their stay.</p>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-num">02</div>
+              <div>
+                <h4>Local guide placement</h4>
+                <p>Your business appears on the property page for every cottage in your region.</p>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-num">03</div>
+              <div>
+                <h4>Pre-arrival bookings</h4>
+                <p>Experience providers get bookings placed before guests even arrive — no chasing clients.</p>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-num">04</div>
+              <div>
+                <h4>No listing fees</h4>
+                <p>We don't charge to be featured. We only succeed when our guests and partners do.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80&auto=format&fit=crop" alt="Local business partner" style="width:100%;border-radius:var(--radius-lg);box-shadow:var(--shadow-hover);" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Application Form -->
+  <section class="section" id="apply" style="background:var(--cream);">
+    <div class="container">
+      <div class="section-header text-center" style="margin-bottom:48px;">
+        <span class="eyebrow">Get Started</span>
+        <h2>Tell us about <em>your business.</em></h2>
+        <p class="section-subtitle">Fill out the form and we'll be in touch within 2 business days.</p>
+      </div>
+      <div class="apply-layout">
+
+        <!-- Form -->
+        <div class="apply-form-card">
+          <h3>Business Application</h3>
+          <p>Tell us a bit about what you offer and how you'd like to work together.</p>
+          <div id="biz-form-body">
+            <div id="biz-error" class="form-error" style="display:none;"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Business name *</label>
+                <input class="form-input" id="biz-name" type="text" placeholder="e.g. Muskoka Massage Co." autocomplete="organization" />
+              </div>
+              <div class="form-group">
+                <label>Your name *</label>
+                <input class="form-input" id="biz-contact" type="text" placeholder="First & last name" autocomplete="name" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email address *</label>
+                <input class="form-input" id="biz-email" type="email" placeholder="you@yourbusiness.com" autocomplete="email" />
+              </div>
+              <div class="form-group">
+                <label>Phone number</label>
+                <input class="form-input" id="biz-phone" type="tel" placeholder="+1 (705) 000-0000" autocomplete="tel" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Partnership type *</label>
+                <select class="form-select" id="biz-type">
+                  <option value="">Select…</option>
+                  <option value="experience">Experience provider (in-stay service)</option>
+                  <option value="local_business">Local business (restaurant, shop, attraction)</option>
+                  <option value="product">Product / pantry supplier</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Region *</label>
+                <select class="form-select" id="biz-region">
+                  <option value="">Select…</option>
+                  <option value="Muskoka">Muskoka / Cottage Country</option>
+                  <option value="Collingwood">Collingwood / Blue Mountain</option>
+                  <option value="Toronto">Toronto</option>
+                  <option value="Multiple">Multiple regions</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Website or Instagram</label>
+              <input class="form-input" id="biz-website" type="text" placeholder="https:// or @handle" />
+            </div>
+            <div class="form-group">
+              <label>Tell us what you offer *</label>
+              <textarea class="form-textarea" id="biz-description" placeholder="Describe your business, what you offer, pricing if relevant, and what makes you a great fit for Bonsai guests…"></textarea>
+            </div>
+            <button class="form-submit-btn" id="biz-submit" onclick="submitBizApplication()">Submit Application →</button>
+            <p class="form-note">We review every application personally and respond within 2 business days.</p>
+          </div>
+          <div id="biz-success" class="form-success hidden">
+            <div class="form-success-icon">🌿</div>
+            <h3>Application received!</h3>
+            <p>Thanks for reaching out. We'll review your application and get back to you within 2 business days at <strong id="biz-success-email"></strong>.</p>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="apply-sidebar">
+          <div class="sidebar-card">
+            <h4>What happens next</h4>
+            <div class="sidebar-step">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                <h5>We review your application</h5>
+                <p>Our team looks at every submission to make sure it's a good fit for our guests.</p>
+              </div>
+            </div>
+            <div class="sidebar-step">
+              <div class="step-num">2</div>
+              <div class="step-text">
+                <h5>We reach out within 2 days</h5>
+                <p>If it looks like a fit, we'll schedule a quick call to learn more about what you offer.</p>
+              </div>
+            </div>
+            <div class="sidebar-step">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                <h5>We get you listed</h5>
+                <p>You're added to the guest app, local guides, and property pages in your region.</p>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-card">
+            <h4>Good to know</h4>
+            <ul class="sidebar-list">
+              <li>No listing fees or upfront costs</li>
+              <li>You set your own pricing and availability</li>
+              <li>Experience providers get bookings handled through our team</li>
+              <li>We work with businesses across Muskoka, Collingwood, and Toronto</li>
+              <li>Questions? Email <a href="mailto:info@bonsaistays.com" style="color:var(--green-sage);font-weight:500;">info@bonsaistays.com</a></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Ontario's premier short-term rental operations partner.</p>
+          <div class="footer-social"><a href="#">in</a><a href="#">f</a><a href="#">Li</a></div>
+        </div>
+        <div class="footer-col"><h5>Partners</h5><ul><li><a href="index.html">Overview</a></li><li><a href="services.html">Services</a></li><li><a href="index.html#packages">Packages</a></li><li><a href="for-businesses.html">For Businesses</a></li></ul></div>
+        <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="../guests/index.html">For Guests</a></li><li><a href="../careers.html">Careers</a></li><li><a href="../contact.html">Contact</a></li></ul></div>
+        <div class="footer-col"><h5>Regions</h5><ul><li><a href="#">Muskoka / Cottage Country</a></li><li><a href="#">Collingwood / Wasaga Beach</a></li><li><a href="#">Toronto</a></li></ul></div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Bonsai Stays Inc. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/nav.js"></script>
+  <script>
+    const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+    const { createClient } = window.supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function submitBizApplication() {
+      const name        = document.getElementById('biz-name').value.trim();
+      const contact     = document.getElementById('biz-contact').value.trim();
+      const email       = document.getElementById('biz-email').value.trim();
+      const phone       = document.getElementById('biz-phone').value.trim();
+      const type        = document.getElementById('biz-type').value;
+      const region      = document.getElementById('biz-region').value;
+      const website     = document.getElementById('biz-website').value.trim();
+      const description = document.getElementById('biz-description').value.trim();
+
+      const errEl = document.getElementById('biz-error');
+      errEl.style.display = 'none';
+
+      if (!name)        return showErr('Please enter your business name.');
+      if (!contact)     return showErr('Please enter your name.');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('Please enter a valid email address.');
+      if (!type)        return showErr('Please select a partnership type.');
+      if (!region)      return showErr('Please select your region.');
+      if (!description) return showErr('Please tell us about your business.');
+
+      const btn = document.getElementById('biz-submit');
+      btn.disabled = true; btn.textContent = 'Submitting…';
+
+      const { error } = await sb.from('business_applications').insert({
+        business_name: name,
+        contact_name:  contact,
+        email,
+        phone:         phone || null,
+        partner_type:  type,
+        region,
+        website:       website || null,
+        description,
+      });
+
+      if (error) {
+        showErr('Something went wrong. Please try again or email us at info@bonsaistays.com');
+        btn.disabled = false; btn.textContent = 'Submit Application →';
+        return;
+      }
+
+      gtag('event', 'business_application', { partner_type: type, region });
+      document.getElementById('biz-success-email').textContent = email;
+      document.getElementById('biz-form-body').classList.add('hidden');
+      document.getElementById('biz-success').classList.remove('hidden');
+      window.scrollTo({ top: document.getElementById('apply').offsetTop - 80, behavior: 'smooth' });
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('biz-error');
+      el.textContent = msg; el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  </script>
+</body>
+</html>
