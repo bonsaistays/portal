@@ -107,7 +107,7 @@ async function syncAvailability(listingId) {
   const to = toDate.toISOString().split('T')[0];
 
   // booking.guesty.com v2 calendar endpoint
-  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}&fields=date,status,price`);
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
 
   // Response: { results: [{date, status, price}] } or array
   const days = Array.isArray(data) ? data : (data.results || data.days || data.data || []);
@@ -124,7 +124,7 @@ async function syncPricing(listingId) {
   toDate.setDate(toDate.getDate() + 90);
   const to = toDate.toISOString().split('T')[0];
 
-  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}&fields=date,price`);
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
 
   const days = Array.isArray(data) ? data : (data.results || data.days || data.data || []);
   const prices = {};
