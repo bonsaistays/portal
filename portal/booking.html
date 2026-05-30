@@ -80,8 +80,10 @@
           <div class="detail-row"><span class="detail-row-label">Check-out</span><span class="detail-row-value" id="d-checkout">—</span></div>
           <div class="detail-row"><span class="detail-row-label">Nights</span><span class="detail-row-value" id="d-nights">—</span></div>
           <div class="detail-row"><span class="detail-row-label">Door code</span>
-            <span class="detail-row-value">
+            <span class="detail-row-value" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <span id="d-doorcode" style="font-size:1.1rem;font-weight:800;letter-spacing:0.1em;color:var(--a-green);">—</span>
+              <button id="btn-gen-code" onclick="generateDoorCode()" style="display:none;font-size:0.72rem;background:var(--a-green);color:#fff;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;white-space:nowrap;">🔑 Generate Code</button>
+              <span id="gen-code-status" style="font-size:0.75rem;color:var(--a-gray);"></span>
             </span>
           </div>
         </div>
@@ -263,6 +265,16 @@ function populatePage() {
   document.getElementById('d-nights').textContent   = nights + ' night' + (nights !== 1 ? 's' : '');
   document.getElementById('d-doorcode').textContent = b.door_code || '—';
 
+  // Show "Generate Code" button if property has a Seam smart lock and no code yet
+  const hasLock = !!(p.seam_device_id);
+  const genBtn  = document.getElementById('btn-gen-code');
+  if (hasLock) {
+    genBtn.style.display = 'inline-block';
+    genBtn.textContent   = b.door_code ? '🔑 Regenerate' : '🔑 Generate Code';
+  } else {
+    genBtn.style.display = 'none';
+  }
+
   const link = location.origin + '/portal/guest/?token=' + b.token;
   document.getElementById('d-guestlink').textContent = link;
 }
@@ -372,6 +384,59 @@ async function saveEdit() {
   closeModal('modal-edit');
   await loadBooking();
   showToast('✓ Booking updated');
+}
+
+// ── Smart Lock: Auto-generate door code via Seam ─────────────────────────
+async function generateDoorCode() {
+  const b   = booking;
+  const p   = b.properties || {};
+  const btn = document.getElementById('btn-gen-code');
+  const sts = document.getElementById('gen-code-status');
+
+  if (!p.seam_device_id) {
+    sts.textContent = '✗ No smart lock linked to this property';
+    return;
+  }
+
+  btn.disabled    = true;
+  btn.textContent = '⏳ Generating…';
+  sts.textContent = '';
+
+  try {
+    const res = await fetch('/.netlify/functions/generate-access-code', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        device_id:  p.seam_device_id,
+        booking_id: b.id,
+        guest_name: b.guest_name || '',
+        check_in:   b.check_in,
+        check_out:  b.check_out,
+      }),
+    });
+    const json = await res.json();
+
+    if (!res.ok || !json.ok) {
+      sts.textContent = '✗ ' + (json.error || 'Unknown error');
+      btn.disabled    = false;
+      btn.textContent = '🔑 Retry';
+      return;
+    }
+
+    // Update local booking + UI
+    booking.door_code = json.pin;
+    document.getElementById('d-doorcode').textContent = json.pin;
+    document.getElementById('edit-doorcode').value    = json.pin;
+    btn.textContent = '🔑 Regenerate';
+    btn.disabled    = false;
+    sts.textContent = '✓ Code saved to guest portal';
+    setTimeout(() => { sts.textContent = ''; }, 4000);
+    showToast('✓ Door code generated: ' + json.pin);
+  } catch (err) {
+    sts.textContent = '✗ ' + err.message;
+    btn.disabled    = false;
+    btn.textContent = '🔑 Retry';
+  }
 }
 
 async function cancelBooking() {
