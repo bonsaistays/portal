@@ -30,10 +30,15 @@ async function getGuestyToken() {
     res = await fetch(GUESTY_TOKEN_URL, {
       method:  'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
         'Accept':        'application/json',
       },
-      body: `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
+      body: JSON.stringify({
+        grant_type:    'client_credentials',
+        client_id:     clientId,
+        client_secret: clientSecret,
+        audience:      'https://open-api.guesty.com',
+      }),
     });
   } catch (networkErr) {
     throw new Error(`Cannot reach Guesty auth server (${GUESTY_TOKEN_URL}): ${networkErr.message}`);
