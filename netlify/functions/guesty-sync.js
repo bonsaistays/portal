@@ -9,7 +9,7 @@
  *   SUPABASE_SERVICE_KEY  — Supabase service role key
  */
 
-const GUESTY_TOKEN_URL = 'https://auth.guesty.com/oauth/token';
+const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
 const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
 
 let _cachedToken = null;
@@ -30,15 +30,10 @@ async function getGuestyToken() {
     res = await fetch(GUESTY_TOKEN_URL, {
       method:  'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'Accept':        'application/json',
       },
-      body: JSON.stringify({
-        grant_type:    'client_credentials',
-        client_id:     clientId,
-        client_secret: clientSecret,
-        audience:      'https://open-api.guesty.com',
-      }),
+      body: `grant_type=client_credentials&scope=open-api&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
     });
   } catch (networkErr) {
     throw new Error(`Cannot reach Guesty auth server (${GUESTY_TOKEN_URL}): ${networkErr.message}`);
