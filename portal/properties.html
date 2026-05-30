@@ -100,9 +100,20 @@
             <label class="admin-label">Description <span style="font-weight:400;color:var(--a-gray);">(shown on the property page)</span></label>
             <textarea class="admin-textarea" id="p-description" style="min-height:120px;" placeholder="Describe the property — its character, setting, what makes it special…"></textarea>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <input type="checkbox" id="p-active" checked style="width:16px;height:16px;accent-color:var(--a-sage);" />
-            <label for="p-active" style="font-size:0.85rem;color:var(--a-charcoal);cursor:pointer;">Property is active</label>
+          <!-- Visibility toggle -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--a-bg);border:1.5px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+            <div>
+              <div style="font-size:0.85rem;font-weight:700;color:var(--a-charcoal);">Listed on site</div>
+              <div style="font-size:0.75rem;color:var(--a-gray);margin-top:2px;">Hidden properties won't appear on the guest properties page.</div>
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;">
+              <span id="p-active-label" style="font-size:0.8rem;font-weight:600;color:var(--a-gray);">Hidden</span>
+              <div style="position:relative;width:44px;height:24px;" onclick="toggleActiveSwitch()">
+                <input type="checkbox" id="p-active" checked style="opacity:0;position:absolute;width:0;height:0;" />
+                <div id="p-active-track" style="position:absolute;inset:0;border-radius:12px;background:var(--a-border);transition:background 0.2s;"></div>
+                <div id="p-active-thumb" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.2s;"></div>
+              </div>
+            </label>
           </div>
         </div>
       </div>
@@ -515,7 +526,7 @@ function openModal(propId) {
     document.getElementById('p-address').value       = p.address || '';
     _propertyPhotos = Array.isArray(p.photos) && p.photos.length ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
     document.getElementById('p-description').value   = p.description || '';
-    document.getElementById('p-active').checked      = p.active !== false;
+    setActiveSwitchState(p.active !== false);
     // Access
     document.getElementById('p-wifi-name').value     = p.wifi_name || '';
     document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
@@ -569,7 +580,7 @@ function openModal(propId) {
     document.getElementById('p-address').value       = '';
     _propertyPhotos = [];
     document.getElementById('p-description').value   = '';
-    document.getElementById('p-active').checked      = true;
+    setActiveSwitchState(true);
     document.getElementById('p-wifi-name').value     = '';
     document.getElementById('p-wifi-pass').value     = '';
     document.getElementById('p-door-code').value     = '';
@@ -613,6 +624,30 @@ function openModal(propId) {
 }
 
 function closeModal() { document.getElementById('modal-property').classList.add('hidden'); }
+
+function toggleActiveSwitch() {
+  const cb    = document.getElementById('p-active');
+  const track = document.getElementById('p-active-track');
+  const thumb = document.getElementById('p-active-thumb');
+  const label = document.getElementById('p-active-label');
+  cb.checked = !cb.checked;
+  track.style.background = cb.checked ? 'var(--a-green)' : 'var(--a-border)';
+  thumb.style.transform  = cb.checked ? 'translateX(20px)' : 'translateX(0)';
+  label.textContent      = cb.checked ? 'Listed' : 'Hidden';
+  label.style.color      = cb.checked ? 'var(--a-green)' : 'var(--a-gray)';
+}
+
+function setActiveSwitchState(isActive) {
+  const track = document.getElementById('p-active-track');
+  const thumb = document.getElementById('p-active-thumb');
+  const label = document.getElementById('p-active-label');
+  const cb    = document.getElementById('p-active');
+  cb.checked             = isActive;
+  track.style.background = isActive ? 'var(--a-green)' : 'var(--a-border)';
+  thumb.style.transform  = isActive ? 'translateX(20px)' : 'translateX(0)';
+  label.textContent      = isActive ? 'Listed' : 'Hidden';
+  label.style.color      = isActive ? 'var(--a-green)' : 'var(--a-gray)';
+}
 
 function toggleSeamField() {
   const lockType = document.getElementById('p-lock-type').value;
