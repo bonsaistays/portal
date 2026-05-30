@@ -10,7 +10,7 @@
  */
 
 const GUESTY_TOKEN_URL = 'https://booking.guesty.com/oauth2/token';
-const GUESTY_API_BASE  = 'https://booking.guesty.com/api/v2';
+const GUESTY_API_BASE  = 'https://booking.guesty.com/api';
 
 let _cachedToken = null;
 let _tokenExpiry = 0;
@@ -136,6 +136,11 @@ async function syncPricing(listingId) {
 }
 
 async function syncReservations(listingId, propertyId, sb) {
+  // booking.guesty.com is a booking-engine API — reservation list not available
+  // Return a note rather than failing the whole sync
+  return { total: 0, upserted: 0, note: 'Reservation sync not available on this API plan' };
+
+  /* eslint-disable no-unreachable */
   const now = new Date().toISOString().split('T')[0];
   const data = await guestyGet(
     `/reservations?listingId=${listingId}&checkIn[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`
