@@ -210,6 +210,73 @@
             </div>
           </div>
 
+          <!-- Ecobee Thermostat -->
+          <div style="border:1.5px solid var(--a-border);border-radius:12px;padding:16px;background:var(--a-bg);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:1.1rem;">🌡️</span>
+                <div>
+                  <div style="font-size:0.85rem;font-weight:700;color:var(--a-charcoal);">Ecobee Thermostat</div>
+                  <div id="ecobee-conn-status" style="font-size:0.72rem;color:var(--a-gray);">Not connected</div>
+                </div>
+              </div>
+              <button type="button" id="ecobee-conn-btn" onclick="startEcobeeConnect()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:6px 14px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;">Connect Ecobee</button>
+            </div>
+
+            <!-- Thermostat picker — shown once connected -->
+            <div id="ecobee-thermostat-row" style="display:none;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select class="admin-select" id="p-ecobee-thermostat-id" style="flex:1;">
+                  <option value="">Select thermostat…</option>
+                </select>
+                <button type="button" onclick="loadEcobeeThermostatList()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:700;padding:0 12px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;white-space:nowrap;">↻ Refresh</button>
+              </div>
+              <div class="admin-form-row" style="margin-top:4px;">
+                <div>
+                  <label class="admin-label" style="font-size:0.7rem;">Owner Heat setpoint (°F)</label>
+                  <input class="admin-input" id="p-ecobee-owner-heat" type="number" min="50" max="80" placeholder="65" style="font-size:0.9rem;" />
+                  <div style="font-size:0.68rem;color:var(--a-gray);margin-top:3px;">Set when guests leave</div>
+                </div>
+                <div>
+                  <label class="admin-label" style="font-size:0.7rem;">Owner Cool setpoint (°F)</label>
+                  <input class="admin-input" id="p-ecobee-owner-cool" type="number" min="65" max="90" placeholder="78" style="font-size:0.9rem;" />
+                </div>
+              </div>
+              <div class="admin-form-row">
+                <div>
+                  <label class="admin-label" style="font-size:0.7rem;">Default Guest Heat (°F)</label>
+                  <input class="admin-input" id="p-ecobee-guest-heat" type="number" min="60" max="78" placeholder="70" style="font-size:0.9rem;" />
+                  <div style="font-size:0.68rem;color:var(--a-gray);margin-top:3px;">Applied 2h before check-in</div>
+                </div>
+                <div>
+                  <label class="admin-label" style="font-size:0.7rem;">Default Guest Cool (°F)</label>
+                  <input class="admin-input" id="p-ecobee-guest-cool" type="number" min="68" max="82" placeholder="74" style="font-size:0.9rem;" />
+                </div>
+              </div>
+              <!-- Live temp readout -->
+              <div id="ecobee-live-row" style="display:none;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:14px;">
+                <span style="font-size:1.6rem;">🌡️</span>
+                <div>
+                  <div style="font-size:1.1rem;font-weight:800;color:#166534;" id="ecobee-live-temp">—</div>
+                  <div style="font-size:0.72rem;color:#166534;" id="ecobee-live-mode">—</div>
+                </div>
+                <button type="button" onclick="refreshEcobeeStatus()" style="margin-left:auto;font-size:0.72rem;background:none;border:1px solid #86EFAC;color:#166534;padding:4px 10px;border-radius:6px;cursor:pointer;">↻ Refresh</button>
+              </div>
+            </div>
+
+            <!-- OAuth PIN flow UI -->
+            <div id="ecobee-pin-flow" style="display:none;margin-top:12px;background:#FFFBF0;border:1px solid #E8D5A3;border-radius:10px;padding:14px;">
+              <div style="font-size:0.82rem;font-weight:700;color:#7A5900;margin-bottom:8px;">Step 1 — Enter this PIN on ecobee.com</div>
+              <div id="ecobee-pin-display" style="font-size:2rem;font-weight:900;letter-spacing:0.25em;color:#7A5900;font-family:monospace;margin:8px 0;"></div>
+              <div style="font-size:0.75rem;color:#7A5900;margin-bottom:12px;">Go to <strong>ecobee.com</strong> → My Apps → Add Application → enter this PIN. Then click Authorize below.</div>
+              <div style="display:flex;gap:8px;">
+                <button type="button" onclick="authorizeEcobee()" style="background:#7A5900;color:#fff;font-size:0.8rem;font-weight:700;padding:8px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;">✓ Authorize</button>
+                <button type="button" onclick="cancelEcobeeConnect()" style="background:none;border:1px solid var(--a-border);color:var(--a-gray);font-size:0.8rem;font-weight:600;padding:8px 14px;border-radius:var(--radius-sm);cursor:pointer;">Cancel</button>
+              </div>
+              <div id="ecobee-pin-err" style="font-size:0.78rem;color:#e05252;margin-top:8px;display:none;"></div>
+            </div>
+          </div>
+
           <div>
             <label class="admin-label">Arrival instructions <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">(shown to guests on arrival tab)</span></label>
             <textarea class="admin-textarea" id="p-checkin-inst" style="min-height:130px;" placeholder="e.g. Park in the right side of the driveway. The lockbox is to the right of the front door — use your 4-digit door code. Firewood is stacked on the side deck. The key fob for the gate is on the kitchen counter."></textarea>
@@ -584,6 +651,8 @@ function openModal(propId) {
     toggleSeamField();
     loadSmartDevices(p.id);
     document.getElementById('p-checkin-inst').value  = p.check_in_instructions || '';
+    // Ecobee
+    loadEcobeeSection(p);
     // Guest info
     document.getElementById('p-checkout-inst').value = p.checkout_instructions || '';
     document.getElementById('p-host-phone').value    = p.host_phone || '';
@@ -639,6 +708,7 @@ function openModal(propId) {
     loadSmartDevices(null); // hide smart devices section for new property
     document.getElementById('p-checkin-inst').value  = '';
     document.getElementById('p-checkout-inst').value = '';
+    loadEcobeeSection(null);
     document.getElementById('p-host-phone').value    = '';
     document.getElementById('p-rules').value         = '';
     document.getElementById('p-cancellation').value  = '';
@@ -874,6 +944,150 @@ function closeDevicePicker() {
   document.getElementById('modal-device-picker').classList.add('hidden');
 }
 
+// ── Ecobee Integration ────────────────────────────────────────────────────
+let _ecobeeCode = null;  // holds the code from the PIN step
+
+async function ecobeeCall(action, params = {}) {
+  const r = await fetch('/.netlify/functions/ecobee', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...params }),
+  });
+  return r.json();
+}
+
+async function loadEcobeeSection(property) {
+  const thermostatRow = document.getElementById('ecobee-thermostat-row');
+  const connStatus    = document.getElementById('ecobee-conn-status');
+  const connBtn       = document.getElementById('ecobee-conn-btn');
+  const pinFlow       = document.getElementById('ecobee-pin-flow');
+  if (!thermostatRow) return;
+
+  pinFlow.style.display = 'none';
+
+  if (!property) {
+    // New property form — reset
+    thermostatRow.style.display = 'none';
+    connStatus.textContent      = 'Not connected';
+    connBtn.textContent         = 'Connect Ecobee';
+    return;
+  }
+
+  // Check if Ecobee account is linked (tokens in DB)
+  try {
+    const res = await ecobeeCall('list');
+    if (res.ok) {
+      connStatus.textContent      = '✓ Ecobee account connected';
+      connStatus.style.color      = '#16A34A';
+      connBtn.textContent         = 'Reconnect';
+      thermostatRow.style.display = 'flex';
+      renderThermostatOptions(res.thermostats, property.ecobee_thermostat_id);
+
+      // Fill temperature preferences
+      if (property.ecobee_owner_heat_f) document.getElementById('p-ecobee-owner-heat').value = property.ecobee_owner_heat_f;
+      if (property.ecobee_owner_cool_f) document.getElementById('p-ecobee-owner-cool').value = property.ecobee_owner_cool_f;
+      if (property.ecobee_guest_heat_f) document.getElementById('p-ecobee-guest-heat').value = property.ecobee_guest_heat_f;
+      if (property.ecobee_guest_cool_f) document.getElementById('p-ecobee-guest-cool').value = property.ecobee_guest_cool_f;
+
+      // Show live temp if a thermostat is selected
+      if (property.ecobee_thermostat_id) refreshEcobeeStatus(property.ecobee_thermostat_id);
+    } else {
+      connStatus.textContent = 'Not connected — ' + (res.error || '');
+      thermostatRow.style.display = 'none';
+    }
+  } catch {
+    connStatus.textContent      = 'Not connected';
+    thermostatRow.style.display = 'none';
+  }
+}
+
+function renderThermostatOptions(thermostats, selectedId) {
+  const sel = document.getElementById('p-ecobee-thermostat-id');
+  sel.innerHTML = '<option value="">Select thermostat…</option>' +
+    thermostats.map(t => `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${t.name} (${t.actual_f ? t.actual_f + '°F' : '—'})</option>`).join('');
+}
+
+async function loadEcobeeThermostatList() {
+  const res = await ecobeeCall('list');
+  if (!res.ok) return showToast('✗ ' + res.error);
+  const sel = document.getElementById('p-ecobee-thermostat-id');
+  const current = sel.value;
+  renderThermostatOptions(res.thermostats, current);
+  showToast('✓ Thermostats refreshed');
+}
+
+async function refreshEcobeeStatus(thermostatId) {
+  const id = thermostatId || document.getElementById('p-ecobee-thermostat-id')?.value;
+  if (!id) return;
+  const liveRow = document.getElementById('ecobee-live-row');
+  try {
+    const res = await ecobeeCall('status', { thermostat_id: id });
+    if (res.ok) {
+      liveRow.style.display = 'flex';
+      document.getElementById('ecobee-live-temp').textContent =
+        res.actual_f ? `${res.actual_f}°F  (${res.actual_c}°C)` : '—';
+      document.getElementById('ecobee-live-mode').textContent =
+        `Mode: ${res.hvac_mode || '—'} · Heat: ${res.heat_set_f || '—'}°F · Cool: ${res.cool_set_f || '—'}°F`;
+    } else {
+      liveRow.style.display = 'none';
+    }
+  } catch { liveRow.style.display = 'none'; }
+}
+
+async function startEcobeeConnect() {
+  const connBtn  = document.getElementById('ecobee-conn-btn');
+  const pinFlow  = document.getElementById('ecobee-pin-flow');
+  const pinDisp  = document.getElementById('ecobee-pin-display');
+  const pinErr   = document.getElementById('ecobee-pin-err');
+  connBtn.textContent = '⏳ Getting PIN…';
+  connBtn.disabled    = true;
+  pinErr.style.display = 'none';
+
+  const res = await ecobeeCall('pin');
+  connBtn.disabled = false;
+  connBtn.textContent = 'Connect Ecobee';
+
+  if (!res.ok) {
+    showToast('✗ ' + res.error);
+    return;
+  }
+  _ecobeeCode         = res.code;
+  pinDisp.textContent = res.pin;
+  pinFlow.style.display = 'block';
+}
+
+async function authorizeEcobee() {
+  if (!_ecobeeCode) return;
+  const pinErr = document.getElementById('ecobee-pin-err');
+  const authBtn = document.querySelector('#ecobee-pin-flow button');
+  authBtn.textContent = '⏳ Authorizing…';
+  authBtn.disabled    = true;
+  pinErr.style.display = 'none';
+
+  const res = await ecobeeCall('token', { code: _ecobeeCode });
+  authBtn.textContent = '✓ Authorize';
+  authBtn.disabled    = false;
+
+  if (!res.ok) {
+    pinErr.textContent    = '✗ ' + (res.error || 'Authorization failed. Did you enter the PIN on ecobee.com first?');
+    pinErr.style.display  = 'block';
+    return;
+  }
+
+  cancelEcobeeConnect();
+  showToast('✓ Ecobee connected!');
+  // Reload the thermostat section
+  await loadEcobeeThermostatList();
+  document.getElementById('ecobee-thermostat-row').style.display = 'flex';
+  document.getElementById('ecobee-conn-status').textContent = '✓ Ecobee account connected';
+  document.getElementById('ecobee-conn-status').style.color = '#16A34A';
+}
+
+function cancelEcobeeConnect() {
+  document.getElementById('ecobee-pin-flow').style.display = 'none';
+  _ecobeeCode = null;
+}
+
 function escP(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
@@ -939,6 +1153,12 @@ async function saveProperty() {
     guesty_listing_id: document.getElementById('p-guesty-id').value.trim() || null,
     featured:    document.getElementById('p-featured').checked,
     ical_urls:   collectIcalUrls(),
+    // Ecobee thermostat
+    ecobee_thermostat_id: document.getElementById('p-ecobee-thermostat-id')?.value || null,
+    ecobee_owner_heat_f:  parseInt(document.getElementById('p-ecobee-owner-heat')?.value) || null,
+    ecobee_owner_cool_f:  parseInt(document.getElementById('p-ecobee-owner-cool')?.value) || null,
+    ecobee_guest_heat_f:  parseInt(document.getElementById('p-ecobee-guest-heat')?.value) || null,
+    ecobee_guest_cool_f:  parseInt(document.getElementById('p-ecobee-guest-cool')?.value) || null,
   };
 
   let error;

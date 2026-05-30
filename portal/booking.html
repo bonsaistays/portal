@@ -89,6 +89,41 @@
         </div>
       </div>
 
+      <!-- Thermostat -->
+      <div class="detail-card" id="thermostat-card" style="display:none;">
+        <div class="detail-card-header">
+          <h3>🌡️ Thermostat</h3>
+          <button onclick="refreshThermostat()" style="font-size:0.75rem;background:none;border:1px solid var(--a-border);color:var(--a-gray);padding:4px 10px;border-radius:6px;cursor:pointer;">↻ Refresh</button>
+        </div>
+        <div class="detail-card-body">
+          <div class="detail-row">
+            <span class="detail-row-label">Current temp</span>
+            <span class="detail-row-value" id="therm-current">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row-label">Mode</span>
+            <span class="detail-row-value" id="therm-mode">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row-label">Setpoints</span>
+            <span class="detail-row-value" id="therm-setpoints">—</span>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--a-gray);display:block;margin-bottom:4px;">Heat °F</label>
+              <input type="number" id="set-heat" min="50" max="80" placeholder="70" style="width:70px;padding:7px 10px;border:1.5px solid var(--a-border);border-radius:8px;font-size:0.9rem;text-align:center;" />
+            </div>
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--a-gray);display:block;margin-bottom:4px;">Cool °F</label>
+              <input type="number" id="set-cool" min="65" max="85" placeholder="74" style="width:70px;padding:7px 10px;border:1.5px solid var(--a-border);border-radius:8px;font-size:0.9rem;text-align:center;" />
+            </div>
+            <button onclick="applyThermostatSet()" style="align-self:flex-end;background:var(--a-green);color:#fff;font-size:0.8rem;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;">Apply Now</button>
+            <button onclick="revertThermostat()" style="align-self:flex-end;background:none;border:1px solid var(--a-border);color:var(--a-gray);font-size:0.78rem;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;">↩ Revert to Owner</button>
+          </div>
+          <div id="therm-status" style="font-size:0.78rem;color:var(--a-gray);margin-top:8px;"></div>
+        </div>
+      </div>
+
       <!-- Guest portal link -->
       <div class="detail-card">
         <div class="detail-card-header"><h3>Guest Portal Link</h3></div>
@@ -277,6 +312,9 @@ function populatePage() {
 
   const link = location.origin + '/portal/guest/?token=' + b.token;
   document.getElementById('d-guestlink').textContent = link;
+
+  // Load thermostat if property has Ecobee
+  loadThermostat();
 }
 
 // ── Purchases ─────────────────────────────────────────────────────────────
@@ -384,6 +422,69 @@ async function saveEdit() {
   closeModal('modal-edit');
   await loadBooking();
   showToast('✓ Booking updated');
+}
+
+// ── Ecobee Thermostat ─────────────────────────────────────────────────────
+async function ecobeeCall(action, params = {}) {
+  const r = await fetch('/.netlify/functions/ecobee', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...params }),
+  });
+  return r.json();
+}
+
+async function loadThermostat() {
+  const p = booking?.properties || {};
+  if (!p.ecobee_thermostat_id) return;
+  document.getElementById('thermostat-card').style.display = 'block';
+  await refreshThermostat();
+}
+
+async function refreshThermostat() {
+  const p  = booking?.properties || {};
+  if (!p.ecobee_thermostat_id) return;
+  const sts = document.getElementById('therm-status');
+  sts.textContent = '⏳ Loading…';
+  const res = await ecobeeCall('status', { thermostat_id: p.ecobee_thermostat_id });
+  if (res.ok) {
+    document.getElementById('therm-current').textContent  = res.actual_f ? `${res.actual_f}°F  (${res.actual_c}°C)` : '—';
+    document.getElementById('therm-mode').textContent     = res.hvac_mode || '—';
+    document.getElementById('therm-setpoints').textContent= `Heat ${res.heat_set_f || '—'}°F · Cool ${res.cool_set_f || '—'}°F`;
+    sts.textContent = '';
+  } else {
+    sts.textContent = '✗ ' + res.error;
+  }
+}
+
+async function applyThermostatSet() {
+  const p     = booking?.properties || {};
+  const heatF = parseFloat(document.getElementById('set-heat').value);
+  const coolF = parseFloat(document.getElementById('set-cool').value);
+  const sts   = document.getElementById('therm-status');
+  if (!p.ecobee_thermostat_id) return;
+  sts.textContent = '⏳ Applying…';
+  const res = await ecobeeCall('set', { thermostat_id: p.ecobee_thermostat_id, heat_temp_f: heatF || undefined, cool_temp_f: coolF || undefined });
+  if (res.ok) {
+    sts.textContent = '✓ Temperature set';
+    showToast('✓ Thermostat updated');
+    setTimeout(refreshThermostat, 3000);
+  } else {
+    sts.textContent = '✗ ' + res.error;
+  }
+}
+
+async function revertThermostat() {
+  const p   = booking?.properties || {};
+  const sts = document.getElementById('therm-status');
+  if (!p.ecobee_thermostat_id) return;
+  sts.textContent = '⏳ Reverting…';
+  await ecobeeCall('resume', { thermostat_id: p.ecobee_thermostat_id });
+  if (p.ecobee_owner_heat_f || p.ecobee_owner_cool_f) {
+    await ecobeeCall('set', { thermostat_id: p.ecobee_thermostat_id, heat_temp_f: p.ecobee_owner_heat_f, cool_temp_f: p.ecobee_owner_cool_f });
+  }
+  sts.textContent = '✓ Reverted to owner temperature';
+  showToast('✓ Thermostat reverted');
+  setTimeout(refreshThermostat, 3000);
 }
 
 // ── Smart Lock: Auto-generate door code via Seam ─────────────────────────

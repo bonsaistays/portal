@@ -5,6 +5,9 @@
 [functions]
   directory = "netlify/functions"
 
+[functions."ecobee-scheduler"]
+  schedule = "*/30 * * * *"
+
 [[headers]]
   for = "/data/*"
   [headers.values]

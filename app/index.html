@@ -1321,6 +1321,40 @@
             <div id="stay-services-list"></div>
           </div>
 
+          <!-- Thermostat -->
+          <div class="stay-section" id="app-therm-section" style="display:none;">
+            <div class="stay-section-title">🌡️ Thermostat</div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:14px;padding:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div>
+                  <div id="app-therm-temp" style="font-size:2.2rem;font-weight:800;color:var(--gold);">—</div>
+                  <div id="app-therm-mode" style="font-size:0.78rem;color:var(--muted);margin-top:2px;">—</div>
+                </div>
+                <button onclick="appRefreshTherm()" style="background:rgba(255,255,255,0.08);color:var(--muted);font-size:0.75rem;padding:6px 12px;border-radius:8px;border:1px solid var(--border);">↻ Refresh</button>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-end;">
+                <div style="flex:1;">
+                  <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Heat °F</div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button onclick="adjustTherm('heat',-1)" style="width:34px;height:34px;background:rgba(255,255,255,0.08);color:var(--white);font-size:1.1rem;border-radius:8px;border:1px solid var(--border);">−</button>
+                    <span id="app-therm-heat" style="font-size:1rem;font-weight:700;min-width:32px;text-align:center;">—</span>
+                    <button onclick="adjustTherm('heat',+1)" style="width:34px;height:34px;background:rgba(255,255,255,0.08);color:var(--white);font-size:1.1rem;border-radius:8px;border:1px solid var(--border);">+</button>
+                  </div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Cool °F</div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button onclick="adjustTherm('cool',-1)" style="width:34px;height:34px;background:rgba(255,255,255,0.08);color:var(--white);font-size:1.1rem;border-radius:8px;border:1px solid var(--border);">−</button>
+                    <span id="app-therm-cool" style="font-size:1rem;font-weight:700;min-width:32px;text-align:center;">—</span>
+                    <button onclick="adjustTherm('cool',+1)" style="width:34px;height:34px;background:rgba(255,255,255,0.08);color:var(--white);font-size:1.1rem;border-radius:8px;border:1px solid var(--border);">+</button>
+                  </div>
+                </div>
+                <button onclick="appApplyTherm()" id="app-therm-apply-btn" style="background:var(--gold);color:#1C0A06;font-size:0.8rem;font-weight:800;padding:10px 14px;border-radius:10px;border:none;white-space:nowrap;">Apply</button>
+              </div>
+              <div id="app-therm-status" style="font-size:0.75rem;color:var(--muted);margin-top:10px;min-height:18px;"></div>
+            </div>
+          </div>
+
           <!-- Extras -->
           <div class="stay-section">
             <div class="stay-section-title">✨ Request Extras</div>
@@ -2029,6 +2063,7 @@ async function loadStay() {
   loadStayMessages();
   subscribeStayChat();
   loadServices();
+  loadAppThermostat();
 }
 
 function populateStay() {
@@ -2995,6 +3030,73 @@ function showToast(msg) {
 }
 
 boot();
+
+// ── App Thermostat (Ecobee) ───────────────────────────────────────────────
+let _appThermHeat = null;
+let _appThermCool = null;
+
+async function appEcobee(action, params = {}) {
+  const r = await fetch('/.netlify/functions/ecobee', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...params }),
+  });
+  return r.json();
+}
+
+async function loadAppThermostat() {
+  const p = _booking?.properties || _property || {};
+  if (!p.ecobee_thermostat_id) return;
+  document.getElementById('app-therm-section').style.display = 'block';
+  await appRefreshTherm();
+}
+
+async function appRefreshTherm() {
+  const p   = _booking?.properties || _property || {};
+  const sts = document.getElementById('app-therm-status');
+  if (!p.ecobee_thermostat_id) return;
+  sts.textContent = '⏳ Loading…';
+  const res = await appEcobee('status', { thermostat_id: p.ecobee_thermostat_id });
+  if (res.ok) {
+    document.getElementById('app-therm-temp').textContent = res.actual_f ? `${res.actual_f}°F` : '—';
+    document.getElementById('app-therm-mode').textContent = res.hvac_mode ? `Mode: ${res.hvac_mode}` : '';
+    _appThermHeat = parseInt(res.heat_set_f) || 70;
+    _appThermCool = parseInt(res.cool_set_f) || 74;
+    document.getElementById('app-therm-heat').textContent = _appThermHeat;
+    document.getElementById('app-therm-cool').textContent = _appThermCool;
+    sts.textContent = '';
+  } else {
+    sts.textContent = '✗ Could not load thermostat';
+  }
+}
+
+function adjustTherm(which, delta) {
+  if (which === 'heat') {
+    _appThermHeat = Math.min(80, Math.max(50, (_appThermHeat || 70) + delta));
+    document.getElementById('app-therm-heat').textContent = _appThermHeat;
+  } else {
+    _appThermCool = Math.min(85, Math.max(65, (_appThermCool || 74) + delta));
+    document.getElementById('app-therm-cool').textContent = _appThermCool;
+  }
+}
+
+async function appApplyTherm() {
+  const p   = _booking?.properties || _property || {};
+  const btn = document.getElementById('app-therm-apply-btn');
+  const sts = document.getElementById('app-therm-status');
+  if (!p.ecobee_thermostat_id) return;
+  btn.textContent = '⏳';
+  btn.disabled    = true;
+  const res = await appEcobee('set', { thermostat_id: p.ecobee_thermostat_id, heat_temp_f: _appThermHeat, cool_temp_f: _appThermCool });
+  btn.textContent = 'Apply';
+  btn.disabled    = false;
+  if (res.ok) {
+    sts.textContent = '✓ Temperature updated';
+    showToast('✓ Thermostat set');
+    setTimeout(appRefreshTherm, 4000);
+  } else {
+    sts.textContent = '✗ ' + res.error;
+  }
+}
 </script>
 </body>
 </html>
