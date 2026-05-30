@@ -9,8 +9,8 @@
  *   SUPABASE_SERVICE_KEY  — Supabase service role key
  */
 
-const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
-const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
+const GUESTY_TOKEN_URL = 'https://booking.guesty.com/oauth2/token';
+const GUESTY_API_BASE  = 'https://booking.guesty.com/api/v2';
 
 let _cachedToken = null;
 let _tokenExpiry = 0;
@@ -106,12 +106,11 @@ async function syncAvailability(listingId) {
   toDate.setFullYear(toDate.getFullYear() + 1);
   const to = toDate.toISOString().split('T')[0];
 
-  // Guesty Open API calendar endpoint
-  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
+  // booking.guesty.com v2 calendar endpoint
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}&fields=date,status,price`);
 
-  // Response is an array of { date, status, price, ... }
-  // status: "available" | "unavailable" | "booked"
-  const days = Array.isArray(data) ? data : (data.days || data.data || []);
+  // Response: { results: [{date, status, price}] } or array
+  const days = Array.isArray(data) ? data : (data.results || data.days || data.data || []);
   const blockedDates = days
     .filter(d => d.status && d.status !== 'available')
     .map(d => d.date);
@@ -125,9 +124,9 @@ async function syncPricing(listingId) {
   toDate.setDate(toDate.getDate() + 90);
   const to = toDate.toISOString().split('T')[0];
 
-  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}&fields=date,price`);
 
-  const days = Array.isArray(data) ? data : (data.days || data.data || []);
+  const days = Array.isArray(data) ? data : (data.results || data.days || data.data || []);
   const prices = {};
   days.forEach(d => {
     if (d.price != null) prices[d.date] = d.price;
@@ -139,7 +138,7 @@ async function syncPricing(listingId) {
 async function syncReservations(listingId, propertyId, sb) {
   const now = new Date().toISOString().split('T')[0];
   const data = await guestyGet(
-    `/reservations?listingId=${listingId}&checkInFrom=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`
+    `/reservations?listingId=${listingId}&checkIn[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`
   );
 
   const reservations = data.results || data.data || (Array.isArray(data) ? data : []);
