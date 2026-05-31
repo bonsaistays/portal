@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refer a Friend — Bonsai Stays</title>
+  <meta name="description" content="Share Bonsai Stays with friends and earn credits toward your next stay. Give $50, get $50 — it's that simple." />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+    /* ── Nav ─────────────────────────────────────────────────── */
+    .nav { background: transparent; }
+    .nav.scrolled { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .ref-hero {
+      min-height: 560px;
+      background: var(--green-deep);
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 140px 0 100px;
+    }
+    .ref-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 70% 50%, rgba(196,149,106,0.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 60% at 10% 80%, rgba(184,212,160,0.10) 0%, transparent 60%);
+    }
+    .ref-hero-inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      width: 100%;
+    }
+    .ref-hero-text .eyebrow { color: var(--gold-light); }
+    .ref-hero-text h1 { color: var(--white); margin-bottom: 20px; }
+    .ref-hero-text h1 em { font-style: italic; color: var(--gold); }
+    .ref-hero-text p { color: rgba(255,255,255,0.72); font-size: 1.05rem; line-height: 1.8; margin-bottom: 32px; max-width: 480px; }
+    .ref-hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* Hero illustration card */
+    .ref-hero-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+    .ref-reward-card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      text-align: center;
+      width: 100%;
+      max-width: 340px;
+    }
+    .ref-reward-card .reward-icon { font-size: 2.4rem; margin-bottom: 12px; }
+    .ref-reward-card .reward-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .ref-reward-card .reward-label { font-size: 0.88rem; color: rgba(255,255,255,0.6); }
+    .ref-reward-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      width: 100%;
+      max-width: 340px;
+    }
+    .ref-reward-divider::before,
+    .ref-reward-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.1); }
+    .ref-reward-card.give { background: rgba(201,164,90,0.12); border-color: rgba(201,164,90,0.3); }
+    .ref-reward-card.get { background: rgba(123,160,91,0.12); border-color: rgba(123,160,91,0.3); }
+    .ref-reward-card.get .reward-amount { color: var(--green-light); }
+
+    /* ── How It Works ────────────────────────────────────────── */
+    .how-section { background: var(--cream); padding: 100px 0; }
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 56px;
+      position: relative;
+    }
+    .steps-row::before {
+      content: '';
+      position: absolute;
+      top: 36px;
+      left: calc(16.66% + 20px);
+      right: calc(16.66% + 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--green-sage), var(--gold));
+      z-index: 0;
+    }
+    .step-card {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--green-deep);
+      color: var(--white);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 20px rgba(44,74,30,0.3);
+    }
+    .step-card h4 { margin-bottom: 10px; font-size: 1.05rem; }
+    .step-card p { font-size: 0.9rem; max-width: 220px; margin: 0 auto; }
+
+    /* ── Rewards Section ─────────────────────────────────────── */
+    .rewards-section { background: var(--white); padding: 100px 0; }
+    .rewards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 56px;
+    }
+    .reward-tier {
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-md);
+      padding: 36px 28px;
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .reward-tier:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); border-color: var(--green-sage); }
+    .reward-tier.featured {
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+      color: var(--white);
+    }
+    .reward-tier.featured::before {
+      content: 'Most Popular';
+      position: absolute;
+      top: 16px; right: -26px;
+      background: var(--gold);
+      color: var(--green-deep);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 36px;
+      transform: rotate(45deg);
+    }
+    .reward-tier-icon { font-size: 2rem; margin-bottom: 14px; }
+    .reward-tier h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .reward-tier .reward-tier-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--green-mid);
+      line-height: 1;
+      margin: 12px 0 6px;
+    }
+    .reward-tier.featured .reward-tier-amount { color: var(--gold); }
+    .reward-tier .reward-tier-sub { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 20px; }
+    .reward-tier.featured .reward-tier-sub { color: rgba(255,255,255,0.6); }
+    .reward-tier ul { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .reward-tier li { font-size: 0.88rem; display: flex; align-items: flex-start; gap: 10px; }
+    .reward-tier li::before { content: '✓'; color: var(--green-sage); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .reward-tier.featured li { color: rgba(255,255,255,0.85); }
+    .reward-tier.featured li::before { color: var(--gold-light); }
+
+    /* ── Referral Link Box ───────────────────────────────────── */
+    .link-section { background: var(--cream); padding: 100px 0; }
+    .link-box {
+      max-width: 680px;
+      margin: 48px auto 0;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      box-shadow: var(--shadow-card);
+      text-align: center;
+    }
+    .link-box .link-prompt {
+      font-size: 0.9rem;
+      color: var(--gray-mid);
+      margin-bottom: 24px;
+    }
+    .link-display {
+      display: flex;
+      align-items: center;
+      background: var(--cream);
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .link-display input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 14px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      color: var(--charcoal);
+      outline: none;
+    }
+    .link-display button {
+      background: var(--green-deep);
+      color: var(--white);
+      border: none;
+      padding: 14px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .link-display button:hover { background: var(--green-mid); }
+    .share-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--gray-pale);
+      background: var(--white);
+      color: var(--charcoal);
+      transition: var(--transition);
+      text-decoration: none;
+    }
+    .share-btn:hover { border-color: var(--green-sage); color: var(--green-deep); background: var(--green-tint); }
+    .link-note { font-size: 0.78rem; color: var(--gray-light); }
+
+    /* Guest not logged in */
+    .login-prompt {
+      background: var(--green-tint);
+      border: 1px solid var(--green-sage);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .login-prompt p { font-size: 0.9rem; color: var(--green-deep); margin-bottom: 14px; }
+
+    /* ── Stats ticker ────────────────────────────────────────── */
+    .stats-band { background: var(--green-deep); padding: 56px 0; }
+    .stats-inner { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; text-align: center; }
+    .stat-item { padding: 24px; border-right: 1px solid rgba(255,255,255,0.1); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      display: block;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+
+    /* ── Property owner referral ─────────────────────────────── */
+    .owner-section { background: var(--white); padding: 100px 0; }
+    .owner-card {
+      background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+      border-radius: var(--radius-xl);
+      padding: 72px 80px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 60px;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .owner-card::after {
+      content: '🏡';
+      position: absolute;
+      right: 60px; bottom: -20px;
+      font-size: 8rem;
+      opacity: 0.08;
+      line-height: 1;
+    }
+    .owner-card-text { position: relative; z-index: 2; }
+    .owner-card-text .eyebrow { color: var(--gold-light); margin-bottom: 12px; }
+    .owner-card-text h2 { color: var(--white); margin-bottom: 16px; }
+    .owner-card-text h2 em { font-style: italic; color: var(--gold); }
+    .owner-card-text p { color: rgba(255,255,255,0.72); max-width: 560px; margin-bottom: 32px; font-size: 1rem; }
+    .owner-perks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .owner-perk { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: rgba(255,255,255,0.85); }
+    .owner-perk-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .owner-amount { position: relative; z-index: 2; flex-shrink: 0; text-align: center; }
+    .owner-amount .big-num { font-family: 'Playfair Display', serif; font-size: 4rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .owner-amount .big-label { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
+
+    /* ── FAQ ─────────────────────────────────────────────────── */
+    .faq-section { background: var(--cream); padding: 100px 0; }
+    .faq-grid { max-width: 760px; margin: 56px auto 0; }
+    .faq-item { border-bottom: 1px solid var(--gray-pale); }
+    .faq-q {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 22px 0;
+      text-align: left;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: color var(--transition);
+    }
+    .faq-q:hover { color: var(--green-deep); }
+    .faq-q .faq-icon { font-size: 1.2rem; flex-shrink: 0; transition: transform 0.25s; color: var(--green-sage); }
+    .faq-q.open .faq-icon { transform: rotate(45deg); }
+    .faq-a { display: none; padding: 0 0 20px; }
+    .faq-a p { font-size: 0.92rem; line-height: 1.8; color: var(--gray-mid); }
+    .faq-a.open { display: block; }
+
+    /* ── CTA Band ────────────────────────────────────────────── */
+    .ref-cta { background: var(--green-deep); padding: 100px 0; text-align: center; }
+    .ref-cta h2 { color: var(--white); margin-bottom: 16px; }
+    .ref-cta h2 em { font-style: italic; color: var(--gold); }
+    .ref-cta p { color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; margin: 0 auto 36px; }
+
+    /* ── Mobile ──────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .ref-hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .ref-hero-visual { display: none; }
+      .steps-row { grid-template-columns: 1fr; }
+      .steps-row::before { display: none; }
+      .rewards-grid { grid-template-columns: 1fr; }
+      .owner-card { grid-template-columns: 1fr; padding: 48px 36px; gap: 32px; }
+      .owner-amount { text-align: left; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+    }
+    @media (max-width: 600px) {
+      .link-box { padding: 32px 20px; }
+      .link-display { flex-direction: column; border-radius: var(--radius-sm); }
+      .link-display input { width: 100%; }
+      .link-display button { width: 100%; }
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .stat-item:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;filter:brightness(0) invert(1);" id="navLogo" />
+        <span class="nav-badge guest">Guests</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="properties.html">Properties</a></li>
+        <li><a href="experiences.html">Experiences</a></li>
+        <li><a href="collections.html">Collections</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="loyalty.html">Bon Voyage</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../partners/list-your-property.html" class="btn btn-primary" style="padding:10px 18px;font-size:0.82rem;">List My Property</a>
+        <a href="../partners/index.html" class="btn btn-outline" style="padding:10px 18px;font-size:0.82rem;">For Partners</a>
+      </div>
+      <div class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- HERO -->
+  <section class="ref-hero">
+    <div class="ref-hero-inner">
+      <div class="ref-hero-text">
+        <span class="eyebrow">Referral Program</span>
+        <h1>Share the stay,<br><em>share the reward.</em></h1>
+        <p>Invite a friend to Bonsai Stays and you both win. For every friend who completes their first booking, you'll each receive $50 in stay credit — no limits, no expiry.</p>
+        <div class="ref-hero-cta">
+          <a href="#get-link" class="btn btn-primary" style="background:var(--gold);color:var(--green-deep);border-color:var(--gold);">Get My Referral Link</a>
+          <a href="#how-it-works" class="btn btn-outline" style="border-color:rgba(255,255,255,0.3);color:var(--white);">How it works</a>
+        </div>
+      </div>
+      <div class="ref-hero-visual">
+        <div class="ref-reward-card give">
+          <div class="reward-icon">🎁</div>
+          <div class="reward-amount">$50</div>
+          <div class="reward-label">Your friend gets off their first stay</div>
+        </div>
+        <div class="ref-reward-divider">and</div>
+        <div class="ref-reward-card get">
+          <div class="reward-icon">✨</div>
+          <div class="reward-amount">$50</div>
+          <div class="reward-label">You earn toward your next stay</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- STATS -->
+  <div class="stats-band">
+    <div class="container">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <span class="stat-num">$50</span>
+          <span class="stat-label">Credit per successful referral</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">∞</span>
+          <span class="stat-label">No cap on how many friends you refer</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">12mo</span>
+          <span class="stat-label">Credit validity after earning</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">24h</span>
+          <span class="stat-label">Credit lands in your account</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">The Process</span>
+        <h2>Three steps to free nights</h2>
+        <p>It takes less than a minute to share — and the rewards last a year.</p>
+      </div>
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h4>Get your link</h4>
+          <p>Sign in below to generate your unique referral link — personalised to you.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h4>Share with friends</h4>
+          <p>Send by text, email, Instagram, or wherever your friends spend time.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h4>Both get rewarded</h4>
+          <p>Once their first stay is complete, you both receive $50 stay credit automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- REFERRAL LINK BOX -->
+  <section class="link-section" id="get-link">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Your Referral Link</span>
+        <h2>Start earning today</h2>
+        <p>Your personal link is ready to share — every friend who books through it earns you credit.</p>
+      </div>
+      <div class="link-box">
+        <!-- Shown when not logged in -->
+        <div id="ref-login-prompt" class="login-prompt">
+          <p>Sign in to your Bonsai Stays account to get your unique referral link.</p>
+          <a href="../app/index.html" class="btn btn-primary" style="display:inline-flex;">Sign In to Get My Link</a>
+        </div>
+
+        <!-- Shown when logged in (populated by JS) -->
+        <div id="ref-link-area" style="display:none;">
+          <p class="link-prompt">Your unique referral link — share it anywhere:</p>
+          <div class="link-display">
+            <input type="text" id="ref-link-input" readonly value="" />
+            <button onclick="copyRefLink()">📋 Copy</button>
+          </div>
+          <div class="share-btns">
+            <a class="share-btn" id="share-whatsapp" href="#" target="_blank">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+              WhatsApp
+            </a>
+            <a class="share-btn" id="share-email" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              Email
+            </a>
+            <a class="share-btn" id="share-sms" href="#">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Text Message
+            </a>
+          </div>
+          <p class="link-note" id="ref-stats-line">—</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- REWARD TIERS -->
+  <section class="rewards-section" id="rewards">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Earn More</span>
+        <h2>The more you share,<br>the more you earn</h2>
+        <p>Referral rewards stack — refer multiple friends and watch your credits grow.</p>
+      </div>
+      <div class="rewards-grid">
+        <div class="reward-tier">
+          <div class="reward-tier-icon">🌱</div>
+          <h3>First Referral</h3>
+          <div class="reward-tier-amount">$50</div>
+          <div class="reward-tier-sub">per successful booking</div>
+          <ul>
+            <li>$50 stay credit for you</li>
+            <li>$50 credit for your friend</li>
+            <li>Valid for 12 months</li>
+            <li>Stackable with Bon Voyage points</li>
+          </ul>
+          <a href="#get-link" class="btn btn-primary" style="width:100%;justify-content:center;">Get Started</a>
+        </div>
+        <div class="reward-tier featured">
+          <div class="reward-tier-icon">🌿</div>
+          <h3>5+ Referrals</h3>
+          <div class="reward-tier-amount">$75</div>
+          <div class="reward-tier-sub">per successful booking</div>
+          <ul>
+            <li>$75 stay credit for you</li>
+            <li>$50 credit for your friend</li>
+            <li>Priority concierge access</li>
+            <li>Bon Voyage points multiplier ×2</li>
+          </ul>
+          <a href="#get-link" class="btn" style="width:100%;justify-content:center;background:var(--gold);color:var(--green-deep);border:none;">Start Referring</a>
+        </div>
+        <div class="reward-tier">
+          <div class="reward-tier-icon">🏡</div>
+          <h3>Refer an Owner</h3>
+          <div class="reward-tier-amount">$250</div>
+          <div class="reward-tier-sub">when their property goes live</div>
+          <ul>
+            <li>$250 credit for you</li>
+            <li>Owner gets onboarding support</li>
+            <li>No minimum stay required</li>
+            <li>Tracks automatically</li>
+          </ul>
+          <a href="#owner-referral" class="btn btn-primary" style="width:100%;justify-content:center;">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- PROPERTY OWNER REFERRAL -->
+  <section class="owner-section" id="owner-referral">
+    <div class="container">
+      <div class="owner-card">
+        <div class="owner-card-text">
+          <span class="eyebrow">For the Connector in You</span>
+          <h2>Know a property owner?<br><em>Earn $250.</em></h2>
+          <p>If you know someone with a cottage, chalet, or luxury property that would be perfect for Bonsai Stays — send them our way. When their property goes live and receives its first booking, you pocket $250 in stay credit.</p>
+          <div class="owner-perks">
+            <div class="owner-perk">
+              <div class="owner-perk-icon">💰</div>
+              $250 credit for you — no limits on how many owners you refer
+            </div>
+            <div class="owner-perk">
+              <div class="owner-perk-icon">🤝</div>
+              Your referred owners get white-glove onboarding by our team
+            </div>
+            <div class="owner-perk">
+              <div class="owner-perk-icon">📊</div>
+              Track your owner referrals in your account dashboard
+            </div>
+          </div>
+          <a href="../partners/list-your-property.html" class="btn" style="background:var(--gold);color:var(--green-deep);border:none;">Refer a Property Owner →</a>
+        </div>
+        <div class="owner-amount">
+          <div class="big-num">$250</div>
+          <div class="big-label">per owner referral</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Questions</span>
+        <h2>Frequently asked</h2>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            When do I receive my referral credit?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>Your $50 credit is added to your account within 24 hours of your referred friend completing their first stay. You'll receive an email confirmation as soon as it lands.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Is there a limit to how many people I can refer?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>No limit at all. Refer 1 friend or 100 — every successful referral earns you credit. When you reach 5 successful referrals, your per-referral bonus increases to $75.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can my friend use their $50 on any property?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>Yes — the $50 credit applies to any Bonsai Stays property for any length of stay. The only requirement is that it's their first booking through Bonsai Stays.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How long does my credit last?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>All referral credits are valid for 12 months from the date they're earned. You'll receive a reminder email 30 days before any credit expires.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can I combine referral credits with other offers?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>Yes — referral credits stack with Bon Voyage loyalty points and any seasonal promotions. They cannot be combined with another referral credit in a single booking.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How does the property owner referral work?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>Share your referral link with a property owner. When they apply to list through your link and their first booking is completed, you'll receive $250 in stay credit. Our team will reach out to them directly to guide the onboarding process.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What if my friend already has a Bonsai Stays account?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">
+            <p>Referral credit applies to new accounts only — the person being referred must not have made a booking with us before. Existing members can still receive and use referral discounts on their next stay.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FINAL CTA -->
+  <section class="ref-cta">
+    <div class="container">
+      <h2>Ready to start<br><em>sharing the love?</em></h2>
+      <p>Your referral link is waiting. Share it today and let the credits roll in.</p>
+      <a href="#get-link" class="btn" style="background:var(--gold);color:var(--green-deep);font-size:1rem;padding:16px 36px;border:none;">Get My Referral Link</a>
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Curated properties and premium guest experiences across Ontario. Stop rolling the dice on your stays — book with confidence.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram">in</a>
+            <a href="#" aria-label="Facebook">f</a>
+            <a href="#" aria-label="Pinterest">P</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Explore</h5>
+          <ul>
+            <li><a href="properties.html">All Properties</a></li>
+            <li><a href="experiences.html">Experiences</a></li>
+            <li><a href="collections.html">Collections</a></li>
+            <li><a href="loyalty.html">Bon Voyage</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Earn & Save</h5>
+          <ul>
+            <li><a href="referral.html">Referral Program</a></li>
+            <li><a href="loyalty.html">Bon Voyage Loyalty</a></li>
+            <li><a href="shop.html">Shop</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="../partners/index.html">For Partners</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="tel:+18669266724">📞 1-866-926-6724</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Bonsai Stays Inc. All rights reserved.</span> · <a href="tel:+18669266724" style="color:inherit;text-decoration:none;white-space:nowrap;">1-866-926-6724</a>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../assets/nav.js"></script>
+  <script>
+    // ── Supabase ───────────────────────────────────────────────────────────
+    const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── Referral link ──────────────────────────────────────────────────────
+    async function initReferral() {
+      const { data: { user } } = await sb.auth.getUser();
+      const prompt  = document.getElementById('ref-login-prompt');
+      const linkArea = document.getElementById('ref-link-area');
+
+      if (!user) {
+        prompt.style.display  = 'block';
+        linkArea.style.display = 'none';
+        return;
+      }
+
+      prompt.style.display   = 'none';
+      linkArea.style.display = 'block';
+
+      // Generate referral code from user ID (first 8 chars)
+      const code = 'BONSAI-' + user.id.replace(/-/g,'').slice(0,8).toUpperCase();
+      const refUrl = window.location.origin + '/guests/properties.html?ref=' + code;
+
+      document.getElementById('ref-link-input').value = refUrl;
+
+      // Wire share buttons
+      const msg = encodeURIComponent('I've been using Bonsai Stays for premium cottage & luxury property rentals. Use my link to get $50 off your first stay! ' + refUrl);
+      document.getElementById('share-whatsapp').href = 'https://wa.me/?text=' + msg;
+      document.getElementById('share-email').href    = 'mailto:?subject=' + encodeURIComponent('$50 off your first Bonsai Stays booking') + '&body=' + msg;
+      document.getElementById('share-sms').href      = 'sms:?body=' + msg;
+
+      // Fetch referral stats from Supabase (if referrals table exists)
+      try {
+        const { data: refs } = await sb.from('referrals')
+          .select('id, status')
+          .eq('referrer_id', user.id);
+        if (refs) {
+          const total     = refs.length;
+          const completed = refs.filter(r => r.status === 'completed').length;
+          const pending   = total - completed;
+          document.getElementById('ref-stats-line').textContent =
+            `${completed} completed referral${completed !== 1 ? 's' : ''} · $${completed * 50} earned` +
+            (pending > 0 ? ` · ${pending} pending` : '');
+        }
+      } catch { /* referrals table may not exist yet */ }
+    }
+
+    function copyRefLink() {
+      const input = document.getElementById('ref-link-input');
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.querySelector('.link-display button');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 2500);
+      });
+    }
+
+    // ── FAQ accordion ──────────────────────────────────────────────────────
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const isOpen = answer.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('open'));
+      // Open clicked if it was closed
+      if (!isOpen) {
+        answer.classList.add('open');
+        btn.classList.add('open');
+      }
+    }
+
+    // ── Nav logo tint on scroll ────────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      const logo = document.getElementById('navLogo');
+      if (logo) logo.style.filter = window.scrollY > 60 ? 'brightness(0)' : 'brightness(0) invert(1)';
+    });
+
+    initReferral();
+  </script>
+
+</body>
+</html>
