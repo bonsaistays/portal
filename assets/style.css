@@ -293,13 +293,34 @@ img { max-width: 100%; display: block; }
 /* --- Responsive --- */
 @media (max-width: 1024px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
+  /* Shrink nav CTA buttons on tablets so they don't overflow */
+  .nav-cta .btn { padding: 8px 12px; font-size: 0.78rem; }
+  .nav-links { gap: 20px; }
+  .nav-links a { font-size: 0.85rem; }
 }
 @media (max-width: 768px) {
-  .section { padding: 64px 0; }
+  /* Prevent horizontal scroll globally */
+  body { overflow-x: hidden; }
+  .container { padding: 0 16px; }
+  .section { padding: 56px 0; }
+  .section-sm { padding: 40px 0; }
+  h1 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
+  h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+  /* Nav */
   .nav-links, .nav-cta { display: none; }
   .nav-hamburger { display: flex; }
+
+  /* Footer */
   .footer-grid { grid-template-columns: 1fr; }
   .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+
+  /* Buttons shouldn't overflow */
+  .btn { white-space: normal; text-align: center; }
+
+  /* Tables */
+  table { font-size: 0.8rem; }
+  table th, table td { padding: 8px 10px; }
 
   /* Mobile nav open state */
   .nav.nav-open { background: var(--white) !important; box-shadow: 0 2px 20px rgba(0,0,0,0.12); }
@@ -313,7 +334,7 @@ img { max-width: 100%; display: block; }
     left: 0;
     right: 0;
     background: var(--white);
-    padding: 4px 24px 20px;
+    padding: 4px 24px 16px;
     box-shadow: 0 12px 32px rgba(0,0,0,0.1);
     border-top: 1px solid var(--gray-pale);
     z-index: 200;
@@ -327,4 +348,14 @@ img { max-width: 100%; display: block; }
     color: var(--charcoal) !important;
     font-weight: 500;
   }
+  /* CTA buttons appended inside dropdown by nav.js */
+  .nav-mobile-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 0 4px;
+    border-top: 1px solid var(--gray-pale);
+    margin-top: 4px;
+  }
+  .nav-mobile-cta .btn { width: 100%; justify-content: center; text-align: center; }
 }

@@ -1,30 +1,67 @@
 (function () {
-  var nav        = document.querySelector('.nav');
-  var hamburger  = document.querySelector('.nav-hamburger');
+  var nav       = document.querySelector('.nav');
+  var hamburger = document.querySelector('.nav-hamburger');
+  var navLinks  = document.querySelector('.nav-links');
+  var navCta    = document.querySelector('.nav-cta');
+
+  // ── Scroll effect ──────────────────────────────────────────────────────
+  function onScroll() {
+    if (!nav) return;
+    if (window.scrollY > 40) { nav.classList.add('scrolled'); }
+    else { nav.classList.remove('scrolled'); }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
   if (!nav || !hamburger) return;
 
-  // Toggle menu open / closed
-  hamburger.addEventListener('click', function () {
-    var isOpen = nav.classList.toggle('nav-open');
-    hamburger.classList.toggle('open', isOpen);
-    hamburger.setAttribute('aria-expanded', isOpen);
-  });
-
-  // Close menu when any nav link is tapped
-  document.querySelectorAll('.nav-links a').forEach(function (a) {
-    a.addEventListener('click', function () {
-      nav.classList.remove('nav-open');
-      hamburger.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
+  // ── Inject CTA buttons into dropdown (once, on first open) ───────────
+  var ctaInjected = false;
+  function injectMobileCTA() {
+    if (ctaInjected || !navLinks || !navCta) return;
+    ctaInjected = true;
+    var li = document.createElement('li');
+    li.className = 'nav-mobile-cta';
+    li.style.listStyle = 'none';
+    Array.from(navCta.children).forEach(function (child) {
+      li.appendChild(child.cloneNode(true));
     });
+    navLinks.appendChild(li);
+  }
+
+  // ── Open / close helpers ──────────────────────────────────────────────
+  function openMenu() {
+    injectMobileCTA();
+    nav.classList.add('nav-open');
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    nav.classList.remove('nav-open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  // ── Hamburger click ───────────────────────────────────────────────────
+  hamburger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    nav.classList.contains('nav-open') ? closeMenu() : openMenu();
   });
 
-  // Close menu when tapping outside the nav
+  // ── Close on link tap ─────────────────────────────────────────────────
   document.addEventListener('click', function (e) {
-    if (nav.classList.contains('nav-open') && !nav.contains(e.target)) {
-      nav.classList.remove('nav-open');
-      hamburger.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-    }
+    if (e.target.closest && e.target.closest('.nav-links a')) closeMenu();
+  });
+
+  // ── Close on outside tap ──────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    if (nav.classList.contains('nav-open') && !nav.contains(e.target)) closeMenu();
+  });
+
+  // ── Close on Escape ───────────────────────────────────────────────────
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeMenu();
   });
 })();
