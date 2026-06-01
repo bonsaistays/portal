@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Refer a Property or Business — Bonsai Stays Partners</title>
-  <meta name="description" content="Know a property owner or business that should be working with Bonsai Stays? Refer them and earn up to $500 in cash commission when they come on board." />
+  <title>Refer a Property — Bonsai Stays Partners</title>
+  <meta name="description" content="Know a property owner who needs professional short-term rental management? Refer them to Bonsai Stays and earn $250 — plus a $50 bonus if they list on our platform." />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -53,9 +53,12 @@
     .payout-band { background: var(--cream); padding: 80px 0; }
     .payout-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 28px;
       margin-top: 52px;
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
     }
     .payout-card {
       background: var(--white);
@@ -73,7 +76,7 @@
       border-color: var(--green-deep);
     }
     .payout-card.highlight::after {
-      content: 'Highest Reward';
+      content: '+$50 Bonus';
       position: absolute;
       top: 18px; right: -28px;
       background: var(--gold);
@@ -246,26 +249,6 @@
     .form-success .success-icon { font-size: 3rem; margin-bottom: 16px; }
     .form-success h4 { margin-bottom: 10px; }
     .form-success p { font-size: 0.9rem; color: var(--gray-mid); }
-    .type-toggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .type-btn {
-      padding: 12px;
-      border: 1.5px solid var(--gray-pale);
-      border-radius: var(--radius-sm);
-      background: var(--white);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--gray-mid);
-      cursor: pointer;
-      text-align: center;
-      transition: var(--transition);
-    }
-    .type-btn.active { border-color: var(--green-deep); background: var(--green-tint); color: var(--green-deep); }
 
     /* ── Who can refer ───────────────────────────────────────── */
     .who-section { background: var(--white); padding: 96px 0; }
@@ -314,7 +297,7 @@
 
     /* ── Mobile ──────────────────────────────────────────────── */
     @media (max-width: 960px) {
-      .payout-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+      .payout-grid { grid-template-columns: 1fr; max-width: 420px; }
       .how-steps { grid-template-columns: repeat(2, 1fr); }
       .how-steps::before { display: none; }
       .form-wrap { grid-template-columns: 1fr; gap: 48px; }
@@ -323,7 +306,6 @@
     @media (max-width: 600px) {
       .ref-form { padding: 32px 20px; }
       .form-row { grid-template-columns: 1fr; }
-      .type-toggle { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -363,7 +345,7 @@
       <div class="ref-hero-content">
         <span class="eyebrow">Partner Referral Program</span>
         <h1>Know someone who<br>should be with us?<br><em>You'll be rewarded.</em></h1>
-        <p>Refer a property owner, short-term rental operator, or business to Bonsai Stays. When they come on board, you earn a cash commission — no limits, no fine print.</p>
+        <p>Know a property owner who needs professional short-term rental cleaning and management? Refer them to Bonsai Stays and earn $250 — plus a $50 bonus when they list on our platform.</p>
         <div class="hero-cta-group">
           <a href="#refer-now" class="btn btn-gold">Submit a Referral</a>
           <a href="#how-it-works" class="btn btn-outline" style="border-color:rgba(255,255,255,0.35);color:var(--white);">See How It Works</a>
@@ -379,50 +361,35 @@
       <div class="section-header text-center">
         <span class="eyebrow">What You Earn</span>
         <h2>Real money for real connections</h2>
-        <p>Three ways to refer — each one pays. Payouts are issued within 30 days of the referred partner's first invoice.</p>
+        <p>Refer a property for our cleaning services and earn $250. If they also list on the Bonsai Stays platform, you pocket an extra $50 — up to $300 total per referral.</p>
       </div>
       <div class="payout-grid">
 
         <div class="payout-card">
           <div class="payout-icon">🏡</div>
-          <h3>Property Owner</h3>
+          <h3>Refer a Property</h3>
           <div class="payout-amount">$250</div>
-          <div class="payout-sub">when their first booking completes</div>
+          <div class="payout-sub">when they complete their first clean with us</div>
           <ul class="payout-list">
-            <li>Refer anyone with a short-term rental property</li>
             <li>Cottages, chalets, luxury homes — any property type</li>
-            <li>Tracks via your unique referral code</li>
-            <li>Paid within 30 days of their first completed booking</li>
+            <li>Must be a new Bonsai Stays client</li>
+            <li>Paid within 30 days of their first completed clean</li>
+            <li>No limit — refer as many properties as you like</li>
           </ul>
-          <a href="#refer-now" class="btn btn-primary" style="width:100%;justify-content:center;">Refer a Property Owner</a>
+          <a href="#refer-now" class="btn btn-primary" style="width:100%;justify-content:center;">Refer a Property</a>
         </div>
 
         <div class="payout-card highlight">
-          <div class="payout-icon">🏢</div>
-          <h3 style="color:#fff;">Property Manager / Portfolio</h3>
-          <div class="payout-amount">$500</div>
-          <div class="payout-sub">per property when portfolio signs on</div>
+          <div class="payout-icon">🌐</div>
+          <h3 style="color:rgba(255,255,255,0.9);">Listing Bonus</h3>
+          <div class="payout-amount">+$50</div>
+          <div class="payout-sub">on top of your $250 when they list on our site</div>
           <ul class="payout-list">
-            <li>Refer a property manager with 2+ properties</li>
-            <li>Earn $500 for each property they bring on</li>
-            <li>No cap — refer a 10-property portfolio, earn $5,000</li>
-            <li>Ongoing commission available for active referrers</li>
+            <li>Earn an extra $50 if the referred property is also listed on the Bonsai Stays platform</li>
+            <li>Both bonuses stack — earn $300 total</li>
+            <li>Listing must be active at time of payout</li>
           </ul>
-          <a href="#refer-now" class="btn" style="width:100%;justify-content:center;background:var(--gold);color:var(--green-deep);border:none;">Refer a Property Manager</a>
-        </div>
-
-        <div class="payout-card">
-          <div class="payout-icon">🤝</div>
-          <h3>Business / Service Provider</h3>
-          <div class="payout-amount">$150</div>
-          <div class="payout-sub">when they sign a services contract</div>
-          <ul class="payout-list">
-            <li>Refer a business needing housekeeping, linens, or amenities</li>
-            <li>Property management companies, hotels, Airbnb hosts</li>
-            <li>Commission paid on contract signing</li>
-            <li>Stackable — refer multiple business types</li>
-          </ul>
-          <a href="#refer-now" class="btn btn-primary" style="width:100%;justify-content:center;">Refer a Business</a>
+          <a href="#refer-now" class="btn" style="width:100%;justify-content:center;background:var(--gold);color:var(--green-deep);border:none;">Refer &amp; Earn $300</a>
         </div>
 
       </div>
@@ -513,16 +480,11 @@
             <h3>Submit a Referral</h3>
             <p class="form-sub">Takes 2 minutes. We'll handle everything from here.</p>
 
-            <div class="type-toggle">
-              <button class="type-btn active" onclick="setType('property',this)">🏡 Property / Owner</button>
-              <button class="type-btn" onclick="setType('business',this)">🤝 Business</button>
-            </div>
-
             <form id="referral-form" onsubmit="submitReferral(event)">
               <input type="hidden" id="ref-type" value="property" />
 
               <div style="background:var(--green-tint);border:1px solid var(--green-sage);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:var(--green-deep);margin-bottom:22px;">
-                🎯 <strong id="reward-preview">You'll earn $250</strong> when this referral completes their first booking with us.
+                🎯 <strong>Earn $250</strong> when they complete their first clean — plus <strong>+$50</strong> if they list on our platform too.
               </div>
 
               <div class="form-divider">Your details</div>
@@ -552,13 +514,9 @@
                   <input type="text" id="ref-contact" placeholder="sarah@email.com or 416-555-0200" required />
                 </div>
               </div>
-              <div class="form-group" id="property-details-group">
-                <label>Property details <span style="font-weight:400;text-transform:none;letter-spacing:0;">(location, type, # of properties)</span></label>
-                <textarea id="ref-property" placeholder="e.g. Muskoka cottage, 4-bed, currently on Airbnb. Looking for a property manager." rows="3"></textarea>
-              </div>
-              <div class="form-group" id="business-details-group" style="display:none;">
-                <label>Business details <span style="font-weight:400;text-transform:none;letter-spacing:0;">(type of business, size, location)</span></label>
-                <textarea id="ref-business" placeholder="e.g. Property management company, 8 units in Collingwood. Looking for housekeeping." rows="3"></textarea>
+              <div class="form-group">
+                <label>Property details <span style="font-weight:400;text-transform:none;letter-spacing:0;">(location, type, beds)</span></label>
+                <textarea id="ref-property" placeholder="e.g. Muskoka cottage, 4-bed, currently on Airbnb. Owner is looking for cleaning help." rows="3"></textarea>
               </div>
               <div class="form-group">
                 <label>Anything else we should know?</label>
@@ -645,7 +603,7 @@
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">How is the commission paid?<span class="faq-icon">+</span></button>
-          <div class="faq-a"><p>We pay by Interac e-transfer or cheque, whichever you prefer. Commission is issued within 30 days of the qualifying event (first completed booking for property owners, contract signing for businesses).</p></div>
+          <div class="faq-a"><p>We pay by Interac e-transfer or cheque, whichever you prefer. The $250 base commission is issued within 30 days of the property's first completed clean. The $50 listing bonus is added at the same time if they're live on our platform.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">Is there a limit to how many people I can refer?<span class="faq-icon">+</span></button>
@@ -653,7 +611,7 @@
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">What counts as a "qualifying event"?<span class="faq-icon">+</span></button>
-          <div class="faq-a"><p>For property owners: their first completed guest booking on the Bonsai Stays platform. For businesses and service contracts: the date their services agreement is signed. For property managers: once each property in their portfolio receives its first booking.</p></div>
+          <div class="faq-a"><p>For the base $250 commission: the referred property's first completed clean with Bonsai Stays. For the $50 listing bonus: the property must be active and listed on the Bonsai Stays platform at the time of payout.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">What if the person I refer is already in talks with Bonsai Stays?<span class="faq-icon">+</span></button>
@@ -741,18 +699,6 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ── Type toggle ────────────────────────────────────────────────────────
-    const rewards = { property: '$250', business: '$150' };
-
-    function setType(type, btn) {
-      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('ref-type').value = type;
-      document.getElementById('reward-preview').textContent = 'You\'ll earn ' + rewards[type];
-      document.getElementById('property-details-group').style.display = type === 'property' ? 'block' : 'none';
-      document.getElementById('business-details-group').style.display  = type === 'business'  ? 'block' : 'none';
-    }
-
     // ── Submit form ────────────────────────────────────────────────────────
     async function submitReferral(e) {
       e.preventDefault();
@@ -760,20 +706,17 @@
       btn.textContent = 'Submitting…';
       btn.disabled = true;
 
-      const type = document.getElementById('ref-type').value;
       const payload = {
-        referral_type:  type,
-        referrer_name:  document.getElementById('your-name').value.trim(),
-        referrer_email: document.getElementById('your-email').value.trim(),
-        referrer_phone: document.getElementById('your-phone').value.trim() || null,
-        referee_name:   document.getElementById('ref-name').value.trim(),
-        referee_contact:document.getElementById('ref-contact').value.trim(),
-        details:        (type === 'property'
-          ? document.getElementById('ref-property').value.trim()
-          : document.getElementById('ref-business').value.trim()) || null,
-        notes:          document.getElementById('ref-notes').value.trim() || null,
-        status:         'submitted',
-        commission_amount: type === 'property' ? 250 : 150,
+        referral_type:   'property',
+        referrer_name:   document.getElementById('your-name').value.trim(),
+        referrer_email:  document.getElementById('your-email').value.trim(),
+        referrer_phone:  document.getElementById('your-phone').value.trim() || null,
+        referee_name:    document.getElementById('ref-name').value.trim(),
+        referee_contact: document.getElementById('ref-contact').value.trim(),
+        details:         document.getElementById('ref-property').value.trim() || null,
+        notes:           document.getElementById('ref-notes').value.trim() || null,
+        status:          'submitted',
+        commission_amount: 250,
       };
 
       try {
