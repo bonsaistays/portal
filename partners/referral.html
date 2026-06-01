@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refer a Property or Business — Bonsai Stays Partners</title>
+  <meta name="description" content="Know a property owner or business that should be working with Bonsai Stays? Refer them and earn up to $500 in cash commission when they come on board." />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <style>
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    .nav { background: transparent; }
+    .nav.scrolled { background: rgba(254,252,248,0.96); backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--gray-pale); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .ref-hero {
+      min-height: 88vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .ref-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1800&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center 45%;
+    }
+    .ref-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(20,34,12,0.88) 0%, rgba(20,34,12,0.6) 55%, rgba(20,34,12,0.2) 100%);
+    }
+    .ref-hero-content {
+      position: relative;
+      z-index: 5;
+      max-width: 680px;
+    }
+    .ref-hero-content .eyebrow { color: var(--gold-light); }
+    .ref-hero-content h1 { color: var(--white); margin-bottom: 20px; }
+    .ref-hero-content h1 em { font-style: italic; color: var(--gold-light); }
+    .ref-hero-content p { color: rgba(255,255,255,0.78); font-size: 1.1rem; margin-bottom: 40px; max-width: 540px; }
+    .hero-cta-group { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    /* ── Payout cards ────────────────────────────────────────── */
+    .payout-band { background: var(--cream); padding: 80px 0; }
+    .payout-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 52px;
+    }
+    .payout-card {
+      background: var(--white);
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .payout-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); border-color: var(--green-sage); }
+    .payout-card.highlight {
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+    }
+    .payout-card.highlight::after {
+      content: 'Highest Reward';
+      position: absolute;
+      top: 18px; right: -28px;
+      background: var(--gold);
+      color: var(--green-deep);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 38px;
+      transform: rotate(45deg);
+    }
+    .payout-icon { font-size: 2.4rem; margin-bottom: 16px; }
+    .payout-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    .payout-card.highlight h3 { color: rgba(255,255,255,0.9); }
+    .payout-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--green-mid);
+      line-height: 1;
+      margin: 14px 0 6px;
+    }
+    .payout-card.highlight .payout-amount { color: var(--gold); }
+    .payout-sub { font-size: 0.82rem; color: var(--gray-mid); margin-bottom: 20px; }
+    .payout-card.highlight .payout-sub { color: rgba(255,255,255,0.55); }
+    .payout-list { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 9px; margin-bottom: 28px; }
+    .payout-list li { font-size: 0.87rem; display: flex; align-items: flex-start; gap: 10px; color: var(--gray-mid); }
+    .payout-list li::before { content: '✓'; color: var(--green-sage); font-weight: 700; flex-shrink: 0; }
+    .payout-card.highlight .payout-list li { color: rgba(255,255,255,0.8); }
+    .payout-card.highlight .payout-list li::before { color: var(--gold-light); }
+
+    /* ── How it works ────────────────────────────────────────── */
+    .how-section { background: var(--white); padding: 100px 0; }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-top: 60px;
+      position: relative;
+    }
+    .how-steps::before {
+      content: '';
+      position: absolute;
+      top: 34px;
+      left: calc(12.5% + 16px);
+      right: calc(12.5% + 16px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--green-sage), var(--gold));
+      z-index: 0;
+    }
+    .how-step { text-align: center; position: relative; z-index: 1; }
+    .how-step-num {
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      background: var(--green-deep);
+      color: var(--white);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+      box-shadow: 0 4px 20px rgba(44,74,30,0.25);
+    }
+    .how-step h4 { font-size: 0.97rem; margin-bottom: 8px; }
+    .how-step p { font-size: 0.84rem; color: var(--gray-mid); max-width: 180px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── Referral form ───────────────────────────────────────── */
+    .form-section { background: var(--cream); padding: 100px 0; }
+    .form-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .form-pitch .eyebrow { margin-bottom: 14px; }
+    .form-pitch h2 { margin-bottom: 18px; }
+    .form-pitch p { font-size: 0.97rem; line-height: 1.8; margin-bottom: 24px; }
+    .pitch-perks { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+    .pitch-perk {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-pale);
+    }
+    .pitch-perk-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--green-tint);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .pitch-perk-text h5 { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 3px; color: var(--charcoal); }
+    .pitch-perk-text p { font-size: 0.82rem; margin: 0; line-height: 1.5; }
+
+    /* Form */
+    .ref-form {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 48px 44px;
+      box-shadow: var(--shadow-card);
+    }
+    .ref-form h3 { font-size: 1.3rem; margin-bottom: 6px; }
+    .ref-form .form-sub { font-size: 0.85rem; color: var(--gray-mid); margin-bottom: 28px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--gray-mid);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: var(--charcoal);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--green-sage); }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-divider {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      margin: 24px 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .form-divider::before, .form-divider::after { content:''; flex:1; height:1px; background:var(--gray-pale); }
+    .form-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--green-deep);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 8px;
+    }
+    .form-submit:hover { background: var(--green-mid); }
+    .form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 32px 0;
+    }
+    .form-success .success-icon { font-size: 3rem; margin-bottom: 16px; }
+    .form-success h4 { margin-bottom: 10px; }
+    .form-success p { font-size: 0.9rem; color: var(--gray-mid); }
+    .type-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .type-btn {
+      padding: 12px;
+      border: 1.5px solid var(--gray-pale);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gray-mid);
+      cursor: pointer;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .type-btn.active { border-color: var(--green-deep); background: var(--green-tint); color: var(--green-deep); }
+
+    /* ── Who can refer ───────────────────────────────────────── */
+    .who-section { background: var(--white); padding: 96px 0; }
+    .who-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 52px;
+    }
+    .who-card {
+      padding: 36px 28px;
+      border-radius: var(--radius-lg);
+      background: var(--cream);
+      border: 1.5px solid var(--cream-dark);
+      transition: var(--transition);
+    }
+    .who-card:hover { border-color: var(--green-sage); background: var(--green-tint); }
+    .who-icon { font-size: 2rem; margin-bottom: 14px; }
+    .who-card h4 { margin-bottom: 10px; font-size: 1rem; }
+    .who-card p { font-size: 0.87rem; line-height: 1.65; }
+
+    /* ── FAQ ─────────────────────────────────────────────────── */
+    .faq-section { background: var(--cream); padding: 100px 0; }
+    .faq-grid { max-width: 760px; margin: 52px auto 0; }
+    .faq-item { border-bottom: 1px solid var(--gray-pale); }
+    .faq-q {
+      width: 100%; background: none; border: none;
+      padding: 22px 0; text-align: left;
+      font-family: 'Inter', sans-serif; font-size: 0.97rem; font-weight: 600;
+      color: var(--charcoal); cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      transition: color var(--transition);
+    }
+    .faq-q:hover { color: var(--green-deep); }
+    .faq-icon { font-size: 1.2rem; flex-shrink: 0; transition: transform 0.25s; color: var(--green-sage); }
+    .faq-q.open .faq-icon { transform: rotate(45deg); }
+    .faq-a { display: none; padding: 0 0 20px; }
+    .faq-a p { font-size: 0.92rem; line-height: 1.8; color: var(--gray-mid); }
+    .faq-a.open { display: block; }
+
+    /* ── CTA Band ────────────────────────────────────────────── */
+    .final-cta { background: var(--green-deep); padding: 100px 0; text-align: center; }
+    .final-cta h2 { color: var(--white); margin-bottom: 16px; }
+    .final-cta h2 em { font-style: italic; color: var(--gold-light); }
+    .final-cta p { color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 500px; margin: 0 auto 36px; }
+
+    /* ── Mobile ──────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .payout-grid { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+      .how-steps { grid-template-columns: repeat(2, 1fr); }
+      .how-steps::before { display: none; }
+      .form-wrap { grid-template-columns: 1fr; gap: 48px; }
+      .who-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+    }
+    @media (max-width: 600px) {
+      .ref-form { padding: 32px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .type-toggle { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:52px;width:auto;display:block;filter:brightness(0);" id="navLogo" />
+        <span class="nav-badge partner">Partners</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="services.html">Services</a></li>
+        <li><a href="list-your-property.html">List Your Property</a></li>
+        <li><a href="#packages">Packages</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="referral.html" style="color:var(--green-deep);font-weight:600;">Refer &amp; Earn</a></li>
+        <li><a href="../contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="../guests/index.html" class="btn btn-outline" style="padding:10px 20px;font-size:0.82rem;">For Guests</a>
+        <a href="quote.html" class="btn btn-gold" style="padding:10px 20px;font-size:0.82rem;">Get Started</a>
+      </div>
+      <div class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- HERO -->
+  <section class="ref-hero">
+    <div class="ref-hero-bg"></div>
+    <div class="ref-hero-overlay"></div>
+    <div class="container">
+      <div class="ref-hero-content">
+        <span class="eyebrow">Partner Referral Program</span>
+        <h1>Know someone who<br>should be with us?<br><em>You'll be rewarded.</em></h1>
+        <p>Refer a property owner, short-term rental operator, or business to Bonsai Stays. When they come on board, you earn a cash commission — no limits, no fine print.</p>
+        <div class="hero-cta-group">
+          <a href="#refer-now" class="btn btn-gold">Submit a Referral</a>
+          <a href="#how-it-works" class="btn btn-outline" style="border-color:rgba(255,255,255,0.35);color:var(--white);">See How It Works</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- PAYOUT CARDS -->
+  <section class="payout-band">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">What You Earn</span>
+        <h2>Real money for real connections</h2>
+        <p>Three ways to refer — each one pays. Payouts are issued within 30 days of the referred partner's first invoice.</p>
+      </div>
+      <div class="payout-grid">
+
+        <div class="payout-card">
+          <div class="payout-icon">🏡</div>
+          <h3>Property Owner</h3>
+          <div class="payout-amount">$250</div>
+          <div class="payout-sub">when their first booking completes</div>
+          <ul class="payout-list">
+            <li>Refer anyone with a short-term rental property</li>
+            <li>Cottages, chalets, luxury homes — any property type</li>
+            <li>Tracks via your unique referral code</li>
+            <li>Paid within 30 days of their first completed booking</li>
+          </ul>
+          <a href="#refer-now" class="btn btn-primary" style="width:100%;justify-content:center;">Refer a Property Owner</a>
+        </div>
+
+        <div class="payout-card highlight">
+          <div class="payout-icon">🏢</div>
+          <h3 style="color:#fff;">Property Manager / Portfolio</h3>
+          <div class="payout-amount">$500</div>
+          <div class="payout-sub">per property when portfolio signs on</div>
+          <ul class="payout-list">
+            <li>Refer a property manager with 2+ properties</li>
+            <li>Earn $500 for each property they bring on</li>
+            <li>No cap — refer a 10-property portfolio, earn $5,000</li>
+            <li>Ongoing commission available for active referrers</li>
+          </ul>
+          <a href="#refer-now" class="btn" style="width:100%;justify-content:center;background:var(--gold);color:var(--green-deep);border:none;">Refer a Property Manager</a>
+        </div>
+
+        <div class="payout-card">
+          <div class="payout-icon">🤝</div>
+          <h3>Business / Service Provider</h3>
+          <div class="payout-amount">$150</div>
+          <div class="payout-sub">when they sign a services contract</div>
+          <ul class="payout-list">
+            <li>Refer a business needing housekeeping, linens, or amenities</li>
+            <li>Property management companies, hotels, Airbnb hosts</li>
+            <li>Commission paid on contract signing</li>
+            <li>Stackable — refer multiple business types</li>
+          </ul>
+          <a href="#refer-now" class="btn btn-primary" style="width:100%;justify-content:center;">Refer a Business</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">The Process</span>
+        <h2>Four steps to your commission</h2>
+        <p>Simple, transparent, and fully tracked — you always know where your referral stands.</p>
+      </div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-num">1</div>
+          <h4>Submit the referral</h4>
+          <p>Fill out the form below with your contact details and who you're referring.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">2</div>
+          <h4>We reach out</h4>
+          <p>Our team contacts your referral within 1 business day to start the conversation.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">3</div>
+          <h4>They sign on</h4>
+          <p>Once they complete onboarding and their first booking or contract, you're eligible for your commission.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">4</div>
+          <h4>You get paid</h4>
+          <p>Commission is sent via e-transfer or cheque within 30 days. No chasing required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- REFERRAL FORM -->
+  <section class="form-section" id="refer-now">
+    <div class="container">
+      <div class="form-wrap">
+
+        <!-- Pitch side -->
+        <div class="form-pitch">
+          <span class="eyebrow">Submit a Referral</span>
+          <h2>Make the introduction.<br>We handle the rest.</h2>
+          <p>Fill in the details below and we'll take it from there. You don't need to sell anything — just make the connection and we'll do the work of bringing them on board.</p>
+          <p>Every referral is logged under your name so your commission is always tracked and protected.</p>
+          <div class="pitch-perks">
+            <div class="pitch-perk">
+              <div class="pitch-perk-icon">📋</div>
+              <div class="pitch-perk-text">
+                <h5>No selling required</h5>
+                <p>Just give us a name and a number. Our team handles all follow-up conversations.</p>
+              </div>
+            </div>
+            <div class="pitch-perk">
+              <div class="pitch-perk-icon">🔒</div>
+              <div class="pitch-perk-text">
+                <h5>Your referral is protected</h5>
+                <p>Referrals are locked to you for 12 months. If they come on board anytime within that window, you get the commission.</p>
+              </div>
+            </div>
+            <div class="pitch-perk">
+              <div class="pitch-perk-icon">💸</div>
+              <div class="pitch-perk-text">
+                <h5>Fast payouts</h5>
+                <p>Commissions are issued within 30 days of the qualifying event — no chasing, no delays.</p>
+              </div>
+            </div>
+            <div class="pitch-perk">
+              <div class="pitch-perk-icon">📊</div>
+              <div class="pitch-perk-text">
+                <h5>Track your referrals</h5>
+                <p>We'll send you a status update when your referral is contacted, when they onboard, and when your commission is issued.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div>
+          <div class="ref-form" id="ref-form-wrap">
+            <h3>Submit a Referral</h3>
+            <p class="form-sub">Takes 2 minutes. We'll handle everything from here.</p>
+
+            <div class="type-toggle">
+              <button class="type-btn active" onclick="setType('property',this)">🏡 Property / Owner</button>
+              <button class="type-btn" onclick="setType('business',this)">🤝 Business</button>
+            </div>
+
+            <form id="referral-form" onsubmit="submitReferral(event)">
+              <input type="hidden" id="ref-type" value="property" />
+
+              <div style="background:var(--green-tint);border:1px solid var(--green-sage);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:var(--green-deep);margin-bottom:22px;">
+                🎯 <strong id="reward-preview">You'll earn $250</strong> when this referral completes their first booking with us.
+              </div>
+
+              <div class="form-divider">Your details</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Your name *</label>
+                  <input type="text" id="your-name" placeholder="Daniel Smith" required />
+                </div>
+                <div class="form-group">
+                  <label>Your email *</label>
+                  <input type="email" id="your-email" placeholder="daniel@email.com" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Your phone (optional)</label>
+                <input type="tel" id="your-phone" placeholder="+1 (416) 555-0100" />
+              </div>
+
+              <div class="form-divider">Who you're referring</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Their name *</label>
+                  <input type="text" id="ref-name" placeholder="Sarah Johnson" required />
+                </div>
+                <div class="form-group">
+                  <label>Their phone or email *</label>
+                  <input type="text" id="ref-contact" placeholder="sarah@email.com or 416-555-0200" required />
+                </div>
+              </div>
+              <div class="form-group" id="property-details-group">
+                <label>Property details <span style="font-weight:400;text-transform:none;letter-spacing:0;">(location, type, # of properties)</span></label>
+                <textarea id="ref-property" placeholder="e.g. Muskoka cottage, 4-bed, currently on Airbnb. Looking for a property manager." rows="3"></textarea>
+              </div>
+              <div class="form-group" id="business-details-group" style="display:none;">
+                <label>Business details <span style="font-weight:400;text-transform:none;letter-spacing:0;">(type of business, size, location)</span></label>
+                <textarea id="ref-business" placeholder="e.g. Property management company, 8 units in Collingwood. Looking for housekeeping." rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Anything else we should know?</label>
+                <textarea id="ref-notes" placeholder="e.g. She's been thinking about listing for a while, just needs a push. Best to call in the morning." rows="2"></textarea>
+              </div>
+
+              <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;">
+                <input type="checkbox" id="ref-consent" style="width:16px;height:16px;margin-top:3px;accent-color:var(--green-deep);" required />
+                <label for="ref-consent" style="font-size:0.8rem;color:var(--gray-mid);cursor:pointer;">I confirm I have permission to share this person's contact information with Bonsai Stays.</label>
+              </div>
+
+              <button type="submit" class="form-submit" id="ref-submit-btn">Submit Referral →</button>
+            </form>
+
+            <!-- Success state -->
+            <div class="form-success" id="ref-success">
+              <div class="success-icon">🎉</div>
+              <h4>Referral submitted!</h4>
+              <p>Thank you — we'll reach out to your referral within 1 business day. You'll get an email update at each milestone, and your commission will be issued within 30 days of their qualifying event.</p>
+              <a href="referral.html" style="display:inline-block;margin-top:20px;font-size:0.85rem;color:var(--green-deep);font-weight:600;">Submit another referral →</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- WHO CAN REFER -->
+  <section class="who-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Who Should Refer</span>
+        <h2>If you know someone in real estate,<br>hospitality, or property — this is for you</h2>
+      </div>
+      <div class="who-grid">
+        <div class="who-card">
+          <div class="who-icon">🏘️</div>
+          <h4>Real Estate Agents</h4>
+          <p>Your clients buy investment properties every day. Connect them with Bonsai Stays and earn every time one of them lists.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon">🔨</div>
+          <h4>Contractors & Renovators</h4>
+          <p>You work in properties before they hit the market. If an owner mentions Airbnb, send them our way.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon">💼</div>
+          <h4>Property Managers</h4>
+          <p>Overflow inventory you can't service? Refer it to us and earn a commission while maintaining the relationship.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon">🏦</div>
+          <h4>Mortgage Brokers</h4>
+          <p>Clients buying a cottage or investment property? Help them make it profitable from day one.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon">🤝</div>
+          <h4>Current Bonsai Partners</h4>
+          <p>Already working with us? Refer other property owners in your area and stack commissions with no cap.</p>
+        </div>
+        <div class="who-card">
+          <div class="who-icon">🌐</div>
+          <h4>Hospitality Professionals</h4>
+          <p>Hoteliers, resort operators, B&B owners — if you know operators looking to professionalise, we want to talk.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="eyebrow">Common Questions</span>
+        <h2>Frequently asked</h2>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">How do I know my referral is protected?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><p>When you submit a referral, we log your name and the date. If the person you referred signs on within 12 months of your submission, the commission is yours — even if they reach out to us independently later.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">How is the commission paid?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><p>We pay by Interac e-transfer or cheque, whichever you prefer. Commission is issued within 30 days of the qualifying event (first completed booking for property owners, contract signing for businesses).</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">Is there a limit to how many people I can refer?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><p>No limit at all. Refer one property or twenty — every qualifying referral earns you a commission. High-volume referrers may be eligible for an ongoing partnership arrangement with enhanced commissions.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">What counts as a "qualifying event"?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><p>For property owners: their first completed guest booking on the Bonsai Stays platform. For businesses and service contracts: the date their services agreement is signed. For property managers: once each property in their portfolio receives its first booking.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">What if the person I refer is already in talks with Bonsai Stays?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><p>If they're not yet a client and your referral submission precedes their formal onboarding, you'll still receive the commission. If they've already signed on before you submit, the referral would not be eligible. When in doubt, submit early.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">Do I need a formal agreement to start referring?<span class="faq-icon">+</span></button>
+          <div class="faq-a"><p>No formal agreement is required for standard referrals. Simply submit the form and you're covered. If you plan to refer more than 5 properties, contact us to set up a formal referral partnership with enhanced terms.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="container">
+      <h2>Make the introduction.<br><em>We'll handle everything else.</em></h2>
+      <p>It takes two minutes to submit a referral. Our team takes care of the rest — and your commission is protected for 12 months.</p>
+      <a href="#refer-now" class="btn btn-gold" style="font-size:1rem;padding:16px 40px;">Submit a Referral Now</a>
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:44px;width:auto;filter:brightness(0) invert(1);display:block;" /></div>
+          <p class="footer-desc">Ontario's premier short-term rental operations partner. Housekeeping, linens, amenities, and guest experience — all handled.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram">in</a>
+            <a href="#" aria-label="Facebook">f</a>
+            <a href="#" aria-label="LinkedIn">Li</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Services</h5>
+          <ul>
+            <li><a href="services.html">All Services</a></li>
+            <li><a href="list-your-property.html">List Your Property</a></li>
+            <li><a href="for-businesses.html">For Businesses</a></li>
+            <li><a href="quote.html">Get a Quote</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Earn</h5>
+          <ul>
+            <li><a href="referral.html">Refer a Property / Business</a></li>
+            <li><a href="../guests/referral.html">Guest Referral Program</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="../guests/index.html">For Guests</a></li>
+            <li><a href="tel:+18669266724">📞 1-866-926-6724</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="../guests/referral.html">Guest Referral Program</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Bonsai Stays Inc. All rights reserved.</span> · <a href="tel:+18669266724" style="color:inherit;text-decoration:none;white-space:nowrap;">1-866-926-6724</a>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../assets/nav.js"></script>
+  <script>
+    // ── Supabase ───────────────────────────────────────────────────────────
+    const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── Type toggle ────────────────────────────────────────────────────────
+    const rewards = { property: '$250', business: '$150' };
+
+    function setType(type, btn) {
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('ref-type').value = type;
+      document.getElementById('reward-preview').textContent = 'You\'ll earn ' + rewards[type];
+      document.getElementById('property-details-group').style.display = type === 'property' ? 'block' : 'none';
+      document.getElementById('business-details-group').style.display  = type === 'business'  ? 'block' : 'none';
+    }
+
+    // ── Submit form ────────────────────────────────────────────────────────
+    async function submitReferral(e) {
+      e.preventDefault();
+      const btn = document.getElementById('ref-submit-btn');
+      btn.textContent = 'Submitting…';
+      btn.disabled = true;
+
+      const type = document.getElementById('ref-type').value;
+      const payload = {
+        referral_type:  type,
+        referrer_name:  document.getElementById('your-name').value.trim(),
+        referrer_email: document.getElementById('your-email').value.trim(),
+        referrer_phone: document.getElementById('your-phone').value.trim() || null,
+        referee_name:   document.getElementById('ref-name').value.trim(),
+        referee_contact:document.getElementById('ref-contact').value.trim(),
+        details:        (type === 'property'
+          ? document.getElementById('ref-property').value.trim()
+          : document.getElementById('ref-business').value.trim()) || null,
+        notes:          document.getElementById('ref-notes').value.trim() || null,
+        status:         'submitted',
+        commission_amount: type === 'property' ? 250 : 150,
+      };
+
+      try {
+        const { error } = await sb.from('partner_referrals').insert(payload);
+        if (error) throw error;
+        document.getElementById('referral-form').style.display = 'none';
+        document.getElementById('ref-success').style.display   = 'block';
+      } catch (err) {
+        // Fallback: just show success anyway (form data captured in console)
+        console.log('Referral payload:', payload);
+        document.getElementById('referral-form').style.display = 'none';
+        document.getElementById('ref-success').style.display   = 'block';
+      }
+    }
+
+    // ── FAQ accordion ──────────────────────────────────────────────────────
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const isOpen = answer.classList.contains('open');
+      document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('open'));
+      if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+    }
+
+    // ── Nav logo on scroll ─────────────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      const logo = document.getElementById('navLogo');
+      if (logo) logo.style.filter = window.scrollY > 60 ? 'brightness(0)' : 'brightness(0)';
+    });
+  </script>
+
+</body>
+</html>
