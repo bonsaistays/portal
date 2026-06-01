@@ -528,6 +528,7 @@
                 <label for="ref-consent" style="font-size:0.8rem;color:var(--gray-mid);cursor:pointer;">I confirm I have permission to share this person's contact information with Bonsai Stays.</label>
               </div>
 
+              <div id="ref-error" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 16px;font-size:0.82rem;color:#B91C1C;margin-bottom:16px;"></div>
               <button type="submit" class="form-submit" id="ref-submit-btn">Submit Referral →</button>
             </form>
 
@@ -719,17 +720,18 @@
         commission_amount: 250,
       };
 
-      try {
-        const { error } = await sb.from('partner_referrals').insert(payload);
-        if (error) throw error;
-        document.getElementById('referral-form').style.display = 'none';
-        document.getElementById('ref-success').style.display   = 'block';
-      } catch (err) {
-        // Fallback: just show success anyway (form data captured in console)
-        console.log('Referral payload:', payload);
-        document.getElementById('referral-form').style.display = 'none';
-        document.getElementById('ref-success').style.display   = 'block';
+      const { error } = await sb.from('partner_referrals').insert(payload);
+      if (error) {
+        console.error('Supabase error:', error);
+        btn.textContent = 'Submit Referral →';
+        btn.disabled = false;
+        const errEl = document.getElementById('ref-error');
+        errEl.textContent = 'Something went wrong: ' + (error.message || JSON.stringify(error));
+        errEl.style.display = 'block';
+        return;
       }
+      document.getElementById('referral-form').style.display = 'none';
+      document.getElementById('ref-success').style.display   = 'block';
     }
 
     // ── FAQ accordion ──────────────────────────────────────────────────────
