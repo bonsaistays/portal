@@ -310,6 +310,10 @@ img { max-width: 100%; display: block; }
   /* Nav */
   .nav-links, .nav-cta { display: none; }
   .nav-hamburger { display: flex; }
+  .nav-logo img { height: 38px !important; width: auto !important; }
+  .nav-badge { font-size: 0.6rem; padding: 2px 7px; }
+  .nav-inner { padding: 0 16px; }
+  .nav-logo { gap: 6px; }
 
   /* Footer */
   .footer-grid { grid-template-columns: 1fr; }
