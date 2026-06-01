@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bonsai Portal — Applications</title>
+  <title>Bonsai Portal — Forms &amp; Applications</title>
   <link rel="stylesheet" href="assets/portal.css" />
   <style>
     /* ── Tabs ── */
@@ -88,10 +88,24 @@
       padding: 4px 10px; border-radius: 20px;
       white-space: nowrap;
     }
-    .status-pending  { background: rgba(99,102,241,0.12); color: #4338CA; }
-    .status-reviewing{ background: rgba(245,158,11,0.12); color: #B45309; }
-    .status-approved { background: rgba(16,185,129,0.12); color: #065F46; }
-    .status-declined { background: rgba(239,68,68,0.12);  color: #B91C1C; }
+    .status-pending   { background: rgba(99,102,241,0.12); color: #4338CA; }
+    .status-new       { background: rgba(99,102,241,0.12); color: #4338CA; }
+    .status-submitted { background: rgba(99,102,241,0.12); color: #4338CA; }
+    .status-reviewing { background: rgba(245,158,11,0.12); color: #B45309; }
+    .status-contacted { background: rgba(245,158,11,0.12); color: #B45309; }
+    .status-quoted    { background: rgba(245,158,11,0.12); color: #B45309; }
+    .status-approved  { background: rgba(16,185,129,0.12); color: #065F46; }
+    .status-onboarded { background: rgba(16,185,129,0.12); color: #065F46; }
+    .status-signed    { background: rgba(16,185,129,0.12); color: #065F46; }
+    .status-paid      { background: rgba(16,185,129,0.12); color: #065F46; }
+    .status-declined  { background: rgba(239,68,68,0.12);  color: #B91C1C; }
+    .status-archived  { background: rgba(107,114,128,0.12); color: #374151; }
+    .commission-badge {
+      display: inline-block;
+      background: rgba(16,185,129,0.12); color: #065F46;
+      font-size: 0.75rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 12px;
+    }
 
     /* Empty state */
     .table-empty {
@@ -227,7 +241,7 @@
     <a href="products.html">Shop</a>
     <a href="members.html">Members</a>
     <a href="businesses.html">Businesses</a>
-    <a href="applications.html" class="active">Applications <span class="nav-app-badge hidden" id="nav-new-badge">0</span></a>
+    <a href="applications.html" class="active">Forms <span class="nav-app-badge hidden" id="nav-new-badge">0</span></a>
   </div>
   <div class="admin-nav-right">
     <div class="admin-avatar" id="admin-avatar">A</div>
@@ -239,10 +253,10 @@
 
   <!-- Stats -->
   <div class="admin-stats" id="stats-row">
-    <div class="stat-card"><div class="stat-icon">📬</div><div><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total applications</div></div></div>
+    <div class="stat-card"><div class="stat-icon">📬</div><div><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total submissions</div></div></div>
     <div class="stat-card"><div class="stat-icon">🆕</div><div><div class="stat-num" id="stat-new">—</div><div class="stat-label">New (unreviewed)</div></div></div>
-    <div class="stat-card"><div class="stat-icon">👁️</div><div><div class="stat-num" id="stat-reviewing">—</div><div class="stat-label">Under review</div></div></div>
-    <div class="stat-card"><div class="stat-icon">✅</div><div><div class="stat-num" id="stat-approved">—</div><div class="stat-label">Approved</div></div></div>
+    <div class="stat-card"><div class="stat-icon">🔄</div><div><div class="stat-num" id="stat-reviewing">—</div><div class="stat-label">In progress</div></div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div><div class="stat-num" id="stat-approved">—</div><div class="stat-label">Completed</div></div></div>
   </div>
 
   <!-- Header -->
@@ -260,6 +274,15 @@
     </button>
     <button class="app-tab" id="tab-team" onclick="switchTab('team')">
       👥 Team <span class="tab-badge zero" id="badge-team">0</span>
+    </button>
+    <button class="app-tab" id="tab-biz" onclick="switchTab('business')">
+      🏢 Businesses <span class="tab-badge zero" id="badge-biz">0</span>
+    </button>
+    <button class="app-tab" id="tab-quote" onclick="switchTab('quote')">
+      📋 Quote Leads <span class="tab-badge zero" id="badge-quote">0</span>
+    </button>
+    <button class="app-tab" id="tab-ref" onclick="switchTab('referral')">
+      🤝 Referrals <span class="tab-badge zero" id="badge-ref">0</span>
     </button>
   </div>
 
@@ -329,6 +352,106 @@
     </div>
   </div>
 
+  <!-- Business applications -->
+  <div id="pane-business" class="hidden">
+    <div class="app-table-wrap">
+      <div class="app-filters">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('biz','all',this)">All</button>
+        <button class="filter-chip" data-filter="pending"   onclick="setFilter('biz','pending',this)">New</button>
+        <button class="filter-chip" data-filter="reviewing" onclick="setFilter('biz','reviewing',this)">Reviewing</button>
+        <button class="filter-chip" data-filter="approved"  onclick="setFilter('biz','approved',this)">Approved</button>
+        <button class="filter-chip" data-filter="declined"  onclick="setFilter('biz','declined',this)">Declined</button>
+      </div>
+      <div id="biz-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Contact</th>
+              <th>Type</th>
+              <th>Region</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="biz-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="biz-empty">
+          <div class="table-empty-icon">🏢</div>
+          <h3>No business applications yet</h3>
+          <p>Applications from the For Businesses page will appear here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote leads -->
+  <div id="pane-quote" class="hidden">
+    <div class="app-table-wrap">
+      <div class="app-filters">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('quote','all',this)">All</button>
+        <button class="filter-chip" data-filter="new"       onclick="setFilter('quote','new',this)">New</button>
+        <button class="filter-chip" data-filter="contacted" onclick="setFilter('quote','contacted',this)">Contacted</button>
+        <button class="filter-chip" data-filter="quoted"    onclick="setFilter('quote','quoted',this)">Quoted</button>
+        <button class="filter-chip" data-filter="signed"    onclick="setFilter('quote','signed',this)">Signed</button>
+        <button class="filter-chip" data-filter="archived"  onclick="setFilter('quote','archived',this)">Archived</button>
+      </div>
+      <div id="quote-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Property</th>
+              <th>Services</th>
+              <th>Est. Value</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="quote-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="quote-empty">
+          <div class="table-empty-icon">📋</div>
+          <h3>No quote leads yet</h3>
+          <p>Leads from the Quote page will appear here when someone unlocks or requests a quote.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Partner referrals -->
+  <div id="pane-referral" class="hidden">
+    <div class="app-table-wrap">
+      <div class="app-filters">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('ref','all',this)">All</button>
+        <button class="filter-chip" data-filter="submitted"  onclick="setFilter('ref','submitted',this)">New</button>
+        <button class="filter-chip" data-filter="contacted"  onclick="setFilter('ref','contacted',this)">Contacted</button>
+        <button class="filter-chip" data-filter="onboarded"  onclick="setFilter('ref','onboarded',this)">Onboarded</button>
+        <button class="filter-chip" data-filter="paid"       onclick="setFilter('ref','paid',this)">Paid</button>
+      </div>
+      <div id="ref-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Referred By</th>
+              <th>Referee</th>
+              <th>Details</th>
+              <th>Commission</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="ref-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="ref-empty">
+          <div class="table-empty-icon">🤝</div>
+          <h3>No referrals yet</h3>
+          <p>Partner referrals submitted via the referral page will appear here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <!-- Drawer overlay -->
@@ -350,10 +473,7 @@
     <div class="status-select-row">
       <label>Status</label>
       <select class="status-select" id="drawer-status-select">
-        <option value="pending">🔵 New</option>
-        <option value="reviewing">🟡 Reviewing</option>
-        <option value="approved">🟢 Approved</option>
-        <option value="declined">🔴 Declined</option>
+        <!-- Options populated dynamically -->
       </select>
     </div>
     <div class="drawer-btn-row">
@@ -375,212 +495,254 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { location.href = 'index.html'; return; }
-  const email = session.user.email || '';
-  document.getElementById('admin-avatar').textContent = email[0]?.toUpperCase() || 'A';
+  document.getElementById('admin-avatar').textContent = (session.user.email || 'A')[0].toUpperCase();
   await loadAll();
 })();
 
-async function logout() {
-  await sb.auth.signOut();
-  location.href = 'index.html';
-}
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
 
 // ── State ─────────────────────────────────────────────────────────────────
-let _propApps = [];
-let _teamApps = [];
-let _propFilter = 'all';
-let _teamFilter = 'all';
+let _propApps   = [], _teamApps  = [], _bizApps    = [], _quoteLeads = [], _partnerRefs = [];
+let _propFilter = 'all', _teamFilter = 'all', _bizFilter = 'all', _quoteFilter = 'all', _refFilter = 'all';
 let _activeTab  = 'property';
-let _openApp    = null;
-let _openType   = null;
+let _openApp    = null, _openType = null;
+
+// ── Status options per type ───────────────────────────────────────────────
+const STATUS_OPTIONS = {
+  property: [['pending','🔵 New'],['reviewing','🟡 Reviewing'],['approved','🟢 Approved'],['declined','🔴 Declined']],
+  team:     [['pending','🔵 New'],['reviewing','🟡 Reviewing'],['approved','🟢 Approved'],['declined','🔴 Declined']],
+  business: [['pending','🔵 New'],['reviewing','🟡 Reviewing'],['approved','🟢 Approved'],['declined','🔴 Declined']],
+  quote:    [['new','🔵 New'],['contacted','🟡 Contacted'],['quoted','🟠 Quoted'],['signed','🟢 Signed'],['archived','⚫ Archived']],
+  referral: [['submitted','🔵 New'],['contacted','🟡 Contacted'],['onboarded','🟢 Onboarded'],['paid','💰 Paid']],
+};
+
+const DEFAULT_STATUS = { property:'pending', team:'pending', business:'pending', quote:'new', referral:'submitted' };
+const IS_NEW_STATUS  = { property:s=>!s||s==='pending', team:s=>!s||s==='pending', business:s=>!s||s==='pending', quote:s=>!s||s==='new', referral:s=>!s||s==='submitted' };
+const NEXT_STATUS    = { property:'reviewing', team:'reviewing', business:'reviewing', quote:'contacted', referral:'contacted' };
 
 // ── Load data ─────────────────────────────────────────────────────────────
 async function loadAll() {
-  const [propRes, teamRes] = await Promise.all([
+  const [propRes, teamRes, bizRes, quoteRes, refRes] = await Promise.all([
     sb.from('property_applications').select('*').order('created_at', { ascending: false }),
     sb.from('team_applications').select('*').order('created_at', { ascending: false }),
+    sb.from('business_applications').select('*').order('created_at', { ascending: false }),
+    sb.from('quote_leads').select('*').order('created_at', { ascending: false }),
+    sb.from('partner_referrals').select('*').order('created_at', { ascending: false }),
   ]);
-
-  _propApps = propRes.data || [];
-  _teamApps = teamRes.data || [];
+  _propApps    = propRes.data    || [];
+  _teamApps    = teamRes.data    || [];
+  _bizApps     = bizRes.data     || [];
+  _quoteLeads  = quoteRes.data   || [];
+  _partnerRefs = refRes.data     || [];
 
   updateStats();
   renderPropTable();
   renderTeamTable();
+  renderBizTable();
+  renderQuoteTable();
+  renderRefTable();
 }
 
+// ── Stats ─────────────────────────────────────────────────────────────────
 function updateStats() {
-  const all  = [..._propApps, ..._teamApps];
-  const newCount      = all.filter(a => !a.status || a.status === 'pending').length;
-  const reviewingCount= all.filter(a => a.status === 'reviewing').length;
-  const approvedCount = all.filter(a => a.status === 'approved').length;
+  const all = [..._propApps, ..._teamApps, ..._bizApps, ..._quoteLeads, ..._partnerRefs];
+  const isNew    = a => IS_NEW_STATUS[typeOf(a)] ? IS_NEW_STATUS[typeOf(a)](a.status) : (!a.status || a.status === 'pending' || a.status === 'new' || a.status === 'submitted');
+  const inProg   = a => ['reviewing','contacted','quoted'].includes(a.status);
+  const complete = a => ['approved','signed','onboarded','paid'].includes(a.status);
 
   document.getElementById('stat-total').textContent     = all.length;
-  document.getElementById('stat-new').textContent       = newCount;
-  document.getElementById('stat-reviewing').textContent = reviewingCount;
-  document.getElementById('stat-approved').textContent  = approvedCount;
+  document.getElementById('stat-new').textContent       = all.filter(isNew).length;
+  document.getElementById('stat-reviewing').textContent = all.filter(inProg).length;
+  document.getElementById('stat-approved').textContent  = all.filter(complete).length;
 
-  const propNew = _propApps.filter(a => !a.status || a.status === 'pending').length;
-  const teamNew = _teamApps.filter(a => !a.status || a.status === 'pending').length;
+  function countNew(arr, type) { return arr.filter(a => IS_NEW_STATUS[type](a.status)).length; }
+  setBadge('badge-prop',  _propApps.length,   countNew(_propApps,'property'));
+  setBadge('badge-team',  _teamApps.length,   countNew(_teamApps,'team'));
+  setBadge('badge-biz',   _bizApps.length,    countNew(_bizApps,'business'));
+  setBadge('badge-quote', _quoteLeads.length, countNew(_quoteLeads,'quote'));
+  setBadge('badge-ref',   _partnerRefs.length,countNew(_partnerRefs,'referral'));
 
-  setBadge('badge-prop', _propApps.length, propNew);
-  setBadge('badge-team', _teamApps.length, teamNew);
-
-  // Nav badge
-  const totalNew = propNew + teamNew;
+  const totalNew = countNew(_propApps,'property') + countNew(_teamApps,'team') + countNew(_bizApps,'business') + countNew(_quoteLeads,'quote') + countNew(_partnerRefs,'referral');
   const nb = document.getElementById('nav-new-badge');
-  if (totalNew > 0) {
-    nb.textContent = totalNew;
-    nb.classList.remove('hidden');
-  } else {
-    nb.classList.add('hidden');
-  }
+  nb.textContent = totalNew;
+  nb.classList.toggle('hidden', totalNew === 0);
+}
+
+function typeOf(a) {
+  if (_propApps.includes(a))    return 'property';
+  if (_teamApps.includes(a))    return 'team';
+  if (_bizApps.includes(a))     return 'business';
+  if (_quoteLeads.includes(a))  return 'quote';
+  if (_partnerRefs.includes(a)) return 'referral';
+  return 'property';
 }
 
 function setBadge(id, total, newCount) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.textContent = total;
   el.className = 'tab-badge' + (newCount > 0 ? '' : ' zero');
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────
+const PANES = { property:'pane-property', team:'pane-team', business:'pane-business', quote:'pane-quote', referral:'pane-referral' };
+const TABS  = { property:'tab-prop', team:'tab-team', business:'tab-biz', quote:'tab-quote', referral:'tab-ref' };
+
 function switchTab(tab) {
   _activeTab = tab;
-  document.getElementById('pane-property').classList.toggle('hidden', tab !== 'property');
-  document.getElementById('pane-team').classList.toggle('hidden', tab !== 'team');
-  document.getElementById('tab-prop').classList.toggle('active', tab === 'property');
-  document.getElementById('tab-team').classList.toggle('active', tab === 'team');
+  Object.entries(PANES).forEach(([t,id]) => document.getElementById(id).classList.toggle('hidden', t !== tab));
+  Object.entries(TABS).forEach(([t,id])  => document.getElementById(id).classList.toggle('active', t === tab));
   closeDrawer();
 }
 
 // ── Filters ───────────────────────────────────────────────────────────────
 function setFilter(type, filter, btn) {
-  if (type === 'prop') {
-    _propFilter = filter;
-    document.querySelectorAll('#pane-property .filter-chip').forEach(b => b.classList.remove('active'));
-    renderPropTable();
-  } else {
-    _teamFilter = filter;
-    document.querySelectorAll('#pane-team .filter-chip').forEach(b => b.classList.remove('active'));
-    renderTeamTable();
-  }
+  const paneMap = { prop:'#pane-property', team:'#pane-team', biz:'#pane-business', quote:'#pane-quote', ref:'#pane-referral' };
+  document.querySelectorAll(paneMap[type] + ' .filter-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  if (type === 'prop')  { _propFilter  = filter; renderPropTable(); }
+  if (type === 'team')  { _teamFilter  = filter; renderTeamTable(); }
+  if (type === 'biz')   { _bizFilter   = filter; renderBizTable();  }
+  if (type === 'quote') { _quoteFilter = filter; renderQuoteTable();}
+  if (type === 'ref')   { _refFilter   = filter; renderRefTable();  }
 }
+
+// ── Render helpers ────────────────────────────────────────────────────────
+function renderTable(arr, filter, defaultStatus, tbodyId, emptyId, rowFn) {
+  const filtered = filter === 'all' ? arr : arr.filter(a => (a.status || defaultStatus) === filter);
+  const tbody = document.getElementById(tbodyId);
+  const empty = document.getElementById(emptyId);
+  if (filtered.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = filtered.map(rowFn).join('');
+}
+
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }); }
 
 // ── Render property table ─────────────────────────────────────────────────
 function renderPropTable() {
-  const filtered = _propFilter === 'all'
-    ? _propApps
-    : _propApps.filter(a => (a.status || 'pending') === _propFilter);
-
-  const tbody = document.getElementById('prop-tbody');
-  const empty = document.getElementById('prop-empty');
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-
-  tbody.innerHTML = filtered.map(a => {
-    const status  = a.status || 'pending';
-    const plat    = (a.platforms || []).slice(0, 2).join(', ') + ((a.platforms||[]).length > 2 ? ` +${a.platforms.length-2}` : '');
-    const date    = new Date(a.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
-    return `
-      <tr onclick="openDrawer('property','${a.id}')" ${_openApp?.id === a.id ? 'class="selected"' : ''}>
-        <td>
-          <div class="app-name">${esc(a.owner_name || '—')}</div>
-          <div class="app-sub">${esc(a.owner_email || '')}</div>
-        </td>
-        <td>
-          <div class="app-name">${esc(a.prop_name || '—')}</div>
-          <div class="app-sub">${esc(a.prop_type || '')}${a.prop_bedrooms ? ' · ' + a.prop_bedrooms + ' bed' : ''}</div>
-        </td>
-        <td>${esc(a.prop_city || '—')}</td>
-        <td style="font-size:0.8rem;color:var(--a-gray);">${plat || '—'}</td>
-        <td class="app-date">${date}</td>
-        <td>${statusBadge(status)}</td>
-      </tr>`;
-  }).join('');
+  renderTable(_propApps, _propFilter, 'pending', 'prop-tbody', 'prop-empty', a => {
+    const status = a.status || 'pending';
+    const plat   = (a.platforms||[]).slice(0,2).join(', ') + ((a.platforms||[]).length>2?` +${a.platforms.length-2}`:'');
+    return `<tr onclick="openDrawer('property','${a.id}')" ${_openApp?.id===a.id?'class="selected"':''}>
+      <td><div class="app-name">${esc(a.owner_name||'—')}</div><div class="app-sub">${esc(a.owner_email||'')}</div></td>
+      <td><div class="app-name">${esc(a.prop_name||'—')}</div><div class="app-sub">${esc(a.prop_type||'')}${a.prop_bedrooms?' · '+a.prop_bedrooms+' bed':''}</div></td>
+      <td>${esc(a.prop_city||'—')}</td>
+      <td style="font-size:0.8rem;color:var(--a-gray);">${plat||'—'}</td>
+      <td class="app-date">${fmtDate(a.created_at)}</td>
+      <td>${statusBadge(status)}</td>
+    </tr>`;
+  });
 }
 
 // ── Render team table ─────────────────────────────────────────────────────
 function renderTeamTable() {
-  const filtered = _teamFilter === 'all'
-    ? _teamApps
-    : _teamApps.filter(a => (a.status || 'pending') === _teamFilter);
-
-  const tbody = document.getElementById('team-tbody');
-  const empty = document.getElementById('team-empty');
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-
-  tbody.innerHTML = filtered.map(a => {
+  renderTable(_teamApps, _teamFilter, 'pending', 'team-tbody', 'team-empty', a => {
     const status = a.status || 'pending';
-    const date   = new Date(a.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
-    const portfolioHTML = a.portfolio_url
-      ? `<a href="${esc(a.portfolio_url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--a-sage);font-size:0.8rem;">View ↗</a>`
-      : '<span style="color:var(--a-gray);font-size:0.8rem;">—</span>';
-    return `
-      <tr onclick="openDrawer('team','${a.id}')" ${_openApp?.id === a.id ? 'class="selected"' : ''}>
-        <td>
-          <div class="app-name">${esc(a.name || '—')}</div>
-          <div class="app-sub">${esc(a.email || '')}</div>
-        </td>
-        <td>${esc(a.role_interest || '—')}</td>
-        <td>${esc(a.location || '—')}</td>
-        <td>${portfolioHTML}</td>
-        <td class="app-date">${date}</td>
-        <td>${statusBadge(status)}</td>
-      </tr>`;
-  }).join('');
+    const port   = a.portfolio_url ? `<a href="${esc(a.portfolio_url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--a-sage);font-size:0.8rem;">View ↗</a>` : '<span style="color:var(--a-gray);font-size:0.8rem;">—</span>';
+    return `<tr onclick="openDrawer('team','${a.id}')" ${_openApp?.id===a.id?'class="selected"':''}>
+      <td><div class="app-name">${esc(a.name||'—')}</div><div class="app-sub">${esc(a.email||'')}</div></td>
+      <td>${esc(a.role_interest||'—')}</td>
+      <td>${esc(a.location||'—')}</td>
+      <td>${port}</td>
+      <td class="app-date">${fmtDate(a.created_at)}</td>
+      <td>${statusBadge(status)}</td>
+    </tr>`;
+  });
+}
+
+// ── Render business table ─────────────────────────────────────────────────
+function renderBizTable() {
+  renderTable(_bizApps, _bizFilter, 'pending', 'biz-tbody', 'biz-empty', a => {
+    const status = a.status || 'pending';
+    return `<tr onclick="openDrawer('business','${a.id}')" ${_openApp?.id===a.id?'class="selected"':''}>
+      <td><div class="app-name">${esc(a.business_name||'—')}</div><div class="app-sub">${esc(a.email||'')}</div></td>
+      <td><div class="app-name">${esc(a.contact_name||'—')}</div><div class="app-sub">${esc(a.phone||'')}</div></td>
+      <td>${esc(a.partner_type||'—')}</td>
+      <td>${esc(a.region||'—')}</td>
+      <td class="app-date">${fmtDate(a.created_at)}</td>
+      <td>${statusBadge(status)}</td>
+    </tr>`;
+  });
+}
+
+// ── Render quote leads table ──────────────────────────────────────────────
+function renderQuoteTable() {
+  renderTable(_quoteLeads, _quoteFilter, 'new', 'quote-tbody', 'quote-empty', a => {
+    const status   = a.status || 'new';
+    const services = [a.housekeeping_total && 'Housekeeping', a.linen_total && 'Linen', a.changeover_total && 'Changeover'].filter(Boolean).join(', ') || '—';
+    const value    = a.changeover_total ? `$${a.changeover_total}` : (a.housekeeping_total ? `$${a.housekeeping_total}` : '—');
+    const propName = a.property_name || (a.property_details ? a.property_details.substring(0,30)+'…' : '—');
+    return `<tr onclick="openDrawer('quote','${a.id}')" ${_openApp?.id===a.id?'class="selected"':''}>
+      <td><div class="app-name">${esc(a.name||'—')}</div><div class="app-sub">${esc(a.email||'')}</div></td>
+      <td><div class="app-name" style="font-size:0.83rem;">${esc(propName)}</div><div class="app-sub">${esc(a.type==='unlock'?'Quote unlock':'Service request')}</div></td>
+      <td style="font-size:0.8rem;color:var(--a-gray);">${services}</td>
+      <td><span class="commission-badge">${value}</span></td>
+      <td class="app-date">${fmtDate(a.created_at)}</td>
+      <td>${statusBadge(status)}</td>
+    </tr>`;
+  });
+}
+
+// ── Render referrals table ────────────────────────────────────────────────
+function renderRefTable() {
+  renderTable(_partnerRefs, _refFilter, 'submitted', 'ref-tbody', 'ref-empty', a => {
+    const status  = a.status || 'submitted';
+    const details = a.details ? a.details.substring(0,35)+'…' : '—';
+    const comm    = a.commission_amount ? `<span class="commission-badge">$${a.commission_amount}</span>` : '—';
+    return `<tr onclick="openDrawer('referral','${a.id}')" ${_openApp?.id===a.id?'class="selected"':''}>
+      <td><div class="app-name">${esc(a.referrer_name||'—')}</div><div class="app-sub">${esc(a.referrer_email||'')}</div></td>
+      <td><div class="app-name">${esc(a.referee_name||'—')}</div><div class="app-sub">${esc(a.referee_contact||'')}</div></td>
+      <td style="font-size:0.8rem;color:var(--a-gray);">${esc(details)}</td>
+      <td>${comm}</td>
+      <td class="app-date">${fmtDate(a.created_at)}</td>
+      <td>${statusBadge(status)}</td>
+    </tr>`;
+  });
 }
 
 // ── Drawer ────────────────────────────────────────────────────────────────
 function openDrawer(type, id) {
-  const app = type === 'property'
-    ? _propApps.find(a => a.id === id)
-    : _teamApps.find(a => a.id === id);
+  const arrMap = { property:_propApps, team:_teamApps, business:_bizApps, quote:_quoteLeads, referral:_partnerRefs };
+  const app = arrMap[type]?.find(a => a.id == id);
   if (!app) return;
 
   _openApp  = app;
   _openType = type;
 
   // Header
-  const name = type === 'property' ? app.owner_name : app.name;
-  const meta = type === 'property'
-    ? `${app.prop_name || 'Property application'} · ${app.prop_city || ''}`
-    : `${app.role_interest || 'Team application'} · ${app.location || ''}`;
+  const headerMap = {
+    property: [app.owner_name, `${app.prop_name||'Property'} · ${app.prop_city||''}`],
+    team:     [app.name,        `${app.role_interest||'Team'} · ${app.location||''}`],
+    business: [app.business_name, `${app.partner_type||'Business'} · ${app.region||''}`],
+    quote:    [app.name,        `${app.type==='unlock'?'Quote unlock':'Service request'} · ${app.property_name||''}`],
+    referral: [app.referrer_name, `Referring: ${app.referee_name||'—'}`],
+  };
+  const [name, meta] = headerMap[type] || ['—','—'];
   document.getElementById('drawer-name').textContent = name || '—';
   document.getElementById('drawer-meta').textContent = meta;
-  document.getElementById('drawer-status-select').value = app.status || 'pending';
+
+  // Status select — populate options for this type
+  const sel = document.getElementById('drawer-status-select');
+  sel.innerHTML = STATUS_OPTIONS[type].map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
+  sel.value = app.status || DEFAULT_STATUS[type];
 
   // Body
-  document.getElementById('drawer-body').innerHTML = type === 'property'
-    ? buildPropDrawer(app)
-    : buildTeamDrawer(app);
+  const builders = { property:buildPropDrawer, team:buildTeamDrawer, business:buildBizDrawer, quote:buildQuoteDrawer, referral:buildRefDrawer };
+  document.getElementById('drawer-body').innerHTML = builders[type](app);
 
-  // Highlight row
   document.querySelectorAll('.app-table tbody tr').forEach(r => r.classList.remove('selected'));
   event.currentTarget?.classList.add('selected');
 
   document.getElementById('drawer-overlay').classList.add('open');
   document.getElementById('detail-drawer').classList.add('open');
 
-  // Auto-mark as reviewing if still pending
-  if (!app.status || app.status === 'pending') {
-    updateStatus(type, id, 'reviewing', false);
-  }
+  // Auto-advance from "new/pending/submitted" to next status
+  if (IS_NEW_STATUS[type](app.status)) updateStatus(type, id, NEXT_STATUS[type], false);
 }
 
 function buildPropDrawer(a) {
-  const platforms = (a.platforms || []);
+  const platforms = a.platforms || [];
   return `
     <div class="drawer-section">
       <div class="drawer-section-title">Owner Details</div>
@@ -595,36 +757,19 @@ function buildPropDrawer(a) {
       <div class="drawer-section-title">Property Details</div>
       <div class="drawer-fields-row">
         <div class="drawer-field"><div class="drawer-field-label">Property Name</div><div class="drawer-field-val">${esc(a.prop_name||'—')}</div></div>
-        <div class="drawer-field"><div class="drawer-field-label">City</div><div class="drawer-field-val">${esc(a.prop_city||'—')}</div></div>
-        <div class="drawer-field"><div class="drawer-field-label">Region</div><div class="drawer-field-val">${esc(a.prop_region||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">City / Region</div><div class="drawer-field-val">${esc(a.prop_city||'—')}${a.prop_region?' · '+esc(a.prop_region):''}</div></div>
         <div class="drawer-field"><div class="drawer-field-label">Type</div><div class="drawer-field-val">${esc(a.prop_type||'—')}</div></div>
-        <div class="drawer-field"><div class="drawer-field-label">Bedrooms / Baths</div><div class="drawer-field-val">${a.prop_bedrooms||'—'} bed · ${a.prop_bathrooms||'—'} bath</div></div>
-        <div class="drawer-field"><div class="drawer-field-label">Max Guests</div><div class="drawer-field-val">${a.prop_guests||'—'}</div></div>
-        <div class="drawer-field"><div class="drawer-field-label">Est. Nightly Rate</div><div class="drawer-field-val">${a.prop_price ? '$' + a.prop_price : '—'}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Beds / Baths / Guests</div><div class="drawer-field-val">${a.prop_bedrooms||'—'} bed · ${a.prop_bathrooms||'—'} bath · ${a.prop_guests||'—'} guests</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Est. Nightly Rate</div><div class="drawer-field-val">${a.prop_price?'$'+a.prop_price:'—'}</div></div>
         <div class="drawer-field"><div class="drawer-field-label">Platform Rating</div><div class="drawer-field-val">${esc(a.prop_rating||'—')}</div></div>
       </div>
-      ${platforms.length > 0 ? `
-      <div class="drawer-field">
-        <div class="drawer-field-label">Current Platforms</div>
-        <div class="platform-tags">${platforms.map(p => `<span class="platform-tag">${esc(p)}</span>`).join('')}</div>
-      </div>` : ''}
-      ${a.listing_url ? `<div class="drawer-field"><div class="drawer-field-label">Existing Listing URL</div><div class="drawer-field-val"><a href="${esc(a.listing_url)}" target="_blank">${esc(a.listing_url)}</a></div></div>` : ''}
-      ${a.photo_url ? `<div class="drawer-field"><div class="drawer-field-label">Photo URL</div><div class="drawer-field-val"><a href="${esc(a.photo_url)}" target="_blank">View Photo ↗</a></div></div>` : ''}
+      ${platforms.length?`<div class="drawer-field"><div class="drawer-field-label">Current Platforms</div><div class="platform-tags">${platforms.map(p=>`<span class="platform-tag">${esc(p)}</span>`).join('')}</div></div>`:''}
+      ${a.listing_url?`<div class="drawer-field"><div class="drawer-field-label">Existing Listing</div><div class="drawer-field-val"><a href="${esc(a.listing_url)}" target="_blank">${esc(a.listing_url)}</a></div></div>`:''}
+      ${a.photo_url?`<div class="drawer-field"><div class="drawer-field-label">Photo</div><div class="drawer-field-val"><a href="${esc(a.photo_url)}" target="_blank">View Photo ↗</a></div></div>`:''}
     </div>
-    ${a.description ? `
-    <div class="drawer-section">
-      <div class="drawer-section-title">Property Description</div>
-      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.description)}</div>
-    </div>` : ''}
-    ${a.notes ? `
-    <div class="drawer-section">
-      <div class="drawer-section-title">Additional Notes</div>
-      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.notes)}</div>
-    </div>` : ''}
-    <div class="drawer-section">
-      <div class="drawer-section-title">Submitted</div>
-      <div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA', { dateStyle:'medium', timeStyle:'short' })}</div>
-    </div>`;
+    ${a.description?`<div class="drawer-section"><div class="drawer-section-title">Description</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.description)}</div></div>`:''}
+    ${a.notes?`<div class="drawer-section"><div class="drawer-section-title">Notes</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.notes)}</div></div>`:''}
+    <div class="drawer-section"><div class="drawer-section-title">Submitted</div><div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'})}</div></div>`;
 }
 
 function buildTeamDrawer(a) {
@@ -638,84 +783,151 @@ function buildTeamDrawer(a) {
         <div class="drawer-field"><div class="drawer-field-label">Location</div><div class="drawer-field-val">${esc(a.location||'—')}</div></div>
       </div>
       <div class="drawer-field"><div class="drawer-field-label">Area of Interest</div><div class="drawer-field-val">${esc(a.role_interest||'—')}</div></div>
-      ${a.portfolio_url ? `<div class="drawer-field"><div class="drawer-field-label">Portfolio / LinkedIn</div><div class="drawer-field-val"><a href="${esc(a.portfolio_url)}" target="_blank">${esc(a.portfolio_url)}</a></div></div>` : ''}
+      ${a.portfolio_url?`<div class="drawer-field"><div class="drawer-field-label">Portfolio / LinkedIn</div><div class="drawer-field-val"><a href="${esc(a.portfolio_url)}" target="_blank">${esc(a.portfolio_url)}</a></div></div>`:''}
     </div>
-    ${a.experience ? `
+    ${a.experience?`<div class="drawer-section"><div class="drawer-section-title">Relevant Experience</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.experience)}</div></div>`:''}
+    ${a.why_bonsai?`<div class="drawer-section"><div class="drawer-section-title">Why Bonsai Stays?</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.why_bonsai)}</div></div>`:''}
+    <div class="drawer-section"><div class="drawer-section-title">Submitted</div><div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'})}</div></div>`;
+}
+
+function buildBizDrawer(a) {
+  return `
     <div class="drawer-section">
-      <div class="drawer-section-title">Relevant Experience</div>
-      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.experience)}</div>
-    </div>` : ''}
-    ${a.why_bonsai ? `
+      <div class="drawer-section-title">Business Details</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Business Name</div><div class="drawer-field-val">${esc(a.business_name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Contact Name</div><div class="drawer-field-val">${esc(a.contact_name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Email</div><div class="drawer-field-val"><a href="mailto:${esc(a.email)}">${esc(a.email||'—')}</a></div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Phone</div><div class="drawer-field-val">${esc(a.phone||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Partner Type</div><div class="drawer-field-val">${esc(a.partner_type||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Region</div><div class="drawer-field-val">${esc(a.region||'—')}</div></div>
+      </div>
+      ${a.website?`<div class="drawer-field"><div class="drawer-field-label">Website</div><div class="drawer-field-val"><a href="${esc(a.website)}" target="_blank">${esc(a.website)}</a></div></div>`:''}
+    </div>
+    ${a.description?`<div class="drawer-section"><div class="drawer-section-title">Description</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.description)}</div></div>`:''}
+    <div class="drawer-section"><div class="drawer-section-title">Submitted</div><div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'})}</div></div>`;
+}
+
+function buildQuoteDrawer(a) {
+  return `
     <div class="drawer-section">
-      <div class="drawer-section-title">Why Bonsai Stays?</div>
-      <div class="drawer-field-val" style="white-space:pre-line;">${esc(a.why_bonsai)}</div>
-    </div>` : ''}
+      <div class="drawer-section-title">Contact Details</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Name</div><div class="drawer-field-val">${esc(a.name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Email</div><div class="drawer-field-val"><a href="mailto:${esc(a.email)}">${esc(a.email||'—')}</a></div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Phone</div><div class="drawer-field-val">${esc(a.phone||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Lead Type</div><div class="drawer-field-val">${a.type==='unlock'?'Quote unlock':'Service request'}</div></div>
+      </div>
+    </div>
     <div class="drawer-section">
-      <div class="drawer-section-title">Submitted</div>
-      <div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA', { dateStyle:'medium', timeStyle:'short' })}</div>
-    </div>`;
+      <div class="drawer-section-title">Quote Details</div>
+      <div class="drawer-fields-row">
+        ${a.property_name?`<div class="drawer-field"><div class="drawer-field-label">Property Name</div><div class="drawer-field-val">${esc(a.property_name)}</div></div>`:''}
+        ${a.request_type?`<div class="drawer-field"><div class="drawer-field-label">Request Type</div><div class="drawer-field-val">${esc(a.request_type)}</div></div>`:''}
+        ${a.housekeeping_total?`<div class="drawer-field"><div class="drawer-field-label">Housekeeping Est.</div><div class="drawer-field-val">$${esc(a.housekeeping_total)}</div></div>`:''}
+        ${a.linen_total?`<div class="drawer-field"><div class="drawer-field-label">Linen Est.</div><div class="drawer-field-val">$${esc(a.linen_total)}</div></div>`:''}
+        ${a.changeover_total?`<div class="drawer-field"><div class="drawer-field-label">Total Changeover Est.</div><div class="drawer-field-val">$${esc(a.changeover_total)}</div></div>`:''}
+        ${a.membership_tier?`<div class="drawer-field"><div class="drawer-field-label">Membership Tier</div><div class="drawer-field-val">${esc(a.membership_tier)}</div></div>`:''}
+        ${a.membership_price?`<div class="drawer-field"><div class="drawer-field-label">Membership Price</div><div class="drawer-field-val">$${esc(a.membership_price)}/mo</div></div>`:''}
+        ${a.estimated_savings?`<div class="drawer-field"><div class="drawer-field-label">Est. Annual Savings</div><div class="drawer-field-val">$${esc(a.estimated_savings)}</div></div>`:''}
+      </div>
+      ${a.property_details?`<div class="drawer-field"><div class="drawer-field-label">Property Details</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.property_details)}</div></div>`:''}
+    </div>
+    ${a.notes?`<div class="drawer-section"><div class="drawer-section-title">Notes</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.notes)}</div></div>`:''}
+    <div class="drawer-section"><div class="drawer-section-title">Submitted</div><div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'})}</div></div>`;
+}
+
+function buildRefDrawer(a) {
+  return `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Referred By</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Name</div><div class="drawer-field-val">${esc(a.referrer_name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Email</div><div class="drawer-field-val"><a href="mailto:${esc(a.referrer_email)}">${esc(a.referrer_email||'—')}</a></div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Phone</div><div class="drawer-field-val">${esc(a.referrer_phone||'—')}</div></div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Referee (Who Was Referred)</div>
+      <div class="drawer-fields-row">
+        <div class="drawer-field"><div class="drawer-field-label">Name</div><div class="drawer-field-val">${esc(a.referee_name||'—')}</div></div>
+        <div class="drawer-field"><div class="drawer-field-label">Contact</div><div class="drawer-field-val">${esc(a.referee_contact||'—')}</div></div>
+      </div>
+      ${a.details?`<div class="drawer-field"><div class="drawer-field-label">Property Details</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.details)}</div></div>`:''}
+    </div>
+    ${a.notes?`<div class="drawer-section"><div class="drawer-section-title">Notes</div><div class="drawer-field-val" style="white-space:pre-line;">${esc(a.notes)}</div></div>`:''}
+    <div class="drawer-section">
+      <div class="drawer-section-title">Commission</div>
+      <div class="drawer-field-val" style="font-size:1.2rem;font-weight:700;color:var(--a-green);">${a.commission_amount?'$'+a.commission_amount:'—'}</div>
+    </div>
+    <div class="drawer-section"><div class="drawer-section-title">Submitted</div><div class="drawer-field-val">${new Date(a.created_at).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'})}</div></div>`;
 }
 
 function closeDrawer() {
   document.getElementById('drawer-overlay').classList.remove('open');
   document.getElementById('detail-drawer').classList.remove('open');
-  _openApp  = null;
-  _openType = null;
+  _openApp = null; _openType = null;
   document.querySelectorAll('.app-table tbody tr').forEach(r => r.classList.remove('selected'));
 }
 
 // ── Status management ─────────────────────────────────────────────────────
 async function saveDrawerStatus() {
   if (!_openApp) return;
-  const newStatus = document.getElementById('drawer-status-select').value;
-  await updateStatus(_openType, _openApp.id, newStatus, true);
+  await updateStatus(_openType, _openApp.id, document.getElementById('drawer-status-select').value, true);
 }
 
 async function updateStatus(type, id, status, showFeedback) {
-  const table = type === 'property' ? 'property_applications' : 'team_applications';
-  const { error } = await sb.from(table).update({ status }).eq('id', id);
+  const tableMap = { property:'property_applications', team:'team_applications', business:'business_applications', quote:'quote_leads', referral:'partner_referrals' };
+  const { error } = await sb.from(tableMap[type]).update({ status }).eq('id', id);
   if (error) { if (showFeedback) alert('Error saving status'); return; }
 
-  // Update local state
-  const arr = type === 'property' ? _propApps : _teamApps;
-  const app = arr.find(a => a.id === id);
+  const arrMap = { property:_propApps, team:_teamApps, business:_bizApps, quote:_quoteLeads, referral:_partnerRefs };
+  const app = arrMap[type]?.find(a => a.id == id);
   if (app) app.status = status;
-  if (_openApp?.id === id) _openApp.status = status;
+  if (_openApp?.id == id) { _openApp.status = status; document.getElementById('drawer-status-select').value = status; }
 
   updateStats();
-  if (type === 'property') renderPropTable(); else renderTeamTable();
+  const renderMap = { property:renderPropTable, team:renderTeamTable, business:renderBizTable, quote:renderQuoteTable, referral:renderRefTable };
+  renderMap[type]?.();
   if (showFeedback) showToast('✓ Status updated');
 }
 
 // ── Reply by email ────────────────────────────────────────────────────────
 function replyByEmail() {
   if (!_openApp) return;
-  const email = _openType === 'property' ? _openApp.owner_email : _openApp.email;
-  const name  = _openType === 'property' ? _openApp.owner_name  : _openApp.name;
-  const subject = _openType === 'property'
-    ? encodeURIComponent(`Re: Your Bonsai Stays property application — ${_openApp.prop_name || ''}`)
-    : encodeURIComponent(`Re: Your Bonsai Stays application — ${_openApp.role_interest || 'Team'}`);
-  const body = encodeURIComponent(`Hi ${name?.split(' ')[0] || 'there'},\n\nThank you for your application to Bonsai Stays.\n\n`);
+  const emailMap = { property:_openApp.owner_email, team:_openApp.email, business:_openApp.email, quote:_openApp.email, referral:_openApp.referrer_email };
+  const nameMap  = { property:_openApp.owner_name,  team:_openApp.name,  business:_openApp.contact_name, quote:_openApp.name, referral:_openApp.referrer_name };
+  const subjectMap = {
+    property: `Re: Your Bonsai Stays property application — ${_openApp.prop_name||''}`,
+    team:     `Re: Your Bonsai Stays application — ${_openApp.role_interest||'Team'}`,
+    business: `Re: Your Bonsai Stays business application — ${_openApp.business_name||''}`,
+    quote:    `Re: Your Bonsai Stays quote — ${_openApp.property_name||''}`,
+    referral: `Re: Your Bonsai Stays referral — ${_openApp.referee_name||''}`,
+  };
+  const email   = emailMap[_openType] || '';
+  const name    = (nameMap[_openType] || '').split(' ')[0] || 'there';
+  const subject = encodeURIComponent(subjectMap[_openType] || 'Re: Bonsai Stays');
+  const body    = encodeURIComponent(`Hi ${name},\n\nThank you for reaching out to Bonsai Stays.\n\n`);
   window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function statusBadge(status) {
   const map = {
-    pending:   ['🔵', 'New'],
-    reviewing: ['🟡', 'Reviewing'],
-    approved:  ['🟢', 'Approved'],
-    declined:  ['🔴', 'Declined'],
+    pending:'🔵 New', new:'🔵 New', submitted:'🔵 New',
+    reviewing:'🟡 Reviewing', contacted:'🟡 Contacted', quoted:'🟠 Quoted',
+    approved:'🟢 Approved', onboarded:'🟢 Onboarded', signed:'🟢 Signed', paid:'💰 Paid',
+    declined:'🔴 Declined', archived:'⚫ Archived',
   };
-  const [dot, label] = map[status] || map.pending;
-  return `<span class="status-badge status-${status}">${dot} ${label}</span>`;
+  const label = map[status] || '🔵 New';
+  return `<span class="status-badge status-${status||'pending'}">${label}</span>`;
 }
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function showToast(msg) {
   const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0B2218;color:#fff;padding:11px 22px;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:999;animation:fadeUp 0.2s ease;';
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0B2218;color:#fff;padding:11px 22px;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:999;';
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2800);
