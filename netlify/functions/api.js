@@ -46,7 +46,7 @@ const CORS = {
 // ── Fields safe to expose publicly ───────────────────────────────────────────
 const PROPERTY_PUBLIC_FIELDS = [
   'id', 'name', 'city', 'address', 'description',
-  'bedrooms', 'bathrooms', 'max_guests',
+  'bedrooms', 'bathrooms', 'guests',
   'thumbnail_url', 'photos', 'amenities',
   'airbnb_url', 'vrbo_url', 'active',
 ].join(', ');
