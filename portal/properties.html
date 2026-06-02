@@ -480,6 +480,66 @@
 </div>
 
 
+<!-- ═══ Modal: API Endpoints ═════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-api">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div>
+        <h3>🔗 API Endpoints</h3>
+        <p id="api-modal-sub" style="font-size:0.8rem;color:var(--a-gray);margin-top:2px;"></p>
+      </div>
+      <button class="btn-modal-close" onclick="closeApiModal()">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- API Key input -->
+      <div style="background:var(--a-bg);border-radius:10px;padding:14px 16px;">
+        <label style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--a-gray);display:block;margin-bottom:6px;">Your API Key</label>
+        <div style="display:flex;gap:8px;">
+          <input id="api-key-input" type="text" placeholder="Paste your BONSAI_API_KEY here to pre-fill URLs"
+            style="flex:1;padding:9px 12px;border:1.5px solid var(--a-gray-pale);border-radius:8px;font-size:0.83rem;font-family:monospace;background:var(--a-white);color:var(--a-charcoal);"
+            oninput="refreshApiUrls()" />
+        </div>
+        <p style="font-size:0.72rem;color:var(--a-gray);margin-top:6px;">Enter the key you set in Netlify → Environment variables → <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;">BONSAI_API_KEY</code>. Only needed when sharing with partners.</p>
+      </div>
+
+      <!-- Availability endpoint -->
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--a-gray);margin-bottom:6px;">Availability (blocked dates)</div>
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <input id="api-url-avail" type="text" readonly
+            style="flex:1;padding:9px 12px;border:1.5px solid var(--a-gray-pale);border-radius:8px;font-size:0.75rem;font-family:monospace;background:#FAFAF9;color:var(--a-charcoal);cursor:text;" />
+          <button onclick="copyApiUrl('api-url-avail',this)" class="btn-secondary" style="padding:9px 14px;font-size:0.78rem;white-space:nowrap;flex-shrink:0;">Copy</button>
+          <a id="api-test-avail" href="#" target="_blank" class="btn-secondary" style="padding:9px 14px;font-size:0.78rem;white-space:nowrap;flex-shrink:0;text-decoration:none;display:flex;align-items:center;">Test ↗</a>
+        </div>
+        <p style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Returns all blocked date ranges for this property. Add <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;">&amp;from=YYYY-MM-DD&amp;to=YYYY-MM-DD</code> to filter a window.</p>
+      </div>
+
+      <!-- Property details endpoint -->
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--a-gray);margin-bottom:6px;">Property Details</div>
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <input id="api-url-prop" type="text" readonly
+            style="flex:1;padding:9px 12px;border:1.5px solid var(--a-gray-pale);border-radius:8px;font-size:0.75rem;font-family:monospace;background:#FAFAF9;color:var(--a-charcoal);cursor:text;" />
+          <button onclick="copyApiUrl('api-url-prop',this)" class="btn-secondary" style="padding:9px 14px;font-size:0.78rem;white-space:nowrap;flex-shrink:0;">Copy</button>
+          <a id="api-test-prop" href="#" target="_blank" class="btn-secondary" style="padding:9px 14px;font-size:0.78rem;white-space:nowrap;flex-shrink:0;text-decoration:none;display:flex;align-items:center;">Test ↗</a>
+        </div>
+        <p style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Returns the property's public info: name, location, bedrooms, bathrooms, amenities, photos.</p>
+      </div>
+
+      <!-- Download button -->
+      <div style="padding-top:4px;border-top:1px solid var(--a-gray-pale);">
+        <button onclick="downloadAvailabilityJson()" class="btn-primary" style="width:100%;justify-content:center;gap:8px;">
+          ⬇ Download Availability as JSON
+        </button>
+        <p style="font-size:0.72rem;color:var(--a-gray);margin-top:6px;text-align:center;">Fetches live data right now and saves a <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;">.json</code> file to your computer.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 <!-- ═══ Modal: Delete confirm ════════════════════════════════════════════ -->
 <div class="modal-overlay hidden" id="modal-delete">
   <div class="modal" style="max-width:400px;">
@@ -585,6 +645,7 @@ function renderProperties() {
         </div>
         <div style="display:flex;gap:8px;">
           <button onclick="openModal('${p.id}')" class="btn-primary" style="flex:1;justify-content:center;">Edit</button>
+          <button onclick="openApiModal('${p.id}','${esc(p.name)}')" class="btn-secondary" style="padding:11px 14px;" title="API & Share">🔗</button>
           <button onclick="openDeleteModal('${p.id}','${esc(p.name)}')" class="btn-danger" style="padding:11px 16px;">Delete</button>
         </div>
       </div>
@@ -1442,6 +1503,82 @@ async function syncFromGuesty() {
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Sync Now';
+  }
+}
+
+// ── API Modal ─────────────────────────────────────────────────────────────
+let _apiPropId   = null;
+let _apiPropName = null;
+
+function openApiModal(id, name) {
+  _apiPropId   = id;
+  _apiPropName = name;
+  document.getElementById('api-modal-sub').textContent = name;
+  refreshApiUrls();
+  document.getElementById('modal-api').classList.remove('hidden');
+}
+
+function closeApiModal() {
+  document.getElementById('modal-api').classList.add('hidden');
+}
+
+function buildApiBase() {
+  const origin = window.location.origin;
+  const key    = document.getElementById('api-key-input').value.trim();
+  const base   = `${origin}/.netlify/functions/api`;
+  const keyStr = key ? `&api_key=${encodeURIComponent(key)}` : '';
+  return { base, keyStr };
+}
+
+function refreshApiUrls() {
+  if (!_apiPropId) return;
+  const { base, keyStr } = buildApiBase();
+
+  const availUrl = `${base}?resource=availability&property_id=${_apiPropId}${keyStr}`;
+  const propUrl  = `${base}?resource=properties&id=${_apiPropId}${keyStr}`;
+
+  document.getElementById('api-url-avail').value = availUrl;
+  document.getElementById('api-url-prop').value  = propUrl;
+  document.getElementById('api-test-avail').href = availUrl;
+  document.getElementById('api-test-prop').href  = propUrl;
+}
+
+function copyApiUrl(inputId, btn) {
+  const val = document.getElementById(inputId).value;
+  navigator.clipboard.writeText(val).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.style.color = 'var(--a-green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1800);
+  });
+}
+
+async function downloadAvailabilityJson() {
+  const { base, keyStr } = buildApiBase();
+  const url = `${base}?resource=availability&property_id=${_apiPropId}${keyStr}`;
+
+  const btn = event.currentTarget;
+  btn.textContent = '⏳ Fetching…';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (!data.ok) throw new Error(data.error || 'API returned an error');
+
+    const blob     = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a        = document.createElement('a');
+    a.href         = URL.createObjectURL(blob);
+    a.download     = `${(_apiPropName || 'property').replace(/\s+/g,'-').toLowerCase()}-availability.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('✓ JSON downloaded');
+  } catch (e) {
+    alert('Download failed: ' + e.message + '\n\nMake sure SUPABASE_SERVICE_KEY is set in Netlify and the site is deployed.');
+  } finally {
+    btn.textContent = '⬇ Download Availability as JSON';
+    btn.disabled = false;
   }
 }
 

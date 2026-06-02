@@ -483,6 +483,13 @@
       <button class="btn-drawer-action btn-email" id="drawer-email-btn" onclick="replyByEmail()">✉️ Reply</button>
       <button class="btn-drawer-action btn-delete" onclick="deleteEntry()">🗑 Delete</button>
     </div>
+    <div id="drawer-prop-action-row" style="display:none;margin-top:10px;">
+      <a id="drawer-edit-prop-btn" href="properties.html" target="_blank"
+         style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px 16px;border-radius:var(--radius-sm);background:var(--a-green-tint);color:var(--a-green);font-size:0.83rem;font-weight:700;text-decoration:none;border:1.5px solid rgba(61,139,98,0.25);transition:var(--transition);"
+         onmouseover="this.style.background='rgba(61,139,98,0.18)'" onmouseout="this.style.background='var(--a-green-tint)'">
+        🏠 Edit Property in Properties →
+      </a>
+    </div>
   </div>
 </div>
 
@@ -739,6 +746,10 @@ function openDrawer(type, id) {
 
   document.getElementById('drawer-overlay').classList.add('open');
   document.getElementById('detail-drawer').classList.add('open');
+
+  // Show "Edit Property" shortcut only for property applications
+  const propActionRow = document.getElementById('drawer-prop-action-row');
+  propActionRow.style.display = type === 'property' ? 'block' : 'none';
 
   // Auto-advance from "new/pending/submitted" to next status
   if (IS_NEW_STATUS[type](app.status)) updateStatus(type, id, NEXT_STATUS[type], false);
