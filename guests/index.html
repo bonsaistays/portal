@@ -18,7 +18,13 @@
     /* Nav */
     .nav { background: transparent; }
     .nav.scrolled { background: rgba(254,252,248,0.96); }
-    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+    @media (min-width: 1025px) {
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 0.81rem; }
+      .nav-cta .btn { padding: 8px 12px; font-size: 0.77rem; }
+      .nav-cta { gap: 8px; }
+    }
 
     /* Hero */
     .guest-hero {

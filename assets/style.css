@@ -291,6 +291,17 @@ img { max-width: 100%; display: block; }
 .nav-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
 /* --- Responsive --- */
+@media (max-width: 1380px) {
+  .nav-links { gap: 20px; }
+  .nav-links a { font-size: 0.85rem; }
+  .nav-cta .btn { padding: 9px 14px; font-size: 0.8rem; }
+}
+@media (max-width: 1200px) {
+  .nav-links { gap: 14px; }
+  .nav-links a { font-size: 0.82rem; }
+  .nav-cta .btn { padding: 8px 11px; font-size: 0.78rem; }
+  .nav-cta { gap: 8px; }
+}
 @media (max-width: 1024px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   /* Shrink nav CTA buttons on tablets so they don't overflow */
