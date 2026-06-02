@@ -8,6 +8,9 @@
 [functions."ecobee-scheduler"]
   schedule = "*/30 * * * *"
 
+[functions."ical-sync"]
+  schedule = "*/30 * * * *"
+
 [[headers]]
   for = "/data/*"
   [headers.values]
