@@ -1,27 +1,26 @@
 /**
- * Bonsai Stays — Guest Message Email Notification
+ * Bonsai Stays — Guest Message SMS Notification
  * Netlify function: /.netlify/functions/notify-message
  *
  * Called by a Supabase Database Webhook whenever a row is inserted
  * into the `messages` table with sender = 'guest'.
  *
- * Sends an email to the admin via Resend so you never miss a message.
+ * Sends an SMS to the admin via Twilio so you never miss a message.
  *
  * ── Required env vars (Netlify → Site settings → Environment variables) ───
  *
- *  RESEND_API_KEY        — from resend.com → API Keys
- *  NOTIFY_EMAIL_TO       — your email address (e.g. daniel@bonsaistays.com)
- *  NOTIFY_EMAIL_FROM     — verified sender (e.g. noreply@bonsaistays.com)
- *  SUPABASE_URL          — your Portal Supabase project URL
- *  SUPABASE_SERVICE_KEY  — service role key (to look up booking + property)
+ *  TWILIO_ACCOUNT_SID   — from twilio.com/console
+ *  TWILIO_AUTH_TOKEN    — from twilio.com/console
+ *  TWILIO_FROM_NUMBER   — your Twilio phone number (e.g. +16135550100)
+ *  NOTIFY_PHONE_TO      — your mobile number to receive alerts (e.g. +16135559999)
+ *  SUPABASE_URL         — your Portal Supabase project URL
+ *  SUPABASE_SERVICE_KEY — service role key (to look up booking + property)
  *
  * ── Optional ──────────────────────────────────────────────────────────────
  *
- *  WEBHOOK_SECRET        — if set, the Supabase webhook must send this value
- *                          as the `x-webhook-secret` header
+ *  WEBHOOK_SECRET       — if set, Supabase webhook must send this as
+ *                         the x-webhook-secret header
  */
-
-const RESEND_API = 'https://api.resend.com/emails';
 
 exports.handler = async (event) => {
   const headers = { 'Content-Type': 'application/json' };
@@ -41,7 +40,7 @@ exports.handler = async (event) => {
   }
 
   // ── Parse Supabase webhook payload ────────────────────────────────────
-  // Supabase sends: { type: 'INSERT', table: 'messages', record: {...}, old_record: null }
+  // Supabase sends: { type: 'INSERT', table: 'messages', record: {...} }
   let payload;
   try {
     payload = JSON.parse(event.body || '{}');
@@ -49,8 +48,8 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const record = payload.record || payload; // handle both envelope and raw formats
-  const { booking_id, sender, content, created_at } = record;
+  const record = payload.record || payload;
+  const { booking_id, sender, content } = record;
 
   // Only notify on guest messages
   if (sender !== 'guest') {
@@ -67,12 +66,11 @@ exports.handler = async (event) => {
 
   let guestName    = 'A guest';
   let propertyName = 'your property';
-  let bookingUrl   = `https://bonsaistays.com/portal/booking.html?id=${booking_id}`;
 
   if (SB_KEY) {
     try {
-      const res = await fetch(
-        `${SB_URL}/rest/v1/bookings?id=eq.${booking_id}&select=guest_name,id,properties(name)`,
+      const res  = await fetch(
+        `${SB_URL}/rest/v1/bookings?id=eq.${booking_id}&select=guest_name,properties(name)`,
         {
           headers: {
             apikey:        SB_KEY,
@@ -83,115 +81,66 @@ exports.handler = async (event) => {
       );
       const rows = await res.json();
       if (Array.isArray(rows) && rows.length > 0) {
-        const b = rows[0];
-        guestName    = b.guest_name  || guestName;
-        propertyName = b.properties?.name || propertyName;
+        guestName    = rows[0].guest_name       || guestName;
+        propertyName = rows[0].properties?.name || propertyName;
       }
     } catch (e) {
       console.warn('Could not look up booking:', e.message);
-      // Non-fatal — still send the email without enriched context
+      // Non-fatal — still send the SMS without enriched context
     }
   }
 
-  // ── Build email ────────────────────────────────────────────────────────
-  const RESEND_KEY   = process.env.RESEND_API_KEY;
-  const emailTo      = process.env.NOTIFY_EMAIL_TO;
-  const emailFrom    = process.env.NOTIFY_EMAIL_FROM || 'Bonsai Stays <noreply@bonsaistays.com>';
+  // ── Build SMS ──────────────────────────────────────────────────────────
+  // Keep it short and actionable — one glance should tell you everything
+  const maxLen    = 280; // keep well under Twilio's segment limit
+  const truncated = content.length > maxLen ? content.slice(0, maxLen) + '…' : content;
 
-  if (!RESEND_KEY || !emailTo) {
-    console.error('Missing RESEND_API_KEY or NOTIFY_EMAIL_TO');
-    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Email not configured' }) };
+  const smsBody = [
+    `🌿 Bonsai Stays`,
+    `${guestName} @ ${propertyName}:`,
+    `"${truncated}"`,
+    `Reply in portal: bonsaistays.com/portal/booking.html?id=${booking_id}`,
+  ].join('\n');
+
+  // ── Send via Twilio ────────────────────────────────────────────────────
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken  = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_FROM_NUMBER;
+  const toNumber   = process.env.NOTIFY_PHONE_TO;
+
+  if (!accountSid || !authToken || !fromNumber || !toNumber) {
+    console.error('Missing Twilio env vars');
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'SMS not configured — check Twilio env vars' }) };
   }
 
-  const sentAt    = created_at ? new Date(created_at).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Toronto' }) : 'just now';
-  const firstName = guestName.split(' ')[0];
+  const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+  const auth      = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
 
-  const emailHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-<body style="margin:0;padding:0;background:#F4F4F0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F0;padding:32px 16px;">
-    <tr>
-      <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+  const body = new URLSearchParams({
+    From: fromNumber,
+    To:   toNumber,
+    Body: smsBody,
+  });
 
-          <!-- Header -->
-          <tr>
-            <td style="background:#0B2218;border-radius:12px 12px 0 0;padding:24px 32px;text-align:center;">
-              <div style="font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:-0.5px;">🌿 Bonsai Stays</div>
-              <div style="font-size:0.8rem;color:rgba(255,255,255,0.55);margin-top:4px;">Guest Message Alert</div>
-            </td>
-          </tr>
-
-          <!-- Body -->
-          <tr>
-            <td style="background:#ffffff;padding:32px;">
-              <p style="font-size:1rem;font-weight:600;color:#0B2218;margin:0 0 6px;">New message from ${guestName}</p>
-              <p style="font-size:0.85rem;color:#6B7280;margin:0 0 24px;">📍 ${propertyName} &nbsp;·&nbsp; ${sentAt}</p>
-
-              <!-- Message bubble -->
-              <div style="background:#F0FDF4;border-left:4px solid #3D8B62;border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:28px;">
-                <p style="font-size:0.95rem;color:#0B2218;line-height:1.6;margin:0;">${content.replace(/\n/g, '<br/>')}</p>
-              </div>
-
-              <a href="${bookingUrl}"
-                 style="display:inline-block;background:#0B2218;color:#ffffff;font-size:0.88rem;font-weight:700;padding:13px 24px;border-radius:8px;text-decoration:none;">
-                Reply to ${firstName} →
-              </a>
-
-              <p style="font-size:0.78rem;color:#9CA3AF;margin:24px 0 0;line-height:1.5;">
-                This message was sent through the Bonsai Stays guest app.<br/>
-                Reply directly in the portal — the guest will see your response in real time.
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#F9F9F7;border-radius:0 0 12px 12px;padding:16px 32px;border-top:1px solid #E5E5E0;">
-              <p style="font-size:0.75rem;color:#9CA3AF;margin:0;text-align:center;">
-                Bonsai Stays · Muskoka, Ontario &nbsp;·&nbsp;
-                <a href="https://bonsaistays.com/portal/dashboard.html" style="color:#3D8B62;text-decoration:none;">Open portal</a>
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-
-  // ── Send via Resend ────────────────────────────────────────────────────
   try {
-    const res = await fetch(RESEND_API, {
+    const res = await fetch(twilioUrl, {
       method:  'POST',
       headers: {
-        Authorization:  `Bearer ${RESEND_KEY}`,
-        'Content-Type': 'application/json',
+        Authorization:  `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
-        from:    emailFrom,
-        to:      [emailTo],
-        subject: `💬 New message from ${guestName} — ${propertyName}`,
-        html:    emailHtml,
-      }),
+      body: body.toString(),
     });
 
     const result = await res.json();
 
     if (!res.ok) {
-      console.error('Resend error:', result);
-      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Email send failed', detail: result }) };
+      console.error('Twilio error:', result);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'SMS send failed', detail: result }) };
     }
 
-    console.log('Email sent:', result.id);
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, email_id: result.id }) };
+    console.log('SMS sent:', result.sid);
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, sms_sid: result.sid }) };
 
   } catch (e) {
     console.error('Fetch error:', e.message);
