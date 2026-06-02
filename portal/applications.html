@@ -218,6 +218,8 @@
     .btn-save:hover { background: #0d3527; }
     .btn-email { background: var(--a-white); color: var(--a-green); border: 1.5px solid var(--a-gray-pale); }
     .btn-email:hover { border-color: var(--a-green); }
+    .btn-delete { background: none; color: #B91C1C; border: 1.5px solid #FECACA; font-size: 0.8rem; padding: 8px 14px; flex: 0 0 auto; }
+    .btn-delete:hover { background: #FEF2F2; border-color: #B91C1C; }
 
     /* Nav badge */
     .nav-app-badge {
@@ -478,7 +480,8 @@
     </div>
     <div class="drawer-btn-row">
       <button class="btn-drawer-action btn-save" onclick="saveDrawerStatus()">Save Status</button>
-      <button class="btn-drawer-action btn-email" id="drawer-email-btn" onclick="replyByEmail()">✉️ Reply by Email</button>
+      <button class="btn-drawer-action btn-email" id="drawer-email-btn" onclick="replyByEmail()">✉️ Reply</button>
+      <button class="btn-drawer-action btn-delete" onclick="deleteEntry()">🗑 Delete</button>
     </div>
   </div>
 </div>
@@ -890,6 +893,28 @@ async function updateStatus(type, id, status, showFeedback) {
   const renderMap = { property:renderPropTable, team:renderTeamTable, business:renderBizTable, quote:renderQuoteTable, referral:renderRefTable };
   renderMap[type]?.();
   if (showFeedback) showToast('✓ Status updated');
+}
+
+// ── Delete entry ─────────────────────────────────────────────────────────
+async function deleteEntry() {
+  if (!_openApp || !_openType) return;
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+
+  const tableMap = { property:'property_applications', team:'team_applications', business:'business_applications', quote:'quote_leads', referral:'partner_referrals' };
+  const { error } = await sb.from(tableMap[_openType]).delete().eq('id', _openApp.id);
+  if (error) { alert('Error deleting: ' + error.message); return; }
+
+  // Remove from local state
+  const arrMap = { property:_propApps, team:_teamApps, business:_bizApps, quote:_quoteLeads, referral:_partnerRefs };
+  const arr = arrMap[_openType];
+  const idx = arr.findIndex(a => a.id == _openApp.id);
+  if (idx > -1) arr.splice(idx, 1);
+
+  closeDrawer();
+  updateStats();
+  const renderMap = { property:renderPropTable, team:renderTeamTable, business:renderBizTable, quote:renderQuoteTable, referral:renderRefTable };
+  renderMap[_openType]?.();
+  showToast('🗑 Entry deleted');
 }
 
 // ── Reply by email ────────────────────────────────────────────────────────
