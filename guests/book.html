@@ -731,11 +731,10 @@ async function doMemberLookup() {
     });
     const data = await res.json();
 
-    console.log('member-lookup response:', JSON.stringify(data));
     if (!data.found) { hideMemberBanner(); return; }
 
     // Already verified in this session — don't reset to verify step
-    if (_memberId) { console.log('member already verified, skipping banner'); return; }
+    if (_memberId) return;
 
     _memberPoints = data.points;
     _memberTier   = data.tier || 'Black';
@@ -744,10 +743,8 @@ async function doMemberLookup() {
     document.getElementById('member-pts-preview').textContent =
       `You have ${data.points.toLocaleString()} Bon Voyage points — worth $${value} off. Verify to apply them.`;
 
-    console.log('showing member banner...');
     showMemberStep('verify');
     document.getElementById('member-banner').style.display = '';
-    console.log('banner display is now:', document.getElementById('member-banner').style.display);
   } catch(e) {
     console.warn('Member lookup failed:', e.message);
   }
