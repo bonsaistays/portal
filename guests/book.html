@@ -478,6 +478,12 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let _adults = 2, _children = 0, _properties = [];
 
+// ── Read URL params (from property page date picker) ──────
+const _params   = new URLSearchParams(location.search);
+const _paramProp    = _params.get('property') || '';
+const _paramCheckin  = _params.get('checkin')  || '';
+const _paramCheckout = _params.get('checkout') || '';
+
 // ── Load properties ───────────────────────────────────────
 (async () => {
   const { data } = await sb.from('properties').select('id, name').order('name');
@@ -486,6 +492,12 @@ let _adults = 2, _children = 0, _properties = [];
   sel.innerHTML = '<option value="">Select a property…</option>' +
     _properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   sel.addEventListener('change', updateSummary);
+
+  // Pre-fill from URL params
+  if (_paramProp)    sel.value = _paramProp;
+  if (_paramCheckin)  document.getElementById('f-checkin').value  = _paramCheckin;
+  if (_paramCheckout) document.getElementById('f-checkout').value = _paramCheckout;
+  if (_paramProp || _paramCheckin) updateSummary();
 })();
 
 // ── Guest counters ────────────────────────────────────────
