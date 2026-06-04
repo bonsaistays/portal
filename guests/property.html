@@ -318,6 +318,58 @@
     }
     .avail-day.available {
       background: #edf7f1; color: var(--green-deep); font-weight: 600;
+      cursor: pointer;
+    }
+    .avail-day.available:hover { background: #c8ecd6; }
+    .avail-day.in-range {
+      background: #d4edde; color: var(--green-deep); font-weight: 600;
+      border-radius: 0; cursor: pointer;
+    }
+    .avail-day.sel-start, .avail-day.sel-end {
+      background: var(--green-deep) !important; color: #fff !important;
+      font-weight: 700; cursor: pointer;
+    }
+    .avail-day.sel-start { border-radius: 6px 0 0 6px; }
+    .avail-day.sel-end   { border-radius: 0 6px 6px 0; }
+    .avail-day.sel-start.sel-end { border-radius: 6px; }
+
+    /* Price summary panel */
+    .avail-summary {
+      margin-top: 20px;
+      background: var(--cream);
+      border: 1.5px solid var(--green-sage);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .avail-summary-dates {
+      display: flex; gap: 24px; flex-wrap: wrap;
+    }
+    .avail-summary-date { }
+    .avail-summary-label {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--gray-mid); margin-bottom: 3px;
+    }
+    .avail-summary-val {
+      font-size: 0.95rem; font-weight: 700; color: var(--charcoal);
+    }
+    .avail-summary-price {
+      text-align: right;
+    }
+    .avail-summary-total {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 700; color: var(--green-deep);
+    }
+    .avail-summary-breakdown {
+      font-size: 0.78rem; color: var(--gray-mid); margin-top: 2px;
+    }
+    .avail-summary-cta {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
     }
     .avail-legend {
       display: flex; gap: 20px; margin-top: 16px; font-size: 0.78rem; color: var(--gray-mid);
@@ -573,8 +625,36 @@
                 <button class="avail-nav-btn" onclick="availShift(1)">&#8250;</button>
               </div>
               <div class="avail-months" id="avail-months"></div>
+              <!-- Price summary (shown after dates selected) -->
+              <div id="avail-summary" class="avail-summary" style="display:none;">
+                <div class="avail-summary-dates">
+                  <div class="avail-summary-date">
+                    <div class="avail-summary-label">Check-in</div>
+                    <div class="avail-summary-val" id="summary-checkin">—</div>
+                  </div>
+                  <div class="avail-summary-date">
+                    <div class="avail-summary-label">Check-out</div>
+                    <div class="avail-summary-val" id="summary-checkout">—</div>
+                  </div>
+                  <div class="avail-summary-date">
+                    <div class="avail-summary-label">Nights</div>
+                    <div class="avail-summary-val" id="summary-nights">—</div>
+                  </div>
+                </div>
+                <div class="avail-summary-price">
+                  <div class="avail-summary-total" id="summary-total">—</div>
+                  <div class="avail-summary-breakdown" id="summary-breakdown"></div>
+                </div>
+                <div class="avail-summary-cta">
+                  <a id="summary-airbnb-btn" href="#" target="_blank" class="btn btn-primary" style="font-size:0.85rem;padding:11px 20px;display:none;">Book on Airbnb →</a>
+                  <a id="summary-vrbo-btn" href="#" target="_blank" class="btn btn-outline" style="font-size:0.85rem;padding:11px 20px;display:none;">Book on VRBO →</a>
+                  <button onclick="clearDateSelection()" style="background:none;border:none;font-size:0.8rem;color:var(--gray-mid);cursor:pointer;text-decoration:underline;padding:0;">Clear</button>
+                </div>
+              </div>
+
               <div class="avail-legend">
                 <div class="avail-legend-item"><div class="avail-legend-dot" style="background:#edf7f1;border:1.5px solid #b7dfc8;"></div> Available</div>
+                <div class="avail-legend-item"><div class="avail-legend-dot" style="background:var(--green-deep);border-radius:3px;"></div> Selected</div>
                 <div class="avail-legend-item"><div class="avail-legend-dot" style="background:var(--gray-pale);"></div> Unavailable</div>
               </div>
             </div>
@@ -794,6 +874,11 @@
       document.getElementById('book-links-main').innerHTML = bookHTML;
     }
 
+    // Capture price + booking URLs for calendar selection
+    _propPrice  = p.price       || null;
+    _airbnbUrl  = p.airbnb_url  || null;
+    _vrboUrl    = p.vrbo_url    || null;
+
     // Sidebar price
     const priceEl = document.getElementById('sidebar-price');
     if (p.price) {
@@ -987,6 +1072,12 @@
   // ── Availability Calendar ─────────────────────────────────────────────────
   let _blockedDates = new Set(); // Set of 'YYYY-MM-DD' strings
   let _availOffset  = 0;         // months offset from today
+  let _selStart     = null;      // selected check-in  'YYYY-MM-DD'
+  let _selEnd       = null;      // selected check-out 'YYYY-MM-DD'
+  let _hoverDate    = null;      // hovered date for range preview
+  let _propPrice    = null;      // nightly rate from property data
+  let _airbnbUrl    = null;      // booking URLs
+  let _vrboUrl      = null;
 
   async function loadAvailabilityCalendar(icalUrls, guestyListingId) {
     const section = document.getElementById('section-availability');
@@ -1089,15 +1180,27 @@
     // Empty cells before first day
     for (let i = 0; i < firstDay; i++) cells += `<div class="avail-day empty"></div>`;
     // Day cells
+    // Determine the effective end of the selection range (for hover preview)
+    const rangeEnd = _selEnd || _hoverDate;
+
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const isPast    = dateStr < todayStr;
       const isBlocked = _blockedDates.has(dateStr);
       let cls = 'avail-day';
-      if (isPast)       cls += ' past';
+      if (isPast)         cls += ' past';
       else if (isBlocked) cls += ' blocked';
-      else              cls += ' available';
-      cells += `<div class="${cls}">${d}</div>`;
+      else {
+        cls += ' available';
+        // Selection highlight
+        if (_selStart && dateStr === _selStart) cls += ' sel-start';
+        if (_selEnd   && dateStr === _selEnd)   cls += ' sel-end';
+        if (_selStart && rangeEnd && dateStr > _selStart && dateStr < rangeEnd) cls += ' in-range';
+        // If only start selected and this is the hover end
+        if (_selStart && !_selEnd && _hoverDate && dateStr === _hoverDate && dateStr > _selStart) cls += ' sel-end';
+      }
+      const clickHandler = (!isPast && !isBlocked) ? ` onclick="selectAvailDay('${dateStr}')" onmouseenter="hoverAvailDay('${dateStr}')" onmouseleave="hoverAvailDay(null)"` : '';
+      cells += `<div class="${cls}"${clickHandler}>${d}</div>`;
     }
 
     return `
@@ -1105,6 +1208,117 @@
         <div style="font-size:0.82rem;font-weight:700;color:var(--charcoal);margin-bottom:10px;text-align:center;">${label}</div>
         <div class="avail-grid">${cells}</div>
       </div>`;
+  }
+
+  // ── Date selection ───────────────────────────────────────────────────────
+
+  function hoverAvailDay(dateStr) {
+    if (_selStart && !_selEnd) {
+      _hoverDate = dateStr;
+      renderAvailCalendar();
+    }
+  }
+
+  function selectAvailDay(dateStr) {
+    // If no start yet — set check-in
+    if (!_selStart) {
+      _selStart  = dateStr;
+      _selEnd    = null;
+      _hoverDate = null;
+      renderAvailCalendar();
+      return;
+    }
+
+    // If clicking before start — restart
+    if (dateStr <= _selStart) {
+      _selStart  = dateStr;
+      _selEnd    = null;
+      _hoverDate = null;
+      renderAvailCalendar();
+      return;
+    }
+
+    // Check that no blocked dates fall within the range
+    let hasBlocked = false;
+    let cur = new Date(_selStart);
+    cur.setDate(cur.getDate() + 1);  // day after check-in
+    const endDate = new Date(dateStr);
+    while (cur < endDate) {
+      if (_blockedDates.has(cur.toISOString().slice(0, 10))) { hasBlocked = true; break; }
+      cur.setDate(cur.getDate() + 1);
+    }
+
+    if (hasBlocked) {
+      // Can't span a blocked date — restart from this date
+      _selStart  = dateStr;
+      _selEnd    = null;
+      _hoverDate = null;
+      renderAvailCalendar();
+      return;
+    }
+
+    // Set check-out
+    _selEnd    = dateStr;
+    _hoverDate = null;
+    renderAvailCalendar();
+    updatePriceSummary();
+  }
+
+  function updatePriceSummary() {
+    const panel = document.getElementById('avail-summary');
+    if (!_selStart || !_selEnd) { panel.style.display = 'none'; return; }
+
+    const nights = Math.round((new Date(_selEnd) - new Date(_selStart)) / 86400000);
+    if (nights <= 0) { panel.style.display = 'none'; return; }
+
+    // Format display dates
+    const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById('summary-checkin').textContent  = fmt(_selStart);
+    document.getElementById('summary-checkout').textContent = fmt(_selEnd);
+    document.getElementById('summary-nights').textContent   = nights;
+
+    // Price
+    const totalEl     = document.getElementById('summary-total');
+    const breakdownEl = document.getElementById('summary-breakdown');
+    if (_propPrice) {
+      const total = (_propPrice * nights).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+      const perNight = Number(_propPrice).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+      totalEl.textContent     = `${total} total`;
+      breakdownEl.textContent = `${perNight} × ${nights} night${nights !== 1 ? 's' : ''}`;
+    } else {
+      totalEl.textContent     = 'Pricing available on booking platform';
+      breakdownEl.textContent = '';
+    }
+
+    // Build booking URLs with dates
+    const airbnbBtn = document.getElementById('summary-airbnb-btn');
+    const vrboBtn   = document.getElementById('summary-vrbo-btn');
+
+    if (_airbnbUrl) {
+      const sep = _airbnbUrl.includes('?') ? '&' : '?';
+      airbnbBtn.href         = `${_airbnbUrl}${sep}check_in=${_selStart}&check_out=${_selEnd}`;
+      airbnbBtn.style.display = '';
+    } else {
+      airbnbBtn.style.display = 'none';
+    }
+
+    if (_vrboUrl) {
+      const sep = _vrboUrl.includes('?') ? '&' : '?';
+      vrboBtn.href         = `${_vrboUrl}${sep}startDate=${_selStart}&endDate=${_selEnd}`;
+      vrboBtn.style.display = '';
+    } else {
+      vrboBtn.style.display = 'none';
+    }
+
+    panel.style.display = '';
+  }
+
+  function clearDateSelection() {
+    _selStart  = null;
+    _selEnd    = null;
+    _hoverDate = null;
+    document.getElementById('avail-summary').style.display = 'none';
+    renderAvailCalendar();
   }
 
   </script>
