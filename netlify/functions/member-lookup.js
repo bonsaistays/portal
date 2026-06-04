@@ -44,7 +44,7 @@ exports.handler = async (event) => {
 
   try {
     const res = await fetch(
-      `${SB_URL}/rest/v1/members?email=eq.${encodeURIComponent(email.toLowerCase())}&select=id,first_name,name,points,tier&limit=1`,
+      `${SB_URL}/rest/v1/members?email=eq.${encodeURIComponent(email.toLowerCase())}&select=id,name,points,tier&limit=1`,
       {
         headers: {
           apikey:        SB_KEY,
@@ -61,8 +61,7 @@ exports.handler = async (event) => {
     }
 
     const m = rows[0];
-    // Return first name only — enough for a friendly greeting, no last name exposed
-    const firstName = m.first_name || (m.name || '').split(' ')[0] || 'there';
+    const firstName = (m.name || '').split(' ')[0] || 'there';
 
     return {
       statusCode: 200,

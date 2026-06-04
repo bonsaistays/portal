@@ -560,7 +560,7 @@ let _pointsToRedeem = 0;
 let _lookupTimer    = null;
 
 // Redemption rate by tier (points needed per $1 off)
-const REDEEM_RATE = { Black: 100, Gold: 90, Platinum: 75 };
+const REDEEM_RATE = { Classic: 100, Black: 100, Gold: 90, Platinum: 75 };
 
 function ptsToValue(points, tier) {
   const rate = REDEEM_RATE[tier] || 100;
