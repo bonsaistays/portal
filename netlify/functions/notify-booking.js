@@ -50,7 +50,7 @@ exports.handler = async (event) => {
   }
 
   const record = payload.record || payload;
-  const { id, guest_name, guest_email, guest_phone, property_id, check_in, check_out, num_guests, status } = record;
+  const { id, guest_name, guest_email, guest_phone, property_id, check_in, check_out, num_guests, status, member_id, points_redeemed } = record;
 
   // Only notify on new inquiries
   if (status !== 'inquiry') {
@@ -106,6 +106,7 @@ exports.handler = async (event) => {
   if (num_guests) lines.push(`Guests: ${num_guests}`);
   if (guest_email) lines.push(`Email: ${guest_email}`);
   if (guest_phone) lines.push(`Phone: ${guest_phone}`);
+  if (points_redeemed > 0) lines.push(`🎯 Points to redeem: ${points_redeemed.toLocaleString()} pts`);
   lines.push(`Review: bonsaistays.com/portal/booking.html?id=${id}`);
 
   const smsBody = lines.join('\n');
@@ -148,6 +149,43 @@ exports.handler = async (event) => {
     }
 
     console.log(`Booking inquiry SMS sent for booking ${id}: ${result.sid}`);
+
+    // ── Deduct loyalty points if member applied them ───────────────────
+    if (member_id && points_redeemed > 0 && SB_KEY) {
+      try {
+        // Fetch current points
+        const mRes   = await fetch(`${SB_URL}/rest/v1/members?id=eq.${member_id}&select=points,tier`, {
+          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, Accept: 'application/json' },
+        });
+        const mRows  = await mRes.json();
+        const current = mRows?.[0]?.points || 0;
+        const newPts  = Math.max(0, current - points_redeemed);
+
+        // Update points balance
+        await fetch(`${SB_URL}/rest/v1/members?id=eq.${member_id}`, {
+          method:  'PATCH',
+          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ points: newPts }),
+        });
+
+        // Add to points_history
+        await fetch(`${SB_URL}/rest/v1/points_history`, {
+          method:  'POST',
+          headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({
+            member_id,
+            points:      -points_redeemed,
+            type:        'redeemed',
+            description: `Redeemed toward booking ${id} (${propertyName})`,
+          }),
+        });
+
+        console.log(`Deducted ${points_redeemed} pts from member ${member_id} (${current} → ${newPts})`);
+      } catch (e) {
+        console.warn('Points deduction failed (non-fatal):', e.message);
+      }
+    }
+
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true, sms_sid: result.sid }) };
 
   } catch (e) {

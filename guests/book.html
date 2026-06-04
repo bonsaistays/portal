@@ -298,6 +298,25 @@
         <label class="book-label">Email address *</label>
         <input class="book-input" id="f-email" type="email" placeholder="you@example.com" autocomplete="email" />
       </div>
+
+      <!-- Member loyalty banner — shown if email matches a member -->
+      <div id="member-banner" style="display:none;margin-top:4px;background:var(--green-tint);border:1.5px solid rgba(44,74,30,0.18);border-radius:10px;padding:14px 16px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:0.88rem;font-weight:700;color:var(--green-deep);margin-bottom:3px;">
+              🎯 Welcome back, <span id="member-firstname"></span>!
+            </div>
+            <div style="font-size:0.82rem;color:var(--green-deep);opacity:0.85;" id="member-pts-line"></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;">
+            <input type="checkbox" id="member-apply-pts" onchange="togglePointsApply()" style="width:16px;height:16px;accent-color:var(--green-deep);" />
+            <span style="font-size:0.82rem;font-weight:600;color:var(--green-deep);">Apply points</span>
+          </label>
+        </div>
+        <div id="member-pts-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(44,74,30,0.15);">
+          <div style="font-size:0.8rem;color:var(--green-deep);line-height:1.7;" id="member-pts-calc"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Section 3: Add-on Extras -->
@@ -440,9 +459,13 @@
           <span class="lbl">Extras</span>
           <span class="val green" id="sum-extras">—</span>
         </div>
+        <div class="sidebar-row" id="sum-points-row" style="display:none;">
+          <span class="lbl">🎯 Points applied</span>
+          <span class="val green" id="sum-points">—</span>
+        </div>
       </div>
 
-      <div class="sidebar-perks">
+      <div class="sidebar-perks" id="sidebar-perks-default">
         <strong>🎯 Bon Voyage Rewards</strong>
         <p>Book directly and earn loyalty points on every dollar spent. Points can be redeemed for discounts on future stays.</p>
       </div>
@@ -477,6 +500,20 @@ const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let _adults = 2, _children = 0, _properties = [];
+
+// ── Member / loyalty state ────────────────────────────────
+let _memberId      = null;
+let _memberPoints  = 0;
+let _memberTier    = 'Black';
+let _pointsToRedeem = 0;
+
+// Redemption rate by tier (points needed per $1 off)
+const REDEEM_RATE = { Black: 100, Gold: 90, Platinum: 75 };
+
+function ptsToValue(points, tier) {
+  const rate = REDEEM_RATE[tier] || 100;
+  return (points / rate).toFixed(2);
+}
 
 // ── Read URL params (from property page date picker) ──────
 const _params   = new URLSearchParams(location.search);
@@ -548,11 +585,88 @@ function updateSummary() {
   } else {
     extRow.style.display = 'none';
   }
+
+  // Points row
+  const ptsRow = document.getElementById('sum-points-row');
+  if (_pointsToRedeem > 0) {
+    document.getElementById('sum-points').textContent =
+      `${_pointsToRedeem.toLocaleString()} pts (−$${ptsToValue(_pointsToRedeem, _memberTier)})`;
+    ptsRow.style.display = 'flex';
+  } else {
+    ptsRow.style.display = 'none';
+  }
 }
 
 // Live update as dates change
 document.getElementById('f-checkin').addEventListener('change', updateSummary);
 document.getElementById('f-checkout').addEventListener('change', updateSummary);
+
+// ── Member lookup on email blur ───────────────────────────
+document.getElementById('f-email').addEventListener('blur', async () => {
+  const email = document.getElementById('f-email').value.trim();
+  if (!email || !email.includes('@')) return;
+
+  try {
+    const res  = await fetch('/.netlify/functions/member-lookup', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email }),
+    });
+    const data = await res.json();
+
+    if (!data.found) {
+      hideMemberBanner();
+      return;
+    }
+
+    _memberId     = data.member_id;
+    _memberPoints = data.points;
+    _memberTier   = data.tier || 'Black';
+    _pointsToRedeem = 0;
+
+    const value = ptsToValue(_memberPoints, _memberTier);
+
+    document.getElementById('member-firstname').textContent = data.name;
+    document.getElementById('member-pts-line').textContent  =
+      `You have ${_memberPoints.toLocaleString()} Bon Voyage points — worth $${value} off this booking.`;
+
+    document.getElementById('member-apply-pts').checked = false;
+    document.getElementById('member-pts-detail').style.display = 'none';
+    document.getElementById('member-banner').style.display = '';
+  } catch(e) {
+    console.warn('Member lookup failed:', e.message);
+  }
+});
+
+function hideMemberBanner() {
+  _memberId = null; _memberPoints = 0; _pointsToRedeem = 0;
+  document.getElementById('member-banner').style.display = 'none';
+  document.getElementById('member-apply-pts').checked    = false;
+}
+
+function togglePointsApply() {
+  const applying = document.getElementById('member-apply-pts').checked;
+  const detail   = document.getElementById('member-pts-detail');
+
+  if (!applying) {
+    _pointsToRedeem = 0;
+    detail.style.display = 'none';
+    updateSummary();
+    return;
+  }
+
+  _pointsToRedeem = _memberPoints;
+  const rate  = REDEEM_RATE[_memberTier] || 100;
+  const value = ptsToValue(_memberPoints, _memberTier);
+
+  document.getElementById('member-pts-calc').innerHTML =
+    `<strong>${_memberPoints.toLocaleString()} points</strong> at ${_memberTier} tier (${rate} pts = $1) = ` +
+    `<strong style="color:var(--green-deep);">$${value} off</strong><br>` +
+    `Final price confirmed by our team within 24 hrs.`;
+
+  detail.style.display = '';
+  updateSummary();
+}
 
 // ── Submit ────────────────────────────────────────────────
 async function submitBooking() {
@@ -605,6 +719,8 @@ async function submitBooking() {
     special_requests: specialReqs || null,
     extras:          selectedExtras,
     status:          'inquiry',
+    member_id:       _memberId     || null,
+    points_redeemed: _pointsToRedeem || 0,
   });
 
   if (error) {
