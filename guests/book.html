@@ -300,22 +300,55 @@
       </div>
 
       <!-- Member loyalty banner — shown if email matches a member -->
-      <div id="member-banner" style="display:none;margin-top:4px;background:var(--green-tint);border:1.5px solid rgba(44,74,30,0.18);border-radius:10px;padding:14px 16px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-          <div>
-            <div style="font-size:0.88rem;font-weight:700;color:var(--green-deep);margin-bottom:3px;">
-              🎯 Welcome back, <span id="member-firstname"></span>!
-            </div>
-            <div style="font-size:0.82rem;color:var(--green-deep);opacity:0.85;" id="member-pts-line"></div>
+      <div id="member-banner" style="display:none;margin-top:4px;background:var(--green-tint);border:1.5px solid rgba(44,74,30,0.18);border-radius:10px;padding:16px;">
+
+        <!-- Step 1: Found account, prompt to verify -->
+        <div id="member-step-verify">
+          <div style="font-size:0.88rem;font-weight:700;color:var(--green-deep);margin-bottom:4px;">🎯 Bon Voyage member account found</div>
+          <div style="font-size:0.82rem;color:var(--green-deep);opacity:0.85;margin-bottom:12px;" id="member-pts-preview"></div>
+          <button onclick="sendOtp()" id="member-send-btn"
+            style="background:var(--green-deep);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;">
+            Send verification code to my phone →
+          </button>
+          <div id="member-send-error" style="display:none;margin-top:8px;font-size:0.78rem;color:#B91C1C;"></div>
+        </div>
+
+        <!-- Step 2: Enter the code -->
+        <div id="member-step-code" style="display:none;">
+          <div style="font-size:0.88rem;font-weight:700;color:var(--green-deep);margin-bottom:4px;">📱 Check your phone</div>
+          <div style="font-size:0.82rem;color:var(--green-deep);opacity:0.85;margin-bottom:12px;" id="member-phone-hint"></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input id="member-otp-input" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+              style="width:120px;padding:10px 12px;border:1.5px solid rgba(44,74,30,0.3);border-radius:8px;font-size:1rem;font-weight:700;letter-spacing:0.2em;font-family:monospace;background:#fff;color:var(--green-deep);"
+              oninput="this.value=this.value.replace(/\D/g,'')" />
+            <button onclick="verifyOtp()" id="member-verify-btn"
+              style="background:var(--green-deep);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;">
+              Verify
+            </button>
+            <button onclick="resetMemberStep()" style="background:none;border:none;font-size:0.78rem;color:var(--gray-mid);cursor:pointer;text-decoration:underline;padding:0;">Cancel</button>
           </div>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="member-apply-pts" onchange="togglePointsApply()" style="width:16px;height:16px;accent-color:var(--green-deep);" />
-            <span style="font-size:0.82rem;font-weight:600;color:var(--green-deep);">Apply points</span>
-          </label>
+          <div id="member-otp-error" style="display:none;margin-top:8px;font-size:0.78rem;color:#B91C1C;"></div>
         </div>
-        <div id="member-pts-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(44,74,30,0.15);">
-          <div style="font-size:0.8rem;color:var(--green-deep);line-height:1.7;" id="member-pts-calc"></div>
+
+        <!-- Step 3: Verified — apply points toggle -->
+        <div id="member-step-confirmed" style="display:none;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:var(--green-deep);margin-bottom:3px;">
+                ✅ Verified — Welcome back, <span id="member-firstname"></span>!
+              </div>
+              <div style="font-size:0.82rem;color:var(--green-deep);opacity:0.85;" id="member-pts-line"></div>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;">
+              <input type="checkbox" id="member-apply-pts" onchange="togglePointsApply()" style="width:16px;height:16px;accent-color:var(--green-deep);" />
+              <span style="font-size:0.82rem;font-weight:600;color:var(--green-deep);">Apply points</span>
+            </label>
+          </div>
+          <div id="member-pts-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(44,74,30,0.15);">
+            <div style="font-size:0.8rem;color:var(--green-deep);line-height:1.7;" id="member-pts-calc"></div>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -614,34 +647,122 @@ document.getElementById('f-email').addEventListener('blur', async () => {
     });
     const data = await res.json();
 
-    if (!data.found) {
-      hideMemberBanner();
-      return;
-    }
+    if (!data.found) { hideMemberBanner(); return; }
 
-    _memberId     = data.member_id;
+    // Store preview data — not trusted until OTP verified
     _memberPoints = data.points;
     _memberTier   = data.tier || 'Black';
-    _pointsToRedeem = 0;
+    const value   = ptsToValue(data.points, data.tier);
 
-    const value = ptsToValue(_memberPoints, _memberTier);
+    document.getElementById('member-pts-preview').textContent =
+      `You have ${data.points.toLocaleString()} Bon Voyage points — worth $${value} off. Verify to apply them.`;
 
-    document.getElementById('member-firstname').textContent = data.name;
-    document.getElementById('member-pts-line').textContent  =
-      `You have ${_memberPoints.toLocaleString()} Bon Voyage points — worth $${value} off this booking.`;
-
-    document.getElementById('member-apply-pts').checked = false;
-    document.getElementById('member-pts-detail').style.display = 'none';
+    showMemberStep('verify');
     document.getElementById('member-banner').style.display = '';
   } catch(e) {
     console.warn('Member lookup failed:', e.message);
   }
 });
 
+function showMemberStep(step) {
+  ['verify','code','confirmed'].forEach(s => {
+    document.getElementById(`member-step-${s}`).style.display = s === step ? '' : 'none';
+  });
+}
+
+function resetMemberStep() {
+  _memberId = null; _pointsToRedeem = 0;
+  document.getElementById('member-otp-input').value = '';
+  document.getElementById('member-otp-error').style.display = 'none';
+  document.getElementById('member-apply-pts').checked = false;
+  showMemberStep('verify');
+  updateSummary();
+}
+
 function hideMemberBanner() {
   _memberId = null; _memberPoints = 0; _pointsToRedeem = 0;
   document.getElementById('member-banner').style.display = 'none';
-  document.getElementById('member-apply-pts').checked    = false;
+}
+
+async function sendOtp() {
+  const email = document.getElementById('f-email').value.trim();
+  const btn   = document.getElementById('member-send-btn');
+  const errEl = document.getElementById('member-send-error');
+  errEl.style.display = 'none';
+  btn.textContent = 'Sending…'; btn.disabled = true;
+
+  try {
+    const res  = await fetch('/.netlify/functions/member-send-otp', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email }),
+    });
+    const data = await res.json();
+
+    if (!data.sent) {
+      errEl.textContent   = data.error || 'Could not send code. Please contact us.';
+      errEl.style.display = '';
+      btn.textContent = 'Send verification code to my phone →'; btn.disabled = false;
+      return;
+    }
+
+    document.getElementById('member-phone-hint').textContent =
+      `We sent a 6-digit code to ${data.hint}. It expires in 10 minutes.`;
+    showMemberStep('code');
+  } catch(e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = '';
+  }
+  btn.textContent = 'Send verification code to my phone →'; btn.disabled = false;
+}
+
+async function verifyOtp() {
+  const email  = document.getElementById('f-email').value.trim();
+  const code   = document.getElementById('member-otp-input').value.trim();
+  const btn    = document.getElementById('member-verify-btn');
+  const errEl  = document.getElementById('member-otp-error');
+  errEl.style.display = 'none';
+
+  if (code.length !== 6) {
+    errEl.textContent = 'Enter the 6-digit code from your text message.';
+    errEl.style.display = ''; return;
+  }
+
+  btn.textContent = 'Verifying…'; btn.disabled = true;
+
+  try {
+    const res  = await fetch('/.netlify/functions/member-verify-otp', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, code }),
+    });
+    const data = await res.json();
+
+    if (!data.verified) {
+      errEl.textContent   = data.error || 'Invalid code. Please try again.';
+      errEl.style.display = '';
+      btn.textContent = 'Verify'; btn.disabled = false;
+      return;
+    }
+
+    // Verified — unlock points UI
+    _memberId     = data.member_id;
+    _memberPoints = data.points;
+    _memberTier   = data.tier || 'Black';
+    _pointsToRedeem = 0;
+
+    const value = ptsToValue(_memberPoints, _memberTier);
+    document.getElementById('member-firstname').textContent = data.name;
+    document.getElementById('member-pts-line').textContent  =
+      `You have ${_memberPoints.toLocaleString()} Bon Voyage points — worth $${value} off this booking.`;
+    document.getElementById('member-apply-pts').checked = false;
+    document.getElementById('member-pts-detail').style.display = 'none';
+    showMemberStep('confirmed');
+  } catch(e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = '';
+  }
+  btn.textContent = 'Verify'; btn.disabled = false;
 }
 
 function togglePointsApply() {
