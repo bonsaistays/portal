@@ -115,7 +115,13 @@ async function syncAvailability(listingId) {
     .filter(d => d.status && d.status !== 'available')
     .map(d => d.date);
 
-  return { from, to, blockedDates };
+  // Also capture per-day prices (Guesty returns price on each calendar day)
+  const prices = {};
+  days.forEach(d => {
+    if (d.date && d.price != null) prices[d.date] = d.price;
+  });
+
+  return { from, to, blockedDates, prices };
 }
 
 async function syncPricing(listingId) {

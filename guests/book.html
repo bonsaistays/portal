@@ -241,7 +241,19 @@
         </select>
       </div>
 
-      <div class="book-row">
+      <!-- Confirmed dates (shown when arriving from property page) -->
+      <div id="dates-confirmed" style="display:none;background:var(--green-tint);border:1.5px solid rgba(44,74,30,0.18);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-mid);margin-bottom:4px;">Dates</div>
+            <div style="font-size:0.95rem;font-weight:700;color:var(--charcoal);" id="dates-confirmed-label"></div>
+          </div>
+          <button onclick="showDatePicker()" style="background:none;border:none;font-size:0.78rem;color:var(--gray-mid);cursor:pointer;text-decoration:underline;padding:0;">Change dates</button>
+        </div>
+      </div>
+
+      <!-- Date pickers (hidden when pre-filled, shown on "Change dates") -->
+      <div id="dates-picker" class="book-row">
         <div class="book-field">
           <label class="book-label">Check-in *</label>
           <input class="book-input" id="f-checkin" type="date" />
@@ -564,11 +576,27 @@ const _paramCheckout = _params.get('checkout') || '';
   sel.addEventListener('change', updateSummary);
 
   // Pre-fill from URL params
-  if (_paramProp)    sel.value = _paramProp;
+  if (_paramProp)     sel.value = _paramProp;
   if (_paramCheckin)  document.getElementById('f-checkin').value  = _paramCheckin;
   if (_paramCheckout) document.getElementById('f-checkout').value = _paramCheckout;
   if (_paramProp || _paramCheckin) updateSummary();
+
+  // If dates came from the property page, show confirmation card instead of raw inputs
+  if (_paramCheckin && _paramCheckout) {
+    const fmt = v => new Date(v + 'T12:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+    const nights = Math.round((new Date(_paramCheckout) - new Date(_paramCheckin)) / 86400000);
+    document.getElementById('dates-confirmed-label').textContent =
+      `${fmt(_paramCheckin)} → ${fmt(_paramCheckout)} · ${nights} night${nights !== 1 ? 's' : ''}`;
+    document.getElementById('dates-confirmed').style.display = '';
+    document.getElementById('dates-picker').style.display    = 'none';
+  }
 })();
+
+// ── Date picker toggle ────────────────────────────────────
+function showDatePicker() {
+  document.getElementById('dates-confirmed').style.display = 'none';
+  document.getElementById('dates-picker').style.display    = '';
+}
 
 // ── Guest counters ────────────────────────────────────────
 function changeCount(type, delta) {

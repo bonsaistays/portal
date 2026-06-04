@@ -1084,6 +1084,7 @@
   let _propId       = null;      // property UUID (for direct booking link)
   let _airbnbUrl    = null;      // booking URLs
   let _vrboUrl      = null;
+  let _guestyPrices = {};        // date → nightly price from Guesty calendar
 
   async function loadAvailabilityCalendar(icalUrls, guestyListingId) {
     const section = document.getElementById('section-availability');
@@ -1102,6 +1103,7 @@
         if (res.ok) {
           const json = await res.json();
           (json.availability?.blockedDates || []).forEach(d => _blockedDates.add(d));
+          _guestyPrices = json.availability?.prices || {};
           loaded = true;
         }
       } catch(e) {
@@ -1149,6 +1151,10 @@
     renderAvailCalendar();
   }
 
+  // Event delegation listeners (replaced each render)
+  let _calHoverFn = null;
+  let _calLeaveFn = null;
+
   function renderAvailCalendar() {
     const today     = new Date();
     const baseYear  = today.getFullYear();
@@ -1163,11 +1169,45 @@
       + ' – ' + months[1].toLocaleDateString('en-CA', { month: 'long', year: 'numeric' });
     document.getElementById('avail-month-label').textContent = label;
 
-    document.getElementById('avail-months').innerHTML = months.map(m => renderMonth(m, today)).join('');
+    const monthsEl = document.getElementById('avail-months');
+    monthsEl.innerHTML = months.map(m => renderMonth(m, today)).join('');
+
+    // Remove old hover listeners then re-attach (fresh DOM)
+    if (_calHoverFn) monthsEl.removeEventListener('mouseover', _calHoverFn);
+    if (_calLeaveFn) monthsEl.removeEventListener('mouseleave', _calLeaveFn);
+
+    _calHoverFn = e => {
+      const cell = e.target.closest('.avail-day.available[data-date]');
+      const d    = cell?.dataset.date || null;
+      if (d === _hoverDate) return;           // no change, skip
+      _hoverDate = d;
+      if (_selStart && !_selEnd) _updateRangeClasses();
+    };
+    _calLeaveFn = () => {
+      if (!_selStart || _selEnd) return;
+      _hoverDate = null;
+      _updateRangeClasses();
+    };
+    monthsEl.addEventListener('mouseover', _calHoverFn);
+    monthsEl.addEventListener('mouseleave', _calLeaveFn);
 
     // hide back btn if at current month
     document.querySelector('.avail-nav-btn').style.opacity = _availOffset === 0 ? '0.3' : '1';
     document.querySelector('.avail-nav-btn').disabled = _availOffset === 0;
+  }
+
+  // Update range highlight without re-rendering the calendar DOM
+  function _updateRangeClasses() {
+    const rangeEnd = _selEnd || _hoverDate;
+    document.querySelectorAll('#avail-months .avail-day[data-date]').forEach(cell => {
+      const d = cell.dataset.date;
+      // in-range: between start (exclusive) and end (exclusive)
+      cell.classList.toggle('in-range',
+        !!(rangeEnd && _selStart && d > _selStart && d < rangeEnd));
+      // hover end marker (only when no confirmed end yet)
+      cell.classList.toggle('sel-end',
+        !!(!_selEnd && _hoverDate && d === _hoverDate && _selStart && d > _selStart));
+    });
   }
 
   function renderMonth(monthDate, today) {
@@ -1185,10 +1225,7 @@
     DAYS.forEach(d => { cells += `<div class="avail-day-header">${d}</div>`; });
     // Empty cells before first day
     for (let i = 0; i < firstDay; i++) cells += `<div class="avail-day empty"></div>`;
-    // Day cells
-    // Determine the effective end of the selection range (for hover preview)
-    const rangeEnd = _selEnd || _hoverDate;
-
+    // Day cells — hover handled by event delegation, not inline handlers
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const isPast    = dateStr < todayStr;
@@ -1198,15 +1235,15 @@
       else if (isBlocked) cls += ' blocked';
       else {
         cls += ' available';
-        // Selection highlight
         if (_selStart && dateStr === _selStart) cls += ' sel-start';
         if (_selEnd   && dateStr === _selEnd)   cls += ' sel-end';
-        if (_selStart && rangeEnd && dateStr > _selStart && dateStr < rangeEnd) cls += ' in-range';
-        // If only start selected and this is the hover end
-        if (_selStart && !_selEnd && _hoverDate && dateStr === _hoverDate && dateStr > _selStart) cls += ' sel-end';
+        if (_selStart && _selEnd && dateStr > _selStart && dateStr < _selEnd) cls += ' in-range';
       }
-      const clickHandler = (!isPast && !isBlocked) ? ` onclick="selectAvailDay('${dateStr}')" onmouseenter="hoverAvailDay('${dateStr}')" onmouseleave="hoverAvailDay(null)"` : '';
-      cells += `<div class="${cls}"${clickHandler}>${d}</div>`;
+      // Available cells get data-date for delegation + onclick for selection
+      const attrs = (!isPast && !isBlocked)
+        ? ` data-date="${dateStr}" onclick="selectAvailDay('${dateStr}')"`
+        : '';
+      cells += `<div class="${cls}"${attrs}>${d}</div>`;
     }
 
     return `
@@ -1217,13 +1254,6 @@
   }
 
   // ── Date selection ───────────────────────────────────────────────────────
-
-  function hoverAvailDay(dateStr) {
-    if (_selStart && !_selEnd) {
-      _hoverDate = dateStr;
-      renderAvailCalendar();
-    }
-  }
 
   function selectAvailDay(dateStr) {
     // If no start yet — set check-in
@@ -1283,11 +1313,39 @@
     document.getElementById('summary-checkout').textContent = fmt(_selEnd);
     document.getElementById('summary-nights').textContent   = nights;
 
-    // Price
+    // Price — use Guesty daily prices if available, else fall back to base price
     const totalEl     = document.getElementById('summary-total');
     const breakdownEl = document.getElementById('summary-breakdown');
-    if (_propPrice) {
-      const total = (_propPrice * nights).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+
+    const guestyPriceKeys = Object.keys(_guestyPrices);
+    if (guestyPriceKeys.length > 0) {
+      // Sum each night from Guesty calendar
+      let total = 0;
+      let missingDays = 0;
+      let cur = new Date(_selStart + 'T12:00:00');
+      const endD = new Date(_selEnd + 'T12:00:00');
+      while (cur < endD) {
+        const ds = cur.toISOString().slice(0, 10);
+        if (_guestyPrices[ds] != null) {
+          total += _guestyPrices[ds];
+        } else {
+          missingDays++;
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      if (missingDays === 0) {
+        const avg = (total / nights).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+        totalEl.textContent     = total.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }) + ' total';
+        breakdownEl.textContent = `${avg} avg/night · ${nights} night${nights !== 1 ? 's' : ''} · Live Guesty pricing`;
+      } else if (total > 0) {
+        totalEl.textContent     = '~' + total.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }) + ' total';
+        breakdownEl.textContent = `Estimated · confirm on booking`;
+      } else {
+        totalEl.textContent     = 'Contact for pricing';
+        breakdownEl.textContent = '';
+      }
+    } else if (_propPrice) {
+      const total    = (_propPrice * nights).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
       const perNight = Number(_propPrice).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
       totalEl.textContent     = `${total} total`;
       breakdownEl.textContent = `${perNight} × ${nights} night${nights !== 1 ? 's' : ''}`;
