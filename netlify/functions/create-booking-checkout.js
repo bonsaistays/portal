@@ -45,6 +45,10 @@ exports.handler = async (event) => {
   const SB_URL = process.env.SUPABASE_URL || 'https://zmbhpebiiyqdfqznruwz.supabase.co';
   const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
 
+  // Debug: log which env vars are present (not values)
+  console.log('ENV CHECK — STRIPE_SECRET_KEY present:', !!process.env.STRIPE_SECRET_KEY, '| starts with:', (process.env.STRIPE_SECRET_KEY || '').slice(0, 7));
+  console.log('ENV CHECK — SUPABASE_SERVICE_KEY present:', !!SB_KEY);
+
   if (!SB_KEY) return { statusCode: 500, headers, body: JSON.stringify({ error: 'Server configuration error' }) };
   if (!process.env.STRIPE_SECRET_KEY)
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Payment system not configured' }) };
