@@ -554,6 +554,7 @@ let _propPrice = 0;
 
 // ── Member / loyalty state ────────────────────────────────
 let _memberId       = null;
+let _memberName     = '';
 let _memberPoints   = 0;
 let _memberTier     = 'Black';
 let _pointsToRedeem = 0;
@@ -738,6 +739,7 @@ async function doMemberLookup() {
 
     _memberPoints = data.points;
     _memberTier   = data.tier || 'Black';
+    _memberName   = data.name || '';
     const value   = ptsToValue(data.points, data.tier);
 
     document.getElementById('member-pts-preview').textContent =
@@ -790,6 +792,20 @@ async function sendOtp() {
       body:    JSON.stringify({ email }),
     });
     const data = await res.json();
+
+    if (data.bypass) {
+      // Twilio not yet configured — verify by email match alone
+      _memberId = data.member_id;
+      document.getElementById('member-firstname').textContent = _memberName || 'back';
+      const value = ptsToValue(_memberPoints, _memberTier);
+      document.getElementById('member-pts-line').textContent =
+        `You have ${_memberPoints.toLocaleString()} Bon Voyage points — worth $${value} off this booking.`;
+      document.getElementById('member-apply-pts').checked = false;
+      document.getElementById('member-pts-detail').style.display = 'none';
+      showMemberStep('confirmed');
+      btn.textContent = 'Send verification code to my phone →'; btn.disabled = false;
+      return;
+    }
 
     if (!data.sent) {
       errEl.textContent   = data.error || 'Could not send code. Please contact us.';

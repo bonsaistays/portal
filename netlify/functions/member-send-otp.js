@@ -73,8 +73,13 @@ exports.handler = async (event) => {
   const authToken  = process.env.TWILIO_AUTH_TOKEN;
   const fromNumber = process.env.TWILIO_FROM_NUMBER;
 
-  if (!accountSid || !authToken || !fromNumber) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: 'SMS not configured' }) };
+  // Twilio not yet configured — bypass OTP and auto-verify by email match
+  if (!accountSid || !authToken || !fromNumber || fromNumber === 'PENDING') {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ sent: false, bypass: true, member_id: member.id }),
+    };
   }
 
   const smsBody = `Your Bonsai Stays verification code is: ${code}\n\nExpires in 10 minutes. Do not share this code.`;
