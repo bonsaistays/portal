@@ -419,7 +419,7 @@
       try {
         const { data, error } = await sb
           .from('properties')
-          .select('id,name,city,thumbnail_url,photos,region,price,bedrooms,bathrooms,guests,badge,badge_type,featured,rating,review_count,ical_urls,airbnb_url')
+          .select('id,name,city,thumbnail_url,photos,region,price,bedrooms,bathrooms,guests,badge,badge_type,collection,featured,rating,review_count,ical_urls,airbnb_url')
           .eq('active', true)
           .order('name', { ascending: true });
 
@@ -512,7 +512,10 @@
           ${badge}${unavailBadge}${arrows}
         </div>
         <div class="property-body">
-          <div class="property-location">${p.location || p.city || ''}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div class="property-location">${p.location || p.city || ''}</div>
+            ${p.collection ? `<span style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--green-mid);white-space:nowrap;">${p.collection.split(' — ')[0]}</span>` : ''}
+          </div>
           <div class="property-name">${p.name}</div>
           <div class="property-meta"><span>${p.bedrooms} bed${p.bedrooms!==1?'s':''}</span><span>${p.bathrooms} bath${p.bathrooms!==1?'s':''}</span><span>${p.guests} guests</span></div>
           <div class="property-footer">
