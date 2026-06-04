@@ -509,6 +509,10 @@
           <span class="lbl">🎯 Points applied</span>
           <span class="val green" id="sum-points">—</span>
         </div>
+        <div class="sidebar-row" id="sum-total-row" style="display:none;border-top:2px solid var(--gray-pale);margin-top:4px;padding-top:10px;">
+          <span class="lbl" style="font-weight:700;color:var(--charcoal);">Total</span>
+          <span class="val" id="sum-total" style="font-size:1.05rem;">—</span>
+        </div>
       </div>
 
       <div class="sidebar-perks" id="sidebar-perks-default">
@@ -519,9 +523,9 @@
       <div id="book-error-sidebar" class="book-error hidden" style="margin-top:16px;margin-bottom:0;"></div>
 
       <button class="book-submit" id="submit-btn" onclick="submitBooking()" style="margin-top:20px;">
-        Request Booking →
+        Pay &amp; Book →
       </button>
-      <p style="font-size:0.73rem;color:var(--gray-light);text-align:center;margin-top:10px;">We'll confirm availability and pricing within 24 hours.</p>
+      <p style="font-size:0.73rem;color:var(--gray-light);text-align:center;margin-top:10px;">Secure payment via Stripe. Full amount charged at booking.</p>
     </div>
 
   </aside>
@@ -533,8 +537,8 @@
 <div id="state-success" class="hidden container" style="padding-top:60px;padding-bottom:80px;">
   <div id="state-success-inner">
     <div class="success-icon">🎉</div>
-    <h2>Booking request sent!</h2>
-    <p>Thanks — we've received your request and will confirm availability and pricing within 24 hours. Check your email for a confirmation.</p>
+    <h2>Booking confirmed!</h2>
+    <p id="success-detail">Your payment was successful and your stay is booked. We'll be in touch before your arrival with check-in details.</p>
     <a href="index.html" class="btn-back-home">← Back to properties</a>
   </div>
 </div>
@@ -546,12 +550,14 @@ const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let _adults = 2, _children = 0, _properties = [];
+let _propPrice = 0;
 
 // ── Member / loyalty state ────────────────────────────────
-let _memberId      = null;
-let _memberPoints  = 0;
-let _memberTier    = 'Black';
+let _memberId       = null;
+let _memberPoints   = 0;
+let _memberTier     = 'Black';
 let _pointsToRedeem = 0;
+let _lookupTimer    = null;
 
 // Redemption rate by tier (points needed per $1 off)
 const REDEEM_RATE = { Black: 100, Gold: 90, Platinum: 75 };
@@ -567,17 +573,49 @@ const _paramProp    = _params.get('property') || '';
 const _paramCheckin  = _params.get('checkin')  || '';
 const _paramCheckout = _params.get('checkout') || '';
 
+// ── Handle success / cancelled return from Stripe ─────────
+if (_params.get('success') === '1') {
+  const bookingId = _params.get('booking_id') || '';
+  const sessionId = _params.get('session_id') || '';
+  document.getElementById('state-form').classList.add('hidden');
+  document.getElementById('state-success').classList.remove('hidden');
+  if (bookingId && sessionId) {
+    fetch('/.netlify/functions/confirm-booking', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ booking_id: bookingId, session_id: sessionId }),
+    }).then(r => r.json()).then(d => {
+      if (!d.confirmed) {
+        document.getElementById('success-detail').textContent =
+          'Your payment was received but we had trouble confirming your booking. Please contact us and quote booking ID: ' + bookingId;
+      }
+    }).catch(() => {});
+  }
+} else if (_params.get('cancelled') === '1') {
+  const errEl = document.getElementById('book-error');
+  errEl.textContent = 'Payment was cancelled. You can try again below — your details have been cleared.';
+  errEl.classList.remove('hidden');
+}
+
 // ── Load properties ───────────────────────────────────────
 (async () => {
-  const { data } = await sb.from('properties').select('id, name').order('name');
+  const { data } = await sb.from('properties').select('id, name, price').order('name');
   _properties = data || [];
   const sel = document.getElementById('f-property');
   sel.innerHTML = '<option value="">Select a property…</option>' +
     _properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  sel.addEventListener('change', updateSummary);
+  sel.addEventListener('change', () => {
+    const prop = _properties.find(p => p.id === sel.value);
+    _propPrice = prop?.price || 0;
+    updateSummary();
+  });
 
   // Pre-fill from URL params
-  if (_paramProp)     sel.value = _paramProp;
+  if (_paramProp) {
+    sel.value = _paramProp;
+    const prop = _properties.find(p => p.id === _paramProp);
+    _propPrice = prop?.price || 0;
+  }
   if (_paramCheckin)  document.getElementById('f-checkin').value  = _paramCheckin;
   if (_paramCheckout) document.getElementById('f-checkout').value = _paramCheckout;
   if (_paramProp || _paramCheckin) updateSummary();
@@ -657,16 +695,33 @@ function updateSummary() {
   } else {
     ptsRow.style.display = 'none';
   }
+
+  // Total row
+  const totalRow = document.getElementById('sum-total-row');
+  const totalEl  = document.getElementById('sum-total');
+  const cinVal   = document.getElementById('f-checkin').value;
+  const coutVal  = document.getElementById('f-checkout').value;
+  const nts      = cinVal && coutVal ? Math.round((new Date(coutVal) - new Date(cinVal)) / 86400000) : 0;
+  if (_propPrice > 0 && nts > 0) {
+    let total = nts * _propPrice;
+    if (_pointsToRedeem > 0) total -= parseFloat(ptsToValue(_pointsToRedeem, _memberTier));
+    total = Math.max(total, 0);
+    const fmt = v => '$' + v.toLocaleString('en-CA', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    totalEl.textContent = fmt(total);
+    totalRow.style.display = 'flex';
+  } else {
+    totalRow.style.display = 'none';
+  }
 }
 
 // Live update as dates change
 document.getElementById('f-checkin').addEventListener('change', updateSummary);
 document.getElementById('f-checkout').addEventListener('change', updateSummary);
 
-// ── Member lookup on email blur ───────────────────────────
-document.getElementById('f-email').addEventListener('blur', async () => {
+// ── Member lookup — fires on blur and debounced input ─────
+async function doMemberLookup() {
   const email = document.getElementById('f-email').value.trim();
-  if (!email || !email.includes('@')) return;
+  if (!email || !email.includes('@')) { hideMemberBanner(); return; }
 
   try {
     const res  = await fetch('/.netlify/functions/member-lookup', {
@@ -678,7 +733,9 @@ document.getElementById('f-email').addEventListener('blur', async () => {
 
     if (!data.found) { hideMemberBanner(); return; }
 
-    // Store preview data — not trusted until OTP verified
+    // Already verified in this session — don't reset to verify step
+    if (_memberId) return;
+
     _memberPoints = data.points;
     _memberTier   = data.tier || 'Black';
     const value   = ptsToValue(data.points, data.tier);
@@ -691,6 +748,12 @@ document.getElementById('f-email').addEventListener('blur', async () => {
   } catch(e) {
     console.warn('Member lookup failed:', e.message);
   }
+}
+
+document.getElementById('f-email').addEventListener('blur', doMemberLookup);
+document.getElementById('f-email').addEventListener('input', () => {
+  clearTimeout(_lookupTimer);
+  _lookupTimer = setTimeout(doMemberLookup, 700);
 });
 
 function showMemberStep(step) {
@@ -811,14 +874,13 @@ function togglePointsApply() {
 
   document.getElementById('member-pts-calc').innerHTML =
     `<strong>${_memberPoints.toLocaleString()} points</strong> at ${_memberTier} tier (${rate} pts = $1) = ` +
-    `<strong style="color:var(--green-deep);">$${value} off</strong><br>` +
-    `Final price confirmed by our team within 24 hrs.`;
+    `<strong style="color:var(--green-deep);">$${value} off</strong> — applied at checkout.`;
 
   detail.style.display = '';
   updateSummary();
 }
 
-// ── Submit ────────────────────────────────────────────────
+// ── Submit → Stripe Checkout ──────────────────────────────
 async function submitBooking() {
   const btn  = document.getElementById('submit-btn');
   const err  = document.getElementById('book-error');
@@ -833,14 +895,14 @@ async function submitBooking() {
   const checkout = document.getElementById('f-checkout').value;
   const requests = document.getElementById('f-requests').value.trim();
 
-  // Validation
   const errors = [];
   if (!name)     errors.push('Full name is required.');
   if (!email || !email.includes('@')) errors.push('A valid email is required.');
   if (!propId)   errors.push('Please select a property.');
   if (!checkin)  errors.push('Check-in date is required.');
   if (!checkout) errors.push('Check-out date is required.');
-  if (checkin && checkout && new Date(checkout) <= new Date(checkin)) errors.push('Check-out must be after check-in.');
+  if (checkin && checkout && new Date(checkout) <= new Date(checkin))
+    errors.push('Check-out must be after check-in.');
 
   if (errors.length) {
     const msg = errors.join(' ');
@@ -849,41 +911,52 @@ async function submitBooking() {
     return;
   }
 
-  btn.textContent = 'Sending…'; btn.disabled = true;
+  btn.textContent = 'Processing…'; btn.disabled = true;
 
   const selectedExtras = [...document.querySelectorAll('.extra-card.selected')].map(c => c.dataset.extra);
-
   const specialReqs = [
     requests,
-    selectedExtras.length ? 'Requested extras: ' + selectedExtras.join(', ') : ''
+    selectedExtras.length ? 'Requested extras: ' + selectedExtras.join(', ') : '',
   ].filter(Boolean).join('\n\n');
 
-  const { error } = await sb.from('bookings').insert({
-    guest_name:      name,
-    guest_email:     email,
-    guest_phone:     phone,
-    property_id:     propId,
-    check_in:        checkin + 'T15:00:00',
-    check_out:       checkout + 'T11:00:00',
-    num_guests:      _adults + _children,
-    special_requests: specialReqs || null,
-    extras:          selectedExtras,
-    status:          'inquiry',
-    member_id:       _memberId     || null,
-    points_redeemed: _pointsToRedeem || 0,
-  });
+  try {
+    const res = await fetch('/.netlify/functions/create-booking-checkout', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        guest_name:       name,
+        guest_email:      email,
+        guest_phone:      phone || null,
+        property_id:      propId,
+        check_in:         checkin,
+        check_out:        checkout,
+        num_guests:       _adults + _children,
+        special_requests: specialReqs || null,
+        extras:           selectedExtras,
+        member_id:        _memberId       || null,
+        points_redeemed:  _pointsToRedeem || 0,
+      }),
+    });
 
-  if (error) {
-    const msg = 'Something went wrong — please try again or contact us directly.';
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      const msg = data.error || 'Something went wrong. Please try again or contact us.';
+      err.textContent = msg; err.classList.remove('hidden');
+      errS.textContent = msg; errS.classList.remove('hidden');
+      btn.textContent = 'Pay & Book →'; btn.disabled = false;
+      return;
+    }
+
+    // Redirect to Stripe Checkout
+    window.location.href = data.url;
+
+  } catch(e) {
+    const msg = 'Connection error. Please try again.';
     err.textContent = msg; err.classList.remove('hidden');
     errS.textContent = msg; errS.classList.remove('hidden');
-    btn.textContent = 'Request Booking →'; btn.disabled = false;
-    return;
+    btn.textContent = 'Pay & Book →'; btn.disabled = false;
   }
-
-  document.getElementById('state-form').classList.add('hidden');
-  document.getElementById('state-success').classList.remove('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Init counters
