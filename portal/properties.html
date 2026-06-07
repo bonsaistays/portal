@@ -446,13 +446,44 @@
 
           <!-- Guesty -->
           <div style="background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px 16px;">
-            <label class="admin-label" style="margin-bottom:4px;">Guesty Listing ID</label>
-            <div style="font-size:0.74rem;color:var(--a-gray);margin-bottom:8px;">Found in Guesty → Listings → click the property → copy the ID from the URL.</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input class="admin-input" id="p-guesty-id" type="text" placeholder="e.g. 64a1b2c3d4e5f6a7b8c9d0e1" style="flex:1;" />
-              <button type="button" id="guesty-sync-btn" onclick="syncFromGuesty()" style="background:var(--a-green);color:#fff;font-size:0.78rem;font-weight:700;padding:0 16px;height:42px;border-radius:var(--radius-sm);border:none;cursor:pointer;white-space:nowrap;">Sync Now</button>
+            <label class="admin-label" style="margin-bottom:4px;">Guesty</label>
+            <div style="font-size:0.74rem;color:var(--a-gray);margin-bottom:10px;">Found in Guesty → Listings → click the property → copy the ID from the URL. API credentials from Guesty → Settings → API.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <input class="admin-input" id="p-guesty-id" type="text" placeholder="Listing ID  e.g. 64a1b2c3d4e5f6a7b8c9d0e1" />
+              <div class="admin-form-row">
+                <input class="admin-input" id="p-guesty-client-id" type="password" placeholder="Client ID" autocomplete="new-password" />
+                <input class="admin-input" id="p-guesty-client-secret" type="password" placeholder="Client Secret" autocomplete="new-password" />
+              </div>
+              <button type="button" id="guesty-sync-btn" onclick="syncFromGuesty()" style="background:var(--a-green);color:#fff;font-size:0.78rem;font-weight:700;padding:0 16px;height:42px;border-radius:var(--radius-sm);border:none;cursor:pointer;white-space:nowrap;align-self:flex-start;">Sync Now</button>
             </div>
             <div id="guesty-sync-status" style="font-size:0.75rem;color:var(--a-gray);margin-top:6px;display:none;"></div>
+          </div>
+
+          <!-- Hostaway -->
+          <div style="background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+            <label class="admin-label" style="margin-bottom:4px;">Hostaway</label>
+            <div style="font-size:0.74rem;color:var(--a-gray);margin-bottom:10px;">Listing ID from Hostaway → Listings → click the property. API credentials from Hostaway → Settings → API Keys.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <input class="admin-input" id="p-hostaway-id" type="text" placeholder="Listing ID  e.g. 123456" />
+              <div class="admin-form-row">
+                <input class="admin-input" id="p-hostaway-client-id" type="password" placeholder="Client ID" autocomplete="new-password" />
+                <input class="admin-input" id="p-hostaway-client-secret" type="password" placeholder="Client Secret" autocomplete="new-password" />
+              </div>
+              <button type="button" id="hostaway-sync-btn" onclick="syncFromHostaway()" style="background:var(--a-green);color:#fff;font-size:0.78rem;font-weight:700;padding:0 16px;height:42px;border-radius:var(--radius-sm);border:none;cursor:pointer;white-space:nowrap;align-self:flex-start;">Sync Now</button>
+            </div>
+            <div id="hostaway-sync-status" style="font-size:0.75rem;color:var(--a-gray);margin-top:6px;display:none;"></div>
+          </div>
+
+          <!-- Hospitable -->
+          <div style="background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+            <label class="admin-label" style="margin-bottom:4px;">Hospitable</label>
+            <div style="font-size:0.74rem;color:var(--a-gray);margin-bottom:10px;">Property ID from Hospitable → Properties → click the property → copy from the URL. API key from Hospitable → Settings → API.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <input class="admin-input" id="p-hospitable-id" type="text" placeholder="Property ID  e.g. prop_abc123" />
+              <input class="admin-input" id="p-hospitable-api-key" type="password" placeholder="API Key" autocomplete="new-password" />
+              <button type="button" id="hospitable-sync-btn" onclick="syncFromHospitable()" style="background:var(--a-green);color:#fff;font-size:0.78rem;font-weight:700;padding:0 16px;height:42px;border-radius:var(--radius-sm);border:none;cursor:pointer;white-space:nowrap;align-self:flex-start;">Sync Now</button>
+            </div>
+            <div id="hospitable-sync-status" style="font-size:0.75rem;color:var(--a-gray);margin-top:6px;display:none;"></div>
           </div>
 
           <!-- iCal URLs -->
@@ -460,6 +491,40 @@
             <label class="admin-label" style="margin-bottom:8px;">iCal Calendar URLs</label>
             <div id="ical-rows"></div>
             <button type="button" onclick="addIcalRow()" style="width:100%;padding:10px;border:1.5px dashed rgba(61,139,98,0.35);border-radius:10px;background:none;color:var(--a-sage);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">+ Add calendar source</button>
+          </div>
+
+          <!-- Booking Mode -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--a-bg);border:1.5px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+            <div>
+              <div style="font-size:0.85rem;font-weight:700;color:var(--a-charcoal);">Booking Mode</div>
+              <div style="font-size:0.75rem;color:var(--a-gray);margin-top:2px;">
+                <span id="p-booking-mode-desc">Guests pay immediately via Stripe.</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:0;border:1.5px solid var(--a-border);border-radius:8px;overflow:hidden;">
+              <button type="button" id="bm-instant" onclick="setBookingMode('instant')"
+                style="padding:8px 14px;font-size:0.76rem;font-weight:700;border:none;cursor:pointer;transition:all 0.15s;background:var(--a-green);color:#fff;">
+                ⚡ Instant Book
+              </button>
+              <button type="button" id="bm-request" onclick="setBookingMode('request')"
+                style="padding:8px 14px;font-size:0.76rem;font-weight:700;border:none;cursor:pointer;transition:all 0.15s;background:var(--a-bg);color:var(--a-gray);">
+                ✋ Request to Book
+              </button>
+            </div>
+            <input type="hidden" id="p-booking-mode" value="instant" />
+          </div>
+
+          <!-- Screener Questions (shown when Request to Book is selected) -->
+          <div id="screener-questions-section" style="display:none;background:var(--a-bg);border:1.5px solid var(--a-border);border-radius:10px;padding:14px 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div>
+                <div style="font-size:0.85rem;font-weight:700;color:var(--a-charcoal);">Screener Questions</div>
+                <div style="font-size:0.74rem;color:var(--a-gray);margin-top:2px;">Guests answer these before submitting a request. Keep them short.</div>
+              </div>
+              <button type="button" onclick="addScreenerQuestion()" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.76rem;font-weight:700;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--a-sage);cursor:pointer;">+ Add</button>
+            </div>
+            <div id="screener-questions-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <div id="screener-questions-empty" style="font-size:0.8rem;color:var(--a-gray);padding:8px 0;">No screener questions yet — click Add to create one.</div>
           </div>
 
           <div style="display:flex;align-items:center;gap:10px;">
@@ -748,8 +813,17 @@ function openModal(propId) {
     document.getElementById('p-collection').value    = p.collection || '';
     document.getElementById('p-airbnb-url').value    = p.airbnb_url || '';
     document.getElementById('p-vrbo-url').value      = p.vrbo_url || '';
-    document.getElementById('p-guesty-id').value     = p.guesty_listing_id || '';
+    document.getElementById('p-guesty-id').value             = p.guesty_listing_id || '';
+    document.getElementById('p-guesty-client-id').value      = p.guesty_client_id || '';
+    document.getElementById('p-guesty-client-secret').value  = p.guesty_client_secret || '';
+    document.getElementById('p-hostaway-id').value           = p.hostaway_listing_id || '';
+    document.getElementById('p-hostaway-client-id').value    = p.hostaway_client_id || '';
+    document.getElementById('p-hostaway-client-secret').value= p.hostaway_client_secret || '';
+    document.getElementById('p-hospitable-id').value         = p.hospitable_property_id || '';
+    document.getElementById('p-hospitable-api-key').value    = p.hospitable_api_key || '';
     document.getElementById('p-featured').checked    = p.featured || false;
+    setBookingMode(p.booking_mode || 'instant');
+    renderScreenerQuestions(Array.isArray(p.screener_questions) ? p.screener_questions : []);
     document.getElementById('ical-rows').innerHTML   = '';
     (p.ical_urls || []).forEach(u => addIcalRow(u.platform, u.url));
   } else {
@@ -789,9 +863,18 @@ function openModal(propId) {
     document.getElementById('p-collection').value    = '';
     document.getElementById('p-airbnb-url').value    = '';
     document.getElementById('p-vrbo-url').value      = '';
-    document.getElementById('p-guesty-id').value     = '';
-    document.getElementById('p-featured').checked    = false;
+    document.getElementById('p-guesty-id').value              = '';
+    document.getElementById('p-guesty-client-id').value       = '';
+    document.getElementById('p-guesty-client-secret').value   = '';
+    document.getElementById('p-hostaway-id').value            = '';
+    document.getElementById('p-hostaway-client-id').value     = '';
+    document.getElementById('p-hostaway-client-secret').value = '';
+    document.getElementById('p-hospitable-id').value          = '';
+    document.getElementById('p-hospitable-api-key').value     = '';
+    document.getElementById('p-featured').checked     = false;
     document.getElementById('ical-rows').innerHTML   = '';
+    setBookingMode('instant');
+    renderScreenerQuestions([]);
   }
 
   // Reset upload UI
@@ -1211,8 +1294,17 @@ async function saveProperty() {
     collection:  document.getElementById('p-collection').value || null,
     airbnb_url:       document.getElementById('p-airbnb-url').value.trim(),
     vrbo_url:         document.getElementById('p-vrbo-url').value.trim(),
-    guesty_listing_id: document.getElementById('p-guesty-id').value.trim() || null,
-    featured:    document.getElementById('p-featured').checked,
+    guesty_listing_id:       document.getElementById('p-guesty-id').value.trim() || null,
+    guesty_client_id:        document.getElementById('p-guesty-client-id').value.trim() || null,
+    guesty_client_secret:    document.getElementById('p-guesty-client-secret').value.trim() || null,
+    hostaway_listing_id:     document.getElementById('p-hostaway-id').value.trim() || null,
+    hostaway_client_id:      document.getElementById('p-hostaway-client-id').value.trim() || null,
+    hostaway_client_secret:  document.getElementById('p-hostaway-client-secret').value.trim() || null,
+    hospitable_property_id:  document.getElementById('p-hospitable-id').value.trim() || null,
+    hospitable_api_key:      document.getElementById('p-hospitable-api-key').value.trim() || null,
+    featured:           document.getElementById('p-featured').checked,
+    booking_mode:       document.getElementById('p-booking-mode').value || 'instant',
+    screener_questions: collectScreenerQuestions(),
     ical_urls:   collectIcalUrls(),
     // Ecobee thermostat
     ecobee_thermostat_id: document.getElementById('p-ecobee-thermostat-id')?.value || null,
@@ -1424,9 +1516,11 @@ async function syncFromGuesty() {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action:     'full',
+        action:       'full',
         listingId,
-        propertyId: _editingId || null,
+        propertyId:   _editingId || null,
+        clientId:     document.getElementById('p-guesty-client-id').value.trim() || undefined,
+        clientSecret: document.getElementById('p-guesty-client-secret').value.trim() || undefined,
       }),
     });
 
@@ -1500,6 +1594,174 @@ async function syncFromGuesty() {
     status.style.color  = 'var(--a-red)';
     status.textContent  = '✗ ' + e.message;
     console.error('Guesty sync error:', e);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Sync Now';
+  }
+}
+
+// ── Booking Mode ──────────────────────────────────────────────────────────
+function setBookingMode(mode) {
+  document.getElementById('p-booking-mode').value = mode;
+  const instantBtn  = document.getElementById('bm-instant');
+  const requestBtn  = document.getElementById('bm-request');
+  const descEl      = document.getElementById('p-booking-mode-desc');
+  const screenerSec = document.getElementById('screener-questions-section');
+
+  if (mode === 'request') {
+    instantBtn.style.background = 'var(--a-bg)';  instantBtn.style.color = 'var(--a-gray)';
+    requestBtn.style.background = 'var(--a-green)'; requestBtn.style.color = '#fff';
+    descEl.textContent = 'Guests submit a request — you review and approve before payment.';
+    screenerSec.style.display = 'block';
+  } else {
+    instantBtn.style.background = 'var(--a-green)'; instantBtn.style.color = '#fff';
+    requestBtn.style.background = 'var(--a-bg)';  requestBtn.style.color = 'var(--a-gray)';
+    descEl.textContent = 'Guests pay immediately via Stripe.';
+    screenerSec.style.display = 'none';
+  }
+}
+
+// ── Screener Questions ────────────────────────────────────────────────────
+function renderScreenerQuestions(questions) {
+  const list  = document.getElementById('screener-questions-list');
+  const empty = document.getElementById('screener-questions-empty');
+  list.innerHTML = '';
+  if (!questions.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  questions.forEach(q => addScreenerQuestionRow(q));
+}
+
+function addScreenerQuestion() {
+  const empty = document.getElementById('screener-questions-empty');
+  empty.style.display = 'none';
+  addScreenerQuestionRow('');
+}
+
+function addScreenerQuestionRow(value) {
+  const list = document.getElementById('screener-questions-list');
+  const row  = document.createElement('div');
+  row.className = 'screener-q-row';
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input class="admin-input" type="text" placeholder="e.g. How many pets will be joining you?" value="${esc(value)}" style="flex:1;" />
+    <button type="button" onclick="removeScreenerRow(this)"
+      style="flex-shrink:0;width:34px;height:38px;border-radius:8px;background:#fef2f2;color:var(--a-red);border:1px solid rgba(220,38,38,0.2);cursor:pointer;font-size:1rem;">✕</button>
+  `;
+  list.appendChild(row);
+}
+
+function removeScreenerRow(btn) {
+  btn.closest('.screener-q-row').remove();
+  const list  = document.getElementById('screener-questions-list');
+  const empty = document.getElementById('screener-questions-empty');
+  if (!list.children.length) empty.style.display = 'block';
+}
+
+function collectScreenerQuestions() {
+  return Array.from(document.querySelectorAll('.screener-q-row input'))
+    .map(i => i.value.trim())
+    .filter(Boolean);
+}
+
+// ── Hostaway Sync ─────────────────────────────────────────────────────────
+async function syncFromHostaway() {
+  const listingId = document.getElementById('p-hostaway-id').value.trim();
+  if (!listingId) { alert('Please enter a Hostaway Listing ID first.'); return; }
+
+  const btn    = document.getElementById('hostaway-sync-btn');
+  const status = document.getElementById('hostaway-sync-status');
+
+  btn.disabled    = true;
+  btn.textContent = 'Syncing…';
+  status.style.display = 'block';
+  status.style.color   = 'var(--a-gray)';
+  status.textContent   = 'Connecting to Hostaway…';
+
+  try {
+    const res = await fetch('/.netlify/functions/hostaway-sync', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:       'full',
+        listingId,
+        propertyId:   _editingId || null,
+        clientId:     document.getElementById('p-hostaway-client-id').value.trim() || undefined,
+        clientSecret: document.getElementById('p-hostaway-client-secret').value.trim() || undefined,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const updates = [];
+    if (data.listing) {
+      const l = data.listing;
+      if (l.title       && !document.getElementById('p-name').value.trim())        { document.getElementById('p-name').value        = l.title;                updates.push('name'); }
+      if (l.description && !document.getElementById('p-description').value.trim()) { document.getElementById('p-description').value  = l.description;         updates.push('description'); }
+      if (l.bedrooms != null) { document.getElementById('p-bedrooms').value = l.bedrooms; updates.push('bedrooms'); }
+      if (l.bathrooms != null){ document.getElementById('p-bathrooms').value = l.bathrooms; updates.push('bathrooms'); }
+      if (l.guests != null)   { document.getElementById('p-guests').value   = l.guests;   updates.push('guests'); }
+      if (l.price != null)    { document.getElementById('p-price').value    = Math.round(l.price); updates.push('price'); }
+    }
+
+    status.style.color = '#16a34a';
+    status.textContent = updates.length ? `✓ Synced: ${updates.join(', ')}` : '✓ Connected — no empty fields to auto-fill';
+    showToast('✓ Hostaway sync complete');
+  } catch (e) {
+    status.style.color = 'var(--a-red)';
+    status.textContent = '✗ ' + e.message;
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Sync Now';
+  }
+}
+
+// ── Hospitable Sync ───────────────────────────────────────────────────────
+async function syncFromHospitable() {
+  const listingId = document.getElementById('p-hospitable-id').value.trim();
+  if (!listingId) { alert('Please enter a Hospitable Property ID first.'); return; }
+
+  const btn    = document.getElementById('hospitable-sync-btn');
+  const status = document.getElementById('hospitable-sync-status');
+
+  btn.disabled    = true;
+  btn.textContent = 'Syncing…';
+  status.style.display = 'block';
+  status.style.color   = 'var(--a-gray)';
+  status.textContent   = 'Connecting to Hospitable…';
+
+  try {
+    const res = await fetch('/.netlify/functions/hospitable-sync', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'full',
+        listingId,
+        propertyId: _editingId || null,
+        apiKey:     document.getElementById('p-hospitable-api-key').value.trim() || undefined,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const updates = [];
+    if (data.listing) {
+      const l = data.listing;
+      if (l.title       && !document.getElementById('p-name').value.trim())        { document.getElementById('p-name').value        = l.title;                updates.push('name'); }
+      if (l.description && !document.getElementById('p-description').value.trim()) { document.getElementById('p-description').value  = l.description;         updates.push('description'); }
+      if (l.bedrooms != null) { document.getElementById('p-bedrooms').value = l.bedrooms; updates.push('bedrooms'); }
+      if (l.bathrooms != null){ document.getElementById('p-bathrooms').value = l.bathrooms; updates.push('bathrooms'); }
+      if (l.guests != null)   { document.getElementById('p-guests').value   = l.guests;   updates.push('guests'); }
+      if (l.price != null)    { document.getElementById('p-price').value    = Math.round(l.price); updates.push('price'); }
+    }
+
+    status.style.color = '#16a34a';
+    status.textContent = updates.length ? `✓ Synced: ${updates.join(', ')}` : '✓ Connected — no empty fields to auto-fill';
+    showToast('✓ Hospitable sync complete');
+  } catch (e) {
+    status.style.color = 'var(--a-red)';
+    status.textContent = '✗ ' + e.message;
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Sync Now';

@@ -15,14 +15,14 @@ const GUESTY_API_BASE  = 'https://booking.guesty.com/api';
 let _cachedToken = null;
 let _tokenExpiry = 0;
 
-async function getGuestyToken() {
+async function getGuestyToken(clientId, clientSecret) {
   if (_cachedToken && Date.now() < _tokenExpiry - 30_000) return _cachedToken;
 
-  const clientId     = process.env.GUESTY_CLIENT_ID;
-  const clientSecret = process.env.GUESTY_CLIENT_SECRET;
+  clientId     = clientId     || process.env.GUESTY_CLIENT_ID;
+  clientSecret = clientSecret || process.env.GUESTY_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Missing GUESTY_CLIENT_ID or GUESTY_CLIENT_SECRET in Netlify environment variables.');
+    throw new Error('Missing Guesty credentials. Add Client ID and Client Secret to the property in the portal.');
   }
 
   let res;
@@ -58,8 +58,8 @@ async function getGuestyToken() {
   return _cachedToken;
 }
 
-async function guestyGet(path) {
-  const token = await getGuestyToken();
+async function guestyGet(path, clientId, clientSecret) {
+  const token = await getGuestyToken(clientId, clientSecret);
 
   let res;
   try {
@@ -85,8 +85,8 @@ async function guestyGet(path) {
 
 /* ─── Actions ──────────────────────────────────────────────────────────── */
 
-async function syncListing(listingId) {
-  const data = await guestyGet(`/listings/${listingId}`);
+async function syncListing(listingId, clientId, clientSecret) {
+  const data = await guestyGet(`/listings/${listingId}`, clientId, clientSecret);
   return {
     title:       data.title || data.nickname || '',
     description: data.publicDescription?.summary || '',
@@ -100,14 +100,14 @@ async function syncListing(listingId) {
   };
 }
 
-async function syncAvailability(listingId) {
+async function syncAvailability(listingId, clientId, clientSecret) {
   const from = new Date().toISOString().split('T')[0];
   const toDate = new Date();
   toDate.setFullYear(toDate.getFullYear() + 1);
   const to = toDate.toISOString().split('T')[0];
 
   // booking.guesty.com v2 calendar endpoint
-  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`, clientId, clientSecret);
 
   // Response: { results: [{date, status, price}] } or array
   const days = Array.isArray(data) ? data : (data.results || data.days || data.data || []);
@@ -124,13 +124,13 @@ async function syncAvailability(listingId) {
   return { from, to, blockedDates, prices };
 }
 
-async function syncPricing(listingId) {
+async function syncPricing(listingId, clientId, clientSecret) {
   const from = new Date().toISOString().split('T')[0];
   const toDate = new Date();
   toDate.setDate(toDate.getDate() + 90);
   const to = toDate.toISOString().split('T')[0];
 
-  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`);
+  const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`, clientId, clientSecret);
 
   const days = Array.isArray(data) ? data : (data.results || data.days || data.data || []);
   const prices = {};
@@ -213,7 +213,7 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); }
   catch { return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) }; }
 
-  const { action = 'full', listingId, propertyId } = body;
+  const { action = 'full', listingId, propertyId, clientId, clientSecret } = body;
 
   if (!listingId) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'listingId is required' }) };
@@ -236,17 +236,17 @@ exports.handler = async (event) => {
     const result = {};
 
     if (action === 'listing' || action === 'full') {
-      result.listing = await syncListing(listingId);
+      result.listing = await syncListing(listingId, clientId, clientSecret);
     }
 
     if (action === 'availability' || action === 'full') {
-      result.availability = await syncAvailability(listingId);
+      result.availability = await syncAvailability(listingId, clientId, clientSecret);
     }
 
     if (action === 'pricing' || action === 'full') {
       // pricing reuses the same calendar call — skip to avoid double request
       if (!result.availability) {
-        result.pricing = await syncPricing(listingId);
+        result.pricing = await syncPricing(listingId, clientId, clientSecret);
       } else {
         // derive prices from the availability data we already have
         result.pricing = { note: 'Use availability data for pricing' };

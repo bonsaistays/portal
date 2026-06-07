@@ -11,6 +11,9 @@
 [functions."ical-sync"]
   schedule = "*/30 * * * *"
 
+[functions."pms-sync"]
+  schedule = "0 */6 * * *"
+
 [[headers]]
   for = "/data/*"
   [headers.values]
