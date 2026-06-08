@@ -248,18 +248,22 @@ async function logout() { await sb.auth.signOut(); location.href = 'index.html';
 // ── API helpers ───────────────────────────────────────────────────────────
 async function apiGet(params) {
   const url = API + '?' + new URLSearchParams({ ...params, property_id: PROP_ID });
+  console.log('[calendar] GET', url, 'token:', _token ? _token.slice(0,20)+'…' : 'MISSING');
   const res = await fetch(url, { headers: { Authorization: `Bearer ${_token}` } });
   const data = await res.json();
+  console.log('[calendar] GET response', res.status, data);
   if (!res.ok) throw new Error(data.error || res.status);
   return data;
 }
 async function apiPost(body) {
+  console.log('[calendar] POST', body);
   const res = await fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_token}` },
     body: JSON.stringify({ ...body, property_id: PROP_ID }),
   });
   const data = await res.json();
+  console.log('[calendar] POST response', res.status, data);
   if (!res.ok) throw new Error(data.error || res.status);
   return data;
 }
