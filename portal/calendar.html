@@ -267,6 +267,7 @@ async function apiPost(body) {
 // ── Month ─────────────────────────────────────────────────────────────────
 async function loadMonth() {
   try {
+    document.getElementById('month-label').textContent = 'Loading…';
     const d = await apiGet({ action: 'get_month', year: _year, month: _month });
     _isAdmin    = d.is_admin;
     _basePrice  = d.base_price || 0;
@@ -290,7 +291,15 @@ async function loadMonth() {
     _overrides = {};
     (d.overrides || []).forEach(o => { _overrides[o.date] = o; });
     renderCalendar();
-  } catch (e) { showToast('✗ ' + e.message, true); }
+  } catch (e) {
+    document.getElementById('month-label').textContent = 'Error';
+    document.getElementById('cal-grid').innerHTML =
+      `<div style="grid-column:1/-1;padding:32px;text-align:center;color:#DC2626;">
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;">❌ Calendar failed to load</div>
+        <div style="font-family:monospace;font-size:0.85rem;background:#FEF2F2;padding:12px;border-radius:8px;margin-bottom:12px;">${esc(e.message)}</div>
+        <div style="font-size:0.78rem;color:#666;">property_id: ${esc(PROP_ID)}</div>
+      </div>`;
+  }
 }
 
 function changeMonth(dir) {
