@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar — Bonsai Portal</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    .cal-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
+    .cal-header { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 28px 0 20px; }
+    .cal-layout { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+    @media (max-width: 820px) { .cal-layout { grid-template-columns: 1fr; } }
+
+    /* Month nav */
+    .month-nav { display: flex; align-items: center; gap: 10px; }
+    .month-btn { background: var(--a-white); border: 1.5px solid var(--a-gray-pale); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; color: var(--a-charcoal); transition: var(--transition); }
+    .month-btn:hover { background: var(--a-green-tint); border-color: var(--a-sage); }
+    .month-label { font-size: 1.05rem; font-weight: 700; color: var(--a-charcoal); min-width: 156px; text-align: center; }
+
+    /* Calendar */
+    .cal-card { background: var(--a-white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .cal-dow { display: grid; grid-template-columns: repeat(7,1fr); background: var(--a-bg); border-bottom: 1px solid var(--a-gray-pale); }
+    .cal-dow-cell { padding: 8px 0; text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--a-gray); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
+    .cal-cell { min-height: 70px; padding: 7px 8px; border-right: 1px solid var(--a-gray-pale); border-bottom: 1px solid var(--a-gray-pale); cursor: pointer; transition: background 0.15s; position: relative; }
+    .cal-cell:nth-child(7n) { border-right: none; }
+    .cal-cell.empty { background: var(--a-bg); cursor: default; }
+    .cal-cell.past { opacity: 0.45; }
+    .cal-cell.selected { outline: 2px solid var(--a-sage); outline-offset: -2px; background: #F0FBF4 !important; }
+    .cal-cell.blocked { background: #FFF1F1; }
+    .cal-cell.blocked:hover { background: #FDDEDE; }
+    .cal-cell.custom-price { background: #F0FDF4; }
+    .cal-cell:not(.empty):not(.blocked):hover { background: var(--a-green-tint); }
+    .cal-num { font-size: 0.84rem; font-weight: 600; color: var(--a-charcoal); }
+    .cal-cell.empty .cal-num, .cal-cell.past .cal-num { color: #999; }
+    .cal-tags { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
+    .cal-tag { font-size: 0.65rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tag-blocked { background: #FECACA; color: #991B1B; }
+    .tag-price   { background: #D1FAE5; color: #065F46; }
+    .tag-note    { background: #FEF9C3; color: #854D0E; }
+
+    /* Legend */
+    .cal-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--a-gray); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* Sidebar */
+    .edit-panel { background: var(--a-white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; position: sticky; top: 80px; }
+    .toggle-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--a-bg); border-radius: 10px; padding: 12px 14px; }
+    .toggle-track { position: relative; width: 44px; height: 24px; cursor: pointer; }
+    .toggle-bg { position: absolute; inset: 0; border-radius: 12px; background: var(--a-border); transition: background 0.2s; }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
+
+    /* Fees */
+    .fees-card { background: var(--a-white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px; margin-top: 20px; }
+    .fee-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--a-gray-pale); }
+    .fee-row:last-child { border-bottom: none; }
+    .fee-badge { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; }
+    .fee-badge.stay  { background: #E0E7FF; color: #3730A3; }
+    .fee-badge.night { background: #FEF3C7; color: #92400E; }
+  </style>
+</head>
+<body class="admin-body">
+
+<nav class="admin-nav">
+  <div class="admin-nav-logo">
+    <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:38px;width:auto;filter:brightness(0) invert(1);" />
+  </div>
+  <div class="admin-nav-links">
+    <a href="#" onclick="goBack()" style="opacity:0.75;">← Properties</a>
+    <span id="nav-prop-name" style="color:rgba(255,255,255,0.55);font-size:0.82rem;"></span>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">?</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+<div class="cal-wrap">
+
+  <!-- Header bar -->
+  <div class="cal-header">
+    <div class="month-nav">
+      <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="month-label" id="month-label">Loading…</div>
+      <button class="month-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div id="price-info" style="font-size:0.82rem;color:var(--a-gray);"></div>
+    <!-- Markup (admin only) -->
+    <div id="markup-wrap" style="display:none;align-items:center;gap:8px;">
+      <span style="font-size:0.82rem;font-weight:600;color:var(--a-charcoal);">Markup&nbsp;%</span>
+      <input type="number" id="markup-input" min="0" max="200" step="0.5" class="admin-input" style="width:68px;padding:7px 10px;" />
+      <button onclick="saveMarkup()" class="btn-primary" style="padding:8px 14px;font-size:0.78rem;">Save</button>
+    </div>
+  </div>
+
+  <div class="cal-layout">
+
+    <!-- LEFT: Calendar -->
+    <div>
+      <div class="cal-card">
+        <div class="cal-dow">
+          <div class="cal-dow-cell">Sun</div>
+          <div class="cal-dow-cell">Mon</div>
+          <div class="cal-dow-cell">Tue</div>
+          <div class="cal-dow-cell">Wed</div>
+          <div class="cal-dow-cell">Thu</div>
+          <div class="cal-dow-cell">Fri</div>
+          <div class="cal-dow-cell">Sat</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="cal-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#FECACA;"></div>Blocked</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#D1FAE5;"></div>Custom price</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FEF9C3;"></div>Note</div>
+      </div>
+
+      <!-- Fees -->
+      <div class="fees-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 style="font-size:0.95rem;font-weight:700;color:var(--a-charcoal);">Fees</h3>
+          <button id="btn-add-fee" onclick="openFeeForm(null)" class="btn-primary" style="display:none;padding:7px 14px;font-size:0.78rem;">+ Add Fee</button>
+        </div>
+        <div id="fees-list"></div>
+        <!-- Fee form -->
+        <div id="fee-form" style="display:none;background:var(--a-bg);border-radius:10px;padding:14px;margin-top:12px;flex-direction:column;gap:10px;">
+          <div style="font-size:0.85rem;font-weight:700;color:var(--a-charcoal);" id="fee-form-title">Add Fee</div>
+          <input type="hidden" id="fee-edit-id" />
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Name</label>
+              <input class="admin-input" id="fee-name" placeholder="e.g. Cleaning fee" />
+            </div>
+            <div>
+              <label class="admin-label">Amount ($)</label>
+              <input class="admin-input" id="fee-amount" type="number" min="0" step="0.01" placeholder="0.00" />
+            </div>
+          </div>
+          <div>
+            <label class="admin-label">Type</label>
+            <select class="admin-select" id="fee-type">
+              <option value="per_stay">Per stay (once per booking)</option>
+              <option value="per_night">Per night (multiplied by nights)</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+            <button onclick="closeFeeForm()" class="btn-secondary" style="padding:8px 16px;font-size:0.82rem;">Cancel</button>
+            <button onclick="saveFee()" class="btn-primary" style="padding:8px 16px;font-size:0.82rem;">Save Fee</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Date editor -->
+    <div>
+      <div class="edit-panel" id="edit-panel">
+        <!-- Empty state -->
+        <div id="edit-empty" style="text-align:center;padding:32px 0;color:var(--a-gray);">
+          <div style="font-size:2rem;margin-bottom:8px;">📅</div>
+          <div style="font-weight:600;color:var(--a-charcoal);margin-bottom:6px;">Select a date</div>
+          <div style="font-size:0.81rem;line-height:1.6;">Click any date to block it, set a custom price, or add a note.</div>
+        </div>
+        <!-- Editor -->
+        <div id="edit-form" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div id="edit-date-label" style="font-size:0.92rem;font-weight:700;color:var(--a-charcoal);"></div>
+            <button onclick="deselectDay()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">✕</button>
+          </div>
+
+          <!-- Block toggle -->
+          <div class="toggle-wrap" style="margin-bottom:14px;">
+            <div>
+              <div style="font-size:0.85rem;font-weight:700;color:var(--a-charcoal);">Block this date</div>
+              <div style="font-size:0.74rem;color:var(--a-gray);margin-top:2px;">Guests cannot book when blocked</div>
+            </div>
+            <div class="toggle-track" onclick="toggleBlock()">
+              <div class="toggle-bg" id="block-track"></div>
+              <div class="toggle-thumb" id="block-thumb"></div>
+            </div>
+          </div>
+
+          <!-- Custom price -->
+          <div style="margin-bottom:12px;">
+            <label class="admin-label">Custom nightly price ($)</label>
+            <input class="admin-input" id="edit-price" type="number" min="0" step="1" placeholder="Leave empty to use base price" oninput="updatePriceHint()" />
+            <div id="price-hint" style="font-size:0.72rem;color:var(--a-gray);margin-top:4px;"></div>
+          </div>
+
+          <!-- Note -->
+          <div style="margin-bottom:16px;">
+            <label class="admin-label">Internal note <span style="font-weight:400;">(not shown to guests)</span></label>
+            <textarea class="admin-textarea" id="edit-note" rows="2" style="min-height:56px;resize:none;" placeholder="e.g. Owner using, maintenance…"></textarea>
+          </div>
+
+          <div style="display:flex;gap:8px;">
+            <button onclick="saveDay()" class="btn-primary" style="flex:1;justify-content:center;padding:11px;">Save</button>
+            <button onclick="clearDay()" class="btn-secondary" style="padding:11px 16px;" title="Remove all settings for this date">↺ Reset</button>
+          </div>
+          <div id="edit-msg" style="display:none;text-align:center;font-size:0.78rem;margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+
+<!-- Toast -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--a-green);color:#fff;padding:12px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.18);transition:opacity 0.3s;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const API       = '/.netlify/functions/calendar-api';
+const PROP_ID   = new URLSearchParams(location.search).get('property_id');
+const BACK_URL  = 'properties.html';
+
+let _token      = null;
+let _isAdmin    = false;
+let _year       = new Date().getFullYear();
+let _month      = new Date().getMonth() + 1;
+let _overrides  = {};   // date → override object
+let _basePrice  = 0;
+let _markup     = 0;
+let _selected   = null;
+let _blocked    = false;
+let _fees       = [];
+
+// ── Init ──────────────────────────────────────────────────────────────────
+async function init() {
+  if (!PROP_ID) { alert('No property_id in URL'); return; }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  _token = session.access_token;
+  document.getElementById('admin-avatar').textContent = session.user.email[0].toUpperCase();
+  await Promise.all([loadMonth(), loadFees()]);
+}
+
+function goBack() { if (window.opener) window.close(); else location.href = BACK_URL; }
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
+
+// ── API helpers ───────────────────────────────────────────────────────────
+async function apiGet(params) {
+  const url = API + '?' + new URLSearchParams({ ...params, property_id: PROP_ID });
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${_token}` } });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.status);
+  return data;
+}
+async function apiPost(body) {
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_token}` },
+    body: JSON.stringify({ ...body, property_id: PROP_ID }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.status);
+  return data;
+}
+
+// ── Month ─────────────────────────────────────────────────────────────────
+async function loadMonth() {
+  try {
+    const d = await apiGet({ action: 'get_month', year: _year, month: _month });
+    _isAdmin    = d.is_admin;
+    _basePrice  = d.base_price || 0;
+    _markup     = d.markup_percent ?? 0;
+
+    document.getElementById('nav-prop-name').textContent = d.property_name;
+
+    const guestRate = Math.round(_basePrice * (1 + _markup / 100));
+    document.getElementById('price-info').textContent =
+      _isAdmin
+        ? `Base $${_basePrice}/night · +${_markup}% markup → guest sees $${guestRate}/night`
+        : `$${_basePrice}/night`;
+
+    if (_isAdmin) {
+      const mw = document.getElementById('markup-wrap');
+      mw.style.display = 'flex';
+      document.getElementById('markup-input').value = _markup;
+      document.getElementById('btn-add-fee').style.display = 'inline-flex';
+    }
+
+    _overrides = {};
+    (d.overrides || []).forEach(o => { _overrides[o.date] = o; });
+    renderCalendar();
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+function changeMonth(dir) {
+  _month += dir;
+  if (_month > 12) { _month = 1; _year++; }
+  if (_month < 1)  { _month = 12; _year--; }
+  deselectDay();
+  loadMonth();
+}
+
+// ── Calendar render ───────────────────────────────────────────────────────
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TODAY = new Date().toISOString().split('T')[0];
+
+function renderCalendar() {
+  document.getElementById('month-label').textContent = `${MONTH_NAMES[_month - 1]} ${_year}`;
+  const firstDow  = new Date(_year, _month - 1, 1).getDay();
+  const daysInMo  = new Date(_year, _month, 0).getDate();
+  let html = '';
+
+  for (let i = 0; i < firstDow; i++) html += '<div class="cal-cell empty"><div class="cal-num"></div></div>';
+
+  for (let d = 1; d <= daysInMo; d++) {
+    const ds  = `${_year}-${String(_month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ov  = _overrides[ds];
+    let cls   = 'cal-cell';
+    if (ds < TODAY)          cls += ' past';
+    if (ds === _selected)    cls += ' selected';
+    if (ov?.is_blocked)      cls += ' blocked';
+    else if (ov?.custom_price != null) cls += ' custom-price';
+
+    let tags = '';
+    if (ov?.is_blocked)             tags += '<div class="cal-tag tag-blocked">Blocked</div>';
+    else if (ov?.custom_price != null) tags += `<div class="cal-tag tag-price">$${ov.custom_price}</div>`;
+    if (ov?.note && !ov?.is_blocked) tags += '<div class="cal-tag tag-note">📝</div>';
+
+    html += `
+      <div class="${cls}" onclick="selectDay('${ds}')">
+        <div class="cal-num">${d}</div>
+        <div class="cal-tags">${tags}</div>
+      </div>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+// ── Day editing ───────────────────────────────────────────────────────────
+function selectDay(ds) {
+  _selected = ds;
+  renderCalendar();
+  const ov = _overrides[ds] || {};
+  _blocked = !!ov.is_blocked;
+  document.getElementById('edit-price').value = ov.custom_price ?? '';
+  document.getElementById('edit-note').value  = ov.note || '';
+  document.getElementById('edit-msg').style.display = 'none';
+  const d = new Date(ds + 'T12:00:00');
+  document.getElementById('edit-date-label').textContent =
+    d.toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  updateBlockUI();
+  updatePriceHint();
+  document.getElementById('edit-empty').style.display = 'none';
+  document.getElementById('edit-form').style.display = 'block';
+}
+
+function deselectDay() {
+  _selected = null;
+  renderCalendar();
+  document.getElementById('edit-empty').style.display = '';
+  document.getElementById('edit-form').style.display = 'none';
+}
+
+function toggleBlock() { _blocked = !_blocked; updateBlockUI(); }
+
+function updateBlockUI() {
+  document.getElementById('block-track').style.background = _blocked ? '#DC2626' : 'var(--a-border)';
+  document.getElementById('block-thumb').style.transform  = _blocked ? 'translateX(20px)' : '';
+}
+
+function updatePriceHint() {
+  const hint = document.getElementById('price-hint');
+  if (!_isAdmin) { hint.textContent = `Default: $${_basePrice}/night`; return; }
+  const custom = parseFloat(document.getElementById('edit-price').value);
+  const base   = isNaN(custom) ? _basePrice : custom;
+  const guest  = Math.round(base * (1 + _markup / 100));
+  hint.textContent = `Guest sees: $${guest}/night (after ${_markup}% markup)`;
+}
+
+async function saveDay() {
+  if (!_selected) return;
+  const msg   = document.getElementById('edit-msg');
+  const price = document.getElementById('edit-price').value;
+  const note  = document.getElementById('edit-note').value.trim();
+  msg.style.display = 'block';
+  msg.style.color   = 'var(--a-gray)';
+  msg.textContent   = 'Saving…';
+  try {
+    await apiPost({
+      action:       'set_override',
+      date:         _selected,
+      is_blocked:   _blocked,
+      custom_price: price !== '' ? parseFloat(price) : null,
+      note:         note || null,
+    });
+    _overrides[_selected] = { date: _selected, is_blocked: _blocked, custom_price: price !== '' ? parseFloat(price) : null, note: note || null };
+    if (!_blocked && _overrides[_selected].custom_price == null && !note) delete _overrides[_selected];
+    renderCalendar();
+    msg.style.color   = 'var(--a-sage)';
+    msg.textContent   = '✓ Saved';
+    showToast('✓ Saved');
+  } catch (e) {
+    msg.style.color = 'var(--a-red)';
+    msg.textContent = '✗ ' + e.message;
+    showToast('✗ ' + e.message, true);
+  }
+}
+
+async function clearDay() {
+  if (!_selected) return;
+  if (!confirm('Remove all settings for this date and reset to default?')) return;
+  try {
+    await apiPost({ action: 'delete_override', date: _selected });
+    delete _overrides[_selected];
+    _blocked = false;
+    document.getElementById('edit-price').value = '';
+    document.getElementById('edit-note').value  = '';
+    updateBlockUI();
+    renderCalendar();
+    showToast('✓ Date reset to default');
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+// ── Markup ────────────────────────────────────────────────────────────────
+async function saveMarkup() {
+  const val = parseFloat(document.getElementById('markup-input').value) || 0;
+  try {
+    await apiPost({ action: 'save_markup', markup_percent: val });
+    _markup = val;
+    const gr = Math.round(_basePrice * (1 + val / 100));
+    document.getElementById('price-info').textContent = `Base $${_basePrice}/night · +${val}% markup → guest sees $${gr}/night`;
+    updatePriceHint();
+    showToast('✓ Markup saved');
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+// ── Fees ──────────────────────────────────────────────────────────────────
+async function loadFees() {
+  try {
+    const d = await apiGet({ action: 'get_fees' });
+    _fees = d.fees || [];
+    renderFees();
+  } catch (e) { console.warn('Fees failed:', e.message); }
+}
+
+function renderFees() {
+  const el = document.getElementById('fees-list');
+  if (!_fees.length) {
+    el.innerHTML = `<p style="text-align:center;color:var(--a-gray);font-size:0.83rem;padding:14px 0;">No fees configured yet${_isAdmin ? ' — click + Add Fee to add one.' : '.'}</p>`;
+    return;
+  }
+  el.innerHTML = _fees.map(f => `
+    <div class="fee-row">
+      <div style="flex:1;">
+        <div style="font-size:0.88rem;font-weight:600;color:var(--a-charcoal);">${esc(f.name)}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+          <span style="font-size:0.82rem;color:var(--a-gray);">$${f.amount}</span>
+          <span class="fee-badge ${f.fee_type === 'per_stay' ? 'stay' : 'night'}">${f.fee_type === 'per_stay' ? 'Per stay' : 'Per night'}</span>
+          ${!f.is_active ? '<span style="font-size:0.68rem;color:#999;font-weight:600;">(inactive)</span>' : ''}
+        </div>
+      </div>
+      ${_isAdmin ? `
+        <button onclick="openFeeForm('${f.id}')" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.74rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid var(--a-sage);cursor:pointer;">Edit</button>
+        <button onclick="deleteFee('${f.id}')" style="background:#FEF2F2;color:var(--a-red);font-size:0.74rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid #FECACA;cursor:pointer;">✕</button>
+      ` : ''}
+    </div>`).join('');
+}
+
+function openFeeForm(id) {
+  document.getElementById('fee-form').style.display = 'flex';
+  document.getElementById('fee-form-title').textContent = id ? 'Edit Fee' : 'Add Fee';
+  document.getElementById('fee-edit-id').value = id || '';
+  const f = id ? _fees.find(x => x.id === id) : null;
+  document.getElementById('fee-name').value   = f?.name   || '';
+  document.getElementById('fee-amount').value = f?.amount || '';
+  document.getElementById('fee-type').value   = f?.fee_type || 'per_stay';
+}
+function closeFeeForm() { document.getElementById('fee-form').style.display = 'none'; }
+
+async function saveFee() {
+  const id     = document.getElementById('fee-edit-id').value;
+  const name   = document.getElementById('fee-name').value.trim();
+  const amount = document.getElementById('fee-amount').value;
+  const type   = document.getElementById('fee-type').value;
+  if (!name || !amount) { showToast('✗ Name and amount required', true); return; }
+  try {
+    const d = await apiPost({ action: 'save_fee', id: id || undefined, name, amount: parseFloat(amount), fee_type: type, is_active: true });
+    if (id) { const i = _fees.findIndex(f => f.id === id); if (i >= 0) _fees[i] = d.fee; }
+    else _fees.push(d.fee);
+    renderFees();
+    closeFeeForm();
+    showToast('✓ Fee saved');
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+async function deleteFee(id) {
+  if (!confirm('Delete this fee?')) return;
+  try {
+    await apiPost({ action: 'delete_fee', id });
+    _fees = _fees.filter(f => f.id !== id);
+    renderFees();
+    showToast('✓ Fee deleted');
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#DC2626' : 'var(--a-green)';
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+init();
+</script>
+</body>
+</html>

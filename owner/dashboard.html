@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Portal — Bonsai Stays</title>
+  <link rel="stylesheet" href="../portal/assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<nav class="admin-nav">
+  <div class="admin-nav-logo">
+    <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:42px;width:auto;filter:brightness(0) invert(1);" />
+  </div>
+  <div class="admin-nav-links">
+    <span style="color:rgba(255,255,255,0.6);font-size:0.82rem;">Owner Portal</span>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="owner-avatar">?</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <div class="admin-page-header">
+    <div>
+      <h1>My Properties</h1>
+      <p id="props-subtitle">Your assigned properties</p>
+    </div>
+  </div>
+
+  <div id="props-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;"></div>
+
+  <div class="table-empty hidden" id="props-empty">
+    <div class="table-empty-icon">🏠</div>
+    <h3>No properties assigned</h3>
+    <p>Contact Bonsai Stays to get access to your properties</p>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'login.html'; return; }
+
+  // Redirect admins to the admin portal
+  if (session.user?.app_metadata?.role === 'admin') {
+    location.href = '../portal/dashboard.html'; return;
+  }
+
+  const email = session.user.email;
+  document.getElementById('owner-avatar').textContent = email[0].toUpperCase();
+
+  await loadProperties(session.user.id);
+}
+
+async function logout() { await sb.auth.signOut(); location.href = 'login.html'; }
+
+async function loadProperties(userId) {
+  // Load property_owners rows for this user, joining to properties
+  const { data, error } = await sb
+    .from('property_owners')
+    .select('property_id, properties(id, name, city, thumbnail_url, price, photos)')
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Load failed:', error.message);
+    document.getElementById('props-empty').classList.remove('hidden');
+    document.getElementById('props-subtitle').textContent = 'Error loading properties';
+    return;
+  }
+
+  const properties = (data || [])
+    .map(r => r.properties)
+    .filter(Boolean);
+
+  const grid  = document.getElementById('props-grid');
+  const empty = document.getElementById('props-empty');
+
+  if (!properties.length) {
+    empty.classList.remove('hidden');
+    document.getElementById('props-subtitle').textContent = 'No properties assigned yet';
+    return;
+  }
+
+  document.getElementById('props-subtitle').textContent =
+    `${properties.length} property${properties.length !== 1 ? 'ies' : ''}`;
+
+  grid.innerHTML = properties.map(p => {
+    const thumb = (Array.isArray(p.photos) && p.photos[0]) ? p.photos[0] : (p.thumbnail_url || '');
+    return `
+      <div style="background:var(--a-white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+        ${thumb ? `<div style="height:180px;background:url('${esc(thumb)}') center/cover;"></div>` : `<div style="height:140px;background:var(--a-green-tint);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🏡</div>`}
+        <div style="padding:18px 20px;">
+          <div style="font-size:1rem;font-weight:700;color:var(--a-charcoal);margin-bottom:4px;">${esc(p.name)}</div>
+          <div style="font-size:0.8rem;color:var(--a-gray);margin-bottom:14px;">📍 ${esc(p.city || '—')}${p.price ? ' · $' + p.price + '/night' : ''}</div>
+          <a href="/portal/calendar.html?property_id=${p.id}" target="_blank"
+             style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:var(--a-green);color:#fff;border-radius:var(--radius-sm);font-size:0.88rem;font-weight:700;text-decoration:none;transition:opacity 0.2s;"
+             onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+            📅 Manage Calendar
+          </a>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+init();
+</script>
+</body>
+</html>

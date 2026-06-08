@@ -56,9 +56,9 @@ exports.handler = async (event) => {
   };
 
   try {
-    // 1. Look up property price
+    // 1. Look up property
     const propRes = await fetch(
-      `${SB_URL}/rest/v1/properties?id=eq.${encodeURIComponent(property_id)}&select=id,name,price&limit=1`,
+      `${SB_URL}/rest/v1/properties?id=eq.${encodeURIComponent(property_id)}&select=id,name,price,markup_percent&limit=1`,
       { headers: sbHeaders }
     );
     const props = await propRes.json();
@@ -66,21 +66,55 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Property not found' }) };
 
     const property = props[0];
-    const nightlyRate = property.price;
-
-    if (!nightlyRate || nightlyRate <= 0)
+    if (!property.price || property.price <= 0)
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ error: 'Pricing is not yet available for this property. Please contact us to arrange your booking.' }),
       };
 
-    // 2. Calculate nights and total
+    // 2. Calculate nights
     const nights = Math.round((new Date(check_out) - new Date(check_in)) / 86400000);
     if (nights < 1)
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Check-out must be after check-in' }) };
 
-    let totalCents = Math.round(nights * nightlyRate * 100);
+    // 3. Load per-date overrides and active fees
+    const [overridesRes, feesRes] = await Promise.all([
+      fetch(`${SB_URL}/rest/v1/property_calendar_overrides?property_id=eq.${property_id}&date=gte.${check_in}&date=lt.${check_out}&select=date,is_blocked,custom_price`, { headers: sbHeaders }),
+      fetch(`${SB_URL}/rest/v1/property_fees?property_id=eq.${property_id}&is_active=eq.true&select=name,amount,fee_type`, { headers: sbHeaders }),
+    ]);
+    const overrideRows = await overridesRes.json();
+    const feeRows      = await feesRes.json();
+
+    const overrideMap = {};
+    (Array.isArray(overrideRows) ? overrideRows : []).forEach(o => { overrideMap[o.date] = o; });
+
+    // 4. Calculate nightly total with markup and per-date custom prices
+    const markupMult = 1 + ((property.markup_percent || 0) / 100);
+    const startDate  = new Date(check_in + 'T12:00:00');
+    let nightlyTotal = 0;
+
+    for (let i = 0; i < nights; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const ov = overrideMap[dateStr];
+      if (ov?.is_blocked)
+        return { statusCode: 400, headers, body: JSON.stringify({ error: `The date ${dateStr} is not available. Please choose different dates.` }) };
+      const rate = (ov?.custom_price != null) ? ov.custom_price : property.price;
+      nightlyTotal += Math.round(rate * markupMult * 100) / 100;
+    }
+
+    // 5. Add fees
+    let feesTotal    = 0;
+    const feesDetail = [];
+    (Array.isArray(feeRows) ? feeRows : []).forEach(f => {
+      const total = f.fee_type === 'per_night' ? f.amount * nights : f.amount;
+      feesTotal += total;
+      feesDetail.push(`${f.name}: $${total.toFixed(0)}`);
+    });
+
+    let totalCents = Math.round((nightlyTotal + feesTotal) * 100);
 
     // 3. Server-side points discount (re-verify member's actual balance and tier)
     let pointsDiscount = 0;
@@ -139,6 +173,7 @@ exports.handler = async (event) => {
     const baseUrl = 'https://bonsaistays.com/guests/book.html';
     const nightLabel  = `${nights} night${nights !== 1 ? 's' : ''}`;
     const dateRange   = `${check_in} → ${check_out}`;
+    const feesNote    = feesDetail.length ? ` · Fees: ${feesDetail.join(', ')}` : '';
     const pointsNote  = ptsToRedeem > 0 ? ` · ${ptsToRedeem.toLocaleString()} Bon Voyage points applied` : '';
 
     const session = await stripe.checkout.sessions.create({
@@ -152,7 +187,7 @@ exports.handler = async (event) => {
           unit_amount:  finalCents,
           product_data: {
             name:        `${property.name} — ${nightLabel}`,
-            description: dateRange + pointsNote,
+            description: dateRange + feesNote + pointsNote,
           },
         },
       }],

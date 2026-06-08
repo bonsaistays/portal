@@ -19,6 +19,7 @@
     <a href="members.html">Members</a>
     <a href="businesses.html">Businesses</a>
     <a href="applications.html">Forms</a>
+    <a href="owners.html">Owners</a>
   </div>
   <div class="admin-nav-right">
     <div class="admin-avatar" id="admin-avatar">D</div>
@@ -710,6 +711,7 @@ function renderProperties() {
         </div>
         <div style="display:flex;gap:8px;">
           <button onclick="openModal('${p.id}')" class="btn-primary" style="flex:1;justify-content:center;">Edit</button>
+          <a href="calendar.html?property_id=${p.id}" target="_blank" class="btn-secondary" style="padding:11px 14px;display:inline-flex;align-items:center;" title="Manage Calendar">📅</a>
           <button onclick="openApiModal('${p.id}','${esc(p.name)}')" class="btn-secondary" style="padding:11px 14px;" title="API & Share">🔗</button>
           <button onclick="openDeleteModal('${p.id}','${esc(p.name)}')" class="btn-danger" style="padding:11px 16px;">Delete</button>
         </div>

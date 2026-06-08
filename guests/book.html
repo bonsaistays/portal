@@ -571,6 +571,8 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let _adults = 2, _children = 0, _properties = [];
 let _propPrice = 0, _bookingMode = 'instant', _screenerQuestions = [];
+let _priceBreakdown = null;  // cached price-check result
+let _priceCheckTimer = null;
 
 // ── Member / loyalty state ────────────────────────────────
 let _memberId       = null;
@@ -694,51 +696,110 @@ function updateSummary() {
   document.getElementById('sum-checkin').textContent  = fmtDate(cin);
   document.getElementById('sum-checkout').textContent = fmtDate(cout);
 
-  if (cin && cout) {
-    const nights = Math.round((new Date(cout) - new Date(cin)) / 86400000);
-    document.getElementById('sum-nights').textContent = nights > 0 ? nights + ' night' + (nights !== 1 ? 's' : '') : '—';
-  } else {
-    document.getElementById('sum-nights').textContent = '—';
-  }
-
   const guestStr = _adults + ' adult' + (_adults !== 1 ? 's' : '') + (_children > 0 ? ', ' + _children + ' child' + (_children !== 1 ? 'ren' : '') : '');
   document.getElementById('sum-guests').textContent = guestStr;
 
   const selectedExtras = [...document.querySelectorAll('.extra-card.selected')].map(c => c.dataset.extra);
   const extRow = document.getElementById('sum-extras-row');
-  if (selectedExtras.length) {
-    document.getElementById('sum-extras').textContent = selectedExtras.length + ' selected';
-    extRow.style.display = 'flex';
+  if (selectedExtras.length) { document.getElementById('sum-extras').textContent = selectedExtras.length + ' selected'; extRow.style.display = 'flex'; }
+  else extRow.style.display = 'none';
+
+  if (propId && cin && cout) {
+    const nts = Math.round((new Date(cout) - new Date(cin)) / 86400000);
+    document.getElementById('sum-nights').textContent = nts > 0 ? nts + ' night' + (nts !== 1 ? 's' : '') : '—';
+    if (nts > 0) {
+      clearTimeout(_priceCheckTimer);
+      _priceCheckTimer = setTimeout(() => fetchPriceBreakdown(propId, cin, cout), 500);
+    }
   } else {
-    extRow.style.display = 'none';
+    document.getElementById('sum-nights').textContent = '—';
+    document.getElementById('sum-total-row').style.display = 'none';
+    _priceBreakdown = null;
   }
 
+  renderPointsAndTotal();
+}
+
+async function fetchPriceBreakdown(propId, cin, cout) {
+  try {
+    document.getElementById('sum-total').textContent = '…';
+    document.getElementById('sum-total-row').style.display = 'flex';
+    const res  = await fetch(`/.netlify/functions/price-check?property_id=${propId}&check_in=${cin}&check_out=${cout}`);
+    const data = await res.json();
+    if (!res.ok || !data.available) {
+      _priceBreakdown = null;
+      document.getElementById('sum-total-row').style.display = 'none';
+      if (data.available === false) showSidebarError('Selected dates include unavailable nights. Please choose different dates.');
+      return;
+    }
+    _priceBreakdown = data;
+    renderPointsAndTotal();
+  } catch (e) {
+    console.warn('Price check failed:', e.message);
+    // Fall back to simple calculation
+    _priceBreakdown = null;
+    renderPointsAndTotal();
+  }
+}
+
+function renderPointsAndTotal() {
   // Points row
   const ptsRow = document.getElementById('sum-points-row');
   if (_pointsToRedeem > 0) {
     document.getElementById('sum-points').textContent =
       `${_pointsToRedeem.toLocaleString()} pts (−$${ptsToValue(_pointsToRedeem, _memberTier)})`;
     ptsRow.style.display = 'flex';
-  } else {
-    ptsRow.style.display = 'none';
-  }
+  } else ptsRow.style.display = 'none';
 
-  // Total row
+  // Total row — use price-check result if available, otherwise simple calc
   const totalRow = document.getElementById('sum-total-row');
   const totalEl  = document.getElementById('sum-total');
-  const cinVal   = document.getElementById('f-checkin').value;
-  const coutVal  = document.getElementById('f-checkout').value;
-  const nts      = cinVal && coutVal ? Math.round((new Date(coutVal) - new Date(cinVal)) / 86400000) : 0;
-  if (_propPrice > 0 && nts > 0) {
+  const cin   = document.getElementById('f-checkin').value;
+  const cout  = document.getElementById('f-checkout').value;
+  const nts   = cin && cout ? Math.round((new Date(cout) - new Date(cin)) / 86400000) : 0;
+  const fmt   = v => '$' + Math.round(v).toLocaleString('en-CA');
+
+  if (_priceBreakdown && _priceBreakdown.grand_total > 0) {
+    let total = _priceBreakdown.grand_total;
+    if (_pointsToRedeem > 0) total = Math.max(0, total - parseFloat(ptsToValue(_pointsToRedeem, _memberTier)));
+
+    // Build breakdown HTML inside the sidebar
+    let breakdownHtml = '';
+    if (_priceBreakdown.fees_breakdown?.length) {
+      breakdownHtml = _priceBreakdown.fees_breakdown.map(f =>
+        `<div class="sidebar-row"><span class="lbl">${f.name} <span style="font-size:0.7rem;color:var(--gray-light);">(${f.fee_type === 'per_night' ? 'per night' : 'per stay'})</span></span><span class="val">$${Math.round(f.total).toLocaleString()}</span></div>`
+      ).join('');
+    }
+    // Re-inject nightly subtotal row if there are fees
+    const nightlyRow = _priceBreakdown.fees_breakdown?.length
+      ? `<div class="sidebar-row" id="sum-nights-cost-row"><span class="lbl">${nts} night${nts !== 1 ? 's' : ''} × avg $${_priceBreakdown.avg_nightly}/night</span><span class="val">$${Math.round(_priceBreakdown.nightly_total).toLocaleString()}</span></div>`
+      : '';
+
+    // Insert nightly + fees rows before total (idempotent)
+    let feeContainer = document.getElementById('price-fee-rows');
+    if (!feeContainer) {
+      feeContainer = document.createElement('div');
+      feeContainer.id = 'price-fee-rows';
+      totalRow.parentNode.insertBefore(feeContainer, totalRow);
+    }
+    feeContainer.innerHTML = nightlyRow + breakdownHtml;
+
+    totalEl.textContent = fmt(total);
+    totalRow.style.display = 'flex';
+  } else if (_propPrice > 0 && nts > 0) {
+    // Fallback: simple calc
     let total = nts * _propPrice;
-    if (_pointsToRedeem > 0) total -= parseFloat(ptsToValue(_pointsToRedeem, _memberTier));
-    total = Math.max(total, 0);
-    const fmt = v => '$' + v.toLocaleString('en-CA', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    if (_pointsToRedeem > 0) total = Math.max(0, total - parseFloat(ptsToValue(_pointsToRedeem, _memberTier)));
     totalEl.textContent = fmt(total);
     totalRow.style.display = 'flex';
   } else {
     totalRow.style.display = 'none';
   }
+}
+
+function showSidebarError(msg) {
+  const el = document.getElementById('book-error-sidebar');
+  if (el) { el.textContent = msg; el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 5000); }
 }
 
 // Live update as dates change

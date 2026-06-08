@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonsai Portal — Owners</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+</head>
+<body class="admin-body">
+
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:42px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="products.html">Shop</a>
+    <a href="members.html">Members</a>
+    <a href="businesses.html">Businesses</a>
+    <a href="applications.html">Forms</a>
+    <a href="owners.html" class="active">Owners</a>
+  </div>
+  <div class="admin-nav-right">
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<main class="admin-main">
+
+  <div class="admin-page-header">
+    <div>
+      <h1>Property Owners</h1>
+      <p id="owners-subtitle">Manage owner accounts and their property access</p>
+    </div>
+    <button class="btn-primary" onclick="openAddOwner()">+ Add Owner</button>
+  </div>
+
+  <!-- Info card -->
+  <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;font-size:0.84rem;color:var(--a-green);line-height:1.6;">
+    <strong>How it works:</strong> Each property owner gets their own login at
+    <a href="/owner/login.html" target="_blank" style="color:var(--a-sage);font-weight:700;">bonsaistays.com/owner/login.html</a>.
+    They can block dates and set custom prices for their assigned properties.
+    Markup % and fees are only visible to Bonsai Stays admins.
+  </div>
+
+  <!-- Owners table -->
+  <div class="bookings-card">
+    <div id="owners-table-wrap">
+      <table class="bookings-table" id="owners-table">
+        <thead>
+          <tr>
+            <th>Owner</th>
+            <th>Email</th>
+            <th>Property</th>
+            <th>Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="owners-tbody"></tbody>
+      </table>
+      <div class="table-empty hidden" id="owners-empty">
+        <div class="table-empty-icon">👤</div>
+        <h3>No owners yet</h3>
+        <p>Add your first property owner to give them calendar access</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══ Add Owner Modal ══════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-owner">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3>Add Property Owner</h3>
+      <button class="btn-modal-close" onclick="closeAddOwner()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.84rem;color:var(--a-gray);margin-bottom:20px;line-height:1.6;">
+        Creates a new Supabase account for the owner. They'll log in at <strong>/owner/login.html</strong> with these credentials.
+      </p>
+      <div id="add-owner-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;font-size:0.83rem;padding:10px 14px;border-radius:8px;margin-bottom:14px;"></div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label class="admin-label">Owner name</label>
+          <input class="admin-input" id="ao-name" type="text" placeholder="Jane Smith" />
+        </div>
+        <div>
+          <label class="admin-label">Email *</label>
+          <input class="admin-input" id="ao-email" type="email" placeholder="jane@example.com" />
+        </div>
+        <div>
+          <label class="admin-label">Password *</label>
+          <input class="admin-input" id="ao-password" type="text" placeholder="Minimum 8 characters" />
+          <div style="font-size:0.72rem;color:var(--a-gray);margin-top:4px;">Share this with the owner — they can change it after logging in via Forgot Password.</div>
+        </div>
+        <div>
+          <label class="admin-label">Assign to property</label>
+          <select class="admin-select" id="ao-property">
+            <option value="">Select a property…</option>
+          </select>
+          <div style="font-size:0.72rem;color:var(--a-gray);margin-top:4px;">You can assign additional properties later from the table.</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeAddOwner()">Cancel</button>
+      <button class="btn-primary" id="ao-save-btn" onclick="saveOwner()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Link Property Modal ══════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-link">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>Link Additional Property</h3>
+      <button class="btn-modal-close" onclick="closeLinkModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.84rem;color:var(--a-gray);margin-bottom:16px;">
+        Give <strong id="link-owner-name"></strong> access to an additional property.
+      </p>
+      <div id="link-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;font-size:0.83rem;padding:10px 14px;border-radius:8px;margin-bottom:14px;"></div>
+      <div>
+        <label class="admin-label">Property</label>
+        <select class="admin-select" id="link-property">
+          <option value="">Select a property…</option>
+        </select>
+      </div>
+      <input type="hidden" id="link-user-id" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeLinkModal()">Cancel</button>
+      <button class="btn-primary" id="link-save-btn" onclick="saveLinkProperty()">Link Property</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--a-green);color:#fff;padding:12px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.18);"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const OWNER_API = '/.netlify/functions/owner-api';
+let _token      = null;
+let _owners     = [];
+let _properties = [];
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  _token = session.access_token;
+  document.getElementById('admin-avatar').textContent = session.user.email[0].toUpperCase();
+  await Promise.all([loadOwners(), loadProperties()]);
+}
+
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
+
+async function api(body) {
+  const res = await fetch(OWNER_API, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_token}` },
+    body:    JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.status);
+  return data;
+}
+
+async function loadOwners() {
+  try {
+    const d = await api({ action: 'list_owners' });
+    _owners = d.owners || [];
+    renderOwners();
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+async function loadProperties() {
+  try {
+    const d = await api({ action: 'get_properties' });
+    _properties = d.properties || [];
+    const sels = ['ao-property', 'link-property'];
+    sels.forEach(id => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = '<option value="">Select a property…</option>' +
+        _properties.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    });
+  } catch (e) { console.warn('Properties load failed:', e.message); }
+}
+
+function renderOwners() {
+  const tbody = document.getElementById('owners-tbody');
+  const empty = document.getElementById('owners-empty');
+
+  if (!_owners.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    document.getElementById('owners-subtitle').textContent = 'No owner accounts yet';
+    return;
+  }
+
+  empty.classList.add('hidden');
+  document.getElementById('owners-subtitle').textContent = `${_owners.length} owner assignment${_owners.length !== 1 ? 's' : ''}`;
+
+  const fmt = d => new Date(d).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  tbody.innerHTML = _owners.map(o => `
+    <tr>
+      <td style="font-weight:600;color:var(--a-charcoal);">${esc(o.name || '—')}</td>
+      <td style="color:var(--a-gray);font-size:0.85rem;">${esc(o.email)}</td>
+      <td>
+        <span style="background:var(--a-green-tint);color:var(--a-green);font-size:0.78rem;font-weight:600;padding:3px 10px;border-radius:12px;">${esc(o.property_name)}</span>
+      </td>
+      <td style="color:var(--a-gray);font-size:0.83rem;">${fmt(o.created_at)}</td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button onclick="openLinkModal('${o.user_id}','${esc(o.name || o.email)}')" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.76rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid var(--a-sage);cursor:pointer;">+ Link property</button>
+          <button onclick="unlinkOwner('${o.id}','${esc(o.name || o.email)}','${esc(o.property_name)}')" style="background:#FEF2F2;color:var(--a-red);font-size:0.76rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid #FECACA;cursor:pointer;">✕ Unlink</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── Add owner ─────────────────────────────────────────────────────────────
+function openAddOwner()  { document.getElementById('modal-owner').classList.remove('hidden'); loadProperties(); }
+function closeAddOwner() { document.getElementById('modal-owner').classList.add('hidden');  clearAddForm(); }
+
+function clearAddForm() {
+  ['ao-name','ao-email','ao-password'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ao-property').value = '';
+  document.getElementById('add-owner-error').classList.add('hidden');
+}
+
+async function saveOwner() {
+  const btn  = document.getElementById('ao-save-btn');
+  const errEl = document.getElementById('add-owner-error');
+  const name     = document.getElementById('ao-name').value.trim();
+  const email    = document.getElementById('ao-email').value.trim();
+  const password = document.getElementById('ao-password').value;
+  const propId   = document.getElementById('ao-property').value;
+
+  if (!email || !password) { errEl.textContent = 'Email and password are required.'; errEl.classList.remove('hidden'); return; }
+  if (password.length < 8)  { errEl.textContent = 'Password must be at least 8 characters.'; errEl.classList.remove('hidden'); return; }
+
+  errEl.classList.add('hidden');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+
+  try {
+    await api({ action: 'create_owner', email, password, name, property_id: propId || undefined });
+    showToast('✓ Owner account created');
+    closeAddOwner();
+    await loadOwners();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.textContent = 'Create Account'; btn.disabled = false;
+  }
+}
+
+// ── Link property ─────────────────────────────────────────────────────────
+function openLinkModal(userId, name) {
+  document.getElementById('link-user-id').value    = userId;
+  document.getElementById('link-owner-name').textContent = name;
+  document.getElementById('link-property').value   = '';
+  document.getElementById('link-error').classList.add('hidden');
+  document.getElementById('modal-link').classList.remove('hidden');
+}
+function closeLinkModal() { document.getElementById('modal-link').classList.add('hidden'); }
+
+async function saveLinkProperty() {
+  const btn    = document.getElementById('link-save-btn');
+  const errEl  = document.getElementById('link-error');
+  const userId = document.getElementById('link-user-id').value;
+  const propId = document.getElementById('link-property').value;
+  if (!propId) { errEl.textContent = 'Please select a property.'; errEl.classList.remove('hidden'); return; }
+
+  btn.textContent = 'Linking…'; btn.disabled = true;
+  try {
+    await api({ action: 'link_property', user_id: userId, property_id: propId });
+    showToast('✓ Property linked');
+    closeLinkModal();
+    await loadOwners();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.textContent = 'Link Property'; btn.disabled = false;
+  }
+}
+
+// ── Unlink ────────────────────────────────────────────────────────────────
+async function unlinkOwner(rowId, ownerName, propName) {
+  if (!confirm(`Remove ${ownerName}'s access to ${propName}?`)) return;
+  try {
+    await api({ action: 'unlink_property', owner_id: rowId });
+    showToast('✓ Access removed');
+    await loadOwners();
+  } catch (e) { showToast('✗ ' + e.message, true); }
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#DC2626' : 'var(--a-green)';
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
+
+init();
+</script>
+</body>
+</html>

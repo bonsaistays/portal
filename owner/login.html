@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Portal — Bonsai Stays</title>
+  <link rel="stylesheet" href="../portal/assets/portal.css" />
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:42px;width:auto;filter:brightness(0) invert(1);display:block;margin:0 auto 8px;" />
+    <div class="login-subtitle">Owner Portal</div>
+    <h2>Welcome back</h2>
+
+    <div id="login-error" class="login-error hidden"></div>
+
+    <form id="login-form" onsubmit="doLogin(event)">
+      <div style="margin-bottom:16px;">
+        <label class="form-label" style="color:var(--g-muted);">Email</label>
+        <input class="form-input" id="login-email" type="email" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div style="margin-bottom:28px;">
+        <label class="form-label" style="color:var(--g-muted);">Password</label>
+        <input class="form-input" id="login-password" type="password" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn-submit" id="login-btn">Sign in →</button>
+    </form>
+
+    <div id="forgot-msg" class="hidden" style="margin-top:16px;padding:12px 14px;border-radius:8px;background:rgba(91,191,133,0.12);border:1px solid rgba(91,191,133,0.3);font-size:0.82rem;color:#2e7d52;text-align:center;line-height:1.5;"></div>
+
+    <div style="text-align:center;margin-top:16px;">
+      <a href="#" id="forgot-link" onclick="forgotPassword(event)" style="font-size:0.78rem;color:var(--g-muted);">Forgot password?</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Redirect if already logged in
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) location.href = 'dashboard.html';
+})();
+
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  err.classList.add('hidden');
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email:    document.getElementById('login-email').value.trim(),
+    password: document.getElementById('login-password').value,
+  });
+
+  if (error) {
+    err.textContent = error.message || 'Invalid email or password.';
+    err.classList.remove('hidden');
+    btn.textContent = 'Sign in →'; btn.disabled = false;
+    return;
+  }
+
+  // If this is an admin account, redirect to admin portal instead
+  if (data.user?.app_metadata?.role === 'admin') {
+    location.href = '../portal/dashboard.html';
+  } else {
+    location.href = 'dashboard.html';
+  }
+}
+
+async function forgotPassword(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const msg   = document.getElementById('forgot-msg');
+  const link  = document.getElementById('forgot-link');
+  if (!email) {
+    msg.textContent = 'Enter your email address above first.';
+    msg.style.background = 'rgba(220,38,38,0.1)';
+    msg.style.borderColor = 'rgba(220,38,38,0.3)';
+    msg.style.color = '#b91c1c';
+    msg.classList.remove('hidden');
+    return;
+  }
+  link.textContent = 'Sending…';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: location.origin + '/portal/reset-password.html'
+  });
+  link.textContent = 'Forgot password?';
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.background = 'rgba(220,38,38,0.1)';
+    msg.style.borderColor = 'rgba(220,38,38,0.3)';
+    msg.style.color = '#b91c1c';
+  } else {
+    msg.textContent = '📬 Check your inbox — we sent a reset link to ' + email;
+    msg.style.background = 'rgba(91,191,133,0.12)';
+    msg.style.borderColor = 'rgba(91,191,133,0.3)';
+    msg.style.color = '#2e7d52';
+  }
+  msg.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
