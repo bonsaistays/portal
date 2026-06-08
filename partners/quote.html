@@ -1323,17 +1323,21 @@
       // Sheet sets
       const sheetCost = king*11 + queen*9 + dbl*8 + twin*7 + bunk*2*7;
 
-      // Towels for beds above twin
-      const bedTowelCost = (king + queen + dbl) * 22.50;
+      // Bath Towels & Wash Cloths (per bed)
+      // K/Q/D: 2 bath towels ($1.75) + 2 wash cloths ($0.50) = $4.50/bed
+      // Twin:  1 bath towel  ($1.75) + 1 wash cloth  ($0.50) = $2.25/bed
+      // Bunk:  2 sleeping spots → same as 2 twins              = $4.50/unit
+      const bedTowelCost = (king + queen + dbl) * (2*1.75 + 2*0.50)
+                         + twin                  * (1*1.75 + 1*0.50)
+                         + bunk                  * (2*1.75 + 2*0.50);
 
-      // Bathroom towels + mats
-      // Full: 2 hand towels + 1 bath towel + 1 bath mat
-      const fullBathLinenCost = fullB * (2*0.80 + 1*1.75 + 1*1.50);
-      // Half: 2 hand towels
-      const halfBathLinenCost = halfB * (2*0.80);
-      const bathTowelCost = fullBathLinenCost + halfBathLinenCost;
+      // Bathroom Towels & Mats
+      // Every bathroom (full + half): 2 hand towels @ $0.80 each
+      // Full bathrooms only: + 1 bath mat @ $1.50
+      const bathTowelCost = (fullB + halfB) * (2*0.80)
+                          + fullB * 1.50;
 
-      // Dish towels
+      // Dish towels: 2 per kitchen @ $0.80
       const dishCost = kitch * 2 * 0.80;
 
       // Beach towels & robes
