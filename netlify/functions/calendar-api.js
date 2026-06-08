@@ -85,19 +85,25 @@ exports.handler = async (event) => {
       const start = `${yr}-${String(mo).padStart(2, '0')}-01`;
       const end   = new Date(yr, mo, 0).toISOString().split('T')[0];
 
-      const [{ data: overrides }, { data: prop }, bookingsRes] = await Promise.all([
+      const [{ data: overrides }, { data: prop }] = await Promise.all([
         adminSb.from('property_calendar_overrides').select('*').eq('property_id', property_id).gte('date', start).lte('date', end),
         adminSb.from('properties').select('price, markup_percent, name').eq('id', property_id).single(),
-        adminSb.from('bookings')
+      ]);
+
+      // Bookings — wrapped separately so a missing table doesn't break the whole call
+      let bookingsData = [];
+      try {
+        const { data: bkRows } = await adminSb
+          .from('bookings')
           .select('id, check_in, check_out, status, guest_name, source, confirmation_code, total_price, guests, currency')
           .eq('property_id', property_id)
           .neq('status', 'cancelled')
           .lte('check_in', end)
-          .gt('check_out', start)
-          .catch(() => ({ data: [] })),
-      ]);
+          .gt('check_out', start);
+        bookingsData = bkRows || [];
+      } catch { /* bookings table may not exist yet */ }
 
-      const bookings = (bookingsRes.data || []).map(b => isAdmin ? b : {
+      const bookings = bookingsData.map(b => isAdmin ? b : {
         check_in: b.check_in, check_out: b.check_out, source: b.source, status: b.status,
       });
 
