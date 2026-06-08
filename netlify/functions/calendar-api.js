@@ -66,7 +66,15 @@ exports.handler = async (event) => {
       .eq('user_id', user.id)
       .eq('property_id', property_id)
       .maybeSingle();
-    if (!own) return { statusCode: 403, headers: h, body: JSON.stringify({ error: 'Access denied' }) };
+    if (!own) return { statusCode: 403, headers: h, body: JSON.stringify({
+      error: 'Access denied',
+      debug: {
+        user_email: user.email,
+        admin_emails_env: process.env.ADMIN_EMAILS || '(not set)',
+        is_admin: isAdmin,
+        app_meta_role: user.app_metadata?.role || '(none)',
+      }
+    }) };
   }
 
   try {
