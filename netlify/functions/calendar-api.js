@@ -85,15 +85,27 @@ exports.handler = async (event) => {
       const start = `${yr}-${String(mo).padStart(2, '0')}-01`;
       const end   = new Date(yr, mo, 0).toISOString().split('T')[0];
 
-      const [{ data: overrides }, { data: prop }] = await Promise.all([
+      const [{ data: overrides }, { data: prop }, bookingsRes] = await Promise.all([
         adminSb.from('property_calendar_overrides').select('*').eq('property_id', property_id).gte('date', start).lte('date', end),
         adminSb.from('properties').select('price, markup_percent, name').eq('id', property_id).single(),
+        adminSb.from('bookings')
+          .select('id, check_in, check_out, status, guest_name, source, confirmation_code, total_price, guests, currency')
+          .eq('property_id', property_id)
+          .neq('status', 'cancelled')
+          .lte('check_in', end)
+          .gt('check_out', start)
+          .catch(() => ({ data: [] })),
       ]);
+
+      const bookings = (bookingsRes.data || []).map(b => isAdmin ? b : {
+        check_in: b.check_in, check_out: b.check_out, source: b.source, status: b.status,
+      });
 
       return {
         statusCode: 200, headers: h,
         body: JSON.stringify({
           overrides:      overrides || [],
+          bookings,
           base_price:     prop?.price || 0,
           markup_percent: isAdmin ? (prop?.markup_percent || 0) : null,
           property_name:  prop?.name || '',

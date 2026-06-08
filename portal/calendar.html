@@ -31,7 +31,12 @@
     .cal-cell.blocked { background: #FFF1F1; }
     .cal-cell.blocked:hover, .cal-cell.blocked.in-range { background: #FDDEDE !important; }
     .cal-cell.custom-price { background: #F0FDF4; }
-    .cal-cell:not(.empty):not(.blocked):hover { background: var(--a-green-tint); }
+    .cal-cell.booked { background: #EEF2FF; cursor: pointer; }
+    .cal-cell.booked:hover { background: #E0E7FF !important; }
+    .cal-cell.booked.check-in  { background: linear-gradient(to right, var(--a-white) 40%, #EEF2FF 40%); }
+    .cal-cell.booked.check-out { background: linear-gradient(to left,  var(--a-white) 40%, #EEF2FF 40%); }
+    .cal-cell:not(.empty):not(.blocked):not(.booked):hover { background: var(--a-green-tint); }
+    .tag-booked { background: #C7D2FE; color: #3730A3; }
     .cal-num { font-size: 0.84rem; font-weight: 600; color: var(--a-charcoal); pointer-events: none; }
     .cal-cell.empty .cal-num, .cal-cell.past .cal-num { color: #999; }
     .cal-tags { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; pointer-events: none; }
@@ -121,6 +126,7 @@
       </div>
       <div class="cal-legend" style="margin-bottom:6px;">
         <div class="legend-item"><div class="legend-dot" style="background:#FECACA;"></div>Blocked</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#C7D2FE;"></div>Booked</div>
         <div class="legend-item"><div class="legend-dot" style="background:#D1FAE5;"></div>Custom price</div>
         <div class="legend-item"><div class="legend-dot" style="background:#FEF9C3;"></div>Note</div>
         <div class="legend-item" style="margin-left:auto;color:#aaa;font-style:italic;">Drag to select multiple dates</div>
@@ -262,6 +268,15 @@
           <div id="multi-msg" style="display:none;text-align:center;font-size:0.78rem;margin-top:8px;"></div>
         </div>
 
+        <!-- Booking detail (read-only) -->
+        <div id="edit-booking" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:0.92rem;font-weight:700;color:var(--a-charcoal);" id="booking-detail-title">Booking</div>
+            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">✕</button>
+          </div>
+          <div id="booking-detail-body"></div>
+        </div>
+
       </div>
     </div>
 
@@ -291,6 +306,8 @@ let _overrides     = {};       // date string → override object
 let _basePrice     = 0;
 let _markup        = 0;
 let _fees          = [];
+let _bookings      = [];   // [{check_in, check_out, source, guest_name, ...}]
+let _bookingDateMap = {};  // date → booking object (for O(1) lookup)
 
 // Selection state
 let _selectedDates = new Set();  // currently selected date strings
@@ -357,6 +374,20 @@ async function loadMonth() {
 
     _overrides = {};
     (d.overrides || []).forEach(o => { _overrides[o.date] = o; });
+
+    // Build booking date map
+    _bookings = d.bookings || [];
+    _bookingDateMap = {};
+    for (const b of _bookings) {
+      const cur  = new Date(b.check_in  + 'T12:00:00');
+      const last = new Date(b.check_out + 'T12:00:00');
+      while (cur < last) {   // check_out is exclusive (departure day)
+        const ds = cur.toISOString().split('T')[0];
+        if (!_bookingDateMap[ds]) _bookingDateMap[ds] = b;
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+
     renderCalendar();
   } catch (e) {
     document.getElementById('month-label').textContent = 'Error';
@@ -391,22 +422,28 @@ function renderCalendar() {
     html += '<div class="cal-cell empty"><div class="cal-num"></div></div>';
 
   for (let d = 1; d <= daysInMo; d++) {
-    const ds = `${_year}-${String(_month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const ov = _overrides[ds];
-    let cls  = 'cal-cell';
+    const ds  = `${_year}-${String(_month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ov  = _overrides[ds];
+    const bk  = _bookingDateMap[ds];
+    let cls   = 'cal-cell';
     if (ds < TODAY)                    cls += ' past';
     if (_selectedDates.has(ds))        cls += ' selected';
-    else if (_selectedDates.size === 0 && false) {} // placeholder
     if (ov?.is_blocked)                cls += ' blocked';
+    else if (bk)                       cls += ' booked' + (ds === bk.check_in ? ' check-in' : '') + (ds === bk.check_out ? ' check-out' : '');
     else if (ov?.custom_price != null) cls += ' custom-price';
 
     let tags = '';
-    if (ov?.is_blocked)               tags += '<div class="cal-tag tag-blocked">Blocked</div>';
+    if (ov?.is_blocked)                tags += '<div class="cal-tag tag-blocked">Blocked</div>';
+    else if (bk)                       tags += `<div class="cal-tag tag-booked">${sourceLabel(bk.source, bk.guest_name)}</div>`;
     else if (ov?.custom_price != null) tags += `<div class="cal-tag tag-price">$${ov.custom_price}</div>`;
-    if (ov?.note && !ov?.is_blocked)  tags += '<div class="cal-tag tag-note">📝</div>';
+    if (ov?.note && !ov?.is_blocked)   tags += '<div class="cal-tag tag-note">📝</div>';
+
+    const clickHandler = bk
+      ? `onCellBookingClick(event,'${ds}')`
+      : `onCellMouseDown(event,'${ds}')`;
 
     html += `<div class="${cls}" data-date="${ds}"
-      onmousedown="onCellMouseDown(event,'${ds}')"
+      onmousedown="${clickHandler}"
       onmouseover="onCellMouseOver('${ds}')"
       onmouseup="onCellMouseUp()">
       <div class="cal-num">${d}</div>
@@ -471,9 +508,107 @@ function deselectAll() {
 }
 
 function showEmpty() {
-  document.getElementById('edit-empty').style.display = '';
-  document.getElementById('edit-form').style.display  = 'none';
-  document.getElementById('edit-multi').style.display = 'none';
+  document.getElementById('edit-empty').style.display   = '';
+  document.getElementById('edit-form').style.display    = 'none';
+  document.getElementById('edit-multi').style.display   = 'none';
+  document.getElementById('edit-booking').style.display = 'none';
+}
+
+// ── Booking detail ────────────────────────────────────────────────────────────
+const SOURCE_ICONS = { airbnb:'🏠', vrbo:'🏡', homeaway:'🏡', booking:'🔵', expedia:'🌐', guesty:'📋', hostaway:'📋', hospitable:'📋', ical:'📅' };
+
+function sourceLabel(source, guestName) {
+  if (!source) return 'Booked';
+  const s = (source || '').toLowerCase();
+  // Try to extract platform from guest name like "Airbnb Reservation"
+  const fromName = (guestName || '').split(' ')[0];
+  if (s === 'ical' && fromName && fromName !== 'Airbnb' && fromName !== 'VRBO') return fromName;
+  if (s === 'ical') return fromName || 'iCal';
+  return source.charAt(0).toUpperCase() + source.slice(1);
+}
+
+function onCellBookingClick(e, ds) {
+  e.preventDefault();
+  e.stopPropagation();
+  _selectedDates = new Set([ds]);
+  renderCalendar();
+  const bk = _bookingDateMap[ds];
+  if (!bk) return;
+  showBookingDetail(bk);
+}
+
+function showBookingDetail(bk) {
+  document.getElementById('edit-empty').style.display   = 'none';
+  document.getElementById('edit-form').style.display    = 'none';
+  document.getElementById('edit-multi').style.display   = 'none';
+  document.getElementById('edit-booking').style.display = 'block';
+
+  const src   = sourceLabel(bk.source, bk.guest_name);
+  const icon  = SOURCE_ICONS[(bk.source||'').toLowerCase()] || '📅';
+  const cin   = new Date(bk.check_in  + 'T12:00:00');
+  const cout  = new Date(bk.check_out + 'T12:00:00');
+  const nights = Math.round((cout - cin) / 86400000);
+  const fmt   = d => d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  document.getElementById('booking-detail-title').textContent = `${icon} ${src} Booking`;
+
+  let html = `
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:var(--a-bg);border-radius:10px;padding:12px 14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--a-gray);margin-bottom:2px;">Check-in</div>
+            <div style="font-size:0.88rem;font-weight:600;color:var(--a-charcoal);">${fmt(cin)}</div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--a-gray);margin-bottom:2px;">Check-out</div>
+            <div style="font-size:0.88rem;font-weight:600;color:var(--a-charcoal);">${fmt(cout)}</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:0.78rem;color:var(--a-gray);">${nights} night${nights !== 1 ? 's' : ''}</div>
+      </div>`;
+
+  if (_isAdmin && bk.guest_name) {
+    html += `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--a-gray);margin-bottom:2px;">Guest</div>
+          <div style="font-size:0.85rem;font-weight:600;color:var(--a-charcoal);">${esc(bk.guest_name)}</div>
+        </div>
+        ${bk.guests ? `<div>
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--a-gray);margin-bottom:2px;">Guests</div>
+          <div style="font-size:0.85rem;font-weight:600;color:var(--a-charcoal);">${bk.guests}</div>
+        </div>` : ''}
+      </div>`;
+  }
+
+  if (_isAdmin && bk.total_price) {
+    html += `
+      <div>
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--a-gray);margin-bottom:2px;">Total (PMS)</div>
+        <div style="font-size:0.95rem;font-weight:700;color:var(--a-charcoal);">$${bk.total_price} ${bk.currency || ''}</div>
+      </div>`;
+  }
+
+  if (_isAdmin && bk.confirmation_code) {
+    html += `
+      <div>
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--a-gray);margin-bottom:2px;">Confirmation</div>
+        <div style="font-size:0.78rem;font-family:monospace;color:var(--a-charcoal);">${esc(bk.confirmation_code)}</div>
+      </div>`;
+  }
+
+  const statusColor = { confirmed:'#065F46', active:'#1D4ED8', upcoming:'#374151', completed:'#6B7280' };
+  const sc = statusColor[bk.status] || '#374151';
+  html += `
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:${sc};flex-shrink:0;"></span>
+      <span style="font-size:0.78rem;font-weight:600;color:${sc};text-transform:capitalize;">${bk.status || 'Unknown'}</span>
+      <span style="font-size:0.75rem;color:var(--a-gray);margin-left:auto;">${icon} ${src}</span>
+    </div>
+  </div>`;
+
+  document.getElementById('booking-detail-body').innerHTML = html;
 }
 
 // ── Single date editor ────────────────────────────────────────────────────────
