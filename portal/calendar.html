@@ -52,9 +52,8 @@
     .toggle-bg { position: absolute; inset: 0; border-radius: 12px; background: var(--a-border); transition: background 0.2s; }
     .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s; }
 
-    /* Multi-select chips */
-    .date-chips { display: flex; flex-wrap: wrap; gap: 4px; max-height: 72px; overflow-y: auto; padding: 8px; background: var(--a-bg); border-radius: 8px; margin-bottom: 14px; }
-    .date-chip { font-size: 0.68rem; font-weight: 600; background: var(--a-green-tint); color: var(--a-green); padding: 3px 7px; border-radius: 10px; white-space: nowrap; }
+    /* Range input warning */
+    .range-warn { font-size: 0.72rem; color: #DC2626; margin-top: -8px; margin-bottom: 10px; display: none; }
 
     /* Progress bar for bulk save */
     .bulk-progress { height: 4px; background: var(--a-gray-pale); border-radius: 2px; overflow: hidden; margin-top: 10px; display: none; }
@@ -211,11 +210,22 @@
 
         <!-- Multi-date editor -->
         <div id="edit-multi" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div style="font-size:0.92rem;font-weight:700;color:var(--a-charcoal);" id="multi-label">0 dates selected</div>
             <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">✕</button>
           </div>
-          <div class="date-chips" id="multi-chips"></div>
+          <!-- Editable date range -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+            <div>
+              <label class="admin-label">Check-in</label>
+              <input type="date" class="admin-input" id="multi-start" oninput="onRangeInputChange()" style="padding:8px 10px;" />
+            </div>
+            <div>
+              <label class="admin-label">Check-out</label>
+              <input type="date" class="admin-input" id="multi-end" oninput="onRangeInputChange()" style="padding:8px 10px;" />
+            </div>
+          </div>
+          <div class="range-warn" id="range-warn">⚠ Check-out must be after check-in</div>
 
           <!-- Block toggle -->
           <div class="toggle-wrap" style="margin-bottom:14px;">
@@ -548,13 +558,12 @@ function showMultiEditor() {
   const n = sorted.length;
   document.getElementById('multi-label').textContent = `${n} date${n !== 1 ? 's' : ''} selected`;
 
-  // Chips — show dates as "Jun 1", "Jun 2", etc.
-  document.getElementById('multi-chips').innerHTML = sorted.map(ds => {
-    const d = new Date(ds + 'T12:00:00');
-    return `<span class="date-chip">${d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}</span>`;
-  }).join('');
+  // Set start/end date inputs
+  document.getElementById('multi-start').value = sorted[0];
+  document.getElementById('multi-end').value   = sorted[sorted.length - 1];
+  document.getElementById('range-warn').style.display = 'none';
 
-  // Reset multi form
+  // Reset form fields
   _multiBlocked = false;
   updateMultiBlockUI();
   document.getElementById('multi-price').value = '';
@@ -562,6 +571,29 @@ function showMultiEditor() {
   document.getElementById('multi-msg').style.display = 'none';
   document.getElementById('bulk-progress').style.display = 'none';
   updateMultiPriceHint();
+}
+
+// Recompute _selectedDates when user edits the date inputs
+function onRangeInputChange() {
+  const start = document.getElementById('multi-start').value;
+  const end   = document.getElementById('multi-end').value;
+  const warn  = document.getElementById('range-warn');
+  if (!start || !end) return;
+  if (end < start) { warn.style.display = 'block'; return; }
+  warn.style.display = 'none';
+
+  // Rebuild selected set from the new range
+  const range = new Set();
+  const cur   = new Date(start + 'T12:00:00');
+  const last  = new Date(end   + 'T12:00:00');
+  while (cur <= last) {
+    range.add(cur.toISOString().split('T')[0]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  _selectedDates = range;
+  const n = _selectedDates.size;
+  document.getElementById('multi-label').textContent = `${n} date${n !== 1 ? 's' : ''} selected`;
+  renderCalendar();
 }
 
 function toggleMultiBlock() { _multiBlocked = !_multiBlocked; updateMultiBlockUI(); }
