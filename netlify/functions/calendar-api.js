@@ -39,7 +39,9 @@ exports.handler = async (event) => {
   const { data: { user }, error: authErr } = await adminSb.auth.getUser(jwt);
   if (authErr || !user) return { statusCode: 401, headers: h, body: JSON.stringify({ error: 'Invalid token' }) };
 
-  const isAdmin = user.app_metadata?.role === 'admin';
+  // Admin check: app_metadata role OR ADMIN_EMAILS env var (comma-separated)
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  const isAdmin = user.app_metadata?.role === 'admin' || adminEmails.includes(user.email?.toLowerCase());
 
   // ── Parse request ─────────────────────────────────────────────────────────
   let action, property_id, params;

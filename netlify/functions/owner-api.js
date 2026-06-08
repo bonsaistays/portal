@@ -35,7 +35,9 @@ exports.handler = async (event) => {
   const adminSb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false } });
   const { data: { user }, error: authErr } = await adminSb.auth.getUser(jwt);
   if (authErr || !user) return { statusCode: 401, headers: h, body: JSON.stringify({ error: 'Invalid token' }) };
-  if (user.app_metadata?.role !== 'admin')
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  const isAdmin = user.app_metadata?.role === 'admin' || adminEmails.includes(user.email?.toLowerCase());
+  if (!isAdmin)
     return { statusCode: 403, headers: h, body: JSON.stringify({ error: 'Admin access required' }) };
 
   let body;
