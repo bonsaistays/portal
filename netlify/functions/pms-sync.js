@@ -31,17 +31,6 @@ exports.handler = async (event) => {
   };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
-  if (event.httpMethod !== 'POST')    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
-
-  let body;
-  try { body = JSON.parse(event.body || '{}'); }
-  catch { return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) }; }
-
-  const { propertyId, action = 'full' } = body;
-
-  if (!propertyId) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'propertyId is required' }) };
-  }
 
   const SB_URL = process.env.SUPABASE_URL || 'https://zmbhpebiiyqdfqznruwz.supabase.co';
   const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -49,7 +38,40 @@ exports.handler = async (event) => {
 
   const sb = createClient(SB_URL, SB_KEY);
 
-  // Look up the property — includes per-property credentials
+  let body = {};
+  try { body = JSON.parse(event.body || '{}'); } catch {}
+  const { propertyId, action = 'full' } = body;
+
+  // ── Scheduled / bulk run: no propertyId → sync all auto-sync properties ──
+  if (!propertyId) {
+    const { data: allProps } = await sb
+      .from('properties')
+      .select('id, name, pms_type, pms_listing_id, guesty_listing_id, guesty_client_id, guesty_client_secret, hostaway_listing_id, hostaway_client_id, hostaway_client_secret, hospitable_property_id, hospitable_api_key')
+      .eq('active', true)
+      .neq('auto_sync_bookings', false);
+
+    const results = [];
+    for (const p of allProps || []) {
+      const pmsType = p.pms_type || (p.guesty_listing_id ? 'guesty' : null) || (p.hostaway_listing_id ? 'hostaway' : null) || (p.hospitable_property_id ? 'hospitable' : null);
+      if (!pmsType) continue;
+      try {
+        const adapter = ADAPTERS[pmsType];
+        if (!adapter) continue;
+        const listingId = p.pms_listing_id || p.guesty_listing_id || p.hostaway_listing_id || p.hospitable_property_id;
+        const credentials = pmsType === 'guesty' ? { clientId: p.guesty_client_id, clientSecret: p.guesty_client_secret }
+          : pmsType === 'hostaway' ? { clientId: p.hostaway_client_id, clientSecret: p.hostaway_client_secret }
+          : { apiKey: p.hospitable_api_key };
+        const res = await adapter.handler({ httpMethod: 'POST', body: JSON.stringify({ action, listingId, propertyId: p.id, ...credentials }) });
+        await sb.from('properties').update({ last_synced_at: new Date().toISOString() }).eq('id', p.id);
+        results.push({ property: p.name, status: res.statusCode });
+      } catch (e) {
+        results.push({ property: p.name, error: e.message });
+      }
+    }
+    return { statusCode: 200, headers, body: JSON.stringify({ bulk: true, results }) };
+  }
+
+  // ── Single property sync (manual "Sync Now") ─────────────────────────────
   const { data: prop, error: propErr } = await sb
     .from('properties')
     .select(`
@@ -99,5 +121,8 @@ exports.handler = async (event) => {
   };
 
   const response = await adapter.handler(syntheticEvent);
+  if (response.statusCode === 200) {
+    await sb.from('properties').update({ last_synced_at: new Date().toISOString() }).eq('id', propertyId);
+  }
   return { ...response, headers: { ...headers, ...(response.headers || {}) } };
 };

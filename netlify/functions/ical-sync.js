@@ -36,11 +36,12 @@ exports.handler = async (event) => {
 
   const sb = createClient(SB_URL, SB_KEY);
 
-  // ── Load all active properties with iCal URLs ────────────────────────────
+  // ── Load all active properties with iCal URLs and auto-sync enabled ────────
   const { data: properties, error: propErr } = await sb
     .from('properties')
     .select('id, name, ical_urls')
-    .eq('active', true);
+    .eq('active', true)
+    .neq('auto_sync_bookings', false);
 
   if (propErr) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: propErr.message }) };
@@ -122,6 +123,8 @@ exports.handler = async (event) => {
         results.errors.push(`${prop.name} [${platform}] fetch failed: ${e.message}`);
       }
     }
+    // Stamp last_synced_at per property
+    await sb.from('properties').update({ last_synced_at: new Date().toISOString() }).eq('id', prop.id);
   }
 
   console.log('iCal sync complete:', results);

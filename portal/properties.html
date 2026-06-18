@@ -445,6 +445,19 @@
             <input class="admin-input" id="p-vrbo-url" type="url" placeholder="https://www.vrbo.com/..." />
           </div>
 
+          <!-- Auto-sync toggle -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:#F0FDF4;border:1.5px solid #A7D9BB;border-radius:10px;padding:14px 16px;">
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:var(--a-charcoal);">Auto-sync bookings</div>
+              <div style="font-size:0.74rem;color:var(--a-gray);margin-top:2px;">Automatically pull bookings from PMS & iCal every 30 min – 6 hrs</div>
+              <div id="p-last-synced" style="font-size:0.7rem;color:var(--a-gray);margin-top:4px;display:none;"></div>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;margin-left:16px;">
+              <input type="checkbox" id="p-auto-sync" style="width:18px;height:18px;accent-color:var(--a-green);cursor:pointer;" checked onchange="const on=this.checked;document.getElementById('p-auto-sync-label').textContent=on?'On':'Off';document.getElementById('p-auto-sync-label').style.color=on?'var(--a-green)':'var(--a-gray)';" />
+              <span style="font-size:0.82rem;font-weight:600;color:var(--a-green);" id="p-auto-sync-label">On</span>
+            </label>
+          </div>
+
           <!-- Guesty -->
           <div style="background:var(--a-bg);border:1px solid var(--a-border);border-radius:10px;padding:14px 16px;">
             <label class="admin-label" style="margin-bottom:4px;">Guesty</label>
@@ -823,6 +836,15 @@ function openModal(propId) {
     document.getElementById('p-hostaway-client-secret').value= p.hostaway_client_secret || '';
     document.getElementById('p-hospitable-id').value         = p.hospitable_property_id || '';
     document.getElementById('p-hospitable-api-key').value    = p.hospitable_api_key || '';
+    const autoSync = p.auto_sync_bookings !== false; // default true
+    document.getElementById('p-auto-sync').checked = autoSync;
+    document.getElementById('p-auto-sync-label').textContent = autoSync ? 'On' : 'Off';
+    document.getElementById('p-auto-sync-label').style.color = autoSync ? 'var(--a-green)' : 'var(--a-gray)';
+    const lastSynced = document.getElementById('p-last-synced');
+    if (p.last_synced_at) {
+      lastSynced.style.display = 'block';
+      lastSynced.textContent = 'Last synced: ' + new Date(p.last_synced_at).toLocaleString('en-CA', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    } else { lastSynced.style.display = 'none'; }
     document.getElementById('p-featured').checked    = p.featured || false;
     setBookingMode(p.booking_mode || 'instant');
     renderScreenerQuestions(Array.isArray(p.screener_questions) ? p.screener_questions : []);
@@ -1304,6 +1326,7 @@ async function saveProperty() {
     hostaway_client_secret:  document.getElementById('p-hostaway-client-secret').value.trim() || null,
     hospitable_property_id:  document.getElementById('p-hospitable-id').value.trim() || null,
     hospitable_api_key:      document.getElementById('p-hospitable-api-key').value.trim() || null,
+    auto_sync_bookings:      document.getElementById('p-auto-sync').checked,
     featured:           document.getElementById('p-featured').checked,
     booking_mode:       document.getElementById('p-booking-mode').value || 'instant',
     screener_questions: collectScreenerQuestions(),
