@@ -68,6 +68,7 @@
         <button class="modal-tab"        data-mtab="amenities" onclick="switchMTab('amenities',this)" style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Amenities</button>
         <button class="modal-tab"        data-mtab="owner"     onclick="switchMTab('owner',this)"     style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Owner's Story</button>
         <button class="modal-tab"        data-mtab="listing"   onclick="switchMTab('listing',this)"   style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Listing</button>
+        <button class="modal-tab"        data-mtab="extras"    onclick="switchMTab('extras',this)"    style="padding:10px 13px;font-size:0.76rem;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--a-gray);white-space:nowrap;flex-shrink:0;">Extras</button>
       </div>
 
       <!-- Tab: Basic Info -->
@@ -548,6 +549,23 @@
         </div>
       </div>
 
+      <!-- Tab: Extras -->
+      <div id="mtab-extras" class="mtab-content hidden">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;">
+            ✨ Choose which extras guests can add to their stay at this property. Leave price blank to use the default from your Experiences catalog.
+          </div>
+
+          <div id="extras-loading" style="text-align:center;padding:24px;font-size:0.82rem;color:var(--a-gray);">Loading extras…</div>
+          <div id="extras-empty" style="display:none;text-align:center;padding:24px;font-size:0.82rem;color:var(--a-gray);">
+            No experiences yet. <a href="experiences.html" target="_blank" style="color:var(--a-green);">Add some in the Experiences page</a> first.
+          </div>
+          <div id="extras-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+        </div>
+      </div>
+
       <div id="p-error" class="hidden" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--a-red);font-size:0.82rem;padding:10px 14px;border-radius:8px;margin-top:8px;"></div>
 
     </div>
@@ -794,6 +812,8 @@ function openModal(propId) {
     document.getElementById('p-checkin-inst').value  = p.check_in_instructions || '';
     // Ecobee
     loadEcobeeSection(p);
+    // Extras
+    loadPropertyExtras(p.id);
     // Guest info
     document.getElementById('p-checkout-inst').value = p.checkout_instructions || '';
     document.getElementById('p-host-phone').value    = p.host_phone || '';
@@ -868,6 +888,8 @@ function openModal(propId) {
     document.getElementById('p-checkin-inst').value  = '';
     document.getElementById('p-checkout-inst').value = '';
     loadEcobeeSection(null);
+    // Extras — new property, show catalog with nothing checked
+    loadPropertyExtras(null);
     document.getElementById('p-host-phone').value    = '';
     document.getElementById('p-rules').value         = '';
     document.getElementById('p-cancellation').value  = '';
@@ -1203,20 +1225,32 @@ async function refreshEcobeeStatus(thermostatId) {
 }
 
 async function startEcobeeConnect() {
-  const connBtn  = document.getElementById('ecobee-conn-btn');
-  const pinFlow  = document.getElementById('ecobee-pin-flow');
-  const pinDisp  = document.getElementById('ecobee-pin-display');
-  const pinErr   = document.getElementById('ecobee-pin-err');
-  connBtn.textContent = '⏳ Getting PIN…';
-  connBtn.disabled    = true;
+  const connBtn    = document.getElementById('ecobee-conn-btn');
+  const connStatus = document.getElementById('ecobee-conn-status');
+  const pinFlow    = document.getElementById('ecobee-pin-flow');
+  const pinDisp    = document.getElementById('ecobee-pin-display');
+  const pinErr     = document.getElementById('ecobee-pin-err');
+  connBtn.textContent  = '⏳ Getting PIN…';
+  connBtn.disabled     = true;
   pinErr.style.display = 'none';
 
-  const res = await ecobeeCall('pin');
-  connBtn.disabled = false;
+  let res;
+  try {
+    res = await ecobeeCall('pin');
+  } catch (e) {
+    connBtn.disabled    = false;
+    connBtn.textContent = 'Connect Ecobee';
+    connStatus.textContent  = '✗ Network error — ' + e.message;
+    connStatus.style.color  = '#e05252';
+    return;
+  }
+
+  connBtn.disabled    = false;
   connBtn.textContent = 'Connect Ecobee';
 
   if (!res.ok) {
-    showToast('✗ ' + res.error);
+    connStatus.textContent = '✗ ' + (res.error || 'Connection failed');
+    connStatus.style.color = '#e05252';
     return;
   }
   _ecobeeCode         = res.code;
@@ -1254,6 +1288,101 @@ async function authorizeEcobee() {
 function cancelEcobeeConnect() {
   document.getElementById('ecobee-pin-flow').style.display = 'none';
   _ecobeeCode = null;
+}
+
+// ── Property Extras ────────────────────────────────────────────────────────
+let _allExperiences = null;  // cached global catalog
+
+async function loadPropertyExtras(propertyId) {
+  const loading = document.getElementById('extras-loading');
+  const empty   = document.getElementById('extras-empty');
+  const list    = document.getElementById('extras-list');
+  loading.style.display = 'block';
+  empty.style.display   = 'none';
+  list.innerHTML        = '';
+
+  // Load global experiences catalog (cache after first fetch)
+  if (!_allExperiences) {
+    const { data } = await sb.from('experiences').select('id, name, icon, category, price, price_unit').order('category').order('name');
+    _allExperiences = data || [];
+  }
+
+  if (!_allExperiences.length) {
+    loading.style.display = 'none';
+    empty.style.display   = 'block';
+    return;
+  }
+
+  // Load which extras are already enabled for this property
+  let enabledMap = {};  // experience_id → custom_price (null = use default)
+  if (propertyId) {
+    const { data: rows } = await sb.from('property_extras').select('experience_id, custom_price').eq('property_id', propertyId);
+    (rows || []).forEach(r => { enabledMap[r.experience_id] = r.custom_price; });
+  }
+
+  loading.style.display = 'none';
+  list.innerHTML = _allExperiences.map(exp => {
+    const isEnabled    = propertyId ? exp.id in enabledMap : false;
+    const customPrice  = enabledMap[exp.id] ?? '';
+    const defaultLabel = exp.price != null ? `$${exp.price}${exp.price_unit ? '/' + exp.price_unit : ''}` : '';
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--a-bg);border:1.5px solid var(--a-border);border-radius:10px;transition:border-color 0.15s;" id="extra-row-${exp.id}">
+        <input type="checkbox" id="extra-cb-${exp.id}" data-id="${exp.id}"
+          style="width:18px;height:18px;accent-color:var(--a-green);flex-shrink:0;cursor:pointer;"
+          ${isEnabled ? 'checked' : ''}
+          onchange="onExtraToggle('${exp.id}', this.checked)" />
+        <div style="font-size:1.2rem;flex-shrink:0;">${exp.icon || '🎁'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.88rem;font-weight:700;color:var(--a-charcoal);">${esc(exp.name)}</div>
+          <div style="font-size:0.72rem;color:var(--a-gray);">${esc(exp.category || '')}${defaultLabel ? ' · ' + defaultLabel + ' (default)' : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <span style="font-size:0.75rem;color:var(--a-gray);">$</span>
+          <input type="number" id="extra-price-${exp.id}" min="0" step="1"
+            placeholder="${exp.price != null ? exp.price : ''}"
+            value="${customPrice}"
+            style="width:72px;padding:6px 8px;border:1.5px solid var(--a-border);border-radius:7px;font-size:0.85rem;background:var(--a-white);color:var(--a-charcoal);${isEnabled ? '' : 'opacity:0.4;pointer-events:none;'}"
+            title="Custom price — leave blank to use default (${defaultLabel})" />
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function onExtraToggle(expId, checked) {
+  const row   = document.getElementById(`extra-row-${expId}`);
+  const price = document.getElementById(`extra-price-${expId}`);
+  if (checked) {
+    row.style.borderColor     = 'var(--a-sage)';
+    price.style.opacity       = '1';
+    price.style.pointerEvents = 'auto';
+  } else {
+    row.style.borderColor     = 'var(--a-border)';
+    price.style.opacity       = '0.4';
+    price.style.pointerEvents = 'none';
+  }
+}
+
+async function savePropertyExtras(propertyId) {
+  if (!_allExperiences?.length || !propertyId) return;
+
+  const toEnable = [];
+  _allExperiences.forEach(exp => {
+    const cb    = document.getElementById(`extra-cb-${exp.id}`);
+    const price = document.getElementById(`extra-price-${exp.id}`);
+    if (cb?.checked) {
+      toEnable.push({
+        property_id:   propertyId,
+        experience_id: exp.id,
+        custom_price:  price?.value !== '' ? parseFloat(price.value) : null,
+      });
+    }
+  });
+
+  // Delete existing extras for this property, then insert fresh
+  await sb.from('property_extras').delete().eq('property_id', propertyId);
+  if (toEnable.length) {
+    await sb.from('property_extras').insert(toEnable);
+  }
 }
 
 function escP(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1339,11 +1468,13 @@ async function saveProperty() {
     ecobee_guest_cool_f:  parseInt(document.getElementById('p-ecobee-guest-cool')?.value) || null,
   };
 
-  let error;
+  let error, savedId = _editingId;
   if (_editingId) {
     ({ error } = await sb.from('properties').update(payload).eq('id', _editingId));
   } else {
-    ({ error } = await sb.from('properties').insert(payload));
+    const { data: ins, error: insErr } = await sb.from('properties').insert(payload).select('id').single();
+    error    = insErr;
+    savedId  = ins?.id;
   }
 
   if (error) {
@@ -1353,6 +1484,9 @@ async function saveProperty() {
     btn.disabled = false;
     return;
   }
+
+  // Save per-property extras selections
+  if (savedId) await savePropertyExtras(savedId);
 
   closeModal();
   await loadProperties();
