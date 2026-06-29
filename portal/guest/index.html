@@ -749,7 +749,7 @@ async function loadShop() {
           <div style="font-size:0.78rem;color:var(--g-muted);margin:2px 0 6px;line-height:1.4;">${p.description || ''}</div>
           <div style="color:var(--g-gold);font-weight:700;font-size:0.9rem;">$${Number(p.price).toFixed(2)}</div>
         </div>
-        <button onclick="requestShopItem(${JSON.stringify(p.name)}, ${Number(p.price).toFixed(2)})"
+        <button data-name="${p.name.replace(/"/g,'&quot;')}" data-price="${Number(p.price).toFixed(2)}" onclick="requestShopItem(this.dataset.name, parseFloat(this.dataset.price))"
           style="flex-shrink:0;background:var(--g-gold);color:#0B1F14;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;">
           Order
         </button>
@@ -831,7 +831,7 @@ async function loadExperiences() {
           <div class="exp-desc">${exp.description || ''}</div>
           <div class="exp-price">${priceStr}</div>
         </div>
-        <button class="btn-book-exp" onclick="requestExperience(${JSON.stringify(exp.name)}, ${JSON.stringify(priceStr)})">Book</button>
+        <button class="btn-book-exp" data-name="${exp.name.replace(/"/g,'&quot;')}" data-price="${priceStr.replace(/"/g,'&quot;')}" onclick="requestExperience(this.dataset.name,this.dataset.price)">Book</button>
       </div>`;
   }).join('');
 }
