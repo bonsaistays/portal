@@ -9,8 +9,8 @@
  *   SUPABASE_SERVICE_KEY  — Supabase service role key
  */
 
-const GUESTY_TOKEN_URL = 'https://booking.guesty.com/oauth2/token';
-const GUESTY_API_BASE  = 'https://booking.guesty.com/api';
+const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
+const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
 
 let _cachedToken = null;
 let _tokenExpiry = 0;
@@ -142,48 +142,49 @@ async function syncPricing(listingId, clientId, clientSecret) {
 }
 
 async function syncReservations(listingId, propertyId, sb) {
-  // booking.guesty.com is a booking-engine API — reservation list not available
-  // Return a note rather than failing the whole sync
-  return { total: 0, upserted: 0, note: 'Reservation sync not available on this API plan' };
-
-  /* eslint-disable no-unreachable */
   const now = new Date().toISOString().split('T')[0];
+
+  // Fetch up to 50 upcoming/active reservations for this listing
   const data = await guestyGet(
-    `/reservations?listingId=${listingId}&checkIn[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`
+    `/reservations?listingId=${listingId}&checkOut[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`,
   );
 
   const reservations = data.results || data.data || (Array.isArray(data) ? data : []);
   const upserted = [];
+  const errors   = [];
 
   for (const r of reservations) {
     const record = {
-      guesty_reservation_id: r._id,
-      property_id:           propertyId,
-      check_in:              r.checkIn?.split('T')[0],
-      check_out:             r.checkOut?.split('T')[0],
-      status:                mapStatus(r.status),
-      guests:                r.guestsCount || 1,
-      total_price:           r.money?.totalPaid || r.money?.fareAccommodation || null,
-      currency:              r.money?.currency || 'CAD',
-      confirmation_code:     r.confirmationCode || r._id,
-      guest_name:            `${r.guest?.firstName || ''} ${r.guest?.lastName || ''}`.trim() || 'Guest',
-      guest_email:           r.guest?.email || null,
-      guest_phone:           r.guest?.phone || null,
-      source:                'guesty',
+      property_id:       propertyId,
+      // ical_uid reused as the external deduplication key
+      ical_uid:          `guesty-${r._id}`,
+      check_in:          (r.checkIn  || '').split('T')[0],
+      check_out:         (r.checkOut || '').split('T')[0],
+      status:            mapStatus(r.status),
+      guests:            r.guestsCount || 1,
+      total_price:       r.money?.totalPaid || r.money?.fareAccommodation || null,
+      currency:          r.money?.currency || 'CAD',
+      confirmation_code: r.confirmationCode || r._id,
+      guest_name:        `${r.guest?.firstName || ''} ${r.guest?.lastName || ''}`.trim() || 'Guest',
+      guest_email:       r.guest?.email || null,
+      guest_phone:       r.guest?.phone || null,
+      source:            'guesty',
     };
+
+    if (!record.check_in || !record.check_out) continue;
 
     if (sb) {
       const { error } = await sb
         .from('bookings')
-        .upsert(record, { onConflict: 'guesty_reservation_id' });
+        .upsert(record, { onConflict: 'ical_uid', ignoreDuplicates: false });
       if (!error) upserted.push(r._id);
-      else console.error('Supabase upsert error:', error.message);
+      else { errors.push(error.message); console.error('Supabase upsert error:', error.message); }
     } else {
       upserted.push(r._id);
     }
   }
 
-  return { total: reservations.length, upserted: upserted.length };
+  return { total: reservations.length, upserted: upserted.length, errors };
 }
 
 function mapStatus(s) {
