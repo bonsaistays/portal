@@ -602,7 +602,7 @@ async function loadExtrasForProperty(propertyId) {
 
   const { data } = await sb
     .from('property_extras')
-    .select('custom_price, custom_variations, experiences(id, name, emoji, price, description, unit, variations)')
+    .select('custom_price, custom_variations, experiences(id, name, emoji, price, price_unit, description, variations)')
     .eq('property_id', propertyId);
 
   loading.style.display = 'none';
@@ -612,10 +612,10 @@ async function loadExtrasForProperty(propertyId) {
   if (!items.length) {
     const { data: allExp } = await sb
       .from('experiences')
-      .select('id, name, emoji, price, description, unit, variations')
+      .select('id, name, emoji, price, price_unit, description, variations')
       .eq('available', true)
       .order('name');
-    items = (allExp || []).map(exp => ({ experiences: exp, custom_price: null, custom_variations: null }));
+    items = (allExp || []).map(exp => ({ experiences: { ...exp, unit: exp.price_unit }, custom_price: null, custom_variations: null }));
   }
 
   if (!items.length) { empty.style.display = 'block'; return; }
@@ -624,11 +624,11 @@ async function loadExtrasForProperty(propertyId) {
     const exp  = row.experiences;
     const vars = row.custom_variations || exp.variations || [];
     const price = vars.length
-      ? `From $${Math.min(...vars.map(v => v.price))}${exp.unit ? ' / ' + exp.unit : ''}`
+      ? `From $${Math.min(...vars.map(v => v.price))}${exp.unit || exp.price_unit ? ' / ' + (exp.unit || exp.price_unit) : ''}`
       : row.custom_price != null
-        ? (row.custom_price === 0 ? 'Complimentary' : `$${row.custom_price}${exp.unit ? ' / ' + exp.unit : ''}`)
+        ? (row.custom_price === 0 ? 'Complimentary' : `$${row.custom_price}${exp.unit || exp.price_unit ? ' / ' + (exp.unit || exp.price_unit) : ''}`)
         : exp.price != null
-          ? (exp.price === 0 ? 'Complimentary' : `From $${exp.price}${exp.unit ? ' / ' + exp.unit : ''}`)
+          ? (exp.price === 0 ? 'Complimentary' : `From $${exp.price}${exp.unit || exp.price_unit ? ' / ' + (exp.unit || exp.price_unit) : ''}`)
           : '';
 
     const card = document.createElement('div');
