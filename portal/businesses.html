@@ -140,6 +140,13 @@
         </div>
 
         <div style="grid-column:1/-1;border-top:1px solid var(--a-gray-pale);padding-top:14px;margin-top:4px;">
+          <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-green);margin:0 0 12px;">Bonsai Stays Recommendation</p>
+          <textarea class="form-input" id="f-bonsai-rec" rows="3"
+            placeholder="Why does Bonsai Stays recommend this place? Share a personal note for guests — e.g. 'We love their wood-fired pizza on Friday nights. Ask for a table by the fire.'"
+            style="resize:vertical;"></textarea>
+        </div>
+
+        <div style="grid-column:1/-1;border-top:1px solid var(--a-gray-pale);padding-top:14px;margin-top:4px;">
           <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--a-green);margin:0 0 12px;">Member Deal</p>
         </div>
 
@@ -284,6 +291,7 @@ function openModal() {
   document.getElementById('f-phone').value = '';
   document.getElementById('f-website').value = '';
   document.getElementById('f-photo').value = '';
+  document.getElementById('f-bonsai-rec').value = '';
   document.getElementById('f-deal-desc').value = '';
   document.getElementById('f-deal-code').value = '';
   document.getElementById('f-active').checked = true;
@@ -304,6 +312,7 @@ function openEdit(id) {
   document.getElementById('f-phone').value = b.phone || '';
   document.getElementById('f-website').value = b.website || '';
   document.getElementById('f-photo').value = b.photo_url || '';
+  document.getElementById('f-bonsai-rec').value = b.bonsai_rec || '';
   document.getElementById('f-deal-desc').value = b.deal_description || '';
   document.getElementById('f-deal-code').value = b.deal_code || '';
   document.getElementById('f-active').checked = b.active;
@@ -338,8 +347,9 @@ async function saveBusiness() {
     description: document.getElementById('f-description').value.trim() || null,
     address:     document.getElementById('f-address').value.trim() || null,
     phone:       document.getElementById('f-phone').value.trim() || null,
-    website:     document.getElementById('f-website').value.trim() || null,
-    photo_url:   document.getElementById('f-photo').value.trim() || null,
+    website:       document.getElementById('f-website').value.trim() || null,
+    photo_url:     document.getElementById('f-photo').value.trim() || null,
+    bonsai_rec:    document.getElementById('f-bonsai-rec').value.trim() || null,
     deal_description: document.getElementById('f-deal-desc').value.trim() || null,
     deal_code:   document.getElementById('f-deal-code').value.trim() || null,
     active:      document.getElementById('f-active').checked,
