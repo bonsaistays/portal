@@ -365,67 +365,7 @@
       <!-- Experiences -->
       <div>
         <div class="extras-section-title">In-Stay Experiences</div>
-
-        <div class="experience-card">
-          <div class="exp-icon">🍳</div>
-          <div class="exp-info">
-            <div class="exp-name">Private Chef Dinner</div>
-            <div class="exp-desc">A personal chef cooks a 3-course meal at your property</div>
-            <div class="exp-price">From $250 for 2 · add $40/person</div>
-          </div>
-          <button class="btn-book-exp" onclick="requestExperience('Private Chef Dinner','From $250')">Book</button>
-        </div>
-
-        <div class="experience-card" style="margin-top:12px;">
-          <div class="exp-icon">💆</div>
-          <div class="exp-info">
-            <div class="exp-name">In-Suite Massage</div>
-            <div class="exp-desc">Registered massage therapist comes to you</div>
-            <div class="exp-price">From $120 / 60 min</div>
-          </div>
-          <button class="btn-book-exp" onclick="requestExperience('In-Suite Massage','From $120')">Book</button>
-        </div>
-
-        <div class="experience-card" style="margin-top:12px;">
-          <div class="exp-icon">🧘</div>
-          <div class="exp-info">
-            <div class="exp-name">Morning Yoga Session</div>
-            <div class="exp-desc">Private instructor, indoors or outdoors</div>
-            <div class="exp-price">$60 / session</div>
-          </div>
-          <button class="btn-book-exp" onclick="requestExperience('Morning Yoga','$60')">Book</button>
-        </div>
-
-        <div class="experience-card" style="margin-top:12px;">
-          <div class="exp-icon">🛶</div>
-          <div class="exp-info">
-            <div class="exp-name">Watercraft Rental</div>
-            <div class="exp-desc">Kayak, canoe, or paddleboard delivered to your dock</div>
-            <div class="exp-price">From $80 / half-day</div>
-          </div>
-          <button class="btn-book-exp" onclick="requestExperience('Watercraft Rental','From $80')">Book</button>
-        </div>
-
-        <div class="experience-card" style="margin-top:12px;">
-          <div class="exp-icon">🛒</div>
-          <div class="exp-info">
-            <div class="exp-name">Grocery Pre-Stocking</div>
-            <div class="exp-desc">Groceries waiting in your fridge on arrival</div>
-            <div class="exp-price">$25 service fee + grocery cost</div>
-          </div>
-          <button class="btn-book-exp" onclick="requestExperience('Grocery Pre-Stocking','$25 fee')">Book</button>
-        </div>
-
-        <div class="experience-card" style="margin-top:12px;">
-          <div class="exp-icon">🔥</div>
-          <div class="exp-info">
-            <div class="exp-name">Bonfire Package</div>
-            <div class="exp-desc">Pre-set firepit, s'more kit, and firewood delivered</div>
-            <div class="exp-price">$45</div>
-          </div>
-          <button class="btn-book-exp" onclick="requestExperience('Bonfire Package','$45')">Book</button>
-        </div>
-
+        <div id="experiences-list"><p style="color:#888;font-size:0.9rem;">Loading experiences…</p></div>
       </div>
 
       <!-- Purchases list -->
@@ -704,6 +644,7 @@ function populateHome() {
   startDoorCountdown(checkin);
   loadMessages();
   loadPurchases();
+  loadExperiences();
 }
 
 // ── Door countdown & code reveal ─────────────────────────────────────────
@@ -748,6 +689,48 @@ function switchTab(name) {
       msgs.scrollTop = msgs.scrollHeight;
     }, 100);
   }
+}
+
+// ── Experiences ───────────────────────────────────────────────────────────
+async function loadExperiences() {
+  const container = document.getElementById('experiences-list');
+  if (!container || !property) return;
+
+  let items = [];
+  const { data: pe } = await sb.from('property_extras')
+    .select('custom_price, experiences(id, name, icon, price, price_unit, description)')
+    .eq('property_id', property.id);
+
+  if (pe && pe.length) {
+    items = pe.filter(r => r.experiences);
+  } else {
+    const { data: all } = await sb.from('experiences')
+      .select('id, name, icon, price, price_unit, description')
+      .order('name');
+    items = (all || []).map(exp => ({ experiences: exp, custom_price: null }));
+  }
+
+  if (!items.length) {
+    container.innerHTML = '<p style="color:#888;font-size:0.9rem;">No experiences available for this property.</p>';
+    return;
+  }
+
+  container.innerHTML = items.map((row, i) => {
+    const exp   = row.experiences;
+    const price = row.custom_price != null ? (row.custom_price / 100).toFixed(2) : exp.price;
+    const unit  = exp.price_unit || '';
+    const priceStr = price != null ? `$${price}${unit ? ' / ' + unit : ''}` : 'Price on request';
+    return `
+      <div class="experience-card" ${i > 0 ? 'style="margin-top:12px;"' : ''}>
+        <div class="exp-icon">${exp.icon || '✨'}</div>
+        <div class="exp-info">
+          <div class="exp-name">${exp.name}</div>
+          <div class="exp-desc">${exp.description || ''}</div>
+          <div class="exp-price">${priceStr}</div>
+        </div>
+        <button class="btn-book-exp" onclick="requestExperience(${JSON.stringify(exp.name)}, ${JSON.stringify(priceStr)})">Book</button>
+      </div>`;
+  }).join('');
 }
 
 // ── Purchases / Extras ────────────────────────────────────────────────────
