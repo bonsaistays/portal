@@ -273,7 +273,12 @@ function populatePage() {
   const ci = new Date(b.check_in);
   const co = new Date(b.check_out);
   const nights = Math.round((co - ci) / 86400000);
-  const fmt = d => d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + ' · ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+  const fmt = d => {
+    const dateStr = d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    // Skip time if stored as midnight UTC (iCal date-only bookings)
+    const isMidnightUTC = d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0;
+    return isMidnightUTC ? dateStr : dateStr + ' · ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+  };
 
   document.getElementById('booking-heading').textContent   = b.guest_name || 'Guest';
   document.getElementById('booking-subheading').textContent= (p.name || '') + ' · ' + new Date(b.check_in).toLocaleDateString('en-CA',{month:'long',day:'numeric'}) + ' – ' + new Date(b.check_out).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'});
