@@ -239,6 +239,8 @@
       <button class="tab-btn active" data-tab="stay" onclick="switchTab('stay')">🏠 Stay</button>
       <button class="tab-btn" data-tab="door" onclick="switchTab('door')">🔑 Door</button>
       <button class="tab-btn" data-tab="extras" onclick="switchTab('extras')">✨ Extras</button>
+      <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')">🛍️ Shop</button>
+      <button class="tab-btn" data-tab="local" onclick="switchTab('local')">📍 Local</button>
       <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">
         💬 Chat
         <span class="badge hidden" id="chat-badge">0</span>
@@ -376,6 +378,24 @@
         <div id="my-purchases-list"></div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Tab: Shop -->
+  <div id="tab-shop" class="tab-content">
+    <div class="extras-wrap">
+      <div class="extras-section-title" style="margin-bottom:4px;">Shop Your Stay</div>
+      <p style="font-size:0.82rem;color:var(--g-muted);margin:0 0 16px;">Bonsai-curated products delivered to your door</p>
+      <div id="shop-grid"><p style="color:#888;font-size:0.9rem;">Loading shop…</p></div>
+    </div>
+  </div>
+
+  <!-- Tab: Local -->
+  <div id="tab-local" class="tab-content">
+    <div class="extras-wrap">
+      <div class="extras-section-title" style="margin-bottom:4px;">Local Picks</div>
+      <p style="font-size:0.82rem;color:var(--g-muted);margin:0 0 16px;">Our favourite spots near your property</p>
+      <div id="local-list"><p style="color:#888;font-size:0.9rem;">Loading recommendations…</p></div>
     </div>
   </div>
 
@@ -647,6 +667,8 @@ function populateHome() {
   loadMessages();
   loadPurchases();
   loadExperiences();
+  loadShop();
+  loadLocal();
 }
 
 // ── Door countdown & code reveal ─────────────────────────────────────────
@@ -725,6 +747,72 @@ function switchTab(name) {
       msgs.scrollTop = msgs.scrollHeight;
     }, 100);
   }
+}
+
+// ── Shop ─────────────────────────────────────────────────────────────────
+async function loadShop() {
+  const grid = document.getElementById('shop-grid');
+  if (!grid) return;
+  const { data, error } = await sb.from('products').select('*').eq('in_stock', true).order('name');
+  if (error || !data || !data.length) {
+    grid.innerHTML = '<p style="color:#888;font-size:0.9rem;">No products available right now.</p>';
+    return;
+  }
+  grid.innerHTML = data.map(p => {
+    const img = p.image_url
+      ? `<img src="${p.image_url}" alt="${p.name}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;" loading="lazy">`
+      : `<div style="width:72px;height:72px;border-radius:10px;background:var(--g-card);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">🛍️</div>`;
+    return `
+      <div style="display:flex;align-items:center;gap:14px;background:var(--g-card);border-radius:14px;padding:14px;margin-bottom:12px;">
+        ${img}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:0.95rem;color:var(--g-text);">${p.name}</div>
+          <div style="font-size:0.78rem;color:var(--g-muted);margin:2px 0 6px;line-height:1.4;">${p.description || ''}</div>
+          <div style="color:var(--g-gold);font-weight:700;font-size:0.9rem;">$${Number(p.price).toFixed(2)}</div>
+        </div>
+        <button onclick="requestShopItem(${JSON.stringify(p.name)}, ${Number(p.price).toFixed(2)})"
+          style="flex-shrink:0;background:var(--g-gold);color:#0B1F14;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;">
+          Order
+        </button>
+      </div>`;
+  }).join('');
+}
+
+async function requestShopItem(name, price) {
+  await sb.from('purchases').insert({ booking_id: booking.id, item_type: 'shop', item_name: name, amount: Math.round(price * 100), status: 'pending' });
+  await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: `I'd like to order: ${name} ($${price.toFixed(2)}). Please confirm!` });
+  showToast('✓ Order requested! We\'ll confirm via chat.');
+  switchTab('chat');
+}
+
+// ── Local Recommendations ─────────────────────────────────────────────────
+async function loadLocal() {
+  const list = document.getElementById('local-list');
+  if (!list || !property) return;
+  const { data, error } = await sb.from('property_recommendations')
+    .select('*').eq('property_id', property.id).order('category').order('name');
+  if (error || !data || !data.length) {
+    list.innerHTML = '<p style="color:#888;font-size:0.9rem;">No local picks yet for this property — check back soon!</p>';
+    return;
+  }
+  let lastCat = null;
+  list.innerHTML = data.map(r => {
+    const catHeader = r.category !== lastCat
+      ? `<div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--g-gold);margin:${lastCat ? '20px' : '0'} 0 8px;">${(lastCat = r.category) || 'Places'}</div>`
+      : (lastCat = r.category, '');
+    const dealBadge = r.deal_offer ? `<div style="font-size:0.75rem;background:#1a3d29;color:var(--g-gold);border-radius:6px;padding:3px 8px;display:inline-block;margin-top:4px;">🎁 ${r.deal_offer}</div>` : '';
+    const link = r.website ? `<a href="${r.website}" target="_blank" style="font-size:0.75rem;color:var(--g-gold);text-decoration:none;">Visit →</a>` : '';
+    return `${catHeader}
+      <div style="background:var(--g-card);border-radius:14px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-weight:700;font-size:0.92rem;color:var(--g-text);">${r.icon || '📍'} ${r.name}</div>
+          ${link}
+        </div>
+        ${r.description ? `<div style="font-size:0.8rem;color:var(--g-muted);margin-top:4px;line-height:1.4;">${r.description}</div>` : ''}
+        ${r.address ? `<div style="font-size:0.75rem;color:var(--g-muted);margin-top:3px;">📍 ${r.address}</div>` : ''}
+        ${dealBadge}
+      </div>`;
+  }).join('');
 }
 
 // ── Experiences ───────────────────────────────────────────────────────────
