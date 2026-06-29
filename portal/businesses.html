@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bonsai Portal — Businesses</title>
+  <title>Bonsai Portal — Local Recs & Deals</title>
   <link rel="stylesheet" href="assets/portal.css" />
 </head>
 <body class="admin-body">
@@ -17,7 +17,7 @@
     <a href="experiences.html">Add Ons</a>
     <a href="products.html">Shop</a>
     <a href="members.html">Members</a>
-    <a href="businesses.html" class="active">Businesses</a>
+    <a href="businesses.html" class="active">Local Recs & Deals</a>
     <a href="applications.html">Forms</a>
   </div>
   <div class="admin-nav-right">
@@ -31,7 +31,7 @@
   <div class="admin-page-header">
     <div>
       <h1>Local Businesses & Deals</h1>
-      <p id="biz-subtitle">Businesses featured in the Bon Voyage member app</p>
+      <p id="biz-subtitle">Local recommendations and deals for guests</p>
     </div>
     <button class="btn-primary" onclick="openModal()">+ Add Business</button>
   </div>
@@ -61,8 +61,8 @@
 
   <div class="table-empty hidden" id="biz-empty">
     <div class="table-empty-icon">🏪</div>
-    <h3>No businesses yet</h3>
-    <p>Add local businesses and deals to feature in the Bon Voyage member app</p>
+    <h3>No recommendations yet</h3>
+    <p>Add local restaurants, shops, activities and deals for guests to discover</p>
   </div>
 
 </main>
@@ -201,7 +201,7 @@ async function logout() {
 // ── Load ─────────────────────────────────────────────────
 async function loadBusinesses() {
   const { data, error } = await sb.from('businesses').select('*').order('name');
-  if (error) { showToast('Error loading businesses: ' + error.message, 'error'); return; }
+  if (error) { showToast('Error loading recommendations: ' + error.message, 'error'); return; }
   allBiz = data || [];
   renderGrid();
 }
