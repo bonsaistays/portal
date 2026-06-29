@@ -97,24 +97,24 @@ exports.handler = async (event) => {
   const checkOut = (reservation.checkOut || reservation.check_out || '').split('T')[0];
 
   const record = {
-    guesty_reservation_id: guestyId,
-    property_id:           propertyId,
-    check_in:              checkIn  || null,
-    check_out:             checkOut || null,
+    ical_uid:          `guesty-${guestyId}`,
+    property_id:       propertyId,
+    check_in:          checkIn  || null,
+    check_out:         checkOut || null,
     status,
-    guests:                reservation.guestsCount || reservation.guests || 1,
-    guest_name:            buildGuestName(reservation),
-    guest_email:           reservation.guest?.email   || reservation.guestEmail   || null,
-    guest_phone:           reservation.guest?.phone   || reservation.guestPhone   || null,
-    total_price:           parseMoney(reservation),
-    confirmation_code:     reservation.confirmationCode || guestyId,
-    source:                'guesty',
+    guests:            reservation.guestsCount || reservation.guests || 1,
+    guest_name:        buildGuestName(reservation),
+    guest_email:       reservation.guest?.email   || reservation.guestEmail   || null,
+    guest_phone:       reservation.guest?.phone   || reservation.guestPhone   || null,
+    total_price:       parseMoney(reservation),
+    confirmation_code: reservation.confirmationCode || guestyId,
+    source:            'guesty',
   };
 
   // ── Upsert ─────────────────────────────────────────────────────────────
   const { error } = await sb
     .from('bookings')
-    .upsert(record, { onConflict: 'guesty_reservation_id' });
+    .upsert(record, { onConflict: 'ical_uid' });
 
   if (error) {
     console.error('Supabase upsert error:', error.message);
