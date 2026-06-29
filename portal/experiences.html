@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bonsai Portal — Experiences</title>
+  <title>Bonsai Portal — Add Ons</title>
   <link rel="stylesheet" href="assets/portal.css" />
   <style>
     .exp-card-admin {
@@ -47,7 +47,7 @@
   <div class="admin-nav-links">
     <a href="dashboard.html">Bookings</a>
     <a href="properties.html">Properties</a>
-    <a href="experiences.html" class="active">Experiences</a>
+    <a href="experiences.html" class="active">Add Ons</a>
     <a href="members.html">Members</a>
     <a href="businesses.html">Businesses</a>
     <a href="applications.html">Forms</a>
@@ -62,10 +62,10 @@
 
   <div class="admin-page-header">
     <div>
-      <h1>Experiences</h1>
-      <p id="exp-subtitle">In-stay services offered to guests</p>
+      <h1>Add Ons</h1>
+      <p id="exp-subtitle">Add ons &amp; extras offered to guests</p>
     </div>
-    <button class="btn-primary" onclick="openModal()">+ Add Experience</button>
+    <button class="btn-primary" onclick="openModal()">+ New Add On</button>
   </div>
 
   <!-- Filter bar -->
@@ -77,14 +77,15 @@
     <button class="filter-chip" data-cat="Food & Drink" onclick="setCat('Food & Drink',this)">Food &amp; Drink</button>
     <button class="filter-chip" data-cat="Activities" onclick="setCat('Activities',this)">Activities</button>
     <button class="filter-chip" data-cat="Arrangements" onclick="setCat('Arrangements',this)">Arrangements</button>
+    <button class="filter-chip" data-cat="Property Services" onclick="setCat('Property Services',this)">Property Services</button>
   </div>
 
   <div id="exp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;"></div>
 
   <div class="table-empty hidden" id="exp-empty">
     <div class="table-empty-icon">🎭</div>
-    <h3>No experiences yet</h3>
-    <p>Add your first experience to start offering in-stay services to guests</p>
+    <h3>No add ons yet</h3>
+    <p>Add your first add on to start offering extras to guests</p>
   </div>
 
 </main>
@@ -102,8 +103,8 @@
 
         <div class="admin-form-row">
           <div>
-            <label class="admin-label">Experience name *</label>
-            <input class="admin-input" id="e-name" type="text" placeholder="Massage Therapy" />
+            <label class="admin-label">Add On name *</label>
+            <input class="admin-input" id="e-name" type="text" placeholder="e.g. Late Checkout, Massage Therapy" />
           </div>
           <div style="flex:0 0 110px;">
             <label class="admin-label">Icon (emoji)</label>
@@ -120,12 +121,13 @@
             <option value="Food & Drink">Food &amp; Drink</option>
             <option value="Activities">Activities</option>
             <option value="Arrangements">Arrangements</option>
+            <option value="Property Services">Property Services</option>
           </select>
         </div>
 
         <div>
           <label class="admin-label">Description *</label>
-          <textarea class="admin-textarea" id="e-description" style="min-height:90px;" placeholder="Describe the experience for guests…"></textarea>
+          <textarea class="admin-textarea" id="e-description" style="min-height:90px;" placeholder="Describe the add on for guests…"></textarea>
         </div>
 
         <div>
@@ -218,11 +220,11 @@
 <div class="modal-overlay hidden" id="modal-delete">
   <div class="modal" style="max-width:400px;">
     <div class="modal-header">
-      <h3>Delete experience?</h3>
+      <h3>Delete add on?</h3>
       <button class="btn-modal-close" onclick="document.getElementById('modal-delete').classList.add('hidden')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:0.88rem;color:var(--a-gray);line-height:1.6;">This will permanently delete <strong id="delete-exp-name"></strong> and remove it from the guest-facing experiences page.</p>
+      <p style="font-size:0.88rem;color:var(--a-gray);line-height:1.6;">This will permanently delete <strong id="delete-exp-name"></strong> and remove it from the guest-facing add ons page.</p>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="document.getElementById('modal-delete').classList.add('hidden')">Cancel</button>
@@ -258,7 +260,7 @@ async function logout() { await sb.auth.signOut(); location.href = 'index.html';
 async function loadExperiences() {
   const { data } = await sb.from('experiences').select('*').order('sort_order', { ascending: true }).order('name');
   _all = data || [];
-  document.getElementById('exp-subtitle').textContent = _all.length + ' experience' + (_all.length === 1 ? '' : 's');
+  document.getElementById('exp-subtitle').textContent = _all.length + ' add on' + (_all.length === 1 ? '' : 's');
   render();
 }
 
@@ -309,8 +311,8 @@ function render() {
 // ── Modal open / close ────────────────────────────────────────────────────
 function openModal(expId) {
   _editingId = expId || null;
-  document.getElementById('exp-modal-title').textContent = expId ? 'Edit Experience' : 'Add Experience';
-  document.getElementById('e-save-btn').textContent      = expId ? 'Save Changes'    : 'Save Experience';
+  document.getElementById('exp-modal-title').textContent = expId ? 'Edit Add On' : 'New Add On';
+  document.getElementById('e-save-btn').textContent      = expId ? 'Save Changes'    : 'Save Add On';
   document.getElementById('e-error').classList.add('hidden');
   document.getElementById('includes-rows').innerHTML = '';
 
@@ -385,7 +387,7 @@ async function saveExperience() {
   const price = parseFloat(document.getElementById('e-price').value);
   const desc  = document.getElementById('e-description').value.trim();
 
-  if (!name) { showErr('Experience name is required.'); return; }
+  if (!name) { showErr('Add On name is required.'); return; }
   if (!desc)  { showErr('Please add a description.'); return; }
   if (isNaN(price) || price < 0) { showErr('Please enter a valid price.'); return; }
 
@@ -417,18 +419,18 @@ async function saveExperience() {
 
   if (error) {
     showErr('Error saving: ' + error.message);
-    btn.textContent = _editingId ? 'Save Changes' : 'Save Experience';
+    btn.textContent = _editingId ? 'Save Changes' : 'Save Add On';
     btn.disabled = false;
     return;
   }
 
   closeModal();
   await loadExperiences();
-  showToast(_editingId ? '✓ Experience updated' : '✓ Experience added');
-  btn.textContent = _editingId ? 'Save Changes' : 'Save Experience';
+  showToast(_editingId ? '✓ Add On updated' : '✓ Add On added');
+  btn.textContent = _editingId ? 'Save Changes' : 'Save Add On';
   btn.disabled = false;
 
-  function showErr(msg) { err.textContent = msg; err.classList.remove('hidden'); btn.textContent = _editingId ? 'Save Changes' : 'Save Experience'; btn.disabled = false; }
+  function showErr(msg) { err.textContent = msg; err.classList.remove('hidden'); btn.textContent = _editingId ? 'Save Changes' : 'Save Add On'; btn.disabled = false; }
 }
 
 // ── Delete ────────────────────────────────────────────────────────────────
@@ -441,7 +443,7 @@ async function confirmDelete() {
   await sb.from('experiences').delete().eq('id', _deletingId);
   document.getElementById('modal-delete').classList.add('hidden');
   await loadExperiences();
-  showToast('Experience deleted');
+  showToast('Add On deleted');
 }
 
 // ── Photo upload ──────────────────────────────────────────────────────────
