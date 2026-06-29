@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bonsai Portal — Dashboard</title>
   <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    .sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+    .sortable-th:hover { color: var(--a-green); }
+    .sort-icon { font-size: 0.75rem; opacity: 0.45; margin-left: 3px; }
+    .sortable-th:hover .sort-icon { opacity: 1; }
+  </style>
 </head>
 <body class="admin-body">
 
@@ -58,11 +64,11 @@
       <table class="bookings-table" id="bookings-table">
         <thead>
           <tr>
-            <th>Guest</th>
-            <th>Property</th>
-            <th>Check-in</th>
-            <th>Check-out</th>
-            <th>Status</th>
+            <th class="sortable-th" onclick="sortBookings('guest_name')">Guest <span class="sort-icon" data-col="guest_name">↕</span></th>
+            <th class="sortable-th" onclick="sortBookings('property')">Property <span class="sort-icon" data-col="property">↕</span></th>
+            <th class="sortable-th" onclick="sortBookings('check_in')">Check-in <span class="sort-icon" data-col="check_in">↕</span></th>
+            <th class="sortable-th" onclick="sortBookings('check_out')">Check-out <span class="sort-icon" data-col="check_out">↕</span></th>
+            <th class="sortable-th" onclick="sortBookings('status')">Status <span class="sort-icon" data-col="status">↕</span></th>
             <th>Messages</th>
           </tr>
         </thead>
@@ -276,12 +282,31 @@ async function loadBookings() {
   } catch(e) { /* function not yet created — silently skip */ }
 }
 
+let _sortCol = 'check_in', _sortAsc = false;
+
 function setFilter(f, btn) {
   _filterState = f;
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-  const filtered = f === 'all' ? _allBookings : _allBookings.filter(b => b.status === f);
-  renderTable(filtered);
+  applyFilterAndSort();
+}
+
+function sortBookings(col) {
+  if (_sortCol === col) { _sortAsc = !_sortAsc; } else { _sortCol = col; _sortAsc = true; }
+  document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '↕');
+  const icon = document.querySelector(`.sort-icon[data-col="${col}"]`);
+  if (icon) icon.textContent = _sortAsc ? '↑' : '↓';
+  applyFilterAndSort();
+}
+
+function applyFilterAndSort() {
+  let list = _filterState === 'all' ? [..._allBookings] : _allBookings.filter(b => b.status === _filterState);
+  list.sort((a, b) => {
+    let av = _sortCol === 'property' ? (a.properties?.name || '') : (a[_sortCol] || '');
+    let bv = _sortCol === 'property' ? (b.properties?.name || '') : (b[_sortCol] || '');
+    return _sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  renderTable(list);
 }
 
 function renderTable(bookings) {
