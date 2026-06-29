@@ -148,6 +148,16 @@
           </div>
         </div>
 
+        <!-- Variations -->
+        <div>
+          <label class="admin-label" style="margin-bottom:8px;">
+            Variations
+            <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:var(--a-gray);">(optional — e.g. different durations or tiers)</span>
+          </label>
+          <div id="variation-rows" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <button type="button" onclick="addVariationRow()" style="width:100%;padding:9px;border:1.5px dashed rgba(61,139,98,0.35);border-radius:9px;background:none;color:var(--a-sage);font-size:0.81rem;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px;">+ Add variation</button>
+        </div>
+
         <div>
           <label class="admin-label">Photo</label>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
@@ -315,6 +325,7 @@ function openModal(expId) {
   document.getElementById('e-save-btn').textContent      = expId ? 'Save Changes'    : 'Save Add On';
   document.getElementById('e-error').classList.add('hidden');
   document.getElementById('includes-rows').innerHTML = '';
+  document.getElementById('variation-rows').innerHTML = '';
 
   if (expId) {
     const e = _all.find(x => x.id === expId);
@@ -333,6 +344,7 @@ function openModal(expId) {
     document.getElementById('e-working-start').value = e.working_start || '09:00';
     document.getElementById('e-working-end').value   = e.working_end || '18:00';
     (e.includes || []).forEach(i => addIncludeRow(i));
+    (e.variations || []).forEach(v => addVariationRow(v.name, v.price));
   } else {
     document.getElementById('e-name').value        = '';
     document.getElementById('e-icon').value        = '';
@@ -377,6 +389,29 @@ function collectIncludes() {
     .filter(Boolean);
 }
 
+// ── Variations repeater ───────────────────────────────────────────────────
+function addVariationRow(name = '', price = '') {
+  const row = document.createElement('div');
+  row.className = 'variation-row';
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input class="admin-input variation-name" type="text" placeholder="e.g. 60 min" value="${esc(name)}" style="flex:2;" />
+    <div style="display:flex;align-items:center;gap:4px;flex:1;">
+      <span style="font-size:0.85rem;color:var(--a-gray);flex-shrink:0;">$</span>
+      <input class="admin-input variation-price" type="number" min="0" step="1" placeholder="80" value="${price}" style="flex:1;" />
+    </div>
+    <button type="button" class="btn-rm-include" onclick="this.closest('.variation-row').remove()" style="flex-shrink:0;">✕</button>
+  `;
+  document.getElementById('variation-rows').appendChild(row);
+}
+
+function collectVariations() {
+  return Array.from(document.querySelectorAll('.variation-row')).map(row => ({
+    name:  row.querySelector('.variation-name').value.trim(),
+    price: parseFloat(row.querySelector('.variation-price').value) || 0,
+  })).filter(v => v.name);
+}
+
 // ── Save ──────────────────────────────────────────────────────────────────
 async function saveExperience() {
   const btn = document.getElementById('e-save-btn');
@@ -399,6 +434,7 @@ async function saveExperience() {
     category:    document.getElementById('e-category').value || null,
     description: desc,
     includes:    collectIncludes(),
+    variations:  collectVariations(),
     price,
     price_unit:      document.getElementById('e-price-unit').value.trim() || 'session',
     image_url:       document.getElementById('e-image').value.trim() || null,
