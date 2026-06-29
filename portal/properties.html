@@ -1588,7 +1588,7 @@ async function runIcalSync() {
   status.textContent   = 'Running iCal sync…';
 
   try {
-    const res  = await fetch('/.netlify/functions/ical-sync');
+    const res  = await fetch('/.netlify/functions/sync-ical-now', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
     const data = await res.json();
     if (!res.ok || data.error) {
       status.style.color  = '#e05252';
