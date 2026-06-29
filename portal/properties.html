@@ -503,7 +503,11 @@
 
           <!-- iCal URLs -->
           <div>
-            <label class="admin-label" style="margin-bottom:8px;">iCal Calendar URLs</label>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <label class="admin-label" style="margin:0;">iCal Calendar URLs</label>
+              <button type="button" id="ical-sync-btn" onclick="runIcalSync()" style="background:var(--a-green);color:#fff;font-size:0.76rem;font-weight:700;padding:0 14px;height:34px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;">Sync Now</button>
+            </div>
+            <div id="ical-sync-status" style="font-size:0.8rem;margin-bottom:8px;display:none;"></div>
             <div id="ical-rows"></div>
             <button type="button" onclick="addIcalRow()" style="width:100%;padding:10px;border:1.5px dashed rgba(61,139,98,0.35);border-radius:10px;background:none;color:var(--a-sage);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">+ Add calendar source</button>
           </div>
@@ -1571,6 +1575,35 @@ async function confirmDelete() {
   document.getElementById('modal-delete').classList.add('hidden');
   await loadProperties();
   showToast('Property deleted');
+}
+
+// ── iCal sync ─────────────────────────────────────────────────────────────
+async function runIcalSync() {
+  const btn    = document.getElementById('ical-sync-btn');
+  const status = document.getElementById('ical-sync-status');
+  btn.disabled    = true;
+  btn.textContent = 'Syncing…';
+  status.style.display = 'block';
+  status.style.color   = 'var(--a-gray)';
+  status.textContent   = 'Running iCal sync…';
+
+  try {
+    const res  = await fetch('/.netlify/functions/ical-sync');
+    const data = await res.json();
+    if (data.errors && data.errors.length) {
+      status.style.color  = '#e05252';
+      status.textContent  = '✗ ' + data.errors[0];
+    } else {
+      status.style.color  = 'var(--a-green)';
+      status.textContent  = `✓ Synced ${data.synced ?? 0} booking(s)`;
+    }
+  } catch (e) {
+    status.style.color  = '#e05252';
+    status.textContent  = '✗ Network error — ' + e.message;
+  }
+
+  btn.disabled    = false;
+  btn.textContent = 'Sync Now';
 }
 
 // ── iCal helpers ─────────────────────────────────────────────────────────
