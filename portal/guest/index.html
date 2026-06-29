@@ -322,6 +322,8 @@
         <div class="door-code-display" id="door-code">—</div>
         <div class="door-code-hint">Enter this code on the keypad to unlock your door</div>
         <button class="btn-copy-code" onclick="copyDoorCode()">📋 Copy Code</button>
+        <button class="btn-copy-code" id="btn-smart-unlock" style="display:none;margin-top:10px;background:var(--g-gold);color:#fff;border:none;" onclick="smartUnlock()">🔓 Unlock Door</button>
+        <div id="smart-lock-status" style="font-size:0.8rem;margin-top:8px;color:var(--g-muted);display:none;"></div>
       </div>
 
       <!-- Additional door info -->
@@ -658,6 +660,9 @@ function startDoorCountdown(checkin) {
       document.getElementById('door-card-locked').classList.add('hidden');
       document.getElementById('door-card-open').classList.remove('hidden');
       document.getElementById('door-code').textContent = booking.door_code || '—';
+      if (property.seam_device_id && property.lock_provider) {
+        document.getElementById('btn-smart-unlock').style.display = '';
+      }
     } else {
       const h = Math.floor(diff/3600000);
       const m = Math.floor((diff%3600000)/60000);
@@ -672,6 +677,37 @@ function startDoorCountdown(checkin) {
 
 function copyDoorCode() {
   navigator.clipboard.writeText(booking.door_code || '').then(() => showToast('✓ Door code copied!'));
+}
+
+async function smartUnlock() {
+  const btn    = document.getElementById('btn-smart-unlock');
+  const status = document.getElementById('smart-lock-status');
+  btn.disabled = true;
+  btn.textContent = 'Unlocking…';
+  status.style.display = '';
+  status.textContent = '';
+  try {
+    const res = await fetch('/.netlify/functions/lock-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'unlock',
+        deviceId:   property.seam_device_id,
+        provider:   property.lock_provider,
+        propertyId: property.id,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Unlock failed');
+    btn.textContent = '✓ Door Unlocked';
+    status.textContent = 'Door is now unlocked. It will re-lock automatically.';
+    showToast('✓ Door unlocked!');
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '🔓 Unlock Door';
+    status.textContent = 'Could not unlock: ' + e.message;
+    showToast('Unlock failed — try your code instead');
+  }
 }
 function copyWifi() {
   navigator.clipboard.writeText(property.wifi_password || '').then(() => showToast('✓ Wi-Fi password copied!'));
