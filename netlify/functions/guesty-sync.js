@@ -9,8 +9,8 @@
  *   SUPABASE_SERVICE_KEY  — Supabase service role key
  */
 
-const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
-const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
+const GUESTY_TOKEN_URL = 'https://booking.guesty.com/oauth2/token';
+const GUESTY_API_BASE  = 'https://booking.guesty.com/api';
 
 let _cachedToken = null;
 let _tokenExpiry = 0;
