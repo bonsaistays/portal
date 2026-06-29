@@ -602,7 +602,7 @@ async function loadExtrasForProperty(propertyId) {
 
   const { data } = await sb
     .from('property_extras')
-    .select('custom_price, custom_variations, experiences(id, name, emoji, price, price_unit, description, variations)')
+    .select('custom_price, custom_variations, experiences(id, name, icon, price, price_unit, description, variations)')
     .eq('property_id', propertyId);
 
   loading.style.display = 'none';
@@ -612,14 +612,14 @@ async function loadExtrasForProperty(propertyId) {
   if (!items.length) {
     const { data: allExp, error: expErr } = await sb
       .from('experiences')
-      .select('id, name, emoji, price, price_unit, description, variations')
+      .select('id, name, icon, price, price_unit, description, variations')
       .order('name');
     if (expErr) {
       empty.style.display = 'block';
       empty.textContent = 'Error loading add-ons: ' + expErr.message;
       return;
     }
-    items = (allExp || []).map(exp => ({ experiences: { ...exp, unit: exp.price_unit }, custom_price: null, custom_variations: null }));
+    items = (allExp || []).map(exp => ({ experiences: { ...exp, emoji: exp.icon, unit: exp.price_unit }, custom_price: null, custom_variations: null }));
   }
 
   if (!items.length) { empty.style.display = 'block'; return; }
@@ -639,7 +639,7 @@ async function loadExtrasForProperty(propertyId) {
     card.className    = 'extra-card';
     card.dataset.extra = exp.name;
     card.innerHTML    = `
-      <span class="extra-emoji">${exp.emoji || '✨'}</span>
+      <span class="extra-emoji">${exp.icon || exp.emoji || '✨'}</span>
       <div class="extra-info">
         <div class="extra-name">${exp.name}</div>
         ${price ? `<div class="extra-price">${price}</div>` : ''}
