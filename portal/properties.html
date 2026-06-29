@@ -1301,9 +1301,11 @@ async function loadPropertyExtras(propertyId) {
   empty.style.display   = 'none';
   list.innerHTML        = '';
 
-  // Load global experiences catalog (cache after first fetch)
+  // Load global catalog including variations
   if (!_allExperiences) {
-    const { data } = await sb.from('experiences').select('id, name, icon, category, price, price_unit').order('category').order('name');
+    const { data } = await sb.from('experiences')
+      .select('id, name, icon, category, price, price_unit, variations')
+      .order('category').order('name');
     _allExperiences = data || [];
   }
 
@@ -1313,36 +1315,86 @@ async function loadPropertyExtras(propertyId) {
     return;
   }
 
-  // Load which extras are already enabled for this property
-  let enabledMap = {};  // experience_id → custom_price (null = use default)
+  // Load which extras are enabled for this property + any per-property overrides
+  let enabledMap = {};  // experience_id → { custom_price, custom_variations }
   if (propertyId) {
-    const { data: rows } = await sb.from('property_extras').select('experience_id, custom_price').eq('property_id', propertyId);
-    (rows || []).forEach(r => { enabledMap[r.experience_id] = r.custom_price; });
+    const { data: rows } = await sb.from('property_extras')
+      .select('experience_id, custom_price, custom_variations')
+      .eq('property_id', propertyId);
+    (rows || []).forEach(r => { enabledMap[r.experience_id] = r; });
   }
 
   loading.style.display = 'none';
+
   list.innerHTML = _allExperiences.map(exp => {
-    const isEnabled    = propertyId ? exp.id in enabledMap : false;
-    const customPrice  = enabledMap[exp.id] ?? '';
-    const defaultLabel = exp.price != null ? `$${exp.price}${exp.price_unit ? '/' + exp.price_unit : ''}` : '';
+    const isEnabled     = propertyId ? exp.id in enabledMap : false;
+    const saved         = enabledMap[exp.id] || {};
+    const hasVariations = Array.isArray(exp.variations) && exp.variations.length > 0;
+    const savedVars     = Array.isArray(saved.custom_variations) && saved.custom_variations.length
+                          ? saved.custom_variations : exp.variations || [];
+
+    // Build the pricing section
+    let pricingHtml;
+    if (hasVariations) {
+      pricingHtml = `
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;" id="extra-vars-${exp.id}">
+          ${savedVars.map((v, i) => `
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:0.82rem;color:var(--a-charcoal);flex:1;">${esc(v.name)}</span>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span style="font-size:0.75rem;color:var(--a-gray);">$</span>
+                <input type="number" min="0" step="1"
+                  class="extra-var-price-${exp.id}"
+                  data-var-index="${i}"
+                  data-var-name="${esc(v.name)}"
+                  value="${v.price ?? ''}"
+                  placeholder="${v.price ?? ''}"
+                  style="width:72px;padding:5px 8px;border:1.5px solid var(--a-border);border-radius:7px;font-size:0.85rem;background:var(--a-white);color:var(--a-charcoal);" />
+              </div>
+            </div>`).join('')}
+        </div>`;
+    } else {
+      const customPrice = saved.custom_price ?? '';
+      pricingHtml = `
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;" id="extra-vars-${exp.id}">
+          <span style="font-size:0.82rem;color:var(--a-charcoal);flex:1;">Price</span>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-size:0.75rem;color:var(--a-gray);">$</span>
+            <input type="number" id="extra-price-${exp.id}" min="0" step="1"
+              value="${customPrice}"
+              placeholder="${exp.price ?? ''}"
+              style="width:72px;padding:5px 8px;border:1.5px solid var(--a-border);border-radius:7px;font-size:0.85rem;background:var(--a-white);color:var(--a-charcoal);" />
+          </div>
+          ${exp.price != null ? `<span style="font-size:0.72rem;color:var(--a-gray);">default $${exp.price}</span>` : ''}
+        </div>`;
+    }
+
     return `
-      <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--a-bg);border:1.5px solid var(--a-border);border-radius:10px;transition:border-color 0.15s;" id="extra-row-${exp.id}">
-        <input type="checkbox" id="extra-cb-${exp.id}" data-id="${exp.id}"
-          style="width:18px;height:18px;accent-color:var(--a-green);flex-shrink:0;cursor:pointer;"
-          ${isEnabled ? 'checked' : ''}
-          onchange="onExtraToggle('${exp.id}', this.checked)" />
-        <div style="font-size:1.2rem;flex-shrink:0;">${exp.icon || '🎁'}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.88rem;font-weight:700;color:var(--a-charcoal);">${esc(exp.name)}</div>
-          <div style="font-size:0.72rem;color:var(--a-gray);">${esc(exp.category || '')}${defaultLabel ? ' · ' + defaultLabel + ' (default)' : ''}</div>
+      <div id="extra-row-${exp.id}" style="background:var(--a-white);border:1.5px solid ${isEnabled ? 'var(--a-sage)' : 'var(--a-border)'};border-radius:12px;padding:14px 16px;transition:border-color 0.15s;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:1.3rem;flex-shrink:0;">${exp.icon || '🎁'}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.9rem;font-weight:700;color:var(--a-charcoal);">${esc(exp.name)}</div>
+            <div style="font-size:0.72rem;color:var(--a-gray);margin-top:1px;">${esc(exp.category || '')}</div>
+          </div>
+          <!-- Toggle switch -->
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;">
+            <div style="position:relative;width:40px;height:22px;">
+              <input type="checkbox" id="extra-cb-${exp.id}"
+                ${isEnabled ? 'checked' : ''}
+                onchange="onExtraToggle('${exp.id}', this.checked)"
+                style="opacity:0;width:0;height:0;position:absolute;" />
+              <div id="extra-track-${exp.id}"
+                style="position:absolute;inset:0;border-radius:11px;background:${isEnabled ? 'var(--a-green)' : '#CBD5E1'};transition:background 0.2s;cursor:pointer;"
+                onclick="document.getElementById('extra-cb-${exp.id}').click()">
+                <div style="position:absolute;top:3px;left:${isEnabled ? '21px' : '3px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);" id="extra-knob-${exp.id}"></div>
+              </div>
+            </div>
+            <span style="font-size:0.78rem;font-weight:600;color:${isEnabled ? 'var(--a-green)' : 'var(--a-gray)'};" id="extra-label-${exp.id}">${isEnabled ? 'On' : 'Off'}</span>
+          </label>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          <span style="font-size:0.75rem;color:var(--a-gray);">$</span>
-          <input type="number" id="extra-price-${exp.id}" min="0" step="1"
-            placeholder="${exp.price != null ? exp.price : ''}"
-            value="${customPrice}"
-            style="width:72px;padding:6px 8px;border:1.5px solid var(--a-border);border-radius:7px;font-size:0.85rem;background:var(--a-white);color:var(--a-charcoal);${isEnabled ? '' : 'opacity:0.4;pointer-events:none;'}"
-            title="Custom price — leave blank to use default (${defaultLabel})" />
+        <div id="extra-body-${exp.id}" style="${isEnabled ? '' : 'opacity:0.35;pointer-events:none;'}">
+          ${pricingHtml}
         </div>
       </div>`;
   }).join('');
@@ -1350,16 +1402,17 @@ async function loadPropertyExtras(propertyId) {
 
 function onExtraToggle(expId, checked) {
   const row   = document.getElementById(`extra-row-${expId}`);
-  const price = document.getElementById(`extra-price-${expId}`);
-  if (checked) {
-    row.style.borderColor     = 'var(--a-sage)';
-    price.style.opacity       = '1';
-    price.style.pointerEvents = 'auto';
-  } else {
-    row.style.borderColor     = 'var(--a-border)';
-    price.style.opacity       = '0.4';
-    price.style.pointerEvents = 'none';
-  }
+  const body  = document.getElementById(`extra-body-${expId}`);
+  const track = document.getElementById(`extra-track-${expId}`);
+  const knob  = document.getElementById(`extra-knob-${expId}`);
+  const label = document.getElementById(`extra-label-${expId}`);
+  row.style.borderColor     = checked ? 'var(--a-sage)'  : 'var(--a-border)';
+  body.style.opacity        = checked ? '1'              : '0.35';
+  body.style.pointerEvents  = checked ? 'auto'           : 'none';
+  track.style.background    = checked ? 'var(--a-green)' : '#CBD5E1';
+  knob.style.left           = checked ? '21px'           : '3px';
+  label.textContent         = checked ? 'On'             : 'Off';
+  label.style.color         = checked ? 'var(--a-green)' : 'var(--a-gray)';
 }
 
 async function savePropertyExtras(propertyId) {
@@ -1367,22 +1420,34 @@ async function savePropertyExtras(propertyId) {
 
   const toEnable = [];
   _allExperiences.forEach(exp => {
-    const cb    = document.getElementById(`extra-cb-${exp.id}`);
-    const price = document.getElementById(`extra-price-${exp.id}`);
-    if (cb?.checked) {
-      toEnable.push({
-        property_id:   propertyId,
-        experience_id: exp.id,
-        custom_price:  price?.value !== '' ? parseFloat(price.value) : null,
-      });
+    const cb = document.getElementById(`extra-cb-${exp.id}`);
+    if (!cb?.checked) return;
+
+    const hasVariations = Array.isArray(exp.variations) && exp.variations.length > 0;
+    let customPrice = null;
+    let customVariations = null;
+
+    if (hasVariations) {
+      const varInputs = document.querySelectorAll(`.extra-var-price-${exp.id}`);
+      customVariations = Array.from(varInputs).map(inp => ({
+        name:  inp.dataset.varName,
+        price: inp.value !== '' ? parseFloat(inp.value) : parseFloat(inp.placeholder) || 0,
+      }));
+    } else {
+      const priceEl = document.getElementById(`extra-price-${exp.id}`);
+      customPrice = priceEl?.value !== '' ? parseFloat(priceEl.value) : null;
     }
+
+    toEnable.push({
+      property_id:       propertyId,
+      experience_id:     exp.id,
+      custom_price:      customPrice,
+      custom_variations: customVariations,
+    });
   });
 
-  // Delete existing extras for this property, then insert fresh
   await sb.from('property_extras').delete().eq('property_id', propertyId);
-  if (toEnable.length) {
-    await sb.from('property_extras').insert(toEnable);
-  }
+  if (toEnable.length) await sb.from('property_extras').insert(toEnable);
 }
 
 function escP(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
