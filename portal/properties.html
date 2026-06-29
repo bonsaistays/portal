@@ -1595,7 +1595,8 @@ async function runIcalSync() {
       status.textContent  = '✗ ' + data.errors[0];
     } else {
       status.style.color  = 'var(--a-green)';
-      status.textContent  = `✓ Synced ${data.synced ?? 0} booking(s)`;
+      const d = data.debug || {};
+      status.textContent  = `✓ Synced ${data.synced ?? 0} booking(s) — ${d.propertiesFound ?? '?'} propert${d.propertiesFound === 1 ? 'y' : 'ies'} found, ${d.propertiesWithUrls ?? '?'} with iCal URLs`;
     }
   } catch (e) {
     status.style.color  = '#e05252';

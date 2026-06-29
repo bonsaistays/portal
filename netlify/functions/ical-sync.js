@@ -47,7 +47,7 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: propErr.message }) };
   }
 
-  const results = { synced: 0, skipped: 0, errors: [] };
+  const results = { synced: 0, skipped: 0, errors: [], debug: { propertiesFound: (properties || []).length, propertiesWithUrls: (properties || []).filter(p => Array.isArray(p.ical_urls) && p.ical_urls.length).length } };
 
   for (const prop of properties || []) {
     const icalUrls = Array.isArray(prop.ical_urls) ? prop.ical_urls : [];
