@@ -608,13 +608,17 @@ async function loadExtrasForProperty(propertyId) {
   loading.style.display = 'none';
   let items = (data || []).filter(r => r.experiences);
 
-  // Fallback: if no property-specific extras configured, show all active add-ons
+  // Fallback: if no property-specific extras configured, show all add-ons
   if (!items.length) {
-    const { data: allExp } = await sb
+    const { data: allExp, error: expErr } = await sb
       .from('experiences')
       .select('id, name, emoji, price, price_unit, description, variations')
-      .eq('available', true)
       .order('name');
+    if (expErr) {
+      empty.style.display = 'block';
+      empty.textContent = 'Error loading add-ons: ' + expErr.message;
+      return;
+    }
     items = (allExp || []).map(exp => ({ experiences: { ...exp, unit: exp.price_unit }, custom_price: null, custom_variations: null }));
   }
 
