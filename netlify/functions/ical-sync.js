@@ -47,15 +47,24 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers, body: JSON.stringify({ error: propErr.message }) };
   }
 
-  const results = { synced: 0, skipped: 0, errors: [], debug: { propertiesFound: (properties || []).length, propertiesWithUrls: (properties || []).filter(p => Array.isArray(p.ical_urls) && p.ical_urls.length).length } };
+  const propList = properties || [];
+  const results  = {
+    synced: 0, errors: [],
+    debug: {
+      propertiesFound:    propList.length,
+      propertiesWithUrls: propList.filter(p => Array.isArray(p.ical_urls) && p.ical_urls.length).length,
+    },
+  };
 
-  for (const prop of properties || []) {
+  const today   = new Date().toISOString().split('T')[0];
+  const allRecs = []; // batch all records, upsert once
+
+  for (const prop of propList) {
     const icalUrls = Array.isArray(prop.ical_urls) ? prop.ical_urls : [];
 
     for (const entry of icalUrls) {
       const url      = typeof entry === 'string' ? entry : entry?.url;
-      const platform = typeof entry === 'object'  ? (entry?.platform || 'iCal') : 'iCal';
-
+      const platform = typeof entry === 'object' ? (entry?.platform || 'iCal') : 'iCal';
       if (!url || !url.startsWith('http')) continue;
 
       try {
@@ -63,68 +72,43 @@ exports.handler = async (event) => {
 
         for (const ev of events) {
           if (!ev.start || !ev.end) continue;
+          if (ev.end < today) continue; // skip past bookings
+          if (!ev.uid) continue;        // skip events without a UID (can't deduplicate)
 
-          // Skip events entirely in the past
-          if (new Date(ev.end) < new Date()) continue;
-
-          const today    = new Date().toISOString().split('T')[0];
-          const status   = ev.start <= today && ev.end >= today ? 'active' : 'upcoming';
-          const guestName = `${platform} Reservation`;
-
-          // Build upsert record
-          const record = {
+          const status = ev.start <= today && ev.end >= today ? 'active' : 'upcoming';
+          allRecs.push({
             property_id: prop.id,
+            ical_uid:    ev.uid,
             check_in:    ev.start,
             check_out:   ev.end,
-            guest_name:  guestName,
+            guest_name:  `${platform} Reservation`,
             source:      'ical',
             status,
-            ical_uid:    ev.uid || null,
-          };
-
-          // Upsert: match on ical_uid if we have one, else property+dates
-          let upsertError;
-          if (ev.uid) {
-            const { error } = await sb
-              .from('bookings')
-              .upsert(record, { onConflict: 'ical_uid', ignoreDuplicates: false });
-            upsertError = error;
-          } else {
-            // No UID — check if a matching booking already exists
-            const { data: existing } = await sb
-              .from('bookings')
-              .select('id')
-              .eq('property_id', prop.id)
-              .eq('check_in',    ev.start)
-              .eq('check_out',   ev.end)
-              .eq('source',      'ical')
-              .maybeSingle();
-
-            if (existing) {
-              // Update status only
-              const { error } = await sb
-                .from('bookings')
-                .update({ status })
-                .eq('id', existing.id);
-              upsertError = error;
-            } else {
-              const { error } = await sb.from('bookings').insert(record);
-              upsertError = error;
-            }
-          }
-
-          if (upsertError) {
-            results.errors.push(`${prop.name} [${platform}]: ${upsertError.message}`);
-          } else {
-            results.synced++;
-          }
+          });
         }
       } catch (e) {
-        results.errors.push(`${prop.name} [${platform}] fetch failed: ${e.message}`);
+        results.errors.push(`${prop.name} [${platform}]: ${e.message}`);
       }
     }
-    // Stamp last_synced_at per property
-    await sb.from('properties').update({ last_synced_at: new Date().toISOString() }).eq('id', prop.id);
+  }
+
+  // Single batch upsert — much faster than one call per booking
+  if (allRecs.length) {
+    const { error } = await sb
+      .from('bookings')
+      .upsert(allRecs, { onConflict: 'ical_uid', ignoreDuplicates: false });
+    if (error) {
+      results.errors.push(error.message);
+    } else {
+      results.synced = allRecs.length;
+    }
+  }
+
+  // Stamp last_synced_at on all properties in one call
+  if (propList.length) {
+    await sb.from('properties')
+      .update({ last_synced_at: new Date().toISOString() })
+      .in('id', propList.map(p => p.id));
   }
 
   console.log('iCal sync complete:', results);
