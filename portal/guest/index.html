@@ -774,7 +774,11 @@ async function loadLocal() {
   if (property.region) query = query.eq('region', property.region);
 
   const { data, error } = await query;
-  if (error || !data || !data.length) {
+  if (error) {
+    list.innerHTML = `<p style="color:#c00;font-size:0.85rem;">Error loading local picks: ${error.message}</p>`;
+    return;
+  }
+  if (!data || !data.length) {
     list.innerHTML = '<p style="color:#666;font-size:0.9rem;">No local picks yet for this area — check back soon!</p>';
     return;
   }
