@@ -366,101 +366,13 @@
     </div>
 
     <!-- Section 3: Add-on Extras -->
-    <div class="book-section">
+    <div class="book-section" id="extras-section">
       <div class="book-section-title">✨ Personalise Your Stay <span style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:400;color:var(--gray-mid);">(optional)</span></div>
       <p style="font-size:0.85rem;color:var(--gray-mid);margin-bottom:18px;">All extras are confirmed and priced by our team after booking. Select what interests you.</p>
-
-      <div class="extras-grid">
-        <div class="extra-card" data-extra="Massage therapy" onclick="toggleExtra(this)">
-          <span class="extra-emoji">💆</span>
-          <div class="extra-info">
-            <div class="extra-name">Massage therapy</div>
-            <div class="extra-price">From $120 / person</div>
-            <div class="extra-desc">In-property wellness treatment</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Private chef dinner" onclick="toggleExtra(this)">
-          <span class="extra-emoji">👨‍🍳</span>
-          <div class="extra-info">
-            <div class="extra-name">Private chef dinner</div>
-            <div class="extra-price">From $150 / person</div>
-            <div class="extra-desc">Curated menu, fully catered</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Yoga or fitness session" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🧘</span>
-          <div class="extra-info">
-            <div class="extra-name">Yoga / fitness</div>
-            <div class="extra-price">From $80 / session</div>
-            <div class="extra-desc">Private instructor, any level</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Wine and charcuterie welcome" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🍷</span>
-          <div class="extra-info">
-            <div class="extra-name">Wine &amp; charcuterie</div>
-            <div class="extra-price">From $75</div>
-            <div class="extra-desc">Ready on arrival</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Fresh flower arrangement" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🌸</span>
-          <div class="extra-info">
-            <div class="extra-name">Fresh flowers</div>
-            <div class="extra-price">From $45</div>
-            <div class="extra-desc">Seasonal arrangement on arrival</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Special occasion setup" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🎂</span>
-          <div class="extra-info">
-            <div class="extra-name">Special occasion</div>
-            <div class="extra-price">From $60</div>
-            <div class="extra-desc">Decorations, cake, surprises</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Bonfire and smores kit" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🪵</span>
-          <div class="extra-info">
-            <div class="extra-name">Bonfire &amp; s'mores kit</div>
-            <div class="extra-price">From $35</div>
-            <div class="extra-desc">Firewood, starters, all supplies</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Early check-in (noon)" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🚗</span>
-          <div class="extra-info">
-            <div class="extra-name">Early check-in</div>
-            <div class="extra-price">From $50</div>
-            <div class="extra-desc">Arrive from noon (subject to availability)</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Late check-out (2pm)" onclick="toggleExtra(this)">
-          <span class="extra-emoji">🌙</span>
-          <div class="extra-info">
-            <div class="extra-name">Late check-out</div>
-            <div class="extra-price">From $50</div>
-            <div class="extra-desc">Depart by 2pm (subject to availability)</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
-        <div class="extra-card" data-extra="Baby and toddler gear" onclick="toggleExtra(this)">
-          <span class="extra-emoji">👶</span>
-          <div class="extra-info">
-            <div class="extra-name">Baby &amp; toddler gear</div>
-            <div class="extra-price">Complimentary</div>
-            <div class="extra-desc">Crib, highchair, bath items</div>
-          </div>
-          <div class="extra-check"></div>
-        </div>
+      <div id="extras-grid-wrap">
+        <div id="extras-loading" style="font-size:0.85rem;color:var(--gray-mid);display:none;">Loading add-ons…</div>
+        <div class="extras-grid" id="extras-grid"></div>
+        <div id="extras-empty" style="font-size:0.85rem;color:var(--gray-mid);display:none;">No add-ons available for this property.</div>
       </div>
     </div>
 
@@ -634,6 +546,7 @@ if (_params.get('success') === '1') {
     _screenerQuestions  = Array.isArray(prop?.screener_questions) ? prop.screener_questions : [];
     updateBookingMode();
     updateSummary();
+    loadExtrasForProperty(sel.value);
   });
 
   // Pre-fill from URL params
@@ -644,6 +557,7 @@ if (_params.get('success') === '1') {
     _bookingMode       = prop?.booking_mode || 'instant';
     _screenerQuestions = Array.isArray(prop?.screener_questions) ? prop.screener_questions : [];
     updateBookingMode();
+    loadExtrasForProperty(_paramProp);
   }
   if (_paramCheckin)  document.getElementById('f-checkin').value  = _paramCheckin;
   if (_paramCheckout) document.getElementById('f-checkout').value = _paramCheckout;
@@ -676,6 +590,53 @@ function changeCount(type, delta) {
 }
 
 // ── Extras ────────────────────────────────────────────────
+async function loadExtrasForProperty(propertyId) {
+  const grid    = document.getElementById('extras-grid');
+  const loading = document.getElementById('extras-loading');
+  const empty   = document.getElementById('extras-empty');
+  grid.innerHTML = '';
+  empty.style.display   = 'none';
+  loading.style.display = propertyId ? 'block' : 'none';
+
+  if (!propertyId) return;
+
+  const { data } = await sb
+    .from('property_extras')
+    .select('custom_price, custom_variations, experiences(id, name, emoji, price, description, unit, variations)')
+    .eq('property_id', propertyId);
+
+  loading.style.display = 'none';
+  const items = (data || []).filter(r => r.experiences);
+
+  if (!items.length) { empty.style.display = 'block'; return; }
+
+  items.forEach(row => {
+    const exp  = row.experiences;
+    const vars = row.custom_variations || exp.variations || [];
+    const price = vars.length
+      ? `From $${Math.min(...vars.map(v => v.price))}${exp.unit ? ' / ' + exp.unit : ''}`
+      : row.custom_price != null
+        ? (row.custom_price === 0 ? 'Complimentary' : `$${row.custom_price}${exp.unit ? ' / ' + exp.unit : ''}`)
+        : exp.price != null
+          ? (exp.price === 0 ? 'Complimentary' : `From $${exp.price}${exp.unit ? ' / ' + exp.unit : ''}`)
+          : '';
+
+    const card = document.createElement('div');
+    card.className    = 'extra-card';
+    card.dataset.extra = exp.name;
+    card.innerHTML    = `
+      <span class="extra-emoji">${exp.emoji || '✨'}</span>
+      <div class="extra-info">
+        <div class="extra-name">${exp.name}</div>
+        ${price ? `<div class="extra-price">${price}</div>` : ''}
+        ${exp.description ? `<div class="extra-desc">${exp.description}</div>` : ''}
+      </div>
+      <div class="extra-check"></div>`;
+    card.addEventListener('click', () => toggleExtra(card));
+    grid.appendChild(card);
+  });
+}
+
 function toggleExtra(card) {
   card.classList.toggle('selected');
   const check = card.querySelector('.extra-check');
