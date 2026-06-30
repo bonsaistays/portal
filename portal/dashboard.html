@@ -37,10 +37,10 @@
 
   <!-- Stats -->
   <div class="admin-stats" id="stats-row">
-    <div class="stat-card"><div class="stat-icon">🏠</div><div><div class="stat-num" id="stat-active">—</div><div class="stat-label">Active stays</div></div></div>
-    <div class="stat-card"><div class="stat-icon">📅</div><div><div class="stat-num" id="stat-upcoming">—</div><div class="stat-label">Upcoming</div></div></div>
-    <div class="stat-card"><div class="stat-icon">💬</div><div><div class="stat-num" id="stat-unread">—</div><div class="stat-label">Unread messages</div></div></div>
-    <div class="stat-card"><div class="stat-icon">✨</div><div><div class="stat-num" id="stat-pending">—</div><div class="stat-label">Pending requests</div></div></div>
+    <div class="stat-card" id="sc-active"   onclick="statCardClick('active')"  ><div class="stat-icon">🏠</div><div><div class="stat-num" id="stat-active">—</div><div class="stat-label">Active stays</div></div></div>
+    <div class="stat-card" id="sc-upcoming" onclick="statCardClick('upcoming')" ><div class="stat-icon">📅</div><div><div class="stat-num" id="stat-upcoming">—</div><div class="stat-label">Upcoming</div></div></div>
+    <div class="stat-card" id="sc-unread"   onclick="statCardClick('unread')"   ><div class="stat-icon">💬</div><div><div class="stat-num" id="stat-unread">—</div><div class="stat-label">Unread messages</div></div></div>
+    <div class="stat-card" id="sc-pending"  onclick="statCardClick('pending')"  ><div class="stat-icon">✨</div><div><div class="stat-num" id="stat-pending">—</div><div class="stat-label">Pending requests</div></div></div>
   </div>
 
   <!-- Bookings -->
@@ -283,6 +283,22 @@ async function loadBookings() {
 }
 
 let _sortCol = 'check_in', _sortAsc = false;
+
+function statCardClick(type) {
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-filter'));
+  if (type === 'active' || type === 'upcoming') {
+    document.getElementById('sc-' + type).classList.add('active-filter');
+    const btn = document.querySelector(`.filter-chip[data-filter="${type}"]`);
+    setFilter(type, btn);
+    document.getElementById('bookings-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (type === 'unread') {
+    document.getElementById('sc-unread').classList.add('active-filter');
+    document.getElementById('requests-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (type === 'pending') {
+    document.getElementById('sc-pending').classList.add('active-filter');
+    document.getElementById('requests-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 
 function setFilter(f, btn) {
   _filterState = f;

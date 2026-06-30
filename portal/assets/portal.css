@@ -543,7 +543,11 @@ img { display: block; max-width: 100%; }
   padding: 20px 22px;
   display: flex; align-items: center; gap: 14px;
   box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
 }
+.stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.stat-card.active-filter { outline: 2px solid var(--a-green); }
 .stat-icon { font-size: 1.6rem; width: 44px; height: 44px; background: var(--a-green-tint); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .stat-num { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--a-green); line-height: 1; }
 .stat-label { font-size: 0.75rem; color: var(--a-gray); margin-top: 2px; }
