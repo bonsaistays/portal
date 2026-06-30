@@ -37,7 +37,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════
-     SCREEN: Boarding Pass
+     SCREEN: Passport
      ═══════════════════════════════════════════════════════ -->
 <div id="s-bp" class="portal-wrap screen-bp portal-screen hidden">
 
@@ -94,6 +94,14 @@
 
     <div class="bp-divider"></div>
 
+    <!-- Stamps -->
+    <div id="stamps-section" style="padding:16px 0 4px;">
+      <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--g-gold);margin-bottom:12px;">🌿 Your Bonsai Stamps</div>
+      <div id="stamps-list" style="display:flex;gap:12px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="bp-divider"></div>
+
     <div id="bp-prearrival-prompt" style="padding:20px 0;display:flex;align-items:center;gap:12px;">
       <div style="width:36px;height:36px;border-radius:50%;background:rgba(201,168,108,0.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📋</div>
       <div>
@@ -128,7 +136,7 @@
 <div id="s-prearrival" class="portal-wrap screen-prearrival portal-screen hidden">
 
   <div class="pa-header">
-    <div class="pa-back" onclick="showScreen('bp')">← Back to boarding pass</div>
+    <div class="pa-back" onclick="showScreen('bp')">← Back to passport</div>
     <h2>Almost there, <span id="pa-first-name">friend</span>.</h2>
     <p>Just a few quick details so we can make your arrival seamless and your stay perfect.</p>
   </div>
@@ -228,7 +236,7 @@
         <div class="home-greeting" id="home-greeting">Welcome back</div>
         <div class="home-logo"><img src="../../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:22px;width:auto;filter:brightness(0) invert(1);" /></div>
       </div>
-      <button onclick="showScreen('bp')" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.75rem;padding:7px 12px;border-radius:20px;cursor:pointer;">Boarding pass</button>
+      <button onclick="showScreen('bp')" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.75rem;padding:7px 12px;border-radius:20px;cursor:pointer;">Passport</button>
     </div>
     <div class="home-property-name" id="home-prop-name">—</div>
     <div class="home-dates-pill">
@@ -471,10 +479,57 @@ async function boot() {
   property = data.properties;
 
   populateBoardingPass();
+  loadStamps();
   showScreen('bp');
 }
 
-// ── Populate boarding pass ────────────────────────────────────────────────
+// ── Stamps ────────────────────────────────────────────────────────────────
+async function loadStamps() {
+  const el = document.getElementById('stamps-list');
+  if (!el) return;
+
+  // Always show current stay as a stamp
+  const stays = [];
+
+  // If we have guest email, fetch all their bookings
+  if (booking.guest_email) {
+    const { data } = await sb.from('bookings')
+      .select('id, check_in, status, properties(name, city, region, thumbnail_url)')
+      .eq('guest_email', booking.guest_email)
+      .order('check_in');
+    if (data && data.length) {
+      data.forEach(b => stays.push(b));
+    }
+  }
+
+  // Fall back to just current stay if no results
+  if (!stays.length) stays.push(booking);
+
+  el.innerHTML = stays.map(b => {
+    const prop     = b.properties || property;
+    const city     = prop?.city || prop?.region || 'Bonsai Stay';
+    const year     = b.check_in ? b.check_in.slice(0,4) : '';
+    const done     = b.status === 'completed' || (b.check_in && b.check_in < new Date().toISOString().slice(0,10));
+    const isCurrent = b.id === booking.id;
+    const opacity  = done || isCurrent ? '1' : '0.45';
+    const bg       = done ? 'rgba(201,168,108,0.18)' : isCurrent ? 'rgba(91,191,133,0.15)' : 'rgba(255,255,255,0.06)';
+    const border   = done ? '1.5px dashed var(--g-gold)' : isCurrent ? '1.5px dashed #5bbf85' : '1.5px dashed rgba(255,255,255,0.2)';
+    const badge    = done ? '✦' : isCurrent ? '★' : '○';
+    return `
+      <div style="opacity:${opacity};text-align:center;min-width:70px;max-width:80px;">
+        <div style="width:68px;height:68px;border-radius:50%;background:${bg};border:${border};display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 5px;position:relative;">
+          ${prop?.thumbnail_url
+            ? `<img src="${prop.thumbnail_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;opacity:0.7;">`
+            : `<div style="font-size:1.4rem;">🌿</div>`}
+          <div style="position:absolute;bottom:-4px;right:-4px;background:#0B1F14;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--g-gold);">${badge}</div>
+        </div>
+        <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.04em;color:var(--g-white);line-height:1.2;">${city.toUpperCase()}</div>
+        <div style="font-size:0.58rem;color:var(--g-muted);">${year}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Populate passport ─────────────────────────────────────────────────────
 function populateBoardingPass() {
   const checkin  = new Date(booking.check_in);
   const checkout = new Date(booking.check_out);
