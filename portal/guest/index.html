@@ -280,7 +280,7 @@
       <!-- Checkout instructions -->
       <div class="info-card">
         <div class="info-card-header"><div class="info-card-icon">🧹</div><div class="info-card-title">Before You Leave</div></div>
-        <div class="instructions-text" style="font-size:0.85rem;line-height:1.7;color:var(--a-gray);">
+        <div class="instructions-text" style="font-size:0.85rem;line-height:1.7;color:var(--a-gray);" id="checkout-instructions">
 • Load all dishes into the dishwasher and run it
 • Bag all garbage and leave at the designated spot
 • Strip bed linens and leave in the laundry area
@@ -641,6 +641,9 @@ function populateHome() {
   document.getElementById('wifi-name').textContent      = property.wifi_name || '—';
   document.getElementById('wifi-pass').textContent      = property.wifi_password || '—';
   document.getElementById('checkin-instructions').textContent = property.check_in_instructions || 'Your host will provide arrival instructions closer to your check-in date.';
+  if (property.checkout_instructions) {
+    document.getElementById('checkout-instructions').textContent = property.checkout_instructions;
+  }
 
   startDoorCountdown(checkin);
   loadMessages();
