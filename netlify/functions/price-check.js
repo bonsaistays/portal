@@ -42,7 +42,7 @@ exports.handler = async (event) => {
     if (nights < 1) return { statusCode: 400, headers: h, body: JSON.stringify({ error: 'Check-out must be after check-in' }) };
 
     const [{ data: prop }, { data: overrides }, { data: fees }] = await Promise.all([
-      sb.from('properties').select('price, markup_percent').eq('id', property_id).single(),
+      sb.from('properties').select('price, markup_percent, extra_fees').eq('id', property_id).single(),
       sb.from('property_calendar_overrides').select('date, is_blocked, custom_price')
         .eq('property_id', property_id).gte('date', check_in).lt('date', check_out),
       sb.from('property_fees').select('id, name, amount, fee_type')
@@ -75,11 +75,20 @@ exports.handler = async (event) => {
       nightlyBreakdown.push({ date: dateStr, price: final });
     }
 
+    // Merge property_fees table rows + extra_fees JSONB column
+    const allFees = [
+      ...(fees || []).map(f => ({ name: f.name, amount: f.amount, fee_type: f.fee_type })),
+      ...(prop.extra_fees || []).map(f => ({ name: f.name, amount: Number(f.amount), fee_type: f.type || 'flat' })),
+    ];
+
     // Fees total (no markup on fees — fees are fixed)
     let feesTotal = 0;
     const feesBreakdown = [];
-    (fees || []).forEach(f => {
-      const total = f.fee_type === 'per_night' ? f.amount * nights : f.amount;
+    allFees.forEach(f => {
+      let total;
+      if (f.fee_type === 'per_night') total = f.amount * nights;
+      else if (f.fee_type === 'percent') total = nightlyTotal * (f.amount / 100);
+      else total = f.amount;
       feesTotal += total;
       feesBreakdown.push({ name: f.name, amount: f.amount, fee_type: f.fee_type, total });
     });

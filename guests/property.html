@@ -1313,42 +1313,43 @@
     document.getElementById('summary-checkout').textContent = fmt(_selEnd);
     document.getElementById('summary-nights').textContent   = nights;
 
-    // Price — use Guesty daily prices if available, else fall back to base price
+    // Price — fetch from price-check API (includes fees), fall back to simple calc
     const totalEl     = document.getElementById('summary-total');
     const breakdownEl = document.getElementById('summary-breakdown');
+    const fmt = v => v.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
 
-    const guestyPriceKeys = Object.keys(_guestyPrices);
-    if (guestyPriceKeys.length > 0) {
-      // Sum each night from Guesty calendar
-      let total = 0;
-      let missingDays = 0;
-      let cur = new Date(_selStart + 'T12:00:00');
-      const endD = new Date(_selEnd + 'T12:00:00');
-      while (cur < endD) {
-        const ds = cur.toISOString().slice(0, 10);
-        if (_guestyPrices[ds] != null) {
-          total += _guestyPrices[ds];
-        } else {
-          missingDays++;
-        }
-        cur.setDate(cur.getDate() + 1);
-      }
-      if (missingDays === 0) {
-        const avg = (total / nights).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
-        totalEl.textContent     = total.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }) + ' total';
-        breakdownEl.textContent = `${avg} avg/night · ${nights} night${nights !== 1 ? 's' : ''} · Live Guesty pricing`;
-      } else if (total > 0) {
-        totalEl.textContent     = '~' + total.toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }) + ' total';
-        breakdownEl.textContent = `Estimated · confirm on booking`;
-      } else {
-        totalEl.textContent     = 'Contact for pricing';
-        breakdownEl.textContent = '';
-      }
+    totalEl.textContent     = '…';
+    breakdownEl.textContent = '';
+
+    if (_propId) {
+      fetch(`/.netlify/functions/price-check?property_id=${_propId}&check_in=${_selStart}&check_out=${_selEnd}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.available) {
+            totalEl.textContent     = 'Unavailable';
+            breakdownEl.textContent = 'These dates are not available';
+            return;
+          }
+          const grand = data.grand_total;
+          totalEl.textContent = fmt(grand) + ' total';
+          // Build breakdown: nightly + each fee
+          const parts = [`${fmt(data.nightly_total)} × ${nights} night${nights !== 1 ? 's' : ''}`];
+          (data.fees_breakdown || []).forEach(f => parts.push(`${f.name}: ${fmt(f.total)}`));
+          breakdownEl.textContent = parts.join(' · ');
+        })
+        .catch(() => {
+          // Fallback to simple calc if API unavailable
+          if (_propPrice) {
+            totalEl.textContent     = fmt(_propPrice * nights) + ' total';
+            breakdownEl.textContent = `${fmt(_propPrice)} × ${nights} night${nights !== 1 ? 's' : ''}`;
+          } else {
+            totalEl.textContent     = 'Pricing available on booking';
+            breakdownEl.textContent = '';
+          }
+        });
     } else if (_propPrice) {
-      const total    = (_propPrice * nights).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
-      const perNight = Number(_propPrice).toLocaleString('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
-      totalEl.textContent     = `${total} total`;
-      breakdownEl.textContent = `${perNight} × ${nights} night${nights !== 1 ? 's' : ''}`;
+      totalEl.textContent     = fmt(_propPrice * nights) + ' total';
+      breakdownEl.textContent = `${fmt(_propPrice)} × ${nights} night${nights !== 1 ? 's' : ''}`;
     } else {
       totalEl.textContent     = 'Pricing available on booking platform';
       breakdownEl.textContent = '';

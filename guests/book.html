@@ -12,6 +12,11 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-224V29ZJPD"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-224V29ZJPD');</script>
   <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <style>
+    .flatpickr-day.blocked-date { background:#fee2e2 !important; color:#b91c1c !important; text-decoration:line-through; cursor:not-allowed; }
+    .flatpickr-calendar { font-family: 'Inter', sans-serif; }
+  </style>
   <style>
     body { background: var(--cream); }
     .hidden { display: none !important; }
@@ -476,6 +481,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
@@ -539,6 +545,44 @@ if (_params.get('success') === '1') {
   const sel = document.getElementById('f-property');
   sel.innerHTML = '<option value="">Select a property…</option>' +
     _properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  // ── Flatpickr date pickers with blocked dates ─────────────
+  let _fpIn, _fpOut;
+
+  _fpIn = flatpickr('#f-checkin', {
+    minDate: 'today',
+    dateFormat: 'Y-m-d',
+    disableMobile: false,
+    onChange([date]) {
+      if (_fpOut) _fpOut.set('minDate', date || 'today');
+      updateSummary();
+    },
+  });
+
+  _fpOut = flatpickr('#f-checkout', {
+    minDate: 'today',
+    dateFormat: 'Y-m-d',
+    disableMobile: false,
+    onChange() { updateSummary(); },
+  });
+
+  async function loadBlockedDates(propertyId) {
+    if (!propertyId) return;
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await sb.from('bookings')
+      .select('check_in, check_out')
+      .eq('property_id', propertyId)
+      .neq('status', 'cancelled')
+      .gte('check_out', today);
+    // Build flatpickr range objects: check_in → day before check_out (both inclusive)
+    const ranges = (data || []).map(b => {
+      const endDate = new Date(b.check_out.slice(0,10) + 'T12:00:00');
+      endDate.setDate(endDate.getDate() - 1);
+      return { from: b.check_in.slice(0,10), to: endDate.toISOString().split('T')[0] };
+    });
+    _fpIn.set('disable', ranges);
+    _fpOut.set('disable', ranges);
+  }
+
   sel.addEventListener('change', () => {
     const prop = _properties.find(p => p.id === sel.value);
     _propPrice          = prop?.price || 0;
@@ -547,6 +591,7 @@ if (_params.get('success') === '1') {
     updateBookingMode();
     updateSummary();
     loadExtrasForProperty(sel.value);
+    loadBlockedDates(sel.value);
   });
 
   // Pre-fill from URL params
@@ -558,9 +603,10 @@ if (_params.get('success') === '1') {
     _screenerQuestions = Array.isArray(prop?.screener_questions) ? prop.screener_questions : [];
     updateBookingMode();
     loadExtrasForProperty(_paramProp);
+    loadBlockedDates(_paramProp);
   }
-  if (_paramCheckin)  document.getElementById('f-checkin').value  = _paramCheckin;
-  if (_paramCheckout) document.getElementById('f-checkout').value = _paramCheckout;
+  if (_paramCheckin)  { _fpIn.setDate(_paramCheckin, false); document.getElementById('f-checkin').value = _paramCheckin; }
+  if (_paramCheckout) { _fpOut.setDate(_paramCheckout, false); document.getElementById('f-checkout').value = _paramCheckout; }
   if (_paramProp || _paramCheckin) updateSummary();
 
   // If dates came from the property page, show confirmation card instead of raw inputs
