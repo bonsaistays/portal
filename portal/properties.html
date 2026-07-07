@@ -102,6 +102,11 @@
             <label class="admin-label">Description <span style="font-weight:400;color:var(--a-gray);">(shown on the property page)</span></label>
             <textarea class="admin-textarea" id="p-description" style="min-height:120px;" placeholder="Describe the property — its character, setting, what makes it special…"></textarea>
           </div>
+          <div>
+            <label class="admin-label">STR Licence Number</label>
+            <input class="admin-input" id="p-str-license" type="text" placeholder="e.g. STR-2024-00123" />
+            <div style="font-size:0.75rem;color:var(--a-gray);margin-top:4px;">Short-term rental licence number required by your municipality.</div>
+          </div>
           <!-- Visibility toggle -->
           <div style="display:flex;align-items:center;justify-content:space-between;background:var(--a-bg);border:1.5px solid var(--a-border);border-radius:10px;padding:14px 16px;">
             <div>
@@ -557,6 +562,34 @@
       <div id="mtab-extras" class="mtab-content hidden">
         <div style="display:flex;flex-direction:column;gap:12px;">
 
+          <!-- Extra Fees -->
+          <div>
+            <label class="admin-label">Extra Fees</label>
+            <div style="font-size:0.75rem;color:var(--a-gray);margin-bottom:10px;">Add fees that apply to every booking (cleaning, pet, municipal tax, HST, etc.)</div>
+            <div id="fees-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+              <div style="flex:2;min-width:140px;">
+                <div style="font-size:0.72rem;color:var(--a-gray);margin-bottom:3px;">Fee name</div>
+                <input class="admin-input" id="fee-name" type="text" placeholder="e.g. Municipal Accommodation Tax" style="margin:0;" />
+              </div>
+              <div style="flex:1;min-width:80px;">
+                <div style="font-size:0.72rem;color:var(--a-gray);margin-bottom:3px;">Amount</div>
+                <input class="admin-input" id="fee-amount" type="number" placeholder="0" min="0" step="0.01" style="margin:0;" />
+              </div>
+              <div style="flex:1;min-width:100px;">
+                <div style="font-size:0.72rem;color:var(--a-gray);margin-bottom:3px;">Type</div>
+                <select class="admin-select" id="fee-type" style="margin:0;">
+                  <option value="flat">$ flat</option>
+                  <option value="per_night">$ / night</option>
+                  <option value="percent">% of total</option>
+                </select>
+              </div>
+              <button type="button" onclick="addFee()" class="btn-secondary" style="white-space:nowrap;height:38px;">+ Add Fee</button>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid var(--a-border);margin:4px 0;"></div>
+
           <div style="background:var(--a-green-tint);border:1px solid var(--a-sage);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:var(--a-green);line-height:1.6;">
             ✨ Choose which extras guests can add to their stay at this property. Leave price blank to use the default from your Experiences catalog.
           </div>
@@ -804,6 +837,8 @@ function openModal(propId) {
     document.getElementById('p-address').value       = p.address || '';
     _propertyPhotos = Array.isArray(p.photos) && p.photos.length ? p.photos : (p.thumbnail_url ? [p.thumbnail_url] : []);
     document.getElementById('p-description').value   = p.description || '';
+    document.getElementById('p-str-license').value   = p.str_license || '';
+    renderFees(p.extra_fees || []);
     setActiveSwitchState(p.active !== false);
     // Access
     document.getElementById('p-wifi-name').value     = p.wifi_name || '';
@@ -881,6 +916,8 @@ function openModal(propId) {
     document.getElementById('p-address').value       = '';
     _propertyPhotos = [];
     document.getElementById('p-description').value   = '';
+    document.getElementById('p-str-license').value   = '';
+    renderFees([]);
     setActiveSwitchState(true);
     document.getElementById('p-wifi-name').value     = '';
     document.getElementById('p-wifi-pass').value     = '';
@@ -1488,6 +1525,8 @@ async function saveProperty() {
     thumbnail_url:          _propertyPhotos[0] || null,
     photos:                 _propertyPhotos.length ? _propertyPhotos : null,
     description:            document.getElementById('p-description').value.trim(),
+    str_license:            document.getElementById('p-str-license').value.trim() || null,
+    extra_fees:             collectFees(),
     active:                 document.getElementById('p-active').checked,
     wifi_name:              document.getElementById('p-wifi-name').value.trim(),
     wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
@@ -1626,6 +1665,44 @@ function addIcalRow(platform = 'Airbnb', url = '') {
       style="flex-shrink:0;width:34px;height:38px;border-radius:8px;background:#fef2f2;color:var(--a-red);border:1px solid rgba(220,38,38,0.2);cursor:pointer;font-size:1rem;">✕</button>
   `;
   document.getElementById('ical-rows').appendChild(row);
+}
+
+// ── Extra Fees ────────────────────────────────────────────────────────────
+let _fees = [];
+
+function renderFees(fees) {
+  _fees = fees ? [...fees] : [];
+  const list = document.getElementById('fees-list');
+  if (!list) return;
+  if (!_fees.length) { list.innerHTML = '<div style="font-size:0.8rem;color:var(--a-gray);">No fees added yet.</div>'; return; }
+  list.innerHTML = _fees.map((f, i) => {
+    const typeLabel = f.type === 'percent' ? '%' : f.type === 'per_night' ? '/ night' : 'flat';
+    return `<div style="display:flex;align-items:center;gap:10px;background:var(--a-bg);border:1px solid var(--a-border);border-radius:8px;padding:8px 12px;">
+      <div style="flex:1;font-size:0.85rem;font-weight:600;">${f.name}</div>
+      <div style="font-size:0.85rem;color:var(--a-green);">${f.type === 'percent' ? f.amount + '%' : '$' + Number(f.amount).toFixed(2)} <span style="color:var(--a-gray);font-weight:400;">${typeLabel}</span></div>
+      <button type="button" onclick="removeFee(${i})" style="background:none;border:none;color:var(--a-red);cursor:pointer;font-size:1rem;padding:0 4px;">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function addFee() {
+  const name   = document.getElementById('fee-name').value.trim();
+  const amount = parseFloat(document.getElementById('fee-amount').value) || 0;
+  const type   = document.getElementById('fee-type').value;
+  if (!name || amount <= 0) { alert('Enter a fee name and amount.'); return; }
+  _fees.push({ name, amount, type });
+  renderFees(_fees);
+  document.getElementById('fee-name').value   = '';
+  document.getElementById('fee-amount').value = '';
+}
+
+function removeFee(i) {
+  _fees.splice(i, 1);
+  renderFees(_fees);
+}
+
+function collectFees() {
+  return _fees.length ? _fees : null;
 }
 
 function collectIcalUrls() {
