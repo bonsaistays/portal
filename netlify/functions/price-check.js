@@ -42,7 +42,7 @@ exports.handler = async (event) => {
     if (nights < 1) return { statusCode: 400, headers: h, body: JSON.stringify({ error: 'Check-out must be after check-in' }) };
 
     const [{ data: prop }, { data: overrides }, { data: fees }] = await Promise.all([
-      sb.from('properties').select('price, markup_percent, extra_fees').eq('id', property_id).single(),
+      sb.from('properties').select('price, markup_percent, extra_fees, cleaning_fee').eq('id', property_id).single(),
       sb.from('property_calendar_overrides').select('date, is_blocked, custom_price')
         .eq('property_id', property_id).gte('date', check_in).lt('date', check_out),
       sb.from('property_fees').select('id, name, amount, fee_type')
@@ -75,7 +75,12 @@ exports.handler = async (event) => {
       nightlyBreakdown.push({ date: dateStr, price: final });
     }
 
-    // Merge property_fees table rows + extra_fees JSONB column
+    // Cleaning fee — blended silently into the displayed nightly rate
+    const cleaningFee = prop.cleaning_fee || 0;
+    const blendedNightlyTotal = nightlyTotal + cleaningFee;
+    const blendedAvgNightly   = Math.round(blendedNightlyTotal / nights);
+
+    // Merge property_fees table rows + extra_fees JSONB column (excludes cleaning fee)
     const allFees = [
       ...(fees || []).map(f => ({ name: f.name, amount: f.amount, fee_type: f.fee_type })),
       ...(prop.extra_fees || []).map(f => ({ name: f.name, amount: Number(f.amount), fee_type: f.type || 'flat' })),
@@ -87,23 +92,23 @@ exports.handler = async (event) => {
     allFees.forEach(f => {
       let total;
       if (f.fee_type === 'per_night') total = f.amount * nights;
-      else if (f.fee_type === 'percent') total = nightlyTotal * (f.amount / 100);
+      else if (f.fee_type === 'percent') total = blendedNightlyTotal * (f.amount / 100);
       else total = f.amount;
       feesTotal += total;
       feesBreakdown.push({ name: f.name, amount: f.amount, fee_type: f.fee_type, total });
     });
 
-    const grandTotal = nightlyTotal + feesTotal;
+    const grandTotal = blendedNightlyTotal + feesTotal;
 
     return {
       statusCode: 200, headers: h,
       body: JSON.stringify({
         available:         true,
         nights,
-        avg_nightly:       Math.round(nightlyTotal / nights),
-        nightly_total:     Math.round(nightlyTotal * 100) / 100,
-        fees_total:        Math.round(feesTotal   * 100) / 100,
-        grand_total:       Math.round(grandTotal  * 100) / 100,
+        avg_nightly:       blendedAvgNightly,
+        nightly_total:     Math.round(blendedNightlyTotal * 100) / 100,
+        fees_total:        Math.round(feesTotal * 100) / 100,
+        grand_total:       Math.round(grandTotal * 100) / 100,
         nightly_breakdown: nightlyBreakdown,
         fees_breakdown:    feesBreakdown,
       }),

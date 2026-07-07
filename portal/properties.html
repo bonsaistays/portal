@@ -412,6 +412,11 @@
               <label class="admin-label">Price / Night ($)</label>
               <input class="admin-input" id="p-price" type="number" min="0" placeholder="290" />
             </div>
+            <div>
+              <label class="admin-label">Cleaning Fee ($)</label>
+              <input class="admin-input" id="p-cleaning-fee" type="number" min="0" placeholder="0" />
+              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:3px;">Blended into the displayed nightly rate — not shown as a separate line to guests.</div>
+            </div>
           </div>
           <div class="admin-form-row">
             <div>
@@ -881,6 +886,7 @@ function openModal(propId) {
     // Listing & calendar tab
     document.getElementById('p-region').value        = p.region || '';
     document.getElementById('p-price').value         = p.price || '';
+    document.getElementById('p-cleaning-fee').value  = p.cleaning_fee || '';
     document.getElementById('p-bedrooms').value      = p.bedrooms ?? 3;
     document.getElementById('p-bathrooms').value     = p.bathrooms ?? 2;
     document.getElementById('p-guests').value        = p.guests ?? 6;
@@ -944,6 +950,7 @@ function openModal(propId) {
     document.getElementById('p-bonsai-truths').value = '';
     document.getElementById('p-region').value        = '';
     document.getElementById('p-price').value         = '';
+    document.getElementById('p-cleaning-fee').value  = '';
     document.getElementById('p-bedrooms').value      = 3;
     document.getElementById('p-bathrooms').value     = 2;
     document.getElementById('p-guests').value        = 6;
@@ -1548,7 +1555,8 @@ async function saveProperty() {
     bonsai_truths:          document.getElementById('p-bonsai-truths').value.trim().split('\n').map(l=>l.trim()).filter(Boolean),
     // Listing & calendar fields
     region:      document.getElementById('p-region').value,
-    price:       parseInt(document.getElementById('p-price').value) || 0,
+    price:        parseInt(document.getElementById('p-price').value) || 0,
+    cleaning_fee: parseFloat(document.getElementById('p-cleaning-fee').value) || null,
     bedrooms:    parseInt(document.getElementById('p-bedrooms').value) || 1,
     bathrooms:   parseInt(document.getElementById('p-bathrooms').value) || 1,
     guests:      parseInt(document.getElementById('p-guests').value) || 2,
