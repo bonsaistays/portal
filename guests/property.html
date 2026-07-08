@@ -360,13 +360,21 @@
     }
     .avail-summary-price {
       text-align: right;
+      min-width: 200px;
     }
     .avail-summary-total {
       font-family: 'Playfair Display', serif;
       font-size: 1.5rem; font-weight: 700; color: var(--green-deep);
+      margin-top: 6px;
     }
-    .avail-summary-breakdown {
-      font-size: 0.78rem; color: var(--gray-mid); margin-top: 2px;
+    .avail-breakdown-row {
+      display: flex; justify-content: space-between; gap: 16px;
+      font-size: 0.8rem; color: var(--gray-mid);
+      padding: 2px 0;
+    }
+    .avail-breakdown-row.divider {
+      border-top: 1px solid var(--gray-pale); margin-top: 4px; padding-top: 6px;
+      color: var(--charcoal); font-weight: 600;
     }
     .avail-summary-cta {
       display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
@@ -647,8 +655,8 @@
                   </div>
                 </div>
                 <div class="avail-summary-price">
+                  <div id="summary-breakdown"></div>
                   <div class="avail-summary-total" id="summary-total">—</div>
-                  <div class="avail-summary-breakdown" id="summary-breakdown"></div>
                 </div>
                 <div class="avail-summary-cta">
                   <a id="summary-direct-btn" href="book.html" class="btn btn-primary" style="font-size:0.85rem;padding:11px 20px;">Book directly with Bonsai 🌿</a>
@@ -1343,24 +1351,24 @@
           }
           const grand = data.grand_total;
           totalEl.textContent = fmtCurrency(grand) + ' total';
-          // Build breakdown: nightly + each fee
-          const parts = [`${fmtCurrency(data.nightly_total)} × ${nights} night${nights !== 1 ? 's' : ''}`];
-          (data.fees_breakdown || []).forEach(f => parts.push(`${f.name}: ${fmtCurrency(f.total)}`));
-          breakdownEl.textContent = parts.join(' · ');
+          let rows = `<div class="avail-breakdown-row"><span>${nights} night${nights !== 1 ? 's' : ''} × ${fmtCurrency(Math.round(data.nightly_total / nights))}/night</span><span>${fmtCurrency(data.nightly_total)}</span></div>`;
+          (data.fees_breakdown || []).forEach(f => {
+            rows += `<div class="avail-breakdown-row"><span>${f.name}</span><span>${fmtCurrency(f.total)}</span></div>`;
+          });
+          breakdownEl.innerHTML = rows;
         })
         .catch(() => {
-          // Fallback to simple calc if API unavailable
           if (_propPrice) {
-            totalEl.textContent     = fmtCurrency(_propPrice * nights) + ' total';
-            breakdownEl.textContent = `${fmtCurrency(_propPrice)} × ${nights} night${nights !== 1 ? 's' : ''}`;
+            totalEl.textContent  = fmtCurrency(_propPrice * nights) + ' total';
+            breakdownEl.innerHTML = `<div class="avail-breakdown-row"><span>${nights} night${nights !== 1 ? 's' : ''} × ${fmtCurrency(_propPrice)}/night</span><span>${fmtCurrency(_propPrice * nights)}</span></div>`;
           } else {
-            totalEl.textContent     = 'Pricing available on booking';
-            breakdownEl.textContent = '';
+            totalEl.textContent   = 'Pricing available on booking';
+            breakdownEl.innerHTML = '';
           }
         });
     } else if (_propPrice) {
-      totalEl.textContent     = fmtCurrency(_propPrice * nights) + ' total';
-      breakdownEl.textContent = `${fmtCurrency(_propPrice)} × ${nights} night${nights !== 1 ? 's' : ''}`;
+      totalEl.textContent   = fmtCurrency(_propPrice * nights) + ' total';
+      breakdownEl.innerHTML = `<div class="avail-breakdown-row"><span>${nights} night${nights !== 1 ? 's' : ''} × ${fmtCurrency(_propPrice)}/night</span><span>${fmtCurrency(_propPrice * nights)}</span></div>`;
     } else {
       totalEl.textContent     = 'Pricing available on booking platform';
       breakdownEl.textContent = '';
