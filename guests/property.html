@@ -754,18 +754,29 @@
     const id = new URLSearchParams(location.search).get('id');
     if (!id) { showError('No property ID specified.'); return; }
 
-    const { data: p, error } = await sb
-      .from('properties')
-      .select('*')
-      .eq('id', id)
-      .eq('active', true)
-      .single();
+    try {
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 8000)
+      );
+      const query = sb
+        .from('properties')
+        .select('id,name,city,region,description,photos,thumbnail_url,badge,badge_type,bedrooms,bathrooms,guests,amenities,price,airbnb_url,vrbo_url,ical_urls,guesty_listing_id,owner_name,owner_photo_url,owner_story,owner_favorite,bonsai_truths,collection,rating,review_count,str_license')
+        .eq('id', id)
+        .eq('active', true)
+        .single();
 
-    if (error || !p) { showError('Property not found.'); return; }
+      const { data: p, error } = await Promise.race([query, timeout]);
 
-    renderProperty(p);
-    if (p.region) loadLocalGuide(p.region, p.city);
-    loadAvailabilityCalendar(p.ical_urls || [], p.guesty_listing_id || null);
+      if (error || !p) { showError('Property not found.'); return; }
+
+      renderProperty(p);
+      if (p.region) loadLocalGuide(p.region, p.city);
+      loadAvailabilityCalendar(p.ical_urls || [], p.guesty_listing_id || null);
+    } catch (e) {
+      showError(e.message === 'timeout'
+        ? 'This is taking longer than expected. Please check your connection and try again.'
+        : 'Unable to load property. Please try again.');
+    }
   }
 
   function showError(msg) {
