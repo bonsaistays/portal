@@ -415,7 +415,12 @@
             <div>
               <label class="admin-label">Cleaning Fee ($)</label>
               <input class="admin-input" id="p-cleaning-fee" type="number" min="0" placeholder="0" />
-              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:3px;">Blended into the displayed nightly rate — not shown as a separate line to guests.</div>
+              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:3px;">Blended into nightly rate — not shown separately to guests.</div>
+            </div>
+            <div>
+              <label class="admin-label">Markup (%)</label>
+              <input class="admin-input" id="p-markup" type="number" min="0" max="100" step="0.5" placeholder="0" />
+              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:3px;">Applied on top of base rate + cleaning fee to offset platform fees. Guests see the final blended rate.</div>
             </div>
           </div>
           <div class="admin-form-row">
@@ -887,6 +892,7 @@ function openModal(propId) {
     document.getElementById('p-region').value        = p.region || '';
     document.getElementById('p-price').value         = p.price || '';
     document.getElementById('p-cleaning-fee').value  = p.cleaning_fee || '';
+    document.getElementById('p-markup').value         = p.markup_percent || '';
     document.getElementById('p-bedrooms').value      = p.bedrooms ?? 3;
     document.getElementById('p-bathrooms').value     = p.bathrooms ?? 2;
     document.getElementById('p-guests').value        = p.guests ?? 6;
@@ -951,6 +957,7 @@ function openModal(propId) {
     document.getElementById('p-region').value        = '';
     document.getElementById('p-price').value         = '';
     document.getElementById('p-cleaning-fee').value  = '';
+    document.getElementById('p-markup').value         = '';
     document.getElementById('p-bedrooms').value      = 3;
     document.getElementById('p-bathrooms').value     = 2;
     document.getElementById('p-guests').value        = 6;
@@ -1555,8 +1562,9 @@ async function saveProperty() {
     bonsai_truths:          document.getElementById('p-bonsai-truths').value.trim().split('\n').map(l=>l.trim()).filter(Boolean),
     // Listing & calendar fields
     region:      document.getElementById('p-region').value,
-    price:        parseInt(document.getElementById('p-price').value) || 0,
-    cleaning_fee: parseFloat(document.getElementById('p-cleaning-fee').value) || null,
+    price:          parseInt(document.getElementById('p-price').value) || 0,
+    cleaning_fee:   parseFloat(document.getElementById('p-cleaning-fee').value) || null,
+    markup_percent: parseFloat(document.getElementById('p-markup').value) || null,
     bedrooms:    parseInt(document.getElementById('p-bedrooms').value) || 1,
     bathrooms:   parseInt(document.getElementById('p-bathrooms').value) || 1,
     guests:      parseInt(document.getElementById('p-guests').value) || 2,
