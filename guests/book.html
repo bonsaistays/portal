@@ -538,63 +538,72 @@ if (_params.get('success') === '1') {
   errEl.classList.remove('hidden');
 }
 
-// ── Load properties ───────────────────────────────────────
+// ── Flatpickr — init immediately, don't wait for DB ──────
+let _fpIn = flatpickr('#f-checkin', {
+  minDate: 'today',
+  dateFormat: 'Y-m-d',
+  disableMobile: false,
+  onChange([date]) {
+    if (_fpOut) _fpOut.set('minDate', date || 'today');
+    updateSummary();
+  },
+});
+let _fpOut = flatpickr('#f-checkout', {
+  minDate: 'today',
+  dateFormat: 'Y-m-d',
+  disableMobile: false,
+  onChange() { updateSummary(); },
+});
+
+// Pre-fill dates from URL params right away (no DB needed)
+if (_paramCheckin)  { _fpIn.setDate(_paramCheckin, false);   document.getElementById('f-checkin').value  = _paramCheckin; }
+if (_paramCheckout) { _fpOut.setDate(_paramCheckout, false); document.getElementById('f-checkout').value = _paramCheckout; }
+if (_paramCheckin && _paramCheckout) {
+  const fmt = v => new Date(v + 'T12:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+  const nights = Math.round((new Date(_paramCheckout) - new Date(_paramCheckin)) / 86400000);
+  document.getElementById('dates-confirmed-label').textContent =
+    `${fmt(_paramCheckin)} → ${fmt(_paramCheckout)} · ${nights} night${nights !== 1 ? 's' : ''}`;
+  document.getElementById('dates-confirmed').style.display = '';
+  document.getElementById('dates-picker').style.display    = 'none';
+}
+
+async function loadBlockedDates(propertyId) {
+  if (!propertyId) return;
+  const today = new Date().toISOString().split('T')[0];
+  const { data } = await sb.from('bookings')
+    .select('check_in, check_out')
+    .eq('property_id', propertyId)
+    .neq('status', 'cancelled')
+    .gte('check_out', today);
+  const ranges = (data || []).map(b => {
+    const endDate = new Date(b.check_out.slice(0,10) + 'T12:00:00');
+    endDate.setDate(endDate.getDate() - 1);
+    return { from: b.check_in.slice(0,10), to: endDate.toISOString().split('T')[0] };
+  });
+  _fpIn.set('disable', ranges);
+  _fpOut.set('disable', ranges);
+}
+
+// ── Load properties (async — form is already usable) ──────
 (async () => {
   const { data } = await sb.from('properties').select('id, name, price, booking_mode, screener_questions').order('name');
   _properties = data || [];
   const sel = document.getElementById('f-property');
   sel.innerHTML = '<option value="">Select a property…</option>' +
     _properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  // ── Flatpickr date pickers with blocked dates ─────────────
-  let _fpIn, _fpOut;
-
-  _fpIn = flatpickr('#f-checkin', {
-    minDate: 'today',
-    dateFormat: 'Y-m-d',
-    disableMobile: false,
-    onChange([date]) {
-      if (_fpOut) _fpOut.set('minDate', date || 'today');
-      updateSummary();
-    },
-  });
-
-  _fpOut = flatpickr('#f-checkout', {
-    minDate: 'today',
-    dateFormat: 'Y-m-d',
-    disableMobile: false,
-    onChange() { updateSummary(); },
-  });
-
-  async function loadBlockedDates(propertyId) {
-    if (!propertyId) return;
-    const today = new Date().toISOString().split('T')[0];
-    const { data } = await sb.from('bookings')
-      .select('check_in, check_out')
-      .eq('property_id', propertyId)
-      .neq('status', 'cancelled')
-      .gte('check_out', today);
-    // Build flatpickr range objects: check_in → day before check_out (both inclusive)
-    const ranges = (data || []).map(b => {
-      const endDate = new Date(b.check_out.slice(0,10) + 'T12:00:00');
-      endDate.setDate(endDate.getDate() - 1);
-      return { from: b.check_in.slice(0,10), to: endDate.toISOString().split('T')[0] };
-    });
-    _fpIn.set('disable', ranges);
-    _fpOut.set('disable', ranges);
-  }
 
   sel.addEventListener('change', () => {
     const prop = _properties.find(p => p.id === sel.value);
-    _propPrice          = prop?.price || 0;
-    _bookingMode        = prop?.booking_mode || 'instant';
-    _screenerQuestions  = Array.isArray(prop?.screener_questions) ? prop.screener_questions : [];
+    _propPrice         = prop?.price || 0;
+    _bookingMode       = prop?.booking_mode || 'instant';
+    _screenerQuestions = Array.isArray(prop?.screener_questions) ? prop.screener_questions : [];
     updateBookingMode();
     updateSummary();
     loadExtrasForProperty(sel.value);
     loadBlockedDates(sel.value);
   });
 
-  // Pre-fill from URL params
+  // Pre-fill property from URL param once list is loaded
   if (_paramProp) {
     sel.value = _paramProp;
     const prop = _properties.find(p => p.id === _paramProp);
@@ -605,19 +614,7 @@ if (_params.get('success') === '1') {
     loadExtrasForProperty(_paramProp);
     loadBlockedDates(_paramProp);
   }
-  if (_paramCheckin)  { _fpIn.setDate(_paramCheckin, false); document.getElementById('f-checkin').value = _paramCheckin; }
-  if (_paramCheckout) { _fpOut.setDate(_paramCheckout, false); document.getElementById('f-checkout').value = _paramCheckout; }
   if (_paramProp || _paramCheckin) updateSummary();
-
-  // If dates came from the property page, show confirmation card instead of raw inputs
-  if (_paramCheckin && _paramCheckout) {
-    const fmt = v => new Date(v + 'T12:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
-    const nights = Math.round((new Date(_paramCheckout) - new Date(_paramCheckin)) / 86400000);
-    document.getElementById('dates-confirmed-label').textContent =
-      `${fmt(_paramCheckin)} → ${fmt(_paramCheckout)} · ${nights} night${nights !== 1 ? 's' : ''}`;
-    document.getElementById('dates-confirmed').style.display = '';
-    document.getElementById('dates-picker').style.display    = 'none';
-  }
 })();
 
 // ── Date picker toggle ────────────────────────────────────
