@@ -909,18 +909,23 @@ function closeDrawer() {
 async function saveDrawerStatus() {
   if (!_openApp) return;
   const status = document.getElementById('drawer-status-select').value;
+  await updateStatus(_openType, _openApp.id, status, true);
+
+  // Save closed_with separately for quotes so status always saves even if this fails
   if (_openType === 'quote') {
     const closedWith = document.getElementById('drawer-closed-with').value || null;
-    await updateStatus(_openType, _openApp.id, status, true, { closed_with: closedWith });
-  } else {
-    await updateStatus(_openType, _openApp.id, status, true);
+    const { error: cwErr } = await sb.from('quote_leads')
+      .update({ closed_with: closedWith })
+      .eq('id', _openApp.id);
+    if (cwErr) alert('Status saved but could not save Closed With: ' + cwErr.message);
+    else if (_openApp) _openApp.closed_with = closedWith;
   }
 }
 
 async function updateStatus(type, id, status, showFeedback, extraFields = {}) {
   const tableMap = { property:'property_applications', team:'team_applications', business:'business_applications', quote:'quote_leads', referral:'partner_referrals' };
   const { error } = await sb.from(tableMap[type]).update({ status, ...extraFields }).eq('id', id);
-  if (error) { if (showFeedback) alert('Error saving status'); return; }
+  if (error) { if (showFeedback) alert('Error saving status: ' + error.message); return; }
 
   const arrMap = { property:_propApps, team:_teamApps, business:_bizApps, quote:_quoteLeads, referral:_partnerRefs };
   const app = arrMap[type]?.find(a => a.id == id);
