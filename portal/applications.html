@@ -478,6 +478,15 @@
         <!-- Options populated dynamically -->
       </select>
     </div>
+    <div class="status-select-row" id="drawer-closed-with-row" style="display:none;">
+      <label>Closed With</label>
+      <select class="status-select" id="drawer-closed-with">
+        <option value="">— Not set —</option>
+        <option value="housekeeping_only">Housekeeping Only</option>
+        <option value="housekeeping_linens">Housekeeping and Linens</option>
+        <option value="full_changeover">Full Changeover Package</option>
+      </select>
+    </div>
     <div class="drawer-btn-row">
       <button class="btn-drawer-action btn-save" onclick="saveDrawerStatus()">Save Status</button>
       <button class="btn-drawer-action btn-email" id="drawer-email-btn" onclick="replyByEmail()">✉️ Reply</button>
@@ -737,6 +746,17 @@ function openDrawer(type, id) {
   sel.innerHTML = STATUS_OPTIONS[type].map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
   sel.value = app.status || DEFAULT_STATUS[type];
 
+  // Closed With — only visible for quote leads
+  const closedWithRow = document.getElementById('drawer-closed-with-row');
+  const closedWithSel = document.getElementById('drawer-closed-with');
+  if (type === 'quote') {
+    closedWithRow.style.display = '';
+    closedWithSel.value = app.closed_with || '';
+  } else {
+    closedWithRow.style.display = 'none';
+    closedWithSel.value = '';
+  }
+
   // Body
   const builders = { property:buildPropDrawer, team:buildTeamDrawer, business:buildBizDrawer, quote:buildQuoteDrawer, referral:buildRefDrawer };
   document.getElementById('drawer-body').innerHTML = builders[type](app);
@@ -887,12 +907,18 @@ function closeDrawer() {
 // ── Status management ─────────────────────────────────────────────────────
 async function saveDrawerStatus() {
   if (!_openApp) return;
-  await updateStatus(_openType, _openApp.id, document.getElementById('drawer-status-select').value, true);
+  const status = document.getElementById('drawer-status-select').value;
+  if (_openType === 'quote') {
+    const closedWith = document.getElementById('drawer-closed-with').value || null;
+    await updateStatus(_openType, _openApp.id, status, true, { closed_with: closedWith });
+  } else {
+    await updateStatus(_openType, _openApp.id, status, true);
+  }
 }
 
-async function updateStatus(type, id, status, showFeedback) {
+async function updateStatus(type, id, status, showFeedback, extraFields = {}) {
   const tableMap = { property:'property_applications', team:'team_applications', business:'business_applications', quote:'quote_leads', referral:'partner_referrals' };
-  const { error } = await sb.from(tableMap[type]).update({ status }).eq('id', id);
+  const { error } = await sb.from(tableMap[type]).update({ status, ...extraFields }).eq('id', id);
   if (error) { if (showFeedback) alert('Error saving status'); return; }
 
   const arrMap = { property:_propApps, team:_teamApps, business:_bizApps, quote:_quoteLeads, referral:_partnerRefs };
