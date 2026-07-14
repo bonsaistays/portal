@@ -986,10 +986,6 @@
               <span class="quote-line-label">Robes</span>
               <span class="quote-line-value" id="linenRobes">$0.00</span>
             </div>
-            <div class="quote-line">
-              <span class="quote-line-label">Delivery Fee</span>
-              <span class="quote-line-value" id="linenDelivery">$15.00</span>
-            </div>
             <div class="quote-line" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:6px;">
               <span class="quote-line-label" style="font-weight:700;color:rgba(255,255,255,0.9);">Linen Total</span>
               <span class="quote-line-value" style="font-size:1rem;color:var(--gold);" id="linenTotal">$0.00</span>
@@ -1066,7 +1062,7 @@
             <ul class="membership-benefits-list">
               <li>
                 <span class="benefit-check">✓</span>
-                <span><strong>No delivery fee</strong> — saves $15 every single changeover</span>
+                <span><strong>10% off all linen services</strong> — savings compound with every changeover</span>
               </li>
             <li>
                 <span class="benefit-check">✓</span>
@@ -1080,10 +1076,6 @@
 
             <div class="membership-savings-box" id="membershipSavingsBox">
               <div class="savings-label">Your estimated year 1 savings</div>
-              <div class="savings-row">
-                <span>Delivery fee (70 × $15)</span>
-                <span>$1,050.00</span>
-              </div>
               <div class="savings-row">
                 <span>Linen 10% off (70 changeovers)</span>
                 <span id="annualLinenSavings">$0.00</span>
@@ -1313,47 +1305,46 @@
       const outdoorCredits = deck + dock + htub + sauna + fire;
       const totalCredits   = bedCredits + bunkCredits + bathCredits + spaceCredits + outdoorCredits;
 
-      const hkBeds    = (bedCredits + bunkCredits) * 17;
-      const hkBaths   = bathCredits   * 17;
-      const hkSpaces  = spaceCredits  * 17;
-      const hkOutdoor = outdoorCredits * 17;
-      const hkTotal   = Math.max(150, totalCredits * 17); // $150 minimum
+      const hkBeds    = (bedCredits + bunkCredits) * 21.25;
+      const hkBaths   = bathCredits   * 21.25;
+      const hkSpaces  = spaceCredits  * 21.25;
+      const hkOutdoor = outdoorCredits * 21.25;
+      const hkTotal   = Math.max(187.50, totalCredits * 21.25); // $187.50 minimum
 
       // ── LINEN ─────────────────────────────────────────────
       // Sheet sets
-      const sheetCost = king*11 + queen*9 + dbl*8 + twin*7 + bunk*2*7;
+      const sheetCost = king*13.75 + queen*11.25 + dbl*10 + twin*8.75 + bunk*2*8.75;
 
       // Bath Towels & Wash Cloths (per bed)
       // K/Q/D: 2 bath towels ($1.75) + 2 wash cloths ($0.50) = $4.50/bed
       // Twin:  1 bath towel  ($1.75) + 1 wash cloth  ($0.50) = $2.25/bed
       // Bunk:  2 sleeping spots → same as 2 twins              = $4.50/unit
-      const bedTowelCost = (king + queen + dbl) * (2*1.75 + 2*0.50)
+      const bedTowelCost = ((king + queen + dbl) * (2*1.75 + 2*0.50)
                          + twin                  * (1*1.75 + 1*0.50)
-                         + bunk                  * (2*1.75 + 2*0.50);
+                         + bunk                  * (2*1.75 + 2*0.50)) * 1.25;
 
       // Bathroom Towels & Mats
       // Every bathroom (full + half): 2 hand towels @ $0.80 each
       // Full bathrooms only: + 1 bath mat @ $1.50
-      const bathTowelCost = (fullB + halfB) * (2*0.80)
-                          + fullB * 1.50;
+      const bathTowelCost = ((fullB + halfB) * (2*0.80)
+                          + fullB * 1.50) * 1.25;
 
       // Dish towels: 2 per kitchen @ $0.80
-      const dishCost = kitch * 2 * 0.80;
+      const dishCost = kitch * 2 * 1.00;
 
       // Beach towels & robes
-      const beachCost = bqty * 2.00;
-      const robeCost  = rqty * 8.00;
+      const beachCost = bqty * 2.50;
+      const robeCost  = rqty * 10.00;
 
-      const deliveryFee = 15;
       const linenSubtotal = sheetCost + bedTowelCost + bathTowelCost + dishCost + beachCost + robeCost;
-      const linenTotal    = linenSubtotal + deliveryFee;
+      const linenTotal    = linenSubtotal;
 
       // ── CHANGEOVER PACKAGE ────────────────────────────────
       let bathAmenities, consumables;
-      if (totalBeds <= 3)      { bathAmenities =  8; consumables = 25; }
-      else if (totalBeds <= 6) { bathAmenities = 10; consumables = 35; }
-      else                     { bathAmenities = 15; consumables = 50; }
-      const welcome       = 25;
+      if (totalBeds <= 3)      { bathAmenities = 10;    consumables = 31.25; }
+      else if (totalBeds <= 6) { bathAmenities = 12.50; consumables = 43.75; }
+      else                     { bathAmenities = 18.75; consumables = 62.50; }
+      const welcome       = 31.25;
       const changeoverTotal = hkTotal + linenTotal + bathAmenities + consumables + welcome;
 
       // ── MEMBERSHIP ────────────────────────────────────────
@@ -1364,11 +1355,10 @@
       else if (totalBeds <= 6)   { membershipFee = 499;  tierLabel = '4–6 beds / yr'; }
       else                       { membershipFee = 599;  tierLabel = '7+ beds / yr'; }
 
-      const linenSavingPer   = linenSubtotal * 0.10;           // 10% off linen (excl. delivery)
-      const annualDelivery   = CHANGEOVERS_PER_YEAR * 15;      // $1,050
+      const linenSavingPer   = linenSubtotal * 0.10;           // 10% off linen
       const annualLinen      = CHANGEOVERS_PER_YEAR * linenSavingPer;
       const dispenserValue   = fullB * 35;                      // $35 per full bathroom
-      const totalValue       = annualDelivery + annualLinen + dispenserValue;
+      const totalValue       = annualLinen + dispenserValue;
       const netSavings       = membershipFee !== null ? totalValue - membershipFee : null;
 
       // ── UPDATE UI ─────────────────────────────────────────
@@ -1380,7 +1370,6 @@
       document.getElementById('linenDish').textContent      = fmt(dishCost);
       document.getElementById('linenBeach').textContent     = fmt(beachCost);
       document.getElementById('linenRobes').textContent     = fmt(robeCost);
-      document.getElementById('linenDelivery').textContent  = fmt(deliveryFee);
       document.getElementById('linenTotal').textContent     = fmt(linenTotal);
 
       document.getElementById('pkgHK').textContent          = fmt(hkTotal);
