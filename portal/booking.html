@@ -270,18 +270,20 @@ async function loadBooking() {
 function populatePage() {
   const b  = booking;
   const p  = b.properties || {};
-  const ci = new Date(b.check_in);
-  const co = new Date(b.check_out);
+  // Date-only strings (YYYY-MM-DD) are treated as UTC midnight by JS, which shifts them
+  // back by 1 day in Western timezones. Append noon local time to keep the date stable.
+  const parseDate = ts => /^\d{4}-\d{2}-\d{2}$/.test(String(ts)) ? new Date(ts + 'T12:00:00') : new Date(ts);
+  const dateOnly  = ts => /^\d{4}-\d{2}-\d{2}$/.test(String(ts));
+  const ci = parseDate(b.check_in);
+  const co = parseDate(b.check_out);
   const nights = Math.round((co - ci) / 86400000);
-  const fmt = d => {
+  const fmt = (d, originalStr) => {
     const dateStr = d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-    // Skip time if stored as midnight UTC (iCal date-only bookings)
-    const isMidnightUTC = d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0;
-    return isMidnightUTC ? dateStr : dateStr + ' · ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+    return dateOnly(originalStr) ? dateStr : dateStr + ' · ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
   };
 
   document.getElementById('booking-heading').textContent   = b.guest_name || 'Guest';
-  document.getElementById('booking-subheading').textContent= (p.name || '') + ' · ' + new Date(b.check_in).toLocaleDateString('en-CA',{month:'long',day:'numeric'}) + ' – ' + new Date(b.check_out).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('booking-subheading').textContent= (p.name || '') + ' · ' + parseDate(b.check_in).toLocaleDateString('en-CA',{month:'long',day:'numeric'}) + ' – ' + parseDate(b.check_out).toLocaleDateString('en-CA',{month:'long',day:'numeric',year:'numeric'});
 
   const statusPill = document.getElementById('booking-status-pill');
   statusPill.className = 'status-pill status-' + (b.status || 'upcoming');
@@ -303,8 +305,8 @@ function populatePage() {
     document.getElementById('d-sig-row').classList.remove('hidden');
   }
   document.getElementById('d-property').textContent = p.name || '—';
-  document.getElementById('d-checkin').textContent  = fmt(ci);
-  document.getElementById('d-checkout').textContent = fmt(co);
+  document.getElementById('d-checkin').textContent  = fmt(ci, b.check_in);
+  document.getElementById('d-checkout').textContent = fmt(co, b.check_out);
   document.getElementById('d-nights').textContent   = nights + ' night' + (nights !== 1 ? 's' : '');
   document.getElementById('d-doorcode').textContent = b.door_code || '—';
 
