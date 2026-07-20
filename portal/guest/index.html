@@ -531,8 +531,9 @@ async function loadStamps() {
 
 // ── Populate passport ─────────────────────────────────────────────────────
 function populateBoardingPass() {
-  const checkin  = new Date(booking.check_in);
-  const checkout = new Date(booking.check_out);
+  const parseDate = ts => new Date(String(ts).slice(0, 10) + 'T12:00:00');
+  const checkin  = parseDate(booking.check_in);
+  const checkout = parseDate(booking.check_out);
   const nights   = Math.round((checkout - checkin) / (1000*60*60*24));
 
   const fmt = (d, opts) => d.toLocaleDateString('en-CA', opts);
@@ -678,8 +679,9 @@ async function submitPreArrival(e) {
 
 // ── Populate home screen ──────────────────────────────────────────────────
 function populateHome() {
-  const checkin  = new Date(booking.check_in);
-  const checkout = new Date(booking.check_out);
+  const parseDate = ts => new Date(String(ts).slice(0, 10) + 'T12:00:00');
+  const checkin  = parseDate(booking.check_in);
+  const checkout = parseDate(booking.check_out);
   const fmtShort = d => d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
   const fmtFull  = d => d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'}) + ', ' +
                         d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
