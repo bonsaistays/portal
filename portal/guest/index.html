@@ -531,22 +531,23 @@ async function loadStamps() {
 
 // ── Populate passport ─────────────────────────────────────────────────────
 function populateBoardingPass() {
-  const parseDate = ts => new Date(String(ts).slice(0, 10) + 'T12:00:00');
+  const isDateOnly = ts => { const s = String(ts); return s.length === 10 || /T00:00:00/.test(s); };
+  const parseDate  = ts => isDateOnly(ts) ? new Date(String(ts).slice(0,10) + 'T12:00:00') : new Date(ts);
   const checkin  = parseDate(booking.check_in);
   const checkout = parseDate(booking.check_out);
   const nights   = Math.round((checkout - checkin) / (1000*60*60*24));
 
   const fmt = (d, opts) => d.toLocaleDateString('en-CA', opts);
-  const fmtTime = d => d.toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'});
+  const fmtTime = (d, ts) => isDateOnly(ts) ? '—' : d.toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'});
 
   document.getElementById('bp-photo').src =
     property.thumbnail_url || 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=900&q=80&auto=format&fit=crop';
   document.getElementById('bp-prop-name').textContent   = property.name || '—';
   document.getElementById('bp-guest-name').textContent  = booking.guest_name || '—';
   document.getElementById('bp-checkin-date').textContent = fmt(checkin,{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('bp-checkin-time').textContent = fmtTime(checkin);
+  document.getElementById('bp-checkin-time').textContent = fmtTime(checkin, booking.check_in);
   document.getElementById('bp-checkout-date').textContent= fmt(checkout,{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('bp-checkout-time').textContent= fmtTime(checkout);
+  document.getElementById('bp-checkout-time').textContent= fmtTime(checkout, booking.check_out);
   document.getElementById('bp-guests').textContent  = booking.num_guests || '—';
   document.getElementById('bp-nights').textContent  = nights;
   document.getElementById('bp-city').textContent    = property.city || '—';
@@ -679,12 +680,15 @@ async function submitPreArrival(e) {
 
 // ── Populate home screen ──────────────────────────────────────────────────
 function populateHome() {
-  const parseDate = ts => new Date(String(ts).slice(0, 10) + 'T12:00:00');
+  const isDateOnly = ts => { const s = String(ts); return s.length === 10 || /T00:00:00/.test(s); };
+  const parseDate  = ts => isDateOnly(ts) ? new Date(String(ts).slice(0,10) + 'T12:00:00') : new Date(ts);
   const checkin  = parseDate(booking.check_in);
   const checkout = parseDate(booking.check_out);
   const fmtShort = d => d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
-  const fmtFull  = d => d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'}) + ', ' +
-                        d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+  const fmtFull  = (d, ts) => {
+    const date = d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});
+    return isDateOnly(ts) ? date : date + ', ' + d.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit'});
+  };
 
   document.getElementById('home-prop-name').textContent    = property.name || '—';
   document.getElementById('home-checkin-short').textContent = fmtShort(checkin);
@@ -692,8 +696,8 @@ function populateHome() {
   document.getElementById('home-greeting').textContent     = 'Welcome, ' + (booking.guest_name || '');
 
   document.getElementById('prop-address').textContent   = property.address || '—';
-  document.getElementById('si-checkin').textContent     = fmtFull(checkin);
-  document.getElementById('si-checkout').textContent    = fmtFull(checkout);
+  document.getElementById('si-checkin').textContent     = fmtFull(checkin, booking.check_in);
+  document.getElementById('si-checkout').textContent    = fmtFull(checkout, booking.check_out);
   document.getElementById('si-guests').textContent      = (booking.num_guests || '—') + ' guests';
   document.getElementById('wifi-name').textContent      = property.wifi_name || '—';
   document.getElementById('wifi-pass').textContent      = property.wifi_password || '—';
