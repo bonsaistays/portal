@@ -270,12 +270,11 @@ async function loadBooking() {
 function populatePage() {
   const b  = booking;
   const p  = b.properties || {};
-  // Booking dates are conceptual dates (not moments in time). Supabase may return
-  // "YYYY-MM-DD", "YYYY-MM-DDT00:00:00Z", or "YYYY-MM-DDT00:00:00+00:00" — all
-  // parse as UTC midnight, shifting the displayed date back by 1 in Western timezones.
-  // Fix: always extract the YYYY-MM-DD portion and parse as local noon.
-  const parseDate = ts => new Date(String(ts).slice(0, 10) + 'T12:00:00');
-  const dateOnly  = ts => !/\d{2}:\d{2}/.test(String(ts)) || /T00:00:00/.test(String(ts));
+  // Date-only strings and midnight-UTC timestamps shift back 1 day in Western timezones.
+  // For those, extract YYYY-MM-DD and parse as local noon. Real timestamps parse as-is.
+  const isMidnightUTC = ts => { const s = String(ts); return s.length === 10 || /T00:00:00/.test(s); };
+  const parseDate = ts => isMidnightUTC(ts) ? new Date(String(ts).slice(0,10) + 'T12:00:00') : new Date(ts);
+  const dateOnly  = ts => isMidnightUTC(ts);
   const ci = parseDate(b.check_in);
   const co = parseDate(b.check_out);
   const nights = Math.round((co - ci) / 86400000);
@@ -409,7 +408,12 @@ async function adminSend() {
 // ── Edit ──────────────────────────────────────────────────────────────────
 function openEditModal() {
   const b  = booking;
-  const toLocal = ts => new Date(ts).toISOString().slice(0,16);
+  const toLocal = ts => {
+    if (!ts) return '';
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
   document.getElementById('edit-name').value     = b.guest_name || '';
   document.getElementById('edit-email').value    = b.guest_email || '';
   document.getElementById('edit-phone').value    = b.guest_phone || '';
@@ -426,8 +430,8 @@ async function saveEdit() {
     guest_email: document.getElementById('edit-email').value.trim(),
     guest_phone: document.getElementById('edit-phone').value.trim(),
     door_code:   document.getElementById('edit-doorcode').value.trim(),
-    check_in:    document.getElementById('edit-checkin').value,
-    check_out:   document.getElementById('edit-checkout').value,
+    check_in:    new Date(document.getElementById('edit-checkin').value).toISOString(),
+    check_out:   new Date(document.getElementById('edit-checkout').value).toISOString(),
     status:      document.getElementById('edit-status').value,
   };
   await sb.from('bookings').update(updates).eq('id', bookingId);
