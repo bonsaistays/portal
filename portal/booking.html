@@ -270,10 +270,12 @@ async function loadBooking() {
 function populatePage() {
   const b  = booking;
   const p  = b.properties || {};
-  // Date-only strings (YYYY-MM-DD) are treated as UTC midnight by JS, which shifts them
-  // back by 1 day in Western timezones. Append noon local time to keep the date stable.
-  const parseDate = ts => /^\d{4}-\d{2}-\d{2}$/.test(String(ts)) ? new Date(ts + 'T12:00:00') : new Date(ts);
-  const dateOnly  = ts => /^\d{4}-\d{2}-\d{2}$/.test(String(ts));
+  // Booking dates are conceptual dates (not moments in time). Supabase may return
+  // "YYYY-MM-DD", "YYYY-MM-DDT00:00:00Z", or "YYYY-MM-DDT00:00:00+00:00" — all
+  // parse as UTC midnight, shifting the displayed date back by 1 in Western timezones.
+  // Fix: always extract the YYYY-MM-DD portion and parse as local noon.
+  const parseDate = ts => new Date(String(ts).slice(0, 10) + 'T12:00:00');
+  const dateOnly  = ts => !/\d{2}:\d{2}/.test(String(ts)) || /T00:00:00/.test(String(ts));
   const ci = parseDate(b.check_in);
   const co = parseDate(b.check_out);
   const nights = Math.round((co - ci) / 86400000);
