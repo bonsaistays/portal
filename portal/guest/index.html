@@ -415,8 +415,12 @@
       <button class="btn-modal-close" onclick="closeExpModal()" style="color:var(--g-muted);">✕</button>
     </div>
     <div class="modal-body">
-      <div style="font-size:0.88rem;color:var(--g-muted);line-height:1.6;margin-bottom:4px;">
-        We'll confirm availability and pricing with you via chat. Any special requests or preferences?
+      <div style="font-size:0.88rem;color:var(--g-muted);line-height:1.6;margin-bottom:12px;">
+        We'll confirm availability with you via chat. Any special requests or preferences?
+      </div>
+      <div id="exp-tiers" style="display:none;margin-bottom:16px;">
+        <label class="form-label" style="margin-bottom:8px;">Select option</label>
+        <div id="exp-tiers-list"></div>
       </div>
       <div class="form-group">
         <label class="form-label">Notes / Date preference</label>
@@ -449,6 +453,8 @@ let booking  = null;
 let property = null;
 let _pendingExpName = '';
 let _pendingExpPrice = '';
+let _pendingExpVariations = [];
+let _expVariationsMap = {};
 let _doorInterval = null;
 
 // ── Screen management ─────────────────────────────────────────────────────
@@ -878,14 +884,14 @@ async function loadExperiences() {
 
   let items = [];
   const { data: pe } = await sb.from('property_extras')
-    .select('custom_price, experiences(id, name, icon, price, price_unit, description)')
+    .select('custom_price, experiences(id, name, icon, price, price_unit, description, variations)')
     .eq('property_id', property.id);
 
   if (pe && pe.length) {
     items = pe.filter(r => r.experiences);
   } else {
     const { data: all } = await sb.from('experiences')
-      .select('id, name, icon, price, price_unit, description')
+      .select('id, name, icon, price, price_unit, description, variations')
       .order('name');
     items = (all || []).map(exp => ({ experiences: exp, custom_price: null }));
   }
@@ -895,11 +901,17 @@ async function loadExperiences() {
     return;
   }
 
+  _expVariationsMap = {};
   container.innerHTML = items.map((row, i) => {
-    const exp   = row.experiences;
-    const price = row.custom_price != null ? (row.custom_price / 100).toFixed(2) : exp.price;
-    const unit  = exp.price_unit || '';
-    const priceStr = price != null ? `$${price}${unit ? ' / ' + unit : ''}` : 'Price on request';
+    const exp      = row.experiences;
+    const vars     = exp.variations || [];
+    _expVariationsMap[exp.id] = vars;
+    const unit     = exp.price_unit || 'session';
+    const price    = row.custom_price != null ? (row.custom_price / 100).toFixed(2) : exp.price;
+    const minPrice = vars.length > 0 ? Math.min(...vars.map(v => v.price)) : null;
+    const priceStr = vars.length > 0
+      ? `from $${minPrice} / ${unit}`
+      : (price != null ? `$${price} / ${unit}` : 'Price on request');
     return `
       <div class="experience-card" ${i > 0 ? 'style="margin-top:12px;"' : ''}>
         <div class="exp-icon">${exp.icon || '✨'}</div>
@@ -908,7 +920,7 @@ async function loadExperiences() {
           <div class="exp-desc">${exp.description || ''}</div>
           <div class="exp-price">${priceStr}</div>
         </div>
-        <button class="btn-book-exp" data-name="${exp.name.replace(/"/g,'&quot;')}" data-price="${priceStr.replace(/"/g,'&quot;')}" onclick="requestExperience(this.dataset.name,this.dataset.price)">Book</button>
+        <button class="btn-book-exp" data-id="${exp.id}" data-name="${exp.name.replace(/"/g,'&quot;')}" data-price="${priceStr.replace(/"/g,'&quot;')}" onclick="requestExperience(this.dataset.id,this.dataset.name,this.dataset.price)">Book</button>
       </div>`;
   }).join('');
 }
@@ -966,19 +978,50 @@ async function addUpgrade(itemType, itemName, dollars) {
 }
 
 // Experience modal
-function requestExperience(name, price) {
-  _pendingExpName  = name;
-  _pendingExpPrice = price;
-  document.getElementById('exp-modal-title').textContent = 'Request: ' + name;
+function requestExperience(expId, name, price) {
+  _pendingExpName       = name;
+  _pendingExpPrice      = price;
+  _pendingExpVariations = _expVariationsMap[expId] || [];
+
+  document.getElementById('exp-modal-title').textContent = name;
   document.getElementById('exp-notes').value = '';
+
+  const tiersEl     = document.getElementById('exp-tiers');
+  const tiersListEl = document.getElementById('exp-tiers-list');
+  if (_pendingExpVariations.length > 0) {
+    tiersListEl.innerHTML = _pendingExpVariations.map((v, i) => `
+      <label style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1.5px solid ${i === 0 ? 'var(--g-gold)' : 'rgba(255,255,255,0.15)'};border-radius:10px;cursor:pointer;margin-bottom:8px;transition:border-color 0.15s;">
+        <span style="font-size:0.9rem;">${v.name}</span>
+        <span style="font-weight:600;color:var(--g-gold);">$${v.price}</span>
+        <input type="radio" name="exp-tier" value="${i}" ${i === 0 ? 'checked' : ''} style="display:none;">
+      </label>`).join('');
+    tiersListEl.querySelectorAll('label').forEach(lbl => {
+      lbl.addEventListener('click', () => {
+        tiersListEl.querySelectorAll('label').forEach(l => l.style.borderColor = 'rgba(255,255,255,0.15)');
+        lbl.style.borderColor = 'var(--g-gold)';
+      });
+    });
+    tiersEl.style.display = '';
+  } else {
+    tiersEl.style.display = 'none';
+  }
+
   document.getElementById('exp-modal').classList.remove('hidden');
 }
 function closeExpModal() { document.getElementById('exp-modal').classList.add('hidden'); }
 async function confirmExperience() {
+  let itemName = _pendingExpName;
+  let itemPrice = '$0';
+  if (_pendingExpVariations.length > 0) {
+    const checked = document.querySelector('input[name="exp-tier"]:checked');
+    const tier = _pendingExpVariations[checked ? parseInt(checked.value) : 0];
+    itemName  = _pendingExpName + ' — ' + tier.name;
+    itemPrice = '$' + tier.price;
+  }
   const notes = document.getElementById('exp-notes').value.trim();
-  const msg   = 'I\'d like to book: ' + _pendingExpName + ' (' + _pendingExpPrice + ')' + (notes ? '\n' + notes : '');
+  const msg   = 'I\'d like to book: ' + itemName + ' (' + itemPrice + ')' + (notes ? '\n' + notes : '');
   await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: msg });
-  await sb.from('purchases').insert({ booking_id: booking.id, item_type: 'experience', item_name: _pendingExpName, amount: 0, status: 'pending' });
+  await sb.from('purchases').insert({ booking_id: booking.id, item_type: 'experience', item_name: itemName, amount: 0, status: 'pending' });
   closeExpModal();
   showToast('✓ Request sent! We\'ll confirm via chat.');
   switchTab('chat');
