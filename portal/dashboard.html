@@ -337,7 +337,7 @@ function renderTable(bookings) {
   }
   empty.classList.add('hidden');
 
-  const fmt = d => { if (!d) return '—'; const s = d.length === 10 ? d + 'T12:00:00' : d; return new Date(s).toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}); };
+  const fmt = d => { if (!d) return '—'; return new Date(String(d).slice(0,10) + 'T12:00:00').toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}); };
 
   tbody.innerHTML = bookings.map(b => `
     <tr onclick="location.href='booking.html?id=${b.id}'">
