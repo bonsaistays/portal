@@ -470,8 +470,30 @@ function showScreen(name) {
 // ── Boot ──────────────────────────────────────────────────────────────────
 async function boot() {
   showScreen('loading');
-  const token = new URLSearchParams(location.search).get('token');
+  const params = new URLSearchParams(location.search);
+  const token  = params.get('token');
   if (!token) { showScreen('error'); return; }
+
+  // Handle return from Stripe payment
+  if (params.get('paid') === '1') {
+    const purchaseId = params.get('purchase_id');
+    const sessionId  = params.get('session_id');
+    if (purchaseId && sessionId) {
+      try {
+        await fetch('/.netlify/functions/confirm-purchase', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ purchase_id: purchaseId, session_id: sessionId }),
+        });
+      } catch (e) { console.warn('confirm-purchase error', e); }
+    }
+    // Clean up URL params without reloading
+    history.replaceState({}, '', '?token=' + encodeURIComponent(token));
+    showToast('✓ Payment confirmed! Thank you.');
+  } else if (params.get('pay_cancelled') === '1') {
+    history.replaceState({}, '', '?token=' + encodeURIComponent(token));
+    showToast('Payment cancelled — your request is still pending.');
+  }
 
   const { data, error } = await sb
     .from('bookings')
@@ -936,15 +958,24 @@ function renderPurchases(purchases) {
   const section = document.getElementById('my-purchases-section');
   const list    = document.getElementById('my-purchases-list');
   section.classList.remove('hidden');
-  list.innerHTML = purchases.map(p => `
+  list.innerHTML = purchases.map(p => {
+    const priceStr  = p.amount > 0 ? '$' + (p.amount / 100).toFixed(2) : 'Price TBC';
+    const isPending = p.status === 'pending';
+    const canPay    = isPending && p.amount > 0;
+    const statusEl  = p.status === 'paid'
+      ? `<span class="purchase-chip-status paid">✓ Paid</span>`
+      : canPay
+        ? `<button onclick="payNow('${p.id}')" style="background:var(--g-gold);color:#1a2e1e;font-size:0.8rem;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;">Pay Now</button>`
+        : `<span class="purchase-chip-status pending">⏳ Pending</span>`;
+    return `
     <div class="purchase-chip">
       <div>
         <div class="purchase-chip-name">${p.item_name}</div>
-        <div style="font-size:0.75rem;color:var(--a-gray);">${p.amount > 0 ? '$'+(p.amount/100).toFixed(2) : 'Price TBC'}</div>
+        <div style="font-size:0.75rem;color:var(--a-gray);">${priceStr}</div>
       </div>
-      <div class="purchase-chip-status ${p.status}">${p.status === 'paid' ? '✓ Confirmed' : '⏳ Pending'}</div>
-    </div>
-  `).join('');
+      ${statusEl}
+    </div>`;
+  }).join('');
 
   // Mark upgrade buttons as purchased
   purchases.forEach(p => {
@@ -975,6 +1006,28 @@ async function addUpgrade(itemType, itemName, dollars) {
   // Also send a chat message
   await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: 'I\'d like to add: ' + itemName + ' ($' + dollars + '). Please confirm!' });
   loadMessages();
+}
+
+// ── Pay for a purchase ────────────────────────────────────────────────────
+async function payNow(purchaseId) {
+  const token = new URLSearchParams(location.search).get('token');
+  const btn   = event.target;
+  btn.textContent = 'Loading…';
+  btn.disabled    = true;
+  try {
+    const res  = await fetch('/.netlify/functions/create-purchase-checkout', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ purchase_id: purchaseId, booking_id: booking.id, token }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.url) throw new Error(data.error || 'Could not start payment');
+    location.href = data.url;
+  } catch (e) {
+    showToast('Error: ' + e.message);
+    btn.textContent = 'Pay Now';
+    btn.disabled    = false;
+  }
 }
 
 // Experience modal
