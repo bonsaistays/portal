@@ -940,7 +940,7 @@ function renderPurchases(purchases) {
     <div class="purchase-chip">
       <div>
         <div class="purchase-chip-name">${p.item_name}</div>
-        <div style="font-size:0.75rem;color:var(--a-gray);">$${(p.amount/100).toFixed(2)}</div>
+        <div style="font-size:0.75rem;color:var(--a-gray);">${p.amount > 0 ? '$'+(p.amount/100).toFixed(2) : 'Price TBC'}</div>
       </div>
       <div class="purchase-chip-status ${p.status}">${p.status === 'paid' ? '✓ Confirmed' : '⏳ Pending'}</div>
     </div>
@@ -1010,18 +1010,20 @@ function requestExperience(expId, name, price) {
 }
 function closeExpModal() { document.getElementById('exp-modal').classList.add('hidden'); }
 async function confirmExperience() {
-  let itemName = _pendingExpName;
-  let itemPrice = '$0';
+  let itemName   = _pendingExpName;
+  let itemPrice  = '$0';
+  let amountCents = 0;
   if (_pendingExpVariations.length > 0) {
     const checked = document.querySelector('input[name="exp-tier"]:checked');
-    const tier = _pendingExpVariations[checked ? parseInt(checked.value) : 0];
-    itemName  = _pendingExpName + ' — ' + tier.name;
-    itemPrice = '$' + tier.price;
+    const tier    = _pendingExpVariations[checked ? parseInt(checked.value) : 0];
+    itemName    = _pendingExpName + ' — ' + tier.name;
+    itemPrice   = '$' + tier.price;
+    amountCents = Math.round(tier.price * 100);
   }
   const notes = document.getElementById('exp-notes').value.trim();
   const msg   = 'I\'d like to book: ' + itemName + ' (' + itemPrice + ')' + (notes ? '\n' + notes : '');
   await sb.from('messages').insert({ booking_id: booking.id, sender: 'guest', content: msg });
-  await sb.from('purchases').insert({ booking_id: booking.id, item_type: 'experience', item_name: itemName, amount: 0, status: 'pending' });
+  await sb.from('purchases').insert({ booking_id: booking.id, item_type: 'experience', item_name: itemName, amount: amountCents, status: 'pending' });
   closeExpModal();
   showToast('✓ Request sent! We\'ll confirm via chat.');
   switchTab('chat');
