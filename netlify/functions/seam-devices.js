@@ -10,10 +10,10 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: 'SEAM_API_KEY not configured in Netlify env vars' }) };
   }
 
-  const deviceType = event.queryStringParameters?.type || null;
+  const filterType = event.queryStringParameters?.type || null; // 'lock' | 'thermostat' | 'any'
 
-  let url = 'https://connect.getseam.com/devices/list';
-  if (deviceType) url += '?device_type=' + encodeURIComponent(deviceType);
+  // Seam doesn't accept generic 'lock' — fetch all and filter client-side
+  const url = 'https://connect.getseam.com/devices/list';
 
   let res, data;
   try {
@@ -27,8 +27,16 @@ exports.handler = async (event) => {
     return { statusCode: res.status, body: JSON.stringify({ error: data?.error?.message || JSON.stringify(data) }) };
   }
 
+  // Filter by category if requested ('lock' or 'thermostat')
+  const rawDevices = (data.devices || []).filter(d => {
+    if (!filterType || filterType === 'any') return true;
+    if (filterType === 'lock') return d.device_type?.includes('lock');
+    if (filterType === 'thermostat') return d.device_type?.includes('thermostat') || d.device_type?.includes('ecobee');
+    return true;
+  });
+
   // Return a slimmed-down list with only what the UI needs
-  const devices = (data.devices || []).map(d => ({
+  const devices = rawDevices.map(d => ({
     device_id:    d.device_id,
     display_name: d.display_name || d.properties?.name || d.device_id,
     device_type:  d.device_type,
