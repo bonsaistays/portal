@@ -41,7 +41,7 @@ exports.handler = async (event) => {
       .from('bookings')
       .select('id, status')
       .eq('property_id', propertyId)
-      .in('status', ['active', 'confirmed'])
+      .in('status', ['active', 'confirmed', 'upcoming'])
       .lte('check_in', now)
       .gte('check_out', now)
       .single();
