@@ -788,6 +788,7 @@ async function smartUnlock() {
         deviceId:   property.seam_device_id,
         provider:   property.lock_type,
         propertyId: property.id,
+        token:      new URLSearchParams(location.search).get('token'),
       }),
     });
     const data = await res.json();

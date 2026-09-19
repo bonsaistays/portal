@@ -28,26 +28,25 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body); }
   catch { return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
 
-  const { action, deviceId, provider, propertyId } = body;
+  const { action, deviceId, provider, propertyId, token } = body;
   if (!action || !deviceId || !provider) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
   }
 
-  // Verify booking is active for this property (security check)
-  if (SB_KEY && propertyId) {
+  // Security: verify the guest's booking token is valid for this property
+  if (SB_KEY && token) {
     const sb = createClient(SB_URL, SB_KEY);
-    const now = new Date().toISOString();
     const { data: booking } = await sb
       .from('bookings')
-      .select('id, status')
-      .eq('property_id', propertyId)
-      .in('status', ['active', 'confirmed', 'upcoming'])
-      .lte('check_in', now)
-      .gte('check_out', now)
+      .select('id, property_id')
+      .eq('token', token)
       .single();
-    if (!booking) {
-      return { statusCode: 403, body: JSON.stringify({ error: 'No active booking for this property' }) };
+    if (!booking || (propertyId && booking.property_id !== propertyId)) {
+      return { statusCode: 403, body: JSON.stringify({ error: 'Invalid booking token' }) };
     }
+  } else if (!token) {
+    // No token provided — reject for security
+    return { statusCode: 403, body: JSON.stringify({ error: 'Booking token required' }) };
   }
 
   try {
