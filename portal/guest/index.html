@@ -772,11 +772,11 @@ function copyDoorCode() {
   navigator.clipboard.writeText(booking.door_code || '').then(() => showToast('✓ Door code copied!'));
 }
 
-async function smartUnlock() {
+async function smartLockAction(action) {
   const btn    = document.getElementById('btn-smart-unlock');
   const status = document.getElementById('smart-lock-status');
   btn.disabled = true;
-  btn.textContent = 'Unlocking…';
+  btn.textContent = action === 'unlock' ? 'Unlocking…' : 'Locking…';
   status.style.display = '';
   status.textContent = '';
   try {
@@ -784,7 +784,7 @@ async function smartUnlock() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action:     'unlock',
+        action,
         deviceId:   property.seam_device_id,
         provider:   property.lock_type,
         propertyId: property.id,
@@ -792,17 +792,34 @@ async function smartUnlock() {
       }),
     });
     const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'Unlock failed');
-    btn.textContent = '✓ Door Unlocked';
-    status.textContent = 'Door is now unlocked. It will re-lock automatically.';
-    showToast('✓ Door unlocked!');
+    if (!res.ok || data.error) throw new Error(data.error || (action === 'unlock' ? 'Unlock failed' : 'Lock failed'));
+    if (action === 'unlock') {
+      btn.textContent = '🔒 Lock Door';
+      btn.onclick = () => smartLockAction('lock');
+      btn.disabled = false;
+      status.textContent = 'Door is unlocked. Tap Lock Door when you\'re inside.';
+      showToast('✓ Door unlocked!');
+    } else {
+      btn.textContent = '✓ Door Locked';
+      btn.disabled = true;
+      status.textContent = 'Door is locked.';
+      showToast('✓ Door locked!');
+      // Reset to unlock after 3 seconds
+      setTimeout(() => {
+        btn.textContent = '🔓 Unlock Door';
+        btn.onclick = () => smartLockAction('unlock');
+        btn.disabled = false;
+        status.textContent = '';
+      }, 3000);
+    }
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = '🔓 Unlock Door';
-    status.textContent = 'Could not unlock: ' + e.message;
-    showToast('Unlock failed — try your code instead');
+    btn.textContent = action === 'unlock' ? '🔓 Unlock Door' : '🔒 Lock Door';
+    status.textContent = 'Could not ' + action + ': ' + e.message;
+    showToast((action === 'unlock' ? 'Unlock' : 'Lock') + ' failed — try your code instead');
   }
 }
+function smartUnlock() { smartLockAction('unlock'); }
 function copyWifi() {
   navigator.clipboard.writeText(property.wifi_password || '').then(() => showToast('✓ Wi-Fi password copied!'));
 }
