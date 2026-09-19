@@ -253,6 +253,8 @@ async function init() {
   const email = session.user.email;
   document.getElementById('admin-avatar').textContent = email[0].toUpperCase();
   await Promise.all([loadProperties(), loadBookings(), loadRequests()]);
+  // Auto-refresh every hour
+  setInterval(() => Promise.all([loadBookings(), loadRequests()]), 60 * 60 * 1000);
   // Scroll to requests section if URL has #requests
   if (location.hash === '#requests') {
     document.getElementById('requests-section')?.scrollIntoView({ behavior: 'smooth' });
