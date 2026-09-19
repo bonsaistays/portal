@@ -824,10 +824,48 @@ function copyWifi() {
   navigator.clipboard.writeText(property.wifi_password || '').then(() => showToast('✓ Wi-Fi password copied!'));
 }
 
+// ── Live lock status ──────────────────────────────────────────────────────
+async function refreshLockStatus() {
+  if (!property || !property.seam_device_id || !property.lock_type || property.lock_type === 'code') return;
+  const btn    = document.getElementById('btn-smart-unlock');
+  const status = document.getElementById('smart-lock-status');
+  if (!btn) return;
+  try {
+    const res = await fetch('/.netlify/functions/lock-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:     'status',
+        deviceId:   property.seam_device_id,
+        provider:   property.lock_type,
+        propertyId: property.id,
+        token:      new URLSearchParams(location.search).get('token'),
+      }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.locked === true) {
+      btn.textContent = '🔓 Unlock Door';
+      btn.onclick = () => smartLockAction('unlock');
+      btn.disabled = false;
+      status.style.display = 'none';
+    } else if (data.locked === false) {
+      btn.textContent = '🔒 Lock Door';
+      btn.onclick = () => smartLockAction('lock');
+      btn.disabled = false;
+      status.style.display = '';
+      status.textContent = 'Door is currently unlocked.';
+    }
+  } catch (_) { /* silent — status is best-effort */ }
+}
+
 // ── Tab switching ─────────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
+  if (name === 'door') {
+    refreshLockStatus();
+  }
   if (name === 'chat') {
     document.getElementById('chat-badge').classList.add('hidden');
     markMessagesRead();
