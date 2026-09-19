@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inbox — Bonsai Portal</title>
+  <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    /* ── Layout ── */
+    .inbox-wrap {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+    @media (max-width: 800px) {
+      .inbox-wrap { grid-template-columns: 1fr; }
+      .inbox-detail { display: none; }
+      .inbox-wrap.detail-open .inbox-list  { display: none; }
+      .inbox-wrap.detail-open .inbox-detail { display: flex; }
+    }
+
+    /* ── Left panel ── */
+    .inbox-list {
+      border-right: 1px solid var(--a-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--a-white);
+    }
+    .inbox-list-header {
+      padding: 16px 16px 0;
+      border-bottom: 1px solid var(--a-border);
+    }
+    .inbox-list-header h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+    .inbox-search {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid var(--a-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: var(--a-bg);
+      color: var(--a-charcoal);
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+    .inbox-search:focus { outline: none; border-color: var(--a-sage); }
+    .inbox-cats {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .inbox-cats::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      flex-shrink: 0;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--a-border);
+      background: transparent;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--a-gray);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .cat-chip.active { background: var(--a-charcoal); color: #fff; border-color: var(--a-charcoal); }
+    .cat-chip:hover:not(.active) { border-color: var(--a-sage); color: var(--a-charcoal); }
+
+    /* ── Thread list ── */
+    .thread-list { flex: 1; overflow-y: auto; }
+    .thread-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--a-gray-pale);
+      cursor: pointer;
+      transition: background 0.12s;
+      position: relative;
+    }
+    .thread-item:hover { background: var(--a-bg); }
+    .thread-item.active { background: var(--a-green-tint); }
+    .thread-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      font-weight: 700;
+      color: #fff;
+    }
+    .thread-avatar.cat-guest   { background: #3b82f6; }
+    .thread-avatar.cat-owner   { background: #8b5cf6; }
+    .thread-avatar.cat-website { background: #f59e0b; }
+    .thread-avatar.cat-partner { background: #10b981; }
+    .thread-avatar.cat-team    { background: #ef4444; }
+    .thread-avatar.cat-quote   { background: #06b6d4; }
+    .thread-body { flex: 1; min-width: 0; }
+    .thread-top { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+    .thread-name { font-size: 0.88rem; font-weight: 700; color: var(--a-charcoal); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .thread-time { font-size: 0.72rem; color: var(--a-gray); white-space: nowrap; flex-shrink: 0; }
+    .thread-preview { font-size: 0.78rem; color: var(--a-gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .thread-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+    .badge-guest   { background: #dbeafe; color: #1e40af; }
+    .badge-owner   { background: #ede9fe; color: #5b21b6; }
+    .badge-website { background: #fef3c7; color: #92400e; }
+    .badge-partner { background: #d1fae5; color: #065f46; }
+    .badge-team    { background: #fee2e2; color: #991b1b; }
+    .badge-quote   { background: #cffafe; color: #155e75; }
+    .unread-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--a-green); flex-shrink: 0; margin-top: 5px;
+    }
+    .empty-state { padding: 40px 20px; text-align: center; color: var(--a-gray); font-size: 0.85rem; }
+
+    /* ── Right panel ── */
+    .inbox-detail {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--a-bg);
+    }
+    .detail-placeholder {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--a-gray);
+      font-size: 0.9rem;
+      gap: 10px;
+    }
+    .detail-placeholder .icon { font-size: 2.5rem; }
+
+    .detail-header {
+      background: var(--a-white);
+      border-bottom: 1px solid var(--a-border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .detail-back { display: none; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--a-gray); padding: 0; }
+    @media (max-width: 800px) { .detail-back { display: block; } }
+    .detail-name { font-weight: 700; font-size: 1rem; color: var(--a-charcoal); }
+    .detail-meta { font-size: 0.75rem; color: var(--a-gray); margin-top: 1px; }
+    .detail-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn-sm { padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--a-border); background: var(--a-white); font-size: 0.78rem; font-weight: 600; cursor: pointer; color: var(--a-charcoal); transition: all 0.15s; }
+    .btn-sm:hover { border-color: var(--a-sage); background: var(--a-green-tint); }
+    .btn-sm.danger:hover { border-color: #fca5a5; background: #fef2f2; color: #dc2626; }
+
+    .detail-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+    /* Guest chat thread */
+    .chat-bubble { margin-bottom: 12px; display: flex; flex-direction: column; }
+    .chat-bubble.guest { align-items: flex-start; }
+    .chat-bubble.admin { align-items: flex-end; }
+    .bubble-content {
+      max-width: 72%;
+      padding: 9px 13px;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .chat-bubble.guest .bubble-content { background: var(--a-white); border: 1px solid var(--a-border); color: var(--a-charcoal); border-radius: 14px 14px 14px 4px; }
+    .chat-bubble.admin .bubble-content { background: var(--a-green); color: #fff; border-radius: 14px 14px 4px 14px; }
+    .bubble-time { font-size: 0.68rem; color: var(--a-gray); margin-top: 3px; padding: 0 4px; }
+
+    /* Form submission detail */
+    .detail-field { margin-bottom: 14px; }
+    .detail-field-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--a-gray); margin-bottom: 4px; }
+    .detail-field-value { font-size: 0.88rem; color: var(--a-charcoal); background: var(--a-white); border: 1px solid var(--a-border); border-radius: 8px; padding: 8px 12px; line-height: 1.5; }
+
+    /* Reply box */
+    .detail-reply {
+      background: var(--a-white);
+      border-top: 1px solid var(--a-border);
+      padding: 12px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .reply-input {
+      flex: 1;
+      border: 1.5px solid var(--a-border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      font-family: inherit;
+      color: var(--a-charcoal);
+      background: var(--a-bg);
+    }
+    .reply-input:focus { outline: none; border-color: var(--a-sage); background: var(--a-white); }
+    .reply-send {
+      background: var(--a-green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .reply-send:hover { background: #1a4a2e; }
+    .reply-send:disabled { opacity: 0.5; cursor: default; }
+
+    .inbox-loading { padding: 20px; text-align: center; color: var(--a-gray); font-size: 0.85rem; }
+  </style>
+</head>
+<body class="admin-body">
+
+<!-- Nav -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo"><img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:42px;width:auto;filter:brightness(0) invert(1);" /></div>
+  <div class="admin-nav-links">
+    <a href="dashboard.html">Bookings</a>
+    <a href="properties.html">Properties</a>
+    <a href="experiences.html">Add Ons</a>
+    <a href="products.html">Shop</a>
+    <a href="members.html">Members</a>
+    <a href="businesses.html">Local Recs & Deals</a>
+    <a href="applications.html">Forms</a>
+    <a href="owners.html">Owners</a>
+    <a href="inbox.html" class="active">Inbox</a>
+  </div>
+  <div class="admin-nav-right">
+    <a class="nav-hk-btn" href="https://housekeeping-hub.vercel.app/dashboard" target="_blank" rel="noopener">🧹 Housekeeping ↗</a>
+    <div class="admin-avatar" id="admin-avatar">D</div>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</nav>
+
+<!-- Inbox -->
+<div class="inbox-wrap" id="inbox-wrap">
+
+  <!-- Left: thread list -->
+  <div class="inbox-list">
+    <div class="inbox-list-header">
+      <h2>Inbox</h2>
+      <input class="inbox-search" id="search-input" type="text" placeholder="Search messages…" oninput="filterThreads()" />
+      <div class="inbox-cats">
+        <button class="cat-chip active" data-cat="all"     onclick="setCategory('all',this)">All</button>
+        <button class="cat-chip"        data-cat="guest"   onclick="setCategory('guest',this)">💬 Guests</button>
+        <button class="cat-chip"        data-cat="owner"   onclick="setCategory('owner',this)">🏡 Owners</button>
+        <button class="cat-chip"        data-cat="website" onclick="setCategory('website',this)">🌐 Website</button>
+        <button class="cat-chip"        data-cat="partner" onclick="setCategory('partner',this)">🤝 Partners</button>
+        <button class="cat-chip"        data-cat="team"    onclick="setCategory('team',this)">👥 Team</button>
+        <button class="cat-chip"        data-cat="quote"   onclick="setCategory('quote',this)">📋 Quotes</button>
+      </div>
+    </div>
+    <div class="thread-list" id="thread-list">
+      <div class="inbox-loading">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Right: detail panel -->
+  <div class="inbox-detail" id="inbox-detail">
+    <div class="detail-placeholder" id="detail-placeholder">
+      <span class="icon">💬</span>
+      <span>Select a conversation</span>
+    </div>
+    <div id="detail-content" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="detail-header">
+        <button class="detail-back" onclick="closeDetail()">←</button>
+        <div>
+          <div class="detail-name" id="detail-name">—</div>
+          <div class="detail-meta" id="detail-meta">—</div>
+        </div>
+        <div class="detail-actions" id="detail-actions"></div>
+      </div>
+      <div class="detail-body" id="detail-body"></div>
+      <div class="detail-reply" id="detail-reply" style="display:none;">
+        <textarea class="reply-input" id="reply-input" placeholder="Reply…" rows="1" onkeydown="replyKeydown(event)"></textarea>
+        <button class="reply-send" id="reply-send" onclick="sendReply()">Send</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── State ──────────────────────────────────────────────────────────────────
+let _allThreads  = [];
+let _category    = 'all';
+let _activeId    = null;
+let _activeType  = null;
+
+// ── Auth ───────────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'index.html'; return; }
+  document.getElementById('admin-avatar').textContent = session.user.email[0].toUpperCase();
+  loadAll();
+})();
+
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+// ── Load all sources ───────────────────────────────────────────────────────
+async function loadAll() {
+  const [
+    guestMsgs,
+    propertyApps,
+    teamApps,
+    bizApps,
+    quoteLeads,
+    partnerRefs,
+  ] = await Promise.all([
+    loadGuestThreads(),
+    sb.from('property_applications').select('*').order('created_at', { ascending: false }),
+    sb.from('team_applications').select('*').order('created_at', { ascending: false }),
+    sb.from('business_applications').select('*').order('created_at', { ascending: false }),
+    sb.from('quote_leads').select('*').order('created_at', { ascending: false }),
+    sb.from('partner_referrals').select('*').order('created_at', { ascending: false }),
+  ]);
+
+  const threads = [
+    ...guestMsgs,
+    ...(propertyApps.data || []).map(r => toThread(r, 'website', r.name || r.email, 'Property inquiry: ' + (r.property_name || r.address || '—'), r.email)),
+    ...(teamApps.data    || []).map(r => toThread(r, 'team',    r.name || r.email, 'Team application: ' + (r.role || r.position || '—'), r.email)),
+    ...(bizApps.data     || []).map(r => toThread(r, 'partner', r.business_name || r.name || r.email, 'Business partnership inquiry', r.email)),
+    ...(quoteLeads.data  || []).map(r => toThread(r, 'quote',   r.name || r.contact_name || r.email, 'Quote request: ' + (r.company || r.property_name || '—'), r.email)),
+    ...(partnerRefs.data || []).map(r => toThread(r, 'partner', r.referrer_name || r.name || r.email, 'Partner referral', r.email)),
+  ];
+
+  // Sort by date descending
+  _allThreads = threads.sort((a, b) => new Date(b.date) - new Date(a.date));
+  renderList();
+}
+
+async function loadGuestThreads() {
+  // Get latest message per booking, with guest info
+  const { data: msgs } = await sb
+    .from('messages')
+    .select('*, bookings(id, guest_name, guest_email, properties(name))')
+    .eq('sender', 'guest')
+    .order('created_at', { ascending: false });
+
+  if (!msgs) return [];
+
+  // Group by booking_id, keep latest per booking
+  const seen = new Map();
+  for (const m of msgs) {
+    if (!seen.has(m.booking_id)) seen.set(m.booking_id, m);
+  }
+
+  return [...seen.values()].map(m => ({
+    id:       'guest_' + m.booking_id,
+    type:     'guest',
+    rawId:    m.booking_id,
+    name:     m.bookings?.guest_name || 'Guest',
+    email:    m.bookings?.guest_email || '',
+    preview:  m.content,
+    date:     m.created_at,
+    unread:   !m.read,
+    meta:     m.bookings?.properties?.name || 'Unknown property',
+  }));
+}
+
+function toThread(row, type, name, preview, email) {
+  return {
+    id:      type + '_' + row.id,
+    type,
+    rawId:   row.id,
+    name:    name || '—',
+    email:   email || '',
+    preview: preview || '',
+    date:    row.created_at,
+    unread:  !row.read && row.status !== 'closed',
+    meta:    row.status || '',
+    raw:     row,
+  };
+}
+
+// ── Render list ────────────────────────────────────────────────────────────
+const CAT_LABELS = {
+  guest: 'Guest', owner: 'Owner', website: 'Website',
+  partner: 'Partner', team: 'Team', quote: 'Quote',
+};
+
+function renderList() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const filtered = _allThreads.filter(t => {
+    if (_category !== 'all' && t.type !== _category) return false;
+    if (search && !t.name.toLowerCase().includes(search) && !t.preview.toLowerCase().includes(search) && !t.email.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const list = document.getElementById('thread-list');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state">No messages found</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => `
+    <div class="thread-item${_activeId === t.id ? ' active' : ''}" onclick="openThread('${t.id}')">
+      ${t.unread ? '<div class="unread-dot"></div>' : '<div style="width:8px;flex-shrink:0;"></div>'}
+      <div class="thread-avatar cat-${t.type}">${(t.name[0] || '?').toUpperCase()}</div>
+      <div class="thread-body">
+        <div class="thread-top">
+          <span class="thread-name">${esc(t.name)}</span>
+          <span class="thread-badge badge-${t.type}">${CAT_LABELS[t.type] || t.type}</span>
+          <span class="thread-time">${relTime(t.date)}</span>
+        </div>
+        <div class="thread-preview">${esc(t.preview)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setCategory(cat, el) {
+  _category = cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function filterThreads() { renderList(); }
+
+// ── Open thread ────────────────────────────────────────────────────────────
+async function openThread(id) {
+  _activeId = id;
+  renderList();
+
+  const t = _allThreads.find(x => x.id === id);
+  if (!t) return;
+
+  document.getElementById('detail-placeholder').style.display = 'none';
+  const dc = document.getElementById('detail-content');
+  dc.style.display = 'flex';
+
+  document.getElementById('detail-name').textContent = t.name;
+  document.getElementById('detail-reply').style.display = 'none';
+
+  // Mobile: show detail panel
+  document.getElementById('inbox-wrap').classList.add('detail-open');
+
+  if (t.type === 'guest') {
+    await openGuestThread(t);
+  } else {
+    openFormThread(t);
+  }
+}
+
+async function openGuestThread(t) {
+  document.getElementById('detail-meta').textContent = t.meta + (t.email ? ' · ' + t.email : '');
+  document.getElementById('detail-actions').innerHTML = `
+    <a class="btn-sm" href="booking.html?id=${t.rawId}" target="_blank">Open Booking ↗</a>
+  `;
+
+  // Mark as read
+  await sb.from('messages').update({ read: true }).eq('booking_id', t.rawId).eq('sender', 'guest');
+  t.unread = false;
+  renderList();
+
+  // Load full thread
+  const { data: msgs } = await sb
+    .from('messages')
+    .select('*')
+    .eq('booking_id', t.rawId)
+    .order('created_at', { ascending: true });
+
+  const body = document.getElementById('detail-body');
+  body.innerHTML = (msgs || []).map(m => `
+    <div class="chat-bubble ${m.sender}">
+      <div class="bubble-content">${esc(m.content)}</div>
+      <div class="bubble-time">${new Date(m.created_at).toLocaleString('en-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+    </div>
+  `).join('') || '<div style="text-align:center;color:var(--a-gray);font-size:0.85rem;padding:20px;">No messages yet</div>';
+  body.scrollTop = body.scrollHeight;
+
+  // Show reply box
+  _activeType  = 'guest';
+  document.getElementById('detail-reply').style.display = 'flex';
+  document.getElementById('reply-input').value = '';
+}
+
+function openFormThread(t) {
+  const row = t.raw;
+  document.getElementById('detail-meta').textContent = (t.email || '') + (t.meta ? ' · ' + t.meta : '');
+  document.getElementById('detail-actions').innerHTML = `
+    <button class="btn-sm" onclick="markFormRead('${t.id}')">Mark read</button>
+  `;
+  document.getElementById('detail-reply').style.display = 'none';
+  _activeType = t.type;
+
+  // Render all fields from the form row
+  const skip = new Set(['id','created_at','updated_at','read','status']);
+  const body = document.getElementById('detail-body');
+  body.innerHTML = Object.entries(row)
+    .filter(([k, v]) => !skip.has(k) && v !== null && v !== '')
+    .map(([k, v]) => `
+      <div class="detail-field">
+        <div class="detail-field-label">${k.replace(/_/g,' ')}</div>
+        <div class="detail-field-value">${esc(String(v))}</div>
+      </div>
+    `).join('') +
+    `<div class="detail-field">
+      <div class="detail-field-label">Received</div>
+      <div class="detail-field-value">${new Date(row.created_at).toLocaleString('en-CA', { weekday:'short', month:'long', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+    </div>`;
+}
+
+async function markFormRead(id) {
+  const t = _allThreads.find(x => x.id === id);
+  if (!t) return;
+  // Update read/status in the right table
+  const tableMap = {
+    website: 'property_applications',
+    team:    'team_applications',
+    partner: 'business_applications',
+    quote:   'quote_leads',
+  };
+  const table = tableMap[t.type];
+  if (table) await sb.from(table).update({ read: true }).eq('id', t.rawId);
+  t.unread = false;
+  renderList();
+}
+
+// ── Reply ──────────────────────────────────────────────────────────────────
+function replyKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); }
+}
+
+async function sendReply() {
+  if (_activeType !== 'guest' || !_activeId) return;
+  const t   = _allThreads.find(x => x.id === _activeId);
+  const txt = document.getElementById('reply-input').value.trim();
+  if (!txt || !t) return;
+  const btn = document.getElementById('reply-send');
+  btn.disabled = true;
+  await sb.from('messages').insert({ booking_id: t.rawId, sender: 'admin', content: txt, read: true });
+  await openGuestThread(t); // reload thread
+  btn.disabled = false;
+}
+
+// ── Mobile back ────────────────────────────────────────────────────────────
+function closeDetail() {
+  document.getElementById('inbox-wrap').classList.remove('detail-open');
+  _activeId = null;
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function relTime(iso) {
+  const d   = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000)      return 'just now';
+  if (diff < 3600000)    return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000)   return Math.floor(diff/3600000) + 'h ago';
+  if (diff < 604800000)  return Math.floor(diff/86400000) + 'd ago';
+  return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+}
+</script>
+</body>
+</html>
