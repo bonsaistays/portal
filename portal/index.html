@@ -1,18 +1,67 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bonsai Portal — Admin Login</title>
+  <title>Bonsai Stays — Sign In</title>
   <link rel="stylesheet" href="assets/portal.css" />
+  <style>
+    .role-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .role-btn {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--a-border);
+      background: transparent;
+      color: var(--a-gray);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .role-btn:hover { border-color: var(--a-sage); color: var(--a-charcoal); }
+    .role-btn.active {
+      border-color: var(--a-green);
+      background: var(--a-green-tint);
+      color: var(--a-green);
+    }
+    .role-btn .role-icon { font-size: 1.25rem; display: block; margin-bottom: 4px; }
+    .login-divider {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--a-gray);
+      margin-bottom: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
 
 <div class="login-wrap">
   <div class="login-card">
     <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:42px;width:auto;filter:brightness(0) invert(1);display:block;margin:0 auto 8px;" />
-    <div class="login-subtitle">Host Portal</div>
+    <div class="login-subtitle">Team Portal</div>
     <h2>Welcome back</h2>
+
+    <!-- Role selector -->
+    <div class="login-divider">I am a…</div>
+    <div class="role-toggle">
+      <button class="role-btn active" id="role-employee" onclick="selectRole('employee')">
+        <span class="role-icon">🧹</span>
+        Employee
+      </button>
+      <button class="role-btn" id="role-owner" onclick="selectRole('owner')">
+        <span class="role-icon">🏠</span>
+        Owner / Manager
+      </button>
+    </div>
 
     <div id="login-error" class="login-error hidden"></div>
 
@@ -46,10 +95,31 @@ const SUPABASE_ANON_KEY = 'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA';
 const { createClient } = window.supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Check if already logged in
+let selectedRole = 'employee';
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('role-employee').classList.toggle('active', role === 'employee');
+  document.getElementById('role-owner').classList.toggle('active', role === 'owner');
+}
+
+// Determine redirect destination based on Supabase role
+function redirectForUser(user) {
+  const role = user?.app_metadata?.role || '';
+  if (role === 'admin') {
+    location.href = 'dashboard.html';
+  } else if (role === 'owner' || role === 'manager') {
+    location.href = '../owner/dashboard.html';
+  } else {
+    // employee / hk / no role
+    location.href = '../app/index.html';
+  }
+}
+
+// Check if already logged in — redirect to right portal immediately
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session) location.href = 'dashboard.html';
+  if (session) redirectForUser(session.user);
 })();
 
 async function doLogin(e) {
@@ -59,7 +129,7 @@ async function doLogin(e) {
   btn.textContent = 'Signing in…'; btn.disabled = true;
   err.classList.add('hidden');
 
-  const { error } = await sb.auth.signInWithPassword({
+  const { data, error } = await sb.auth.signInWithPassword({
     email:    document.getElementById('login-email').value.trim(),
     password: document.getElementById('login-password').value,
   });
@@ -70,7 +140,8 @@ async function doLogin(e) {
     btn.textContent = 'Sign in →'; btn.disabled = false;
     return;
   }
-  location.href = 'dashboard.html';
+
+  redirectForUser(data.user);
 }
 
 async function forgotPassword(e) {
