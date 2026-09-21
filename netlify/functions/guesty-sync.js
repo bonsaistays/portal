@@ -9,8 +9,8 @@
  *   SUPABASE_SERVICE_KEY  — Supabase service role key
  */
 
-const GUESTY_TOKEN_URL = 'https://booking.guesty.com/oauth2/token';
-const GUESTY_API_BASE  = 'https://booking.guesty.com/api';
+const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
+const GUESTY_API_BASE  = 'https://open-api.guesty.com/api/v1';
 
 let _cachedToken = null;
 let _tokenExpiry = 0;
@@ -106,7 +106,7 @@ async function syncAvailability(listingId, clientId, clientSecret) {
   toDate.setFullYear(toDate.getFullYear() + 1);
   const to = toDate.toISOString().split('T')[0];
 
-  // booking.guesty.com v2 calendar endpoint
+  // open-api.guesty.com v1 calendar endpoint
   const data = await guestyGet(`/listings/${listingId}/calendar?from=${from}&to=${to}`, clientId, clientSecret);
 
   // Response: { results: [{date, status, price}] } or array
