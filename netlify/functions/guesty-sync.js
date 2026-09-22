@@ -146,10 +146,10 @@ async function syncReservations(listingId, propertyId, sb) {
 
   // Fetch up to 50 upcoming/active reservations for this listing
   const data = await guestyGet(
-    `/reservations?listingId=${listingId}&checkOut[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50`,
+    `/reservations?listingId=${listingId}&checkOut[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50&fields=_id,checkIn,checkOut,status,guestsCount,confirmationCode,money,guest,guestName`,
   );
 
-  const reservations = data.results || data.data || (Array.isArray(data) ? data : []);
+  const reservations = data.results || data.data || data.reservations || (Array.isArray(data) ? data : []);
   const upserted = [];
   const errors   = [];
 
@@ -165,7 +165,12 @@ async function syncReservations(listingId, propertyId, sb) {
       total_price:       r.money?.totalPaid || r.money?.fareAccommodation || null,
       currency:          r.money?.currency || 'CAD',
       confirmation_code: r.confirmationCode || r._id,
-      guest_name:        `${r.guest?.firstName || ''} ${r.guest?.lastName || ''}`.trim() || 'Guest',
+      guest_name:        (
+        `${r.guest?.firstName || ''} ${r.guest?.lastName || ''}`.trim() ||
+        r.guestName ||
+        r.guest?.fullName ||
+        'Guest'
+      ),
       guest_email:       r.guest?.email || null,
       guest_phone:       r.guest?.phone || null,
       source:            'guesty',

@@ -146,7 +146,12 @@ function mapStatus(guestyStatus, eventType) {
 function buildGuestName(r) {
   const first = r.guest?.firstName || r.firstName || '';
   const last  = r.guest?.lastName  || r.lastName  || '';
-  return `${first} ${last}`.trim() || 'Guesty Guest';
+  return (
+    `${first} ${last}`.trim() ||
+    r.guestName ||
+    r.guest?.fullName ||
+    'Guesty Guest'
+  );
 }
 
 function parseMoney(r) {
