@@ -26,17 +26,18 @@ async function getGuestyToken(clientId, clientSecret) {
   }
 
   let res;
-  try {
-    res = await fetch(GUESTY_TOKEN_URL, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept':        'application/json',
-      },
-      body: `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
-    });
-  } catch (networkErr) {
-    throw new Error(`Cannot reach Guesty auth server (${GUESTY_TOKEN_URL}): ${networkErr.message}`);
+  const tokenBody = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
+  const tokenHeaders = { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' };
+
+  // Retry up to 3 times on 429
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      res = await fetch(GUESTY_TOKEN_URL, { method: 'POST', headers: tokenHeaders, body: tokenBody });
+    } catch (networkErr) {
+      throw new Error(`Cannot reach Guesty auth server: ${networkErr.message}`);
+    }
+    if (res.status !== 429) break;
+    if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 3000));
   }
 
   const text = await res.text();
@@ -158,6 +159,7 @@ async function syncReservations(listingId, propertyId, sb) {
     try {
       const r = await guestyGet(`/reservations/${id}`);
       reservations.push(r);
+      await new Promise(res => setTimeout(res, 300)); // avoid rate limiting
     } catch (e) {
       console.warn(`Could not fetch reservation ${id}:`, e.message);
     }
