@@ -145,11 +145,24 @@ async function syncReservations(listingId, propertyId, sb) {
   const now = new Date().toISOString().split('T')[0];
 
   // Fetch up to 50 upcoming/active reservations for this listing
-  const data = await guestyGet(
-    `/reservations?listingId=${listingId}&checkOut[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50&fields=_id,checkIn,checkOut,status,guestsCount,confirmationCode,money,guest,guestName`,
+  const listData = await guestyGet(
+    `/reservations?listingId=${listingId}&checkOut[$gte]=${now}&status[]=confirmed&status[]=reserved&status[]=checked_in&limit=50&fields=_id`,
   );
 
-  const reservations = data.results || data.data || data.reservations || (Array.isArray(data) ? data : []);
+  const ids = (listData.results || listData.data || listData.reservations || (Array.isArray(listData) ? listData : []))
+    .map(r => r._id || r.id).filter(Boolean);
+
+  // Fetch each reservation individually to get full guest details
+  const reservations = [];
+  for (const id of ids) {
+    try {
+      const r = await guestyGet(`/reservations/${id}`);
+      reservations.push(r);
+    } catch (e) {
+      console.warn(`Could not fetch reservation ${id}:`, e.message);
+    }
+  }
+
   const upserted = [];
   const errors   = [];
 
