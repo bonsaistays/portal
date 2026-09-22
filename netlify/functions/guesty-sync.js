@@ -10,7 +10,7 @@
  */
 
 const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
-const GUESTY_API_BASE  = 'https://open-api.guesty.com/api/v1';
+const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
 
 let _cachedToken = null;
 let _tokenExpiry = 0;
