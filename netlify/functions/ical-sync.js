@@ -81,7 +81,12 @@ exports.handler = async (event) => {
             ical_uid:    ev.uid,
             check_in:    ev.start,
             check_out:   ev.end,
-            guest_name:  `${platform} Reservation`,
+            guest_name:  (() => {
+              const genericTerms = /^(reserved|blocked|not available|airbnb|vrbo|homeaway|booking\.com|unavailable|closed)/i;
+              return ev.summary && !genericTerms.test(ev.summary.trim())
+                ? ev.summary.trim()
+                : `${platform} Reservation`;
+            })(),
             source:      'ical',
             status,
           });

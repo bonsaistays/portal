@@ -70,12 +70,17 @@ exports.handler = async (event) => {
           if (!ev.uid) continue;
 
           const status = ev.start <= today && ev.end >= today ? 'active' : 'upcoming';
+          // Use SUMMARY as guest name if it looks like a real name (not generic placeholders)
+          const genericTerms = /^(reserved|blocked|not available|airbnb|vrbo|homeaway|booking\.com|unavailable|closed)/i;
+          const guestName = ev.summary && !genericTerms.test(ev.summary.trim())
+            ? ev.summary.trim()
+            : `${platform} Reservation`;
           allRecs.push({
             property_id: prop.id,
             ical_uid:    ev.uid,
             check_in:    ev.start,
             check_out:   ev.end,
-            guest_name:  `${platform} Reservation`,
+            guest_name:  guestName,
             source:      'ical',
             status,
           });
@@ -123,12 +128,12 @@ async function fetchAndParseICal(url) {
 function parseICal(text) {
   const events = [];
   const lines = text.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '').split(/\r\n|\r|\n/);
-  let inEvent = false, dtstart = null, dtend = null, uid = null;
+  let inEvent = false, dtstart = null, dtend = null, uid = null, summary = null;
 
   for (const line of lines) {
-    if (line === 'BEGIN:VEVENT') { inEvent = true; dtstart = dtend = uid = null; }
+    if (line === 'BEGIN:VEVENT') { inEvent = true; dtstart = dtend = uid = summary = null; }
     else if (line === 'END:VEVENT') {
-      if (inEvent && dtstart && dtend) events.push({ start: dtstart, end: dtend, uid });
+      if (inEvent && dtstart && dtend) events.push({ start: dtstart, end: dtend, uid, summary });
       inEvent = false;
     } else if (inEvent) {
       const colon = line.indexOf(':');
@@ -138,6 +143,7 @@ function parseICal(text) {
       if      (key === 'DTSTART') dtstart = toDateStr(val);
       else if (key === 'DTEND')   dtend   = toDateStr(val);
       else if (key === 'UID')     uid     = val;
+      else if (key === 'SUMMARY') summary = val;
     }
   }
   return events;
