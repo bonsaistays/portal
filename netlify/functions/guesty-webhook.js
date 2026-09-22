@@ -27,6 +27,9 @@ const { createClient } = require('@supabase/supabase-js');
 exports.handler = async (event) => {
   const headers = { 'Content-Type': 'application/json' };
 
+  if (event.httpMethod === 'GET' || event.httpMethod === 'HEAD') {
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, service: 'bonsai-guesty-webhook' }) };
+  }
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
