@@ -11,11 +11,15 @@
 
 const GUESTY_TOKEN_URL = 'https://open-api.guesty.com/oauth2/token';
 const GUESTY_API_BASE  = 'https://open-api.guesty.com/v1';
+const SB_URL_GLOBAL    = process.env.SUPABASE_URL || 'https://zmbhpebiiyqdfqznruwz.supabase.co';
+const SB_KEY_GLOBAL    = process.env.SUPABASE_SERVICE_KEY;
 
+// In-process cache (works within one invocation)
 let _cachedToken = null;
 let _tokenExpiry = 0;
 
 async function getGuestyToken(clientId, clientSecret) {
+  // 1. In-process cache
   if (_cachedToken && Date.now() < _tokenExpiry - 30_000) return _cachedToken;
 
   clientId     = clientId     || process.env.GUESTY_CLIENT_ID;
@@ -25,11 +29,32 @@ async function getGuestyToken(clientId, clientSecret) {
     throw new Error('Missing Guesty credentials. Add Client ID and Client Secret to the property in the portal.');
   }
 
+  // 2. Supabase persistent cache — avoids hitting Guesty auth on every cold start
+  if (SB_KEY_GLOBAL) {
+    try {
+      const cacheRes = await fetch(
+        `${SB_URL_GLOBAL}/rest/v1/settings?key=eq.guesty_access_token&select=value,updated_at&limit=1`,
+        { headers: { apikey: SB_KEY_GLOBAL, Authorization: `Bearer ${SB_KEY_GLOBAL}` } }
+      );
+      const rows = await cacheRes.json();
+      if (Array.isArray(rows) && rows[0]?.value) {
+        const cached = JSON.parse(rows[0].value);
+        if (cached.token && cached.expiry && Date.now() < cached.expiry - 30_000) {
+          _cachedToken = cached.token;
+          _tokenExpiry = cached.expiry;
+          return _cachedToken;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read token cache from Supabase:', e.message);
+    }
+  }
+
+  // 3. Fetch a fresh token from Guesty
   let res;
-  const tokenBody = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
+  const tokenBody    = `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
   const tokenHeaders = { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' };
 
-  // Retry up to 3 times on 429
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       res = await fetch(GUESTY_TOKEN_URL, { method: 'POST', headers: tokenHeaders, body: tokenBody });
@@ -37,14 +62,11 @@ async function getGuestyToken(clientId, clientSecret) {
       throw new Error(`Cannot reach Guesty auth server: ${networkErr.message}`);
     }
     if (res.status !== 429) break;
-    if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 3000));
+    if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 5000));
   }
 
   const text = await res.text();
-
-  if (!res.ok) {
-    throw new Error(`Guesty auth failed (${res.status}): ${text.slice(0, 300)}`);
-  }
+  if (!res.ok) throw new Error(`Guesty auth failed (${res.status}): ${text.slice(0, 300)}`);
 
   let json;
   try { json = JSON.parse(text); }
@@ -56,6 +78,25 @@ async function getGuestyToken(clientId, clientSecret) {
 
   _cachedToken = json.access_token;
   _tokenExpiry = Date.now() + (json.expires_in || 3600) * 1000;
+
+  // 4. Persist to Supabase for future invocations
+  if (SB_KEY_GLOBAL) {
+    try {
+      await fetch(`${SB_URL_GLOBAL}/rest/v1/settings`, {
+        method:  'POST',
+        headers: {
+          apikey:          SB_KEY_GLOBAL,
+          Authorization:   `Bearer ${SB_KEY_GLOBAL}`,
+          'Content-Type':  'application/json',
+          Prefer:          'resolution=merge-duplicates',
+        },
+        body: JSON.stringify({ key: 'guesty_access_token', value: JSON.stringify({ token: _cachedToken, expiry: _tokenExpiry }) }),
+      });
+    } catch (e) {
+      console.warn('Could not persist token to Supabase:', e.message);
+    }
+  }
+
   return _cachedToken;
 }
 
