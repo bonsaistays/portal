@@ -336,24 +336,41 @@ async function loadPurchases() {
   const body = document.getElementById('purchases-body');
   document.getElementById('purchases-count').textContent = (data?.length || 0) + ' item' + ((data?.length || 0) !== 1 ? 's' : '');
   if (!data?.length) { body.innerHTML = '<div style="font-size:0.85rem;color:var(--a-gray);text-align:center;padding:20px 0;">No requests yet.</div>'; return; }
-  body.innerHTML = data.map(p => `
+  body.innerHTML = data.map(p => {
+    const statusLabel = p.status === 'paid' ? '✓ Paid' : p.status === 'approved' ? '💳 Awaiting payment' : '⏳ Pending';
+    const statusClass = p.status === 'paid' ? 'paid' : p.status === 'approved' ? 'approved' : 'pending';
+    return `
     <div class="purchase-chip">
       <div>
         <div class="purchase-chip-name">${esc(p.item_name)}</div>
         <div style="font-size:0.75rem;color:var(--a-gray);">${p.amount > 0 ? '$'+(p.amount/100).toFixed(2) : 'Price TBC'} · ${new Date(p.created_at).toLocaleDateString('en-CA',{month:'short',day:'numeric'})}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-        <span class="purchase-chip-status ${p.status}">${p.status === 'paid' ? '✓ Confirmed' : '⏳ Pending'}</span>
-        ${p.status === 'pending' ? `<button onclick="confirmPurchase('${p.id}')" style="font-size:0.68rem;background:var(--a-green);color:#fff;padding:4px 8px;border-radius:4px;border:none;cursor:pointer;">Confirm</button>` : ''}
+        <span class="purchase-chip-status ${statusClass}">${statusLabel}</span>
+        ${p.status === 'pending' ? `<button onclick="confirmPurchase('${p.id}','${esc(p.item_name)}')" style="font-size:0.68rem;background:var(--a-green);color:#fff;padding:4px 8px;border-radius:4px;border:none;cursor:pointer;">Approve & Request Payment</button>` : ''}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-async function confirmPurchase(id) {
-  await sb.from('purchases').update({ status: 'paid' }).eq('id', id);
-  showToast('✓ Purchase confirmed!');
+async function confirmPurchase(id, itemName) {
+  // 1. Mark as approved (not yet paid — guest still needs to pay)
+  await sb.from('purchases').update({ status: 'approved' }).eq('id', id);
+
+  // 2. Notify guest via chat so they see the payment prompt in their app
+  const { data: bk } = await sb.from('bookings').select('token').eq('id', bookingId).single();
+  const portalLink = bk?.token
+    ? `https://bonsaistays.com/portal/guest/?token=${bk.token}#extras`
+    : 'https://bonsaistays.com/portal/guest/';
+  await sb.from('messages').insert({
+    booking_id: bookingId,
+    sender:     'host',
+    content:    `Great news! Your request for "${itemName}" has been approved. Tap here to complete payment: ${portalLink}`,
+  });
+
+  showToast('✓ Approved — guest notified to pay');
   loadPurchases();
+  loadMessages();
 }
 
 // ── Chat ──────────────────────────────────────────────────────────────────

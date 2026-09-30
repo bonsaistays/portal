@@ -1014,13 +1014,12 @@ function renderPurchases(purchases) {
   section.classList.remove('hidden');
   list.innerHTML = purchases.map(p => {
     const priceStr  = p.amount > 0 ? '$' + (p.amount / 100).toFixed(2) : 'Price TBC';
-    const isPending = p.status === 'pending';
-    const canPay    = isPending && p.amount > 0;
+    const canPay    = p.status === 'approved' && p.amount > 0;
     const statusEl  = p.status === 'paid'
       ? `<span class="purchase-chip-status paid">✓ Paid</span>`
       : canPay
-        ? `<button onclick="payNow('${p.id}')" style="background:var(--g-gold);color:#1a2e1e;font-size:0.8rem;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;">Pay Now</button>`
-        : `<span class="purchase-chip-status pending">⏳ Pending</span>`;
+        ? `<button onclick="payNow('${p.id}')" style="background:var(--g-gold);color:#1a2e1e;font-size:0.8rem;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;">Pay Now →</button>`
+        : `<span class="purchase-chip-status pending">⏳ Awaiting approval</span>`;
     return `
     <div class="purchase-chip">
       <div>

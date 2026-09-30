@@ -759,6 +759,7 @@ img { display: block; max-width: 100%; }
 .purchase-chip-status { font-size: 0.72rem; font-weight: 700; }
 .purchase-chip-status.paid { color: #16A34A; }
 .purchase-chip-status.pending { color: #D97706; }
+.purchase-chip-status.approved { color: #2563EB; }
 
 /* Admin login page */
 .login-wrap {
