@@ -354,21 +354,35 @@ async function loadPurchases() {
 }
 
 async function confirmPurchase(id, itemName) {
-  // 1. Mark as approved (not yet paid — guest still needs to pay)
+  // 1. Mark as approved
   await sb.from('purchases').update({ status: 'approved' }).eq('id', id);
 
-  // 2. Notify guest via chat so they see the payment prompt in their app
+  // 2. Get booking token to generate Stripe checkout link
   const { data: bk } = await sb.from('bookings').select('token').eq('id', bookingId).single();
-  const portalLink = bk?.token
-    ? `https://bonsaistays.com/portal/guest/?token=${bk.token}#extras`
-    : 'https://bonsaistays.com/portal/guest/';
-  await sb.from('messages').insert({
-    booking_id: bookingId,
-    sender:     'host',
-    content:    `Great news! Your request for "${itemName}" has been approved. Tap here to complete payment: ${portalLink}`,
-  });
 
-  showToast('✓ Approved — guest notified to pay');
+  let paymentUrl = null;
+  if (bk?.token) {
+    try {
+      const res = await fetch('/.netlify/functions/create-purchase-checkout', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ purchase_id: id, booking_id: bookingId, token: bk.token }),
+      });
+      const data = await res.json();
+      if (data.url) paymentUrl = data.url;
+    } catch (e) {
+      console.warn('Could not generate payment link:', e.message);
+    }
+  }
+
+  // 3. Send guest a chat message with the direct payment link
+  const msg = paymentUrl
+    ? `Great news! Your request for "${itemName}" has been approved. Complete your payment here: ${paymentUrl}`
+    : `Great news! Your request for "${itemName}" has been approved. Open your portal to complete payment.`;
+
+  await sb.from('messages').insert({ booking_id: bookingId, sender: 'host', content: msg });
+
+  showToast('✓ Approved — guest sent payment link');
   loadPurchases();
   loadMessages();
 }
