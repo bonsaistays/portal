@@ -878,29 +878,44 @@ function switchTab(name) {
 async function loadShop() {
   const grid = document.getElementById('shop-grid');
   if (!grid) return;
-  const { data, error } = await sb.from('products').select('*').eq('in_stock', true).order('name');
+  const { data, error } = await sb.from('products').select('*').eq('in_stock', true).order('sort_order', { ascending: true, nullsFirst: false }).order('name');
   if (error || !data || !data.length) {
     grid.innerHTML = '<p style="color:#888;font-size:0.9rem;">No products available right now.</p>';
     return;
   }
-  grid.innerHTML = data.map(p => {
-    const img = p.image_url
-      ? `<img src="${p.image_url}" alt="${p.name}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;" loading="lazy">`
-      : `<div style="width:72px;height:72px;border-radius:10px;background:#f0f0ec;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">🛍️</div>`;
-    const desc = (p.description || '').length > 80 ? p.description.slice(0,80) + '…' : (p.description || '');
-    return `
-      <div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e8e8e4;border-radius:14px;padding:14px;margin-bottom:12px;">
-        ${img}
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:0.95rem;color:#1a1a1a;">${p.name}</div>
-          <div style="font-size:0.78rem;color:#666;margin:2px 0 6px;line-height:1.4;">${desc}</div>
-          <div style="color:var(--g-gold);font-weight:700;font-size:0.9rem;">$${Number(p.price).toFixed(2)}</div>
-        </div>
-        <button data-name="${p.name.replace(/"/g,'&quot;')}" data-price="${Number(p.price).toFixed(2)}" onclick="requestShopItem(this.dataset.name, parseFloat(this.dataset.price))"
-          style="flex-shrink:0;background:#0B1F14;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;">
-          Order
-        </button>
-      </div>`;
+  // Group by category
+  const groups = {};
+  data.forEach(p => { (groups[p.category || 'Other'] ||= []).push(p); });
+  const catIcons = {
+    'Accessories & Tech': '📡', 'Pillows & Bedding': '😴', 'Linens & Towels': '🛏',
+    'Toiletries & Wellness': '🧴', 'Branded Merch': '🧢', 'Local Goods': '🍁',
+    'Gift Cards': '🎁', 'Other': '🛍️',
+  };
+  grid.innerHTML = Object.entries(groups).map(([cat, items]) => {
+    const icon = catIcons[cat] || '🛍️';
+    const cards = items.map(p => {
+      const img = p.image_url
+        ? `<img src="${p.image_url}" alt="${p.name}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;" loading="lazy" onerror="this.style.display='none'">`
+        : `<div style="width:72px;height:72px;border-radius:10px;background:#f0f0ec;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;">${icon}</div>`;
+      const desc = (p.description || '').length > 85 ? p.description.slice(0,85) + '…' : (p.description || '');
+      return `
+        <div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e8e8e4;border-radius:14px;padding:14px;margin-bottom:12px;">
+          ${img}
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:0.95rem;color:#1a1a1a;">${p.name}</div>
+            <div style="font-size:0.78rem;color:#666;margin:2px 0 6px;line-height:1.4;">${desc}</div>
+            <div style="color:var(--g-gold);font-weight:700;font-size:0.9rem;">CAD $${Number(p.price).toFixed(2)}</div>
+          </div>
+          <button data-name="${p.name.replace(/"/g,'&quot;')}" data-price="${Number(p.price).toFixed(2)}" onclick="requestShopItem(this.dataset.name, parseFloat(this.dataset.price))"
+            style="flex-shrink:0;background:#0B1F14;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;">
+            Order
+          </button>
+        </div>`;
+    }).join('');
+    return `<div style="margin-bottom:20px;">
+      <div style="font-weight:700;font-size:0.82rem;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">${icon} ${cat}</div>
+      ${cards}
+    </div>`;
   }).join('');
 }
 

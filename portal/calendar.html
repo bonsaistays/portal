@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calendar — Bonsai Portal</title>
+  <title>Calendar â€” Bonsai Portal</title>
   <link rel="stylesheet" href="assets/portal.css" />
   <style>
     .cal-wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
@@ -80,7 +80,7 @@
     <img src="../PhotosLogos/Logo Black.png" alt="Bonsai Stays" style="height:38px;width:auto;filter:brightness(0) invert(1);" />
   </div>
   <div class="admin-nav-links">
-    <a href="#" onclick="goBack()" style="opacity:0.75;">← Properties</a>
+    <a href="#" onclick="goBack()" style="opacity:0.75;">â† Properties</a>
     <span id="nav-prop-name" style="color:rgba(255,255,255,0.55);font-size:0.82rem;"></span>
   </div>
   <div class="admin-nav-right">
@@ -95,9 +95,9 @@
   <!-- Header bar -->
   <div class="cal-header">
     <div class="month-nav">
-      <button class="month-btn" onclick="changeMonth(-1)">‹</button>
-      <div class="month-label" id="month-label">Loading…</div>
-      <button class="month-btn" onclick="changeMonth(1)">›</button>
+      <button class="month-btn" onclick="changeMonth(-1)">â€¹</button>
+      <div class="month-label" id="month-label">Loadingâ€¦</div>
+      <button class="month-btn" onclick="changeMonth(1)">â€º</button>
     </div>
     <div id="price-info" style="font-size:0.82rem;color:var(--a-gray);"></div>
     <!-- Markup (admin only) -->
@@ -174,7 +174,7 @@
 
         <!-- Empty state -->
         <div id="edit-empty" style="text-align:center;padding:32px 0;color:var(--a-gray);">
-          <div style="font-size:2rem;margin-bottom:8px;">📅</div>
+          <div style="font-size:2rem;margin-bottom:8px;">ðŸ“…</div>
           <div style="font-weight:600;color:var(--a-charcoal);margin-bottom:6px;">Select a date</div>
           <div style="font-size:0.81rem;line-height:1.6;">Click a date or drag across multiple dates to edit them.</div>
         </div>
@@ -183,7 +183,7 @@
         <div id="edit-form" style="display:none;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <div id="edit-date-label" style="font-size:0.92rem;font-weight:700;color:var(--a-charcoal);"></div>
-            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">✕</button>
+            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">âœ•</button>
           </div>
           <!-- Block toggle -->
           <div class="toggle-wrap" style="margin-bottom:14px;">
@@ -205,11 +205,11 @@
           <!-- Note -->
           <div style="margin-bottom:16px;">
             <label class="admin-label">Internal note <span style="font-weight:400;">(not shown to guests)</span></label>
-            <textarea class="admin-textarea" id="edit-note" rows="2" style="min-height:56px;resize:none;" placeholder="e.g. Owner using, maintenance…"></textarea>
+            <textarea class="admin-textarea" id="edit-note" rows="2" style="min-height:56px;resize:none;" placeholder="e.g. Owner using, maintenanceâ€¦"></textarea>
           </div>
           <div style="display:flex;gap:8px;">
             <button onclick="saveDay()" class="btn-primary" style="flex:1;justify-content:center;padding:11px;">Save</button>
-            <button onclick="clearDay()" class="btn-secondary" style="padding:11px 16px;" title="Remove all settings for this date">↺ Reset</button>
+            <button onclick="clearDay()" class="btn-secondary" style="padding:11px 16px;" title="Remove all settings for this date">â†º Reset</button>
           </div>
           <div id="edit-msg" style="display:none;text-align:center;font-size:0.78rem;margin-top:8px;"></div>
         </div>
@@ -218,7 +218,7 @@
         <div id="edit-multi" style="display:none;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div style="font-size:0.92rem;font-weight:700;color:var(--a-charcoal);" id="multi-label">0 dates selected</div>
-            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">✕</button>
+            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">âœ•</button>
           </div>
           <!-- Editable date range -->
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
@@ -226,13 +226,13 @@
               <div style="font-size:0.68rem;font-weight:700;color:var(--a-gray);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">From</div>
               <input type="date" class="admin-input" id="multi-start" oninput="onRangeInputChange()" style="padding:8px 10px;width:100%;" />
             </div>
-            <div style="color:var(--a-gray);font-size:0.9rem;margin-top:14px;">→</div>
+            <div style="color:var(--a-gray);font-size:0.9rem;margin-top:14px;">â†’</div>
             <div style="flex:1;">
               <div style="font-size:0.68rem;font-weight:700;color:var(--a-gray);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">To</div>
               <input type="date" class="admin-input" id="multi-end" oninput="onRangeInputChange()" style="padding:8px 10px;width:100%;" />
             </div>
           </div>
-          <div class="range-warn" id="range-warn">⚠ End must be after start</div>
+          <div class="range-warn" id="range-warn">âš  End must be after start</div>
 
           <!-- Block toggle -->
           <div class="toggle-wrap" style="margin-bottom:14px;">
@@ -256,12 +256,12 @@
           <!-- Note -->
           <div style="margin-bottom:16px;">
             <label class="admin-label">Note <span style="font-weight:400;font-size:0.7rem;">(blank = keep existing)</span></label>
-            <textarea class="admin-textarea" id="multi-note" rows="2" style="min-height:48px;resize:none;" placeholder="e.g. Peak season, Owner block…"></textarea>
+            <textarea class="admin-textarea" id="multi-note" rows="2" style="min-height:48px;resize:none;" placeholder="e.g. Peak season, Owner blockâ€¦"></textarea>
           </div>
 
           <div style="display:flex;gap:8px;">
             <button onclick="saveMulti()" class="btn-primary" style="flex:1;justify-content:center;padding:11px;" id="multi-save-btn">Save all</button>
-            <button onclick="clearMulti()" class="btn-secondary" style="padding:11px 14px;" title="Reset all selected dates to default">↺ Reset all</button>
+            <button onclick="clearMulti()" class="btn-secondary" style="padding:11px 14px;" title="Reset all selected dates to default">â†º Reset all</button>
           </div>
           <div class="bulk-progress" id="bulk-progress">
             <div class="bulk-progress-fill" id="bulk-progress-fill" style="width:0%"></div>
@@ -273,7 +273,7 @@
         <div id="edit-booking" style="display:none;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <div style="font-size:0.92rem;font-weight:700;color:var(--a-charcoal);" id="booking-detail-title">Booking</div>
-            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">✕</button>
+            <button onclick="deselectAll()" style="background:none;border:none;font-size:1rem;color:var(--a-gray);cursor:pointer;padding:2px;">âœ•</button>
           </div>
           <div id="booking-detail-body"></div>
         </div>
@@ -303,12 +303,12 @@ let _token         = null;
 let _isAdmin       = false;
 let _year          = new Date().getFullYear();
 let _month         = new Date().getMonth() + 1;
-let _overrides     = {};       // date string → override object
+let _overrides     = {};       // date string â†’ override object
 let _basePrice     = 0;
 let _markup        = 0;
 let _fees          = [];
 let _bookings      = [];   // [{check_in, check_out, source, guest_name, ...}]
-let _bookingDateMap = {};  // date → booking object (for O(1) lookup)
+let _bookingDateMap = {};  // date â†’ booking object (for O(1) lookup)
 
 // Selection state
 let _selectedDates = new Set();  // currently selected date strings
@@ -316,7 +316,7 @@ let _dragActive    = false;
 let _dragStart     = null;       // date string where drag began
 let _multiBlocked  = false;
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function init() {
   if (!PROP_ID) { alert('No property_id in URL'); return; }
   const { data: { session } } = await sb.auth.getSession();
@@ -329,10 +329,10 @@ async function init() {
 function goBack() { if (window.opener) window.close(); else location.href = BACK_URL; }
 async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
 
-// ── API helpers ───────────────────────────────────────────────────────────────
+// â”€â”€ API helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function apiGet(params) {
   const url = API + '?' + new URLSearchParams({ ...params, property_id: PROP_ID });
-  console.log('[calendar] GET', url, 'token:', _token ? _token.slice(0,20)+'…' : 'MISSING');
+  console.log('[calendar] GET', url, 'token:', _token ? _token.slice(0,20)+'â€¦' : 'MISSING');
   const res  = await fetch(url, { headers: { Authorization: `Bearer ${_token}` } });
   const data = await res.json();
   console.log('[calendar] GET response', res.status, data);
@@ -350,10 +350,10 @@ async function apiPost(body) {
   return data;
 }
 
-// ── Month ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Month â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadMonth() {
   try {
-    document.getElementById('month-label').textContent = 'Loading…';
+    document.getElementById('month-label').textContent = 'Loadingâ€¦';
     const d = await apiGet({ action: 'get_month', year: _year, month: _month });
     _isAdmin   = d.is_admin;
     _basePrice = d.base_price || 0;
@@ -364,7 +364,7 @@ async function loadMonth() {
     const guestRate = Math.round(_basePrice * (1 + _markup / 100));
     document.getElementById('price-info').textContent =
       _isAdmin
-        ? `Base $${_basePrice}/night · +${_markup}% markup → guest sees $${guestRate}/night`
+        ? `Base $${_basePrice}/night Â· +${_markup}% markup â†’ guest sees $${guestRate}/night`
         : `$${_basePrice}/night`;
 
     if (_isAdmin) {
@@ -394,7 +394,7 @@ async function loadMonth() {
     document.getElementById('month-label').textContent = 'Error';
     document.getElementById('cal-grid').innerHTML =
       `<div style="grid-column:1/-1;padding:32px;text-align:center;color:#DC2626;">
-        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;">❌ Calendar failed to load</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;">âŒ Calendar failed to load</div>
         <div style="font-family:monospace;font-size:0.85rem;background:#FEF2F2;padding:12px;border-radius:8px;margin-bottom:12px;">${esc(e.message)}</div>
         <div style="font-size:0.78rem;color:#666;">property_id: ${esc(PROP_ID)}</div>
       </div>`;
@@ -409,7 +409,7 @@ function changeMonth(dir) {
   loadMonth();
 }
 
-// ── Calendar render ───────────────────────────────────────────────────────────
+// â”€â”€ Calendar render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const TODAY = new Date().toISOString().split('T')[0];
 
@@ -437,7 +437,7 @@ function renderCalendar() {
     if (ov?.is_blocked)                tags += '<div class="cal-tag tag-blocked">Blocked</div>';
     else if (bk)                       tags += `<div class="cal-tag tag-booked">${sourceLabel(bk.source, bk.guest_name)}</div>`;
     else if (ov?.custom_price != null) tags += `<div class="cal-tag tag-price">$${ov.custom_price}</div>`;
-    if (ov?.note && !ov?.is_blocked)   tags += '<div class="cal-tag tag-note">📝</div>';
+    if (ov?.note && !ov?.is_blocked)   tags += '<div class="cal-tag tag-note">ðŸ“</div>';
 
     const clickHandler = bk
       ? `onCellBookingClick(event,'${ds}')`
@@ -455,7 +455,7 @@ function renderCalendar() {
   document.getElementById('cal-grid').innerHTML = html;
 }
 
-// ── Drag / selection ──────────────────────────────────────────────────────────
+// â”€â”€ Drag / selection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener('mouseup', () => {
   if (_dragActive) { _dragActive = false; document.body.style.userSelect = ''; showSelectionPanel(); }
 });
@@ -515,8 +515,8 @@ function showEmpty() {
   document.getElementById('edit-booking').style.display = 'none';
 }
 
-// ── Booking detail ────────────────────────────────────────────────────────────
-const SOURCE_ICONS = { airbnb:'🏠', vrbo:'🏡', homeaway:'🏡', booking:'🔵', expedia:'🌐', guesty:'📋', hostaway:'📋', hospitable:'📋', ical:'📅' };
+// â”€â”€ Booking detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const SOURCE_ICONS = { airbnb:'ðŸ ', vrbo:'ðŸ¡', homeaway:'ðŸ¡', booking:'ðŸ”µ', expedia:'ðŸŒ', guesty:'ðŸ“‹', hostaway:'ðŸ“‹', hospitable:'ðŸ“‹', ical:'ðŸ“…' };
 
 function sourceLabel(source, guestName) {
   if (!source) return 'Booked';
@@ -545,7 +545,7 @@ function showBookingDetail(bk) {
   document.getElementById('edit-booking').style.display = 'block';
 
   const src   = sourceLabel(bk.source, bk.guest_name);
-  const icon  = SOURCE_ICONS[(bk.source||'').toLowerCase()] || '📅';
+  const icon  = SOURCE_ICONS[(bk.source||'').toLowerCase()] || 'ðŸ“…';
   const cin   = new Date(bk.check_in  + 'T12:00:00');
   const cout  = new Date(bk.check_out + 'T12:00:00');
   const nights = Math.round((cout - cin) / 86400000);
@@ -612,7 +612,7 @@ function showBookingDetail(bk) {
   document.getElementById('booking-detail-body').innerHTML = html;
 }
 
-// ── Single date editor ────────────────────────────────────────────────────────
+// â”€â”€ Single date editor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _blocked = false;
 
 function showSingleEditor(ds) {
@@ -653,7 +653,7 @@ async function saveDay() {
   const msg   = document.getElementById('edit-msg');
   const price = document.getElementById('edit-price').value;
   const note  = document.getElementById('edit-note').value.trim();
-  msg.style.display = 'block'; msg.style.color = 'var(--a-gray)'; msg.textContent = 'Saving…';
+  msg.style.display = 'block'; msg.style.color = 'var(--a-gray)'; msg.textContent = 'Savingâ€¦';
   try {
     await apiPost({ action: 'set_override', date: ds, is_blocked: _blocked,
       custom_price: price !== '' ? parseFloat(price) : null, note: note || null });
@@ -661,11 +661,11 @@ async function saveDay() {
       custom_price: price !== '' ? parseFloat(price) : null, note: note || null };
     if (!_blocked && _overrides[ds].custom_price == null && !note) delete _overrides[ds];
     renderCalendar();
-    msg.style.color = 'var(--a-sage)'; msg.textContent = '✓ Saved';
-    showToast('✓ Saved');
+    msg.style.color = 'var(--a-sage)'; msg.textContent = 'âœ“ Saved';
+    showToast('âœ“ Saved');
   } catch (e) {
-    msg.style.color = 'var(--a-red)'; msg.textContent = '✗ ' + e.message;
-    showToast('✗ ' + e.message, true);
+    msg.style.color = 'var(--a-red)'; msg.textContent = 'âœ— ' + e.message;
+    showToast('âœ— ' + e.message, true);
   }
 }
 
@@ -680,11 +680,11 @@ async function clearDay() {
     document.getElementById('edit-note').value  = '';
     updateBlockUI();
     renderCalendar();
-    showToast('✓ Date reset');
-  } catch (e) { showToast('✗ ' + e.message, true); }
+    showToast('âœ“ Date reset');
+  } catch (e) { showToast('âœ— ' + e.message, true); }
 }
 
-// ── Multi-date editor ─────────────────────────────────────────────────────────
+// â”€â”€ Multi-date editor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showMultiEditor() {
   document.getElementById('edit-empty').style.display = 'none';
   document.getElementById('edit-form').style.display  = 'none';
@@ -758,7 +758,7 @@ async function saveMulti() {
   const progress = document.getElementById('bulk-progress');
   const fill     = document.getElementById('bulk-progress-fill');
 
-  btn.disabled = true; btn.textContent = 'Saving…';
+  btn.disabled = true; btn.textContent = 'Savingâ€¦';
   msg.style.display = 'none';
   progress.style.display = 'block';
   fill.style.width = '0%';
@@ -785,13 +785,13 @@ async function saveMulti() {
   btn.disabled = false; btn.textContent = 'Save all';
 
   if (errors) {
-    showToast(`✓ ${done - errors} saved, ✗ ${errors} failed`, true);
+    showToast(`âœ“ ${done - errors} saved, âœ— ${errors} failed`, true);
     msg.style.display = 'block'; msg.style.color = 'var(--a-red)';
     msg.textContent = `${errors} date(s) failed to save.`;
   } else {
-    showToast(`✓ ${done} date${done !== 1 ? 's' : ''} saved`);
+    showToast(`âœ“ ${done} date${done !== 1 ? 's' : ''} saved`);
     msg.style.display = 'block'; msg.style.color = 'var(--a-sage)';
-    msg.textContent = `✓ All ${done} dates saved`;
+    msg.textContent = `âœ“ All ${done} dates saved`;
     setTimeout(() => { fill.style.width = '0%'; progress.style.display = 'none'; }, 1200);
   }
 }
@@ -815,25 +815,25 @@ async function clearMulti() {
   _multiBlocked = false; updateMultiBlockUI();
   document.getElementById('multi-price').value = '';
   document.getElementById('multi-note').value  = '';
-  showToast(`✓ ${done} dates reset`);
+  showToast(`âœ“ ${done} dates reset`);
   msg.style.display = 'block'; msg.style.color = 'var(--a-sage)';
-  msg.textContent = `✓ ${done} dates reset to default`;
+  msg.textContent = `âœ“ ${done} dates reset to default`;
 }
 
-// ── Markup ────────────────────────────────────────────────────────────────────
+// â”€â”€ Markup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function saveMarkup() {
   const val = parseFloat(document.getElementById('markup-input').value) || 0;
   try {
     await apiPost({ action: 'save_markup', markup_percent: val });
     _markup = val;
     const gr = Math.round(_basePrice * (1 + val / 100));
-    document.getElementById('price-info').textContent = `Base $${_basePrice}/night · +${val}% markup → guest sees $${gr}/night`;
+    document.getElementById('price-info').textContent = `Base $${_basePrice}/night Â· +${val}% markup â†’ guest sees $${gr}/night`;
     updatePriceHint();
-    showToast('✓ Markup saved');
-  } catch (e) { showToast('✗ ' + e.message, true); }
+    showToast('âœ“ Markup saved');
+  } catch (e) { showToast('âœ— ' + e.message, true); }
 }
 
-// ── Fees ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Fees â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadFees() {
   try {
     const d = await apiGet({ action: 'get_fees' });
@@ -845,7 +845,7 @@ async function loadFees() {
 function renderFees() {
   const el = document.getElementById('fees-list');
   if (!_fees.length) {
-    el.innerHTML = `<p style="text-align:center;color:var(--a-gray);font-size:0.83rem;padding:14px 0;">No fees configured yet${_isAdmin ? ' — click + Add Fee to add one.' : '.'}</p>`;
+    el.innerHTML = `<p style="text-align:center;color:var(--a-gray);font-size:0.83rem;padding:14px 0;">No fees configured yet${_isAdmin ? ' â€” click + Add Fee to add one.' : '.'}</p>`;
     return;
   }
   el.innerHTML = _fees.map(f => `
@@ -860,7 +860,7 @@ function renderFees() {
       </div>
       ${_isAdmin ? `
         <button onclick="openFeeForm('${f.id}')" style="background:var(--a-green-tint);color:var(--a-green);font-size:0.74rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid var(--a-sage);cursor:pointer;">Edit</button>
-        <button onclick="deleteFee('${f.id}')" style="background:#FEF2F2;color:var(--a-red);font-size:0.74rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid #FECACA;cursor:pointer;">✕</button>
+        <button onclick="deleteFee('${f.id}')" style="background:#FEF2F2;color:var(--a-red);font-size:0.74rem;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid #FECACA;cursor:pointer;">âœ•</button>
       ` : ''}
     </div>`).join('');
 }
@@ -881,15 +881,15 @@ async function saveFee() {
   const name   = document.getElementById('fee-name').value.trim();
   const amount = document.getElementById('fee-amount').value;
   const type   = document.getElementById('fee-type').value;
-  if (!name || !amount) { showToast('✗ Name and amount required', true); return; }
+  if (!name || !amount) { showToast('âœ— Name and amount required', true); return; }
   try {
     const d = await apiPost({ action: 'save_fee', id: id || undefined, name, amount: parseFloat(amount), fee_type: type, is_active: true });
     if (id) { const i = _fees.findIndex(f => f.id === id); if (i >= 0) _fees[i] = d.fee; }
     else _fees.push(d.fee);
     renderFees();
     closeFeeForm();
-    showToast('✓ Fee saved');
-  } catch (e) { showToast('✗ ' + e.message, true); }
+    showToast('âœ“ Fee saved');
+  } catch (e) { showToast('âœ— ' + e.message, true); }
 }
 
 async function deleteFee(id) {
@@ -898,11 +898,11 @@ async function deleteFee(id) {
     await apiPost({ action: 'delete_fee', id });
     _fees = _fees.filter(f => f.id !== id);
     renderFees();
-    showToast('✓ Fee deleted');
-  } catch (e) { showToast('✗ ' + e.message, true); }
+    showToast('âœ“ Fee deleted');
+  } catch (e) { showToast('âœ— ' + e.message, true); }
 }
 
-// ── Utils ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Utils â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function showToast(msg, isErr) {
@@ -918,3 +918,4 @@ init();
 </script>
 </body>
 </html>
+
