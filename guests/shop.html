@@ -182,135 +182,121 @@
     /* ── Product grid ── */
     .shop-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
     }
     .product-card {
       background: var(--white);
-      border-radius: 20px;
+      border-radius: 18px;
       border: 1px solid var(--gray-pale);
       overflow: hidden;
       transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), box-shadow 0.22s, border-color 0.22s;
-      display: flex;
-      flex-direction: column;
       cursor: pointer;
     }
     .product-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 16px 48px rgba(44,74,30,0.12);
-      border-color: var(--green-light);
+      border-color: rgba(44,74,30,.3);
     }
     .product-img {
-      height: 240px;
+      height: 260px;
       overflow: hidden;
       background: var(--cream);
       position: relative;
     }
     .product-img img {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: cover;
       transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      display: block;
     }
     .product-card:hover .product-img img { transform: scale(1.06); }
     .product-img-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
       font-size: 3.5rem;
       background: linear-gradient(135deg, var(--cream) 0%, var(--green-tint) 100%);
     }
     .product-cat-tag {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      background: rgba(28,28,26,0.72);
-      color: rgba(255,255,255,0.95);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 999px;
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(28,28,26,0.72); color: rgba(255,255,255,0.95);
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 999px;
       backdrop-filter: blur(8px);
     }
     .product-out-badge {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      background: rgba(220,38,38,0.88);
-      color: var(--white);
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(220,38,38,0.88); color: var(--white);
+      font-size: 0.62rem; font-weight: 700; padding: 3px 10px; border-radius: 999px;
     }
-    .product-body {
-      padding: 20px 22px 22px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+    .product-body { padding: 14px 16px 16px; }
     .product-name {
       font-family: 'Playfair Display', serif;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--charcoal);
-      margin-bottom: 7px;
-      line-height: 1.3;
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--charcoal); line-height: 1.3;
+      text-wrap: balance;
     }
-    .product-desc {
-      font-size: 0.8rem;
-      color: var(--gray-mid);
-      line-height: 1.65;
-      flex: 1;
-      margin-bottom: 18px;
+
+    /* ── Product detail drawer ── */
+    .pd-overlay {
+      position: fixed; inset: 0;
+      background: rgba(28,28,26,0.55);
+      z-index: 800; opacity: 0; pointer-events: none;
+      transition: opacity 0.28s; backdrop-filter: blur(3px);
     }
-    .product-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding-top: 16px;
-      border-top: 1px solid var(--gray-pale);
+    .pd-overlay.open { opacity: 1; pointer-events: all; }
+    .pd-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(480px, 100vw);
+      background: var(--white); z-index: 801;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: -12px 0 60px rgba(0,0,0,0.15);
+      overflow-y: auto;
     }
-    .product-price {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
+    .pd-drawer.open { transform: translateX(0); }
+    .pd-img {
+      width: 100%; height: 320px; object-fit: cover;
+      background: var(--cream); flex-shrink: 0; display: block;
     }
-    .product-price-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--gray-light);
+    .pd-img-ph {
+      width: 100%; height: 320px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+      background: linear-gradient(135deg, var(--cream) 0%, var(--green-tint) 100%);
     }
-    .product-price-amount {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--green-deep);
-      letter-spacing: -0.01em;
+    .pd-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; color: var(--charcoal);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      transition: background 0.15s;
     }
-    .btn-add-cart {
-      padding: 10px 20px;
-      background: var(--green-deep);
-      color: var(--white);
-      border: none;
-      border-radius: 999px;
-      font-family: inherit;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.18s, transform 0.1s;
-      white-space: nowrap;
-      letter-spacing: 0.01em;
+    .pd-close:hover { background: var(--charcoal); color: #fff; }
+    .pd-body { padding: 24px 26px 32px; flex: 1; }
+    .pd-cat { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-sage); margin-bottom: 8px; }
+    .pd-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--charcoal); line-height: 1.2; margin-bottom: 8px; text-wrap: balance; }
+    .pd-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 18px; }
+    .pd-price-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-light); }
+    .pd-price-amt { font-size: 1.5rem; font-weight: 700; color: var(--green-deep); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .pd-desc { font-size: 0.88rem; color: var(--gray-mid); line-height: 1.75; margin-bottom: 28px; }
+    .pd-qty-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--charcoal); margin-bottom: 10px; }
+    .pd-qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .pd-qty-btn { width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--gray-pale); background: var(--white); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; color: var(--charcoal); }
+    .pd-qty-btn:hover { border-color: var(--green-deep); background: var(--green-tint); color: var(--green-deep); }
+    .pd-qty-val { font-size: 1rem; font-weight: 700; min-width: 28px; text-align: center; color: var(--charcoal); }
+    .pd-add-btn {
+      width: 100%; padding: 16px;
+      background: var(--green-deep); color: var(--white);
+      border: none; border-radius: 14px;
+      font-family: inherit; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.18s; letter-spacing: 0.02em;
     }
-    .btn-add-cart:hover { background: var(--green-mid); transform: scale(1.03); }
-    .btn-add-cart:active { transform: scale(0.97); }
-    .btn-add-cart:disabled { background: var(--gray-pale); color: var(--gray-light); cursor: not-allowed; transform: none; }
+    .pd-add-btn:hover { background: var(--green-mid); }
+    .pd-add-btn:disabled { background: var(--gray-pale); color: var(--gray-light); cursor: not-allowed; }
 
     /* ── Empty / loading ── */
     .shop-empty { text-align: center; padding: 96px 0 64px; color: var(--gray-mid); grid-column: 1/-1; }
@@ -600,6 +586,29 @@
   </div>
 </footer>
 
+<!-- PRODUCT DETAIL DRAWER -->
+<div class="pd-overlay" id="pdOverlay" onclick="closePD()"></div>
+<div class="pd-drawer" id="pdDrawer">
+  <button class="pd-close" onclick="closePD()">✕</button>
+  <div id="pdImgWrap"></div>
+  <div class="pd-body">
+    <div class="pd-cat" id="pdCat"></div>
+    <div class="pd-name" id="pdName"></div>
+    <div class="pd-price-row">
+      <span class="pd-price-lbl">CAD</span>
+      <span class="pd-price-amt" id="pdPrice"></span>
+    </div>
+    <div class="pd-desc" id="pdDesc"></div>
+    <div class="pd-qty-label">Quantity</div>
+    <div class="pd-qty-row">
+      <button class="pd-qty-btn" onclick="pdQty(-1)">−</button>
+      <span class="pd-qty-val" id="pdQtyVal">1</span>
+      <button class="pd-qty-btn" onclick="pdQty(1)">+</button>
+    </div>
+    <button class="pd-add-btn" id="pdAddBtn" onclick="pdAddToCart()">Add to Cart</button>
+  </div>
+</div>
+
 <!-- CART DRAWER -->
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
 <div class="cart-drawer" id="cartDrawer">
@@ -679,28 +688,64 @@
       const img  = p.image_url
         ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'product-img-placeholder\\'>${icon}</div>'" />`
         : `<div class="product-img-placeholder">${icon}</div>`;
-      const outBadge = !p.in_stock ? `<div class="product-out-badge">Out of stock</div>` : '';
-      return `<div class="product-card">
+      return `<div class="product-card" onclick="openPD('${p.id}')">
         <div class="product-img">
           ${img}
           <div class="product-cat-tag">${esc(p.category || 'Product')}</div>
-          ${outBadge}
+          ${!p.in_stock ? '<div class="product-out-badge">Out of stock</div>' : ''}
         </div>
         <div class="product-body">
           <div class="product-name">${esc(p.name)}</div>
-          <div class="product-desc">${esc(p.description || '')}</div>
-          <div class="product-footer">
-            <div class="product-price">
-              <span class="product-price-label">CAD</span>
-              <span class="product-price-amount">$${Number(p.price).toFixed(2)}</span>
-            </div>
-            <button class="btn-add-cart" onclick="addToCart('${p.id}')" ${!p.in_stock ? 'disabled' : ''}>
-              ${p.in_stock ? '+ Add' : 'Out of stock'}
-            </button>
-          </div>
         </div>
       </div>`;
     }).join('');
+  }
+
+  // ── Product detail drawer ─────────────────────────────────
+  let _pdProduct = null;
+  let _pdQty = 1;
+
+  function openPD(id) {
+    const p = _allProducts.find(x => x.id === id);
+    if (!p) return;
+    _pdProduct = p;
+    _pdQty = 1;
+    const icon = catIcons[p.category] || '🛍️';
+    document.getElementById('pdImgWrap').innerHTML = p.image_url
+      ? `<img class="pd-img" src="${esc(p.image_url)}" alt="${esc(p.name)}" onerror="this.outerHTML='<div class=\\'pd-img-ph\\'>${icon}</div>'">`
+      : `<div class="pd-img-ph">${icon}</div>`;
+    document.getElementById('pdCat').textContent = p.category || '';
+    document.getElementById('pdName').textContent = p.name;
+    document.getElementById('pdPrice').textContent = '$' + Number(p.price).toFixed(2);
+    document.getElementById('pdDesc').textContent = p.description || '';
+    document.getElementById('pdQtyVal').textContent = 1;
+    const btn = document.getElementById('pdAddBtn');
+    btn.textContent = p.in_stock ? 'Add to Cart' : 'Out of Stock';
+    btn.disabled = !p.in_stock;
+    document.getElementById('pdOverlay').classList.add('open');
+    document.getElementById('pdDrawer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePD() {
+    document.getElementById('pdOverlay').classList.remove('open');
+    document.getElementById('pdDrawer').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function pdQty(delta) {
+    _pdQty = Math.max(1, _pdQty + delta);
+    document.getElementById('pdQtyVal').textContent = _pdQty;
+  }
+
+  function pdAddToCart() {
+    if (!_pdProduct) return;
+    const existing = _cart.find(i => i.id === _pdProduct.id);
+    if (existing) existing.qty += _pdQty;
+    else _cart.push({ id: _pdProduct.id, name: _pdProduct.name, price: _pdProduct.price, image_url: _pdProduct.image_url, qty: _pdQty, stripe_price_id: _pdProduct.stripe_price_id || null });
+    saveCart();
+    closePD();
+    showCartToast(`✓ ${_pdProduct.name} added to cart`);
   }
 
   // ── Cart logic ────────────────────────────────────────────
