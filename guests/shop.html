@@ -631,6 +631,8 @@
     'sb_publishable_tfSbR6IES8P_NcseHImJ7w_NzeQRLUA'
   );
 
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
   // ── State ─────────────────────────────────────────────────
   let _allProducts = [];
   let _activeCat   = 'all';
