@@ -76,9 +76,9 @@
 
   <div class="bookings-card">
     <div class="bookings-filters">
-      <button class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-chip" data-filter="all" onclick="setFilter('all',this)">All</button>
       <button class="filter-chip" data-filter="active" onclick="setFilter('active',this)">Active</button>
-      <button class="filter-chip" data-filter="upcoming" onclick="setFilter('upcoming',this)">Upcoming</button>
+      <button class="filter-chip active" data-filter="upcoming" onclick="setFilter('upcoming',this)">Upcoming</button>
       <button class="filter-chip" data-filter="completed" onclick="setFilter('completed',this)">Completed</button>
       <button class="filter-chip" data-filter="cancelled" onclick="setFilter('cancelled',this)">Cancelled</button>
     </div>
@@ -88,7 +88,7 @@
           <tr>
             <th class="sortable-th" onclick="sortBookings('guest_name')">Guest <span class="sort-icon" data-col="guest_name">↕</span></th>
             <th class="sortable-th" onclick="sortBookings('property')">Property <span class="sort-icon" data-col="property">↕</span></th>
-            <th class="sortable-th" onclick="sortBookings('check_in')">Check-in <span class="sort-icon" data-col="check_in">↕</span></th>
+            <th class="sortable-th" onclick="sortBookings('check_in')">Check-in <span class="sort-icon" data-col="check_in">↑</span></th>
             <th class="sortable-th" onclick="sortBookings('check_out')">Check-out <span class="sort-icon" data-col="check_out">↕</span></th>
             <th class="sortable-th" onclick="sortBookings('status')">Status <span class="sort-icon" data-col="status">↕</span></th>
             <th>Messages</th>
@@ -232,7 +232,7 @@ const { createClient } = window.supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let _allBookings = [];
-let _filterState = 'all';
+let _filterState = 'upcoming';
 let _properties  = [];
 
 // ── Auth guard ────────────────────────────────────────────────────────────
@@ -322,7 +322,7 @@ async function loadBookings() {
   const { count: pendingRequests  } = await sb.from('booking_requests').select('id', { count: 'exact', head: true }).eq('status','pending');
   document.getElementById('stat-pending').textContent = (pendingPurchases || 0) + (pendingRequests || 0);
 
-  renderTable(_allBookings);
+  applyFilterAndSort();
 
   // Auto-award points for any bookings past check-out date
   try {
@@ -331,7 +331,7 @@ async function loadBookings() {
   } catch(e) { /* function not yet created — silently skip */ }
 }
 
-let _sortCol = 'check_in', _sortAsc = false;
+let _sortCol = 'check_in', _sortAsc = true;
 
 function statCardClick(type) {
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-filter'));
@@ -365,7 +365,11 @@ function sortBookings(col) {
 }
 
 function applyFilterAndSort() {
-  let list = _filterState === 'all' ? [..._allBookings] : _allBookings.filter(b => b.status === _filterState);
+  let list = _filterState === 'all'
+    ? [..._allBookings]
+    : _filterState === 'upcoming'
+      ? _allBookings.filter(b => b.status === 'upcoming' || b.status === 'active')
+      : _allBookings.filter(b => b.status === _filterState);
   list.sort((a, b) => {
     let av = _sortCol === 'property' ? (a.properties?.name || '') : (a[_sortCol] || '');
     let bv = _sortCol === 'property' ? (b.properties?.name || '') : (b[_sortCol] || '');
