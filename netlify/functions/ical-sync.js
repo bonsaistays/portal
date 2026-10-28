@@ -75,19 +75,20 @@ exports.handler = async (event) => {
           if (ev.end < today) continue; // skip past bookings
           if (!ev.uid) continue;        // skip events without a UID (can't deduplicate)
 
-          const status = ev.start <= today && ev.end >= today ? 'active' : 'upcoming';
+          const status  = ev.start <= today && ev.end >= today ? 'active' : 'upcoming';
+          const summary = (ev.summary || '').trim();
+          const reservationCodeMatch = summary.match(/^Reservation\s+([A-Z0-9]{5,})/i);
+          const genericTerms = /^(reserved|blocked|not available|airbnb|vrbo|homeaway|booking\.com|unavailable|closed|reservation\b)/i;
+          const isGeneric = !summary || genericTerms.test(summary);
+
           allRecs.push({
-            property_id: prop.id,
-            ical_uid:    ev.uid,
-            check_in:    ev.start,
-            check_out:   ev.end,
-            guest_name:  (() => {
-              const genericTerms = /^(reserved|blocked|not available|airbnb|vrbo|homeaway|booking\.com|unavailable|closed)/i;
-              return ev.summary && !genericTerms.test(ev.summary.trim())
-                ? ev.summary.trim()
-                : `${platform} Reservation`;
-            })(),
-            source:      'ical',
+            property_id:         prop.id,
+            ical_uid:            ev.uid,
+            check_in:            ev.start,
+            check_out:           ev.end,
+            guest_name:          isGeneric ? null : summary,
+            airbnb_confirmation: reservationCodeMatch ? reservationCodeMatch[1] : null,
+            source:              'ical',
             status,
           });
         }

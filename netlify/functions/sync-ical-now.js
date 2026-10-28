@@ -70,18 +70,25 @@ exports.handler = async (event) => {
           if (!ev.uid) continue;
 
           const status = ev.start <= today && ev.end >= today ? 'active' : 'upcoming';
-          // Use SUMMARY as guest name if it looks like a real name (not generic placeholders)
-          const genericTerms = /^(reserved|blocked|not available|airbnb|vrbo|homeaway|booking\.com|unavailable|closed)/i;
-          const guestName = ev.summary && !genericTerms.test(ev.summary.trim())
-            ? ev.summary.trim()
-            : `${platform} Reservation`;
+          const summary = (ev.summary || '').trim();
+
+          // "Reservation HMTAWSTHHR" — Guesty/Airbnb puts the confirmation code in SUMMARY
+          const reservationCodeMatch = summary.match(/^Reservation\s+([A-Z0-9]{5,})/i);
+          // Generic platform placeholders (not a real guest name)
+          const genericTerms = /^(reserved|blocked|not available|airbnb|vrbo|homeaway|booking\.com|unavailable|closed|reservation\b)/i;
+
+          const isGeneric = !summary || genericTerms.test(summary);
+          const guestName = isGeneric ? null : summary;
+          const confirmationCode = reservationCodeMatch ? reservationCodeMatch[1] : null;
+
           allRecs.push({
-            property_id: prop.id,
-            ical_uid:    ev.uid,
-            check_in:    ev.start,
-            check_out:   ev.end,
-            guest_name:  guestName,
-            source:      'ical',
+            property_id:          prop.id,
+            ical_uid:             ev.uid,
+            check_in:             ev.start,
+            check_out:            ev.end,
+            guest_name:           guestName,
+            airbnb_confirmation:  confirmationCode,
+            source:               'ical',
             status,
           });
         }
