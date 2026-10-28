@@ -300,12 +300,11 @@ async function loadBookings() {
     .order('check_in', { ascending: false });
 
   _allBookings = (data || []).map(b => {
+    if (b.status === 'cancelled') return b;
     const now = new Date(), cin = new Date(b.check_in), cout = new Date(b.check_out);
-    if (!b.status || b.status === 'upcoming') {
-      if (now >= cin && now <= cout) b.status = 'active';
-      else if (now < cin) b.status = 'upcoming';
-      else b.status = 'completed';
-    }
+    if (now >= cin && now <= cout) b.status = 'active';
+    else if (now < cin) b.status = 'upcoming';
+    else b.status = 'completed';
     return b;
   });
 
