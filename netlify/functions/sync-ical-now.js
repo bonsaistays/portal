@@ -115,8 +115,81 @@ exports.handler = async (event) => {
       .in('id', propList.map(p => p.id));
   }
 
+  // Enrich bookings with Guesty guest details (name, email, phone, guests)
+  try {
+    const enriched = await enrichFromGuesty(sb);
+    results.enriched = enriched;
+  } catch (e) {
+    results.guestyError = e.message;
+  }
+
   return { statusCode: 200, headers, body: JSON.stringify({ ok: true, ...results }) };
 };
+
+// ── Guesty enrichment ─────────────────────────────────────────────────────────
+
+let _guestyToken = null;
+let _guestyTokenExpiry = 0;
+
+async function getGuestyToken() {
+  const clientId     = process.env.GUESTY_CLIENT_ID;
+  const clientSecret = process.env.GUESTY_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  if (_guestyToken && Date.now() < _guestyTokenExpiry) return _guestyToken;
+
+  const res = await fetch('https://open-api.guesty.com/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'client_credentials', scope: 'open-api', client_id: clientId, client_secret: clientSecret }),
+  });
+  if (!res.ok) throw new Error(`Guesty auth failed: ${res.status}`);
+  const data = await res.json();
+  _guestyToken = data.access_token;
+  _guestyTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+  return _guestyToken;
+}
+
+async function enrichFromGuesty(sb) {
+  const token = await getGuestyToken();
+  if (!token) return 0;
+
+  // Fetch upcoming + active reservations from Guesty
+  const from = new Date().toISOString().split('T')[0];
+  const to   = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const params = new URLSearchParams({ checkInFrom: from, checkOutTo: to, status: 'confirmed,checked_in', limit: '100' });
+
+  const res = await fetch(`https://open-api.guesty.com/v1/reservations?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Guesty reservations failed: ${res.status}`);
+
+  const data = await res.json();
+  const reservations = data.results || data.data || [];
+  let enriched = 0;
+
+  for (const r of reservations) {
+    const checkIn  = (r.checkIn  || '').split('T')[0];
+    const checkOut = (r.checkOut || '').split('T')[0];
+    const firstName = r.guest?.firstName || '';
+    const lastName  = r.guest?.lastName  || '';
+    const guestName = [firstName, lastName].filter(Boolean).join(' ').trim() || null;
+    if (!checkIn || !checkOut || !guestName) continue;
+
+    const { error } = await sb.from('bookings').update({
+      guest_name:          guestName,
+      guest_email:         r.guest?.email || null,
+      guest_phone:         r.guest?.phone || null,
+      num_guests:          r.guestsCount  || null,
+      airbnb_confirmation: r.confirmationCode || null,
+    })
+    .eq('check_in', checkIn)
+    .eq('check_out', checkOut)
+    .is('guest_email', null); // only update rows that haven't been enriched yet
+
+    if (!error) enriched++;
+  }
+  return enriched;
+}
 
 async function fetchAndParseICal(url) {
   const controller = new AbortController();
