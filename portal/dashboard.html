@@ -10,6 +10,7 @@
     .sortable-th:hover { color: var(--a-green); }
     .sort-icon { font-size: 0.75rem; opacity: 0.45; margin-left: 3px; }
     .sortable-th:hover .sort-icon { opacity: 1; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .nav-hk-btn {
       background: var(--a-green-tint);
       color: var(--a-green);
@@ -65,7 +66,12 @@
       <h1>Bookings</h1>
       <p id="bookings-subtitle">All guest bookings</p>
     </div>
-    <button class="btn-primary" onclick="openNewBookingModal()">+ New Booking</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="sync-now-btn" onclick="syncNow()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:0.82rem;font-weight:600;color:var(--a-green);background:var(--a-green-tint);border:1.5px solid var(--a-sage);border-radius:8px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--a-green)';this.style.color='#fff'" onmouseout="this.style.background='var(--a-green-tint)';this.style.color='var(--a-green)'">
+        <span id="sync-icon">↻</span> Sync Now
+      </button>
+      <button class="btn-primary" onclick="openNewBookingModal()">+ New Booking</button>
+    </div>
   </div>
 
   <div class="bookings-card">
@@ -247,6 +253,30 @@ async function init() {
 async function logout() {
   await sb.auth.signOut();
   location.href = 'index.html';
+}
+
+async function syncNow() {
+  const btn  = document.getElementById('sync-now-btn');
+  const icon = document.getElementById('sync-icon');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  icon.style.display = 'inline-block';
+  icon.style.animation = 'spin 1s linear infinite';
+  btn.querySelector ? null : null;
+  try {
+    const res  = await fetch('/.netlify/functions/sync-ical-now', { method: 'POST' });
+    const data = await res.json();
+    await loadBookings();
+    icon.textContent = '✓';
+    icon.style.animation = '';
+    setTimeout(() => { icon.textContent = '↻'; }, 2000);
+  } catch (e) {
+    icon.textContent = '!';
+    icon.style.animation = '';
+    setTimeout(() => { icon.textContent = '↻'; }, 2000);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 
