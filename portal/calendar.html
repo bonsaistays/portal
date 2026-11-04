@@ -382,7 +382,7 @@ async function loadMonth() {
     for (const b of _bookings) {
       const cur  = new Date(b.check_in  + 'T12:00:00');
       const last = new Date(b.check_out + 'T12:00:00');
-      while (cur < last) {   // check_out is exclusive (departure day)
+      while (cur <= last) {  // include checkout day so it gets the half-gradient check-out style
         const ds = cur.toISOString().split('T')[0];
         if (!_bookingDateMap[ds]) _bookingDateMap[ds] = b;
         cur.setDate(cur.getDate() + 1);
