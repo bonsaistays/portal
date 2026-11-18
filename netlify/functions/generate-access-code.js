@@ -9,7 +9,7 @@ exports.handler = async (event) => {
 
   const SEAM_API_KEY   = process.env.SEAM_API_KEY;
   const SUPABASE_URL   = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SEAM_API_KEY) {
     return { statusCode: 500, body: JSON.stringify({ error: 'SEAM_API_KEY not configured' }) };
@@ -26,6 +26,21 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields: device_id, booking_id, check_in, check_out' }) };
   }
 
+  // ── Build access window (3pm check-in, 11pm checkout, all UTC) ──────────
+  // Date-only strings (e.g. "2026-11-17") parse as midnight UTC, which is
+  // 7pm EST the *previous* day — wrong. Use explicit times instead.
+  // If check-in is already in the past, start the code 5 min from now so
+  // Seam doesn't reject with "starts_at must be in the future".
+  const checkInTime  = new Date(check_in  + 'T15:00:00Z'); // 3pm UTC = 11am EST
+  const checkOutTime = new Date(check_out + 'T23:00:00Z'); // 11pm UTC = 7pm EST (guests have all day)
+  const nowPlus5     = new Date(Date.now() + 5 * 60 * 1000);
+  const startsAt     = checkInTime < nowPlus5 ? nowPlus5 : checkInTime;
+  const endsAt       = checkOutTime;
+
+  if (endsAt <= new Date()) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Check-out is in the past — cannot create an access code for a completed booking.' }) };
+  }
+
   // ── 1. Create access code via Seam ──────────────────────────────────────
   let seamRes, seamData;
   try {
@@ -38,8 +53,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         device_id,
         name: `Guest${guest_name ? ' - ' + guest_name : ''} (${booking_id.slice(0, 8)})`,
-        starts_at: new Date(check_in).toISOString(),
-        ends_at:   new Date(check_out).toISOString(),
+        starts_at: startsAt.toISOString(),
+        ends_at:   endsAt.toISOString(),
       }),
     });
     seamData = await seamRes.json();
