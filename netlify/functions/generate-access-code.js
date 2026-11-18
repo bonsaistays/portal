@@ -31,8 +31,10 @@ exports.handler = async (event) => {
   // 7pm EST the *previous* day — wrong. Use explicit times instead.
   // If check-in is already in the past, start the code 5 min from now so
   // Seam doesn't reject with "starts_at must be in the future".
-  const checkInTime  = new Date(check_in  + 'T15:00:00Z'); // 3pm UTC = 11am EST
-  const checkOutTime = new Date(check_out + 'T23:00:00Z'); // 11pm UTC = 7pm EST (guests have all day)
+  const checkInDate  = (check_in  || '').slice(0, 10); // normalize to "YYYY-MM-DD"
+  const checkOutDate = (check_out || '').slice(0, 10);
+  const checkInTime  = new Date(checkInDate  + 'T15:00:00Z'); // 3pm UTC = 11am EST
+  const checkOutTime = new Date(checkOutDate + 'T23:00:00Z'); // 11pm UTC = 7pm EST (guests have all day)
   const nowPlus5     = new Date(Date.now() + 5 * 60 * 1000);
   const startsAt     = checkInTime < nowPlus5 ? nowPlus5 : checkInTime;
   const endsAt       = checkOutTime;
