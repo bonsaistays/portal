@@ -458,11 +458,12 @@ function openEditModal() {
 }
 
 async function saveEdit() {
+  const newDoorCode = document.getElementById('edit-doorcode').value.trim();
   const updates = {
     guest_name:  document.getElementById('edit-name').value.trim(),
     guest_email: document.getElementById('edit-email').value.trim(),
     guest_phone: document.getElementById('edit-phone').value.trim(),
-    door_code:   document.getElementById('edit-doorcode').value.trim(),
+    door_code:   newDoorCode,
     check_in:    new Date(document.getElementById('edit-checkin').value).toISOString(),
     check_out:   new Date(document.getElementById('edit-checkout').value).toISOString(),
     status:      document.getElementById('edit-status').value,
@@ -470,6 +471,36 @@ async function saveEdit() {
   await sb.from('bookings').update(updates).eq('id', bookingId);
   closeModal('modal-edit');
   await loadBooking();
+
+  // If a door code was manually entered and this property has a Seam lock,
+  // program the code to the lock now
+  const p = booking.properties || {};
+  if (newDoorCode && p.seam_device_id && booking.check_in && booking.check_out) {
+    try {
+      const res = await fetch('/.netlify/functions/generate-access-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          device_id:  p.seam_device_id,
+          booking_id: bookingId,
+          guest_name: booking.guest_name || '',
+          check_in:   booking.check_in,
+          check_out:  booking.check_out,
+          code:       newDoorCode,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        showToast('✓ Booking saved — ⚠ Seam sync failed: ' + (json.error || 'unknown'));
+        return;
+      }
+      showToast('✓ Booking updated & code programmed to lock');
+    } catch (err) {
+      showToast('✓ Booking saved — ⚠ Seam sync error: ' + err.message);
+    }
+    return;
+  }
+
   showToast('✓ Booking updated');
 }
 

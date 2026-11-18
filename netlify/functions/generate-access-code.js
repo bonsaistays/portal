@@ -20,7 +20,7 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
-  const { device_id, booking_id, guest_name, check_in, check_out } = body;
+  const { device_id, booking_id, guest_name, check_in, check_out, code } = body;
 
   if (!device_id || !booking_id || !check_in || !check_out) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields: device_id, booking_id, check_in, check_out' }) };
@@ -57,6 +57,7 @@ exports.handler = async (event) => {
         name: `Guest${guest_name ? ' - ' + guest_name : ''} (${booking_id.slice(0, 8)})`,
         starts_at: startsAt.toISOString(),
         ends_at:   endsAt.toISOString(),
+        ...(code ? { code } : {}),
       }),
     });
     seamData = await seamRes.json();
