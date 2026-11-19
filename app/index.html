@@ -2105,10 +2105,31 @@ function populateStay() {
   document.getElementById('home-booking-prop').textContent  = p?.name || 'Your stay';
   document.getElementById('home-booking-dates').textContent = fmt(ci) + ' – ' + fmt(co);
 
+  // Client branding
+  if (p?.brand_color) {
+    document.documentElement.style.setProperty('--green', p.brand_color);
+    // Derive slightly lighter shades for inputs / hover states
+    document.documentElement.style.setProperty('--green2', lightenHex(p.brand_color, 20));
+    document.documentElement.style.setProperty('--green3', lightenHex(p.brand_color, 45));
+  }
+  if (p?.logo_url) {
+    document.querySelectorAll('img[src*="Logo Black"], img.splash-logo, img.card-logo').forEach(img => {
+      img.src = p.logo_url;
+    });
+  }
+
   // Smart devices
   const now2 = new Date();
   const isActiveStay = now2 >= ci && now2 <= co;
   loadSmartDevices(isActiveStay);
+}
+
+function lightenHex(hex, amount) {
+  const c = hex.replace('#', '');
+  const r = Math.min(255, parseInt(c.slice(0,2), 16) + amount);
+  const g = Math.min(255, parseInt(c.slice(2,4), 16) + amount);
+  const b = Math.min(255, parseInt(c.slice(4,6), 16) + amount);
+  return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
 }
 
 function startDoorCountdown() {

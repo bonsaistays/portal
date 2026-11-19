@@ -158,6 +158,24 @@
               </select>
             </div>
           </div>
+          <!-- Branding -->
+          <div class="admin-form-row">
+            <div>
+              <label class="admin-label">Brand color</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="p-brand-color" value="#1C0A06" style="width:40px;height:40px;padding:2px;border:1px solid var(--a-sage);border-radius:var(--radius-sm);cursor:pointer;background:none;" />
+                <input class="admin-input" id="p-brand-color-hex" type="text" placeholder="#1C0A06" style="flex:1;font-family:monospace;" oninput="syncColorPicker(this.value)" />
+              </div>
+              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Guest app background color. Leave blank for Bonsai default.</div>
+            </div>
+            <div>
+              <label class="admin-label">Logo URL</label>
+              <input class="admin-input" id="p-logo-url" type="url" placeholder="https://…/logo.png" />
+              <div style="font-size:0.72rem;color:var(--a-gray);margin-top:5px;">Replaces the Bonsai logo in the guest app. Leave blank to keep default.</div>
+              <img id="p-logo-preview" src="" alt="" style="display:none;max-height:48px;max-width:160px;object-fit:contain;margin-top:8px;border-radius:4px;background:#f5f5f5;padding:4px;" />
+            </div>
+          </div>
+
           <!-- Seam device ID — shown when a smart lock type is selected -->
           <div id="seam-device-row" style="display:none;">
             <label class="admin-label">Smart Lock Device</label>
@@ -856,6 +874,13 @@ function openModal(propId) {
     document.getElementById('p-wifi-pass').value     = p.wifi_password || '';
     document.getElementById('p-door-code').value     = p.door_code || '';
     document.getElementById('p-lock-type').value     = p.lock_type || 'code';
+    const bc = p.brand_color || '';
+    document.getElementById('p-brand-color-hex').value = bc;
+    document.getElementById('p-brand-color').value     = bc || '#1C0A06';
+    const lu = p.logo_url || '';
+    document.getElementById('p-logo-url').value = lu;
+    const prev = document.getElementById('p-logo-preview');
+    if (lu) { prev.src = lu; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
     document.getElementById('p-seam-device-id').value = p.seam_device_id || '';
     toggleSeamField();
     loadSmartDevices(p.id);
@@ -937,6 +962,10 @@ function openModal(propId) {
     document.getElementById('p-door-code').value     = '';
     document.getElementById('p-lock-type').value     = 'code';
     document.getElementById('p-seam-device-id').value = '';
+    document.getElementById('p-brand-color-hex').value = '';
+    document.getElementById('p-brand-color').value     = '#1C0A06';
+    document.getElementById('p-logo-url').value        = '';
+    document.getElementById('p-logo-preview').style.display = 'none';
     toggleSeamField();
     loadSmartDevices(null); // hide smart devices section for new property
     document.getElementById('p-checkin-inst').value  = '';
@@ -1014,6 +1043,18 @@ function setActiveSwitchState(isActive) {
   label.textContent      = isActive ? 'Listed' : 'Hidden';
   label.style.color      = isActive ? 'var(--a-green)' : 'var(--a-gray)';
 }
+
+function syncColorPicker(hex) {
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) document.getElementById('p-brand-color').value = hex;
+}
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'p-brand-color') document.getElementById('p-brand-color-hex').value = e.target.value;
+  if (e.target.id === 'p-logo-url') {
+    const v = e.target.value.trim();
+    const prev = document.getElementById('p-logo-preview');
+    if (v) { prev.src = v; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
+  }
+});
 
 function toggleSeamField() {
   const lockType = document.getElementById('p-lock-type').value;
@@ -1546,6 +1587,8 @@ async function saveProperty() {
     wifi_name:              document.getElementById('p-wifi-name').value.trim(),
     wifi_password:          document.getElementById('p-wifi-pass').value.trim(),
     door_code:              document.getElementById('p-door-code').value.trim(),
+    brand_color:            document.getElementById('p-brand-color-hex').value.trim() || null,
+    logo_url:               document.getElementById('p-logo-url').value.trim() || null,
     lock_type:              document.getElementById('p-lock-type').value,
     seam_device_id:         document.getElementById('p-seam-device-id').value.trim() || null,
     check_in_instructions:  document.getElementById('p-checkin-inst').value.trim(),
